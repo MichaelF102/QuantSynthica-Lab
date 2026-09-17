@@ -4,7 +4,7 @@ import Navbar from "@/components/layout/Navbar";
 import StatusBar from "@/components/layout/StatusBar";
 
 export const metadata: Metadata = {
-  title: "AlgoLab — Systematic Quantitative Strategy Platform",
+  title: "QuantSynthica Lab — Systematic Quantitative Strategy Platform",
   description:
     "Institutional quantitative trading strategy research, backtesting, parameter optimization, risk analytics, and walk-forward validation platform.",
 };

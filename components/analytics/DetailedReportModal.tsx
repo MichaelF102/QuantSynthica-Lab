@@ -28,7 +28,7 @@ export default function DetailedReportModal({
                 Quantitative Strategy Tear Sheet & Executive Audit
               </h2>
               <span className="text-[10px] text-slate-400 font-mono">
-                AlgoLab Institutional Analytics Engine • Report Generated 2024-01-01
+                QuantSynthica Lab Institutional Analytics Engine • Report Generated 2024-01-01
               </span>
             </div>
           </div>

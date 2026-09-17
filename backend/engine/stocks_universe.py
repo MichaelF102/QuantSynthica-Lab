@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from typing import List, Dict, Any, Optional
 
-logger = logging.getLogger("algolab.universe")
+logger = logging.getLogger("quantsynthica.universe")
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data")
 US_CSV = os.path.join(DATA_DIR, "US_Stocks_Data.csv")

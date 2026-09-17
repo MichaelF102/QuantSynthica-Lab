@@ -1,1 +1,1 @@
-"""AlgoLab Quantitative Backend"""
+"""QuantSynthica Lab Quantitative Backend"""

@@ -158,7 +158,7 @@ export default function ImportExportModal({
           ) : (
             <div className="space-y-3">
               <p className="text-slate-400 text-[11px] font-sans">
-                Paste an exported AlgoLab configuration JSON or upload a `.json` file to restore terminal preferences across devices.
+                Paste an exported QuantSynthica Lab configuration JSON or upload a `.json` file to restore terminal preferences across devices.
               </p>
               <div className="flex items-center space-x-2">
                 <label className="cursor-pointer flex items-center space-x-1.5 px-2.5 py-1 rounded bg-[#16202E] hover:bg-[#1E2B3E] text-slate-300 border border-[#233348] text-[11px]">

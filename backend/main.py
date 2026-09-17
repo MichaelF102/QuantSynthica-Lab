@@ -18,7 +18,7 @@ logging.basicConfig(
 )
 
 app = FastAPI(
-    title="AlgoLab Quant Engine API",
+    title="QuantSynthica Lab Quant Engine API",
     description="Institutional-grade Quantitative Trading Strategy Research Engine",
     version="1.0.0"
 )
@@ -46,7 +46,7 @@ app.include_router(settings_router)
 def health_check():
     return {
         "status": "online",
-        "service": "AlgoLab Quantitative Engine",
+        "service": "QuantSynthica Lab Quantitative Engine",
         "version": "1.0.0",
         "engine": "ready",
         "timestamp": "2026-09-16T11:20:00Z"

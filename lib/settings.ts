@@ -1,5 +1,5 @@
 /**
- * AlgoLab Central System Configuration & Quantitative Defaults Store
+ * QuantSynthica Lab Central System Configuration & Quantitative Defaults Store
  * Provides institutional defaults for Market Data, Research, Backtesting,
  * Portfolio Risk, Optimization, Factor Models, and Diagnostics.
  */

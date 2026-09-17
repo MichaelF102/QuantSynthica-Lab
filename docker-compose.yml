@@ -5,7 +5,7 @@ services:
     build:
       context: .
       target: backend
-    container_name: algolab-backend
+    container_name: quantsynthica-lab-backend
     ports:
       - "8000:8000"
     environment:
@@ -18,7 +18,7 @@ services:
     build:
       context: .
       target: frontend
-    container_name: algolab-frontend
+    container_name: quantsynthica-lab-frontend
     ports:
       - "3000:3000"
     environment:

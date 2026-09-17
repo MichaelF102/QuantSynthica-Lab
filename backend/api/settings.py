@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException, Body
 from .storage import storage
 from ..engine.stocks_universe import universe_manager
 
-logger = logging.getLogger("algolab.settings")
+logger = logging.getLogger("quantsynthica.settings")
 
 router = APIRouter(prefix="/settings", tags=["System Settings"])
 

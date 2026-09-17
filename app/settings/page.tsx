@@ -188,7 +188,7 @@ export default function SettingsPage() {
 
   // Reset to default settings
   const handleResetDefaults = () => {
-    if (window.confirm("Reset all AlgoLab system settings to default quantitative configurations?")) {
+    if (window.confirm("Reset all QuantSynthica Lab system settings to default quantitative configurations?")) {
       setSettings(DEFAULT_SYSTEM_SETTINGS);
     }
   };

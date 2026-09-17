@@ -1,5 +1,5 @@
 # ============================================================
-# AlgoLab Multi-Stage Dockerfile (Frontend & Backend)
+# QuantSynthica Lab Multi-Stage Dockerfile (Frontend & Backend)
 # ============================================================
 
 # Stage 1: Backend Python Quant Engine

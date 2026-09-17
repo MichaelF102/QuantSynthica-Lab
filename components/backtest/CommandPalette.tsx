@@ -226,7 +226,7 @@ export default function CommandPalette({
         </div>
 
         <div className="px-3 py-1.5 border-t border-[#252A31] bg-[#0B0D10] flex justify-between text-[10px] text-[#59616B]">
-          <span>AlgoLab Terminal Command Palette</span>
+          <span>QuantSynthica Lab Terminal Command Palette</span>
           <span>Press Enter to select</span>
         </div>
       </div>

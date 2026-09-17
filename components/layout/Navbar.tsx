@@ -33,7 +33,7 @@ export default function Navbar() {
         <div className="flex items-center space-x-6">
           <Link href="/" className="flex items-center space-x-2">
             <span className="font-semibold text-sm tracking-tight text-slate-100">
-              AlgoLab
+              QuantSynthica Lab
             </span>
             <span className="text-[11px] text-slate-500 font-mono tracking-normal">
               Workstation

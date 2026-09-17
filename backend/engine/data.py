@@ -8,7 +8,7 @@ import yfinance as yf
 from datetime import datetime, timedelta
 from typing import Optional, Tuple, Dict, Any
 
-logger = logging.getLogger("algolab.data")
+logger = logging.getLogger("quantsynthica.data")
 
 CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "cache")
 os.makedirs(CACHE_DIR, exist_ok=True)

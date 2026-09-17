@@ -148,7 +148,7 @@ export default function PortfolioPage() {
     }
   };
 
-  // Sync with user's saved strategies and backtests from AlgoLab
+  // Sync with user's saved strategies and backtests from QuantSynthica Lab
   useEffect(() => {
     let isMounted = true;
     const loadPortfolios = async () => {

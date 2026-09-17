@@ -1,4 +1,4 @@
-# AlgoLab — Algorithmic Trading Strategy Research Platform
+# QuantSynthica Lab — Algorithmic Trading Strategy Research Platform
 
 ![Terminal Status](https://img.shields.io/badge/Status-Production%20Ready-00F0FF?style=flat-square)
 ![Next.js](https://img.shields.io/badge/Frontend-Next.js%2015%20App%20Router-black?style=flat-square&logo=next.js)
@@ -6,7 +6,7 @@
 ![Quant](https://img.shields.io/badge/Engine-Zero--Lookahead%20Event--Driven-00E676?style=flat-square)
 ![Tests](https://img.shields.io/badge/Tests-10%2F10%20Passing-brightgreen?style=flat-square)
 
-**AlgoLab** is an institutional-grade quantitative research and systematic trading strategy platform designed for quantitative researchers, financial engineers, and algorithmic traders. It bridges the gap between raw statistical research and realistic trade execution, providing an end-to-end environment to construct, backtest, stress-test, optimize, and validate quantitative systems.
+**QuantSynthica Lab** is an institutional-grade quantitative research and systematic trading strategy platform designed for quantitative researchers, financial engineers, and algorithmic traders. It bridges the gap between raw statistical research and realistic trade execution, providing an end-to-end environment to construct, backtest, stress-test, optimize, and validate quantitative systems.
 
 ---
 
@@ -16,7 +16,7 @@
 DATA ➔ RESEARCH ➔ STRATEGY ➔ BACKTEST ➔ RISK ➔ OPTIMIZATION ➔ VALIDATION
 ```
 
-Most commercial dashboards suffer from look-ahead bias, simplistic trade assumptions, or lack of out-of-sample rigor. AlgoLab adheres strictly to institutional standards:
+Most commercial dashboards suffer from look-ahead bias, simplistic trade assumptions, or lack of out-of-sample rigor. QuantSynthica Lab adheres strictly to institutional standards:
 1. **Zero Look-Ahead Bias**: Signals generated at bar $t$ close are executed strictly at bar $t+1$ open.
 2. **Realistic Execution Friction**: Transaction cost models incorporating exchange commissions, linear slippage penalties, half-spread costs, and trade-size market impact.
 3. **Statistical Walk-Forward Validation**: Multi-window rolling train/test validation to prevent data-snooping and overfitted parameters.
@@ -46,7 +46,7 @@ Most commercial dashboards suffer from look-ahead bias, simplistic trade assumpt
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                            ALGOLAB COMMAND CENTER                           │
+│                       QUANTSYNTHICA LAB COMMAND CENTER                      │
 │  [Research Markets]    [Build Strategy]    [Run Backtest]    [Pairs Lab]   │
 ├─────────────────┬─────────────────┬───────────────────┬─────────────────────┤
 │   Research      │   Strategies    │     Backtests     │     Analytics       │
@@ -169,4 +169,4 @@ docker-compose up --build
 ---
 
 ## 🔒 License & Disclaimer
-AlgoLab is released for quantitative research and educational strategy development. Algorithmic trading involves substantial risk of capital loss. Past backtested performance is no guarantee of future trading results.
+QuantSynthica Lab is released for quantitative research and educational strategy development. Algorithmic trading involves substantial risk of capital loss. Past backtested performance is no guarantee of future trading results.
