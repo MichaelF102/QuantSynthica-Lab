@@ -2,9 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import { Database, Server, Clock, ShieldCheck, Zap } from "lucide-react";
+import { api } from "@/lib/api";
 
 export default function StatusBar() {
   const [timeStr, setTimeStr] = useState<string>("");
+  const [engineStatus, setEngineStatus] = useState<"READY" | "STANDALONE">("STANDALONE");
+  const [latency, setLatency] = useState<string>("LOCAL");
 
   useEffect(() => {
     const updateTime = () => {
@@ -18,6 +21,24 @@ export default function StatusBar() {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    const checkTelemetry = async () => {
+      const t0 = performance.now();
+      try {
+        await api.getHealth();
+        const elapsed = Math.round(performance.now() - t0);
+        setEngineStatus("READY");
+        setLatency(`${elapsed}ms`);
+      } catch {
+        setEngineStatus("STANDALONE");
+        setLatency("LOCAL");
+      }
+    };
+    checkTelemetry();
+    const interval = setInterval(checkTelemetry, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <footer className="fixed bottom-0 left-0 right-0 z-40 h-6 border-t border-border bg-surface px-3 flex items-center justify-between text-[11px] font-mono text-slate-400 select-none">
       {/* Left System Flags */}
@@ -29,9 +50,11 @@ export default function StatusBar() {
         </div>
 
         <div className="hidden sm:flex items-center space-x-1.5">
-          <Server className="h-3 w-3 text-market-up" />
+          <Server className={`h-3 w-3 ${engineStatus === "READY" ? "text-market-up" : "text-amber-400"}`} />
           <span className="text-slate-500">ENGINE:</span>
-          <span className="text-market-up">READY</span>
+          <span className={engineStatus === "READY" ? "text-market-up" : "text-amber-400"}>
+            {engineStatus === "READY" ? "READY (FASTAPI)" : "STANDALONE"}
+          </span>
         </div>
 
         <div className="hidden md:flex items-center space-x-1.5">
@@ -46,7 +69,7 @@ export default function StatusBar() {
         <div className="hidden lg:flex items-center space-x-1.5">
           <Zap className="h-3 w-3 text-slate-500" />
           <span className="text-slate-500">LATENCY:</span>
-          <span className="text-slate-300">~1.2ms</span>
+          <span className="text-slate-300">~{latency}</span>
         </div>
 
         <div className="flex items-center space-x-1.5">

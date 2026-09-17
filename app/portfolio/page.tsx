@@ -318,8 +318,8 @@ export default function PortfolioPage() {
                   currency={currency}
                   onEditBasket={() => setIsStockBasketModalOpen(true)}
                 />
-                <PortfolioRiskContributionWidget />
-                <PortfolioCorrelationMatrixWidget />
+                <PortfolioRiskContributionWidget allocations={allocations} />
+                <PortfolioCorrelationMatrixWidget allocations={allocations} />
               </div>
             )}
 
@@ -340,7 +340,7 @@ export default function PortfolioPage() {
               activeTab === "Allocation" ||
               activeTab === "Risk Metrics") && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
-                <PortfolioPositionRiskWidget />
+                <PortfolioPositionRiskWidget allocations={allocations} />
                 <PortfolioRebalancingWidget
                   currentRebalance={rebalance}
                   onRebalanceSelect={setRebalance}

@@ -202,53 +202,83 @@ export default function WorkspaceHome() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60">
-                  {strategies.slice(0, 6).map((strat) => {
-                    const entryRule = strat.entry_rules[0]
-                      ? `${strat.entry_rules[0].left_indicator} ${strat.entry_rules[0].operator} ${
-                          strat.entry_rules[0].right_indicator ||
-                          strat.entry_rules[0].threshold
-                        }`
-                      : "—";
-                    const exitRule = strat.exit_rules[0]
-                      ? `${strat.exit_rules[0].left_indicator} ${strat.exit_rules[0].operator} ${
-                          strat.exit_rules[0].right_indicator ||
-                          strat.exit_rules[0].threshold
-                        }`
-                      : "—";
+                  {strategies.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-8 px-4 text-center">
+                        <div className="flex flex-col items-center justify-center space-y-2">
+                          <Sliders className="h-6 w-6 text-brand-cyan/60" />
+                          <p className="text-slate-200 font-medium text-xs">
+                            You haven&apos;t created a strategy yet — start with a quantitative template.
+                          </p>
+                          <p className="text-slate-500 text-[11px] max-w-md">
+                            Formulate quantitative entry/exit signals, specify indicators, or clone institutional momentum models.
+                          </p>
+                          <div className="flex items-center space-x-2 pt-2">
+                            <Link
+                              href="/strategies/builder"
+                              className="px-3 py-1.5 bg-brand-cyan text-background font-semibold rounded text-xs hover:bg-brand-cyan/90 transition-colors"
+                            >
+                              New Strategy Builder
+                            </Link>
+                            <Link
+                              href="/strategies"
+                              className="px-3 py-1.5 bg-surface-muted text-slate-300 rounded text-xs hover:text-white border border-border transition-colors"
+                            >
+                              Browse 6 Templates
+                            </Link>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    strategies.slice(0, 6).map((strat) => {
+                      const entryRule = strat.entry_rules[0]
+                        ? `${strat.entry_rules[0].left_indicator} ${strat.entry_rules[0].operator} ${
+                            strat.entry_rules[0].right_indicator ||
+                            strat.entry_rules[0].threshold
+                          }`
+                        : "—";
+                      const exitRule = strat.exit_rules[0]
+                        ? `${strat.exit_rules[0].left_indicator} ${strat.exit_rules[0].operator} ${
+                            strat.exit_rules[0].right_indicator ||
+                            strat.exit_rules[0].threshold
+                          }`
+                        : "—";
 
-                    return (
-                      <tr
-                        key={strat.id}
-                        className="hover:bg-surface-hover/70 transition-colors cursor-pointer group"
-                        onClick={() => {
-                          window.location.href = `/strategies/${strat.id}`;
-                        }}
-                      >
-                        <td className="py-2.5 px-3">
-                          <span className="font-medium text-slate-200 group-hover:text-brand-cyan transition-colors">
-                            {strat.name}
-                          </span>
-                        </td>
-                        <td className="py-2.5 px-3 font-mono text-slate-300">
-                          {strat.asset}
-                        </td>
-                        <td className="py-2.5 px-3 text-slate-400 capitalize">
-                          {(strat.strategy_type || "quantitative").replace(/_/g, " ")}
-                        </td>
-                        <td className="py-2.5 px-3 font-mono text-[11px] text-slate-400 truncate max-w-[140px]">
-                          {entryRule}
-                        </td>
-                        <td className="py-2.5 px-3 font-mono text-[11px] text-slate-400 truncate max-w-[140px]">
-                          {exitRule}
-                        </td>
-                        <td className="py-2.5 px-3 text-right">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono uppercase bg-surface-muted text-slate-300">
-                            Ready
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                      return (
+                        <tr
+                          key={strat.id}
+                          className="hover:bg-surface-hover/70 transition-colors cursor-pointer group"
+                          onClick={() => {
+                            window.location.href = `/strategies/${strat.id}`;
+                          }}
+                        >
+                          <td className="py-2.5 px-3">
+                            <span className="font-medium text-slate-200 group-hover:text-brand-cyan transition-colors">
+                              {strat.name}
+                            </span>
+                          </td>
+                          <td className="py-2.5 px-3 font-mono text-slate-300">
+                            {strat.asset}
+                          </td>
+                          <td className="py-2.5 px-3 text-slate-400 capitalize">
+                            {(strat.strategy_type || "quantitative").replace(/_/g, " ")}
+                          </td>
+                          <td className="py-2.5 px-3 font-mono text-[11px] text-slate-400 truncate max-w-[140px]">
+                            {entryRule}
+                          </td>
+                          <td className="py-2.5 px-3 font-mono text-[11px] text-slate-400 truncate max-w-[140px]">
+                            {exitRule}
+                          </td>
+                          <td className="py-2.5 px-3 text-right">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono uppercase bg-surface-muted text-slate-300">
+                              Ready
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
@@ -398,8 +428,23 @@ export default function WorkspaceHome() {
 
             <div className="border border-border rounded bg-surface divide-y divide-border/60">
               {backtests.length === 0 ? (
-                <div className="p-4 text-xs text-slate-500 text-center">
-                  No backtest executions yet.
+                <div className="p-6 text-center space-y-2">
+                  <Play className="h-6 w-6 text-brand-cyan/40 mx-auto" />
+                  <p className="text-xs text-slate-200 font-medium">
+                    No backtest executions yet.
+                  </p>
+                  <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
+                    Test your algorithms with zero lookahead bias and realistic commission modeling.
+                  </p>
+                  <div className="pt-1">
+                    <Link
+                      href="/backtests"
+                      className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-brand-cyan/10 hover:bg-brand-cyan/20 text-brand-cyan border border-brand-cyan/30 text-xs font-semibold rounded transition-colors"
+                    >
+                      <Play className="h-3 w-3 fill-current" />
+                      <span>Launch First Simulation</span>
+                    </Link>
+                  </div>
                 </div>
               ) : (
                 backtests.slice(0, 5).map((bt) => (

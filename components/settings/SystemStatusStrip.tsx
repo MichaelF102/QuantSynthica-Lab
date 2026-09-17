@@ -15,8 +15,8 @@ export default function SystemStatusStrip({
 }: SystemStatusStripProps) {
   const [loading, setLoading] = useState(false);
   const [backendStatus, setBackendStatus] = useState<"online" | "offline" | "checking">("checking");
-  const [universeCount, setUniverseCount] = useState<number>(18546);
-  const [cacheStatus, setCacheStatus] = useState<string>("WARM");
+  const [universeCount, setUniverseCount] = useState<number>(18547);
+  const [cacheStatus, setCacheStatus] = useState<string>("COLD");
   const [cacheSize, setCacheSize] = useState<string>("0 KB");
 
   const checkStatus = async () => {
@@ -26,19 +26,24 @@ export default function SystemStatusStrip({
       setBackendStatus(diag.status === "online" ? "online" : "offline");
       if (diag.universe?.total_securities) {
         setUniverseCount(diag.universe.total_securities);
+      } else {
+        setUniverseCount(18547);
       }
-      if (diag.cache?.status) {
-        setCacheStatus(diag.cache.status);
-      }
-      if (diag.cache?.cache_size_str) {
+      if (diag.cache?.cache_size_str && diag.cache.cache_size_str !== "0 KB") {
+        setCacheStatus(diag.cache.status || "WARM");
         setCacheSize(diag.cache.cache_size_str);
+      } else {
+        setCacheStatus("COLD");
+        setCacheSize("0 KB");
       }
     } catch {
       try {
         await api.getHealth();
         setBackendStatus("online");
+        setUniverseCount(18547);
       } catch {
         setBackendStatus("offline");
+        setUniverseCount(18547);
       }
     } finally {
       setLoading(false);

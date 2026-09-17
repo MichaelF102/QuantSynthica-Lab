@@ -33,6 +33,7 @@ import {
   RuleOperator,
 } from "@/types";
 import { AVAILABLE_INDICATORS, DEFAULT_STRATEGY, POPULAR_UNIVERSES } from "@/lib/constants";
+import { SEED_STRATEGIES } from "@/lib/seedData";
 import { loadSystemSettings } from "@/lib/settings";
 import StockSearchInput from "@/components/ui/StockSearchInput";
 import { formatConditionRule, formatRuleSet } from "@/lib/formatRule";
@@ -72,7 +73,7 @@ function BuilderContent() {
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
   const [showChooserModal, setShowChooserModal] = useState(false);
   const [showTestModal, setShowTestModal] = useState(false);
-  const [allTemplates, setAllTemplates] = useState<StrategyConfig[]>([]);
+  const [allTemplates, setAllTemplates] = useState<StrategyConfig[]>(() => SEED_STRATEGIES);
 
   // Simulation context params
   const [backtestStart, setBacktestStart] = useState<string>(startDateParam || "2023-01-01");
@@ -90,21 +91,36 @@ function BuilderContent() {
   useEffect(() => {
     // Load prebuilt templates for chooser modal
     api.getStrategies().then((strats) => {
-      setAllTemplates(strats.filter((s) => s.id.startsWith("tpl_")));
+      if (strats && strats.length > 0) {
+        setAllTemplates(strats);
+      }
     }).catch(console.error);
 
     if (cloneId) {
-      api
-        .getStrategy(cloneId)
-        .then((s) => {
-          setStrategy({
-            ...s,
-            id: `strat_${Date.now()}`,
-            name: `${s.name} (Copy)`,
-            created_at: new Date().toISOString(),
+      // First check local seed templates
+      const seedMatch = SEED_STRATEGIES.find((s) => s.id === cloneId);
+      if (seedMatch) {
+        setStrategy({
+          ...seedMatch,
+          id: `strat_${Date.now()}`,
+          name: `${seedMatch.name} (Copy)`,
+          created_at: new Date().toISOString(),
+        });
+      } else {
+        api
+          .getStrategy(cloneId)
+          .then((s) => {
+            setStrategy({
+              ...s,
+              id: `strat_${Date.now()}`,
+              name: `${s.name} (Copy)`,
+              created_at: new Date().toISOString(),
+            });
+          })
+          .catch((err) => {
+            console.error("Strategy clone error:", err);
           });
-        })
-        .catch(console.error);
+      }
     } else if (assetParam || indicatorsParam) {
       // Research Tab handoff
       const asset = (assetParam || "AAPL").toUpperCase();
@@ -1569,8 +1585,17 @@ export default function StrategyBuilderPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#0B0D10] text-[#D8DCE2] flex items-center justify-center font-mono text-xs">
-          INITIALIZING QUANTITATIVE STRATEGY BUILDER...
+        <div className="min-h-screen bg-[#0B0D10] text-[#D8DCE2] flex flex-col items-center justify-center space-y-3 font-mono text-xs select-none">
+          <div className="relative w-8 h-8">
+            <div className="w-8 h-8 border-2 border-[#252A31] rounded-full" />
+            <div className="w-8 h-8 border-2 border-[#38BDF8] border-t-transparent rounded-full animate-spin absolute top-0 left-0" />
+          </div>
+          <span className="tracking-wider uppercase text-slate-300">
+            INITIALIZING QUANTITATIVE STRATEGY BUILDER...
+          </span>
+          <span className="text-[11px] text-[#59616B]">
+            Loading execution rules, universe definitions & indicators
+          </span>
         </div>
       }
     >

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Search,
   ArrowRight,
@@ -106,21 +106,28 @@ const getOneYearAgoStr = () => {
   return d.toISOString().split("T")[0];
 };
 
-export default function ResearchPage() {
+function ResearchContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryTicker = searchParams.get("ticker");
+  const queryCountry = searchParams.get("country");
 
   // Navigation & Control States
   const [ticker, setTicker] = useState(() => {
+    if (queryTicker) return queryTicker.toUpperCase().trim();
     if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const urlTicker = params.get("ticker");
-      if (urlTicker) return urlTicker.toUpperCase();
       const savedTicker = localStorage.getItem("algolab_active_ticker");
       if (savedTicker) return savedTicker.toUpperCase();
     }
     return "AAPL";
   });
   const [activeCountry, setActiveCountry] = useState<"US" | "India">(() => {
+    if (queryCountry === "India" || queryCountry === "US") return queryCountry;
+    if (queryTicker) {
+      const sym = queryTicker.toUpperCase().trim();
+      const isIndia = sym.endsWith(".NS") || sym.endsWith(".BO") || ["RELIANCE", "TCS", "INFY", "HDFCBANK", "GENUSPOWER", "KAYNES"].includes(sym);
+      return isIndia ? "India" : "US";
+    }
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("algolab_active_country");
       if (saved === "India" || saved === "US") return saved;
@@ -140,6 +147,21 @@ export default function ResearchPage() {
   const [activeTab, setActiveTab] = useState<SubNavTab>("overview");
   const [chartType, setChartType] = useState<ChartType>("candlestick");
   const [chartRange, setChartRange] = useState<"1D" | "5D" | "1M" | "3M" | "6M" | "YTD" | "1Y" | "5Y" | "ALL">("1Y");
+
+  // React to URL query parameter changes
+  useEffect(() => {
+    if (queryTicker) {
+      const sym = queryTicker.toUpperCase().trim();
+      setTicker(sym);
+      const isIndia = queryCountry === "India" || sym.endsWith(".NS") || sym.endsWith(".BO") || ["RELIANCE", "TCS", "INFY", "HDFCBANK", "GENUSPOWER", "KAYNES"].includes(sym);
+      const newCountry = queryCountry ? (queryCountry === "India" ? "India" : "US") : (isIndia ? "India" : "US");
+      setActiveCountry(newCountry);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("algolab_active_ticker", sym);
+        localStorage.setItem("algolab_active_country", newCountry);
+      }
+    }
+  }, [queryTicker, queryCountry]);
 
   // Synchronize ticker & country changes with navbar and browser URL
   useEffect(() => {
@@ -169,13 +191,15 @@ export default function ResearchPage() {
   useEffect(() => {
     if (typeof window !== "undefined" && ticker) {
       localStorage.setItem("algolab_active_ticker", ticker);
+      localStorage.setItem("algolab_active_country", activeCountry);
       const url = new URL(window.location.href);
-      if (url.searchParams.get("ticker") !== ticker) {
+      if (url.searchParams.get("ticker") !== ticker || url.searchParams.get("country") !== activeCountry) {
         url.searchParams.set("ticker", ticker);
+        url.searchParams.set("country", activeCountry);
         window.history.replaceState(null, "", url.toString());
       }
     }
-  }, [ticker]);
+  }, [ticker, activeCountry]);
 
   // Indicator Selection
   const [activeIndicators, setActiveIndicators] = useState<string[]>([
@@ -1440,5 +1464,19 @@ export default function ResearchPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ResearchPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#06090E] text-slate-100 flex items-center justify-center font-mono text-xs">
+          INITIALIZING RESEARCH TERMINAL...
+        </div>
+      }
+    >
+      <ResearchContent />
+    </Suspense>
   );
 }

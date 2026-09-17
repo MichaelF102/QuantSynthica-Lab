@@ -150,35 +150,13 @@ export default function PortfolioHeader({
 
         {/* Top Right: Country Switcher + Action Buttons */}
         <div className="flex items-center space-x-2 text-xs flex-wrap gap-y-1">
-          {/* Country Switcher */}
-          {onMarketChange && (
-            <div className="inline-flex rounded p-0.5 bg-[#0F141D] border border-[#202C3F]">
-              <button
-                type="button"
-                onClick={() => onMarketChange("India")}
-                className={`flex items-center space-x-1 px-2.5 py-1 text-xs font-bold rounded transition-all cursor-pointer ${
-                  market === "India"
-                    ? "bg-[#10B981] text-black shadow-sm"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                <span>🇮🇳</span>
-                <span>INDIA</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => onMarketChange("US")}
-                className={`flex items-center space-x-1 px-2.5 py-1 text-xs font-bold rounded transition-all cursor-pointer ${
-                  market === "US"
-                    ? "bg-[#38BDF8] text-black shadow-sm"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                <span>🇺🇸</span>
-                <span>US</span>
-              </button>
-            </div>
-          )}
+          {/* Active Market Context indicator */}
+          <div className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded bg-[#0F141D] border border-[#202C3F] text-[11px] font-mono">
+            <span className="text-slate-500 font-sans">MARKET:</span>
+            <span className={`font-bold ${market === "India" ? "text-[#10B981]" : "text-[#38BDF8]"}`}>
+              {market === "India" ? "🇮🇳 INDIA" : "🇺🇸 US"}
+            </span>
+          </div>
 
           <button
             type="button"

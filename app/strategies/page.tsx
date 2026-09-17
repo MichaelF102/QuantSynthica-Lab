@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { StrategyConfig } from "@/types";
+import { SEED_STRATEGIES } from "@/lib/seedData";
 import { formatConditionRule, formatRuleSet } from "@/lib/formatRule";
 import { formatPercent, formatRatio } from "@/lib/formatters";
 import MiniSparkline from "@/components/charts/MiniSparkline";
@@ -36,7 +37,7 @@ export default function StrategiesPage() {
   const router = useRouter();
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const [strategies, setStrategies] = useState<StrategyConfig[]>([]);
+  const [strategies, setStrategies] = useState<StrategyConfig[]>(() => SEED_STRATEGIES);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [selectedAsset, setSelectedAsset] = useState<string>("ALL");
@@ -45,9 +46,9 @@ export default function StrategiesPage() {
   const [sortOrder, setSortOrder] = useState<string>("name_asc");
   const [activeTab, setActiveTab] = useState<"strategies" | "performance" | "templates" | "compare">("strategies");
   const [selectedNav, setSelectedNav] = useState<string>("all"); // 'all' | 'templates' | 'my' | 'shared'
-  const [selectedStrategyId, setSelectedStrategyId] = useState<string | null>(null);
+  const [selectedStrategyId, setSelectedStrategyId] = useState<string | null>(SEED_STRATEGIES[0]?.id || null);
   const [detailTab, setDetailTab] = useState<"overview" | "rules" | "performance" | "backtests">("overview");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // Test Strategy on Custom Stock Modal state
   const [testModalOpen, setTestModalOpen] = useState<boolean>(false);
@@ -97,15 +98,16 @@ export default function StrategiesPage() {
   const [pageSize, setPageSize] = useState(15);
 
   const loadStrategies = async () => {
-    setLoading(true);
     try {
       const data = await api.getStrategies();
-      setStrategies(data);
-      if (data.length > 0 && !selectedStrategyId) {
-        setSelectedStrategyId(data[0].id);
+      if (data && data.length > 0) {
+        setStrategies(data);
+        if (!selectedStrategyId) {
+          setSelectedStrategyId(data[0].id);
+        }
       }
     } catch (err) {
-      console.error("Failed to load strategies:", err);
+      console.warn("Using cached institutional strategies:", err);
     } finally {
       setLoading(false);
     }
