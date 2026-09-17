@@ -1,0 +1,6 @@
+{
+  "research": {
+    "defaultBenchmark": "QQQ",
+    "riskFreeRate": 4.75
+  }
+}
