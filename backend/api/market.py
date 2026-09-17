@@ -7,6 +7,7 @@ from fastapi import APIRouter, Query, HTTPException
 from ..engine.data import MarketDataEngine
 from ..engine.signals import compute_indicators
 from ..engine.stocks_universe import universe_manager
+from ..engine.fundamentals import fundamental_engine
 from ..models.schemas import IndicatorConfig
 
 router = APIRouter(prefix="/market", tags=["Market Data"])
@@ -49,6 +50,21 @@ def get_stock_profile(symbol: str):
     if not stock:
         raise HTTPException(status_code=404, detail=f"Stock {symbol} not found in database")
     return stock
+
+@router.get("/fundamentals/{symbol}")
+def get_stock_fundamentals(
+    symbol: str,
+    market: Optional[str] = Query(None, description="Market hint: 'India' or 'US'")
+):
+    """
+    Returns comprehensive institutional fundamentals combining TradingView Screener,
+    Yahoo Finance, and QuantSynthica universe metadata.
+    """
+    try:
+        data = fundamental_engine.get_fundamentals(symbol=symbol, market_hint=market)
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch fundamentals: {str(e)}")
 
 @router.get("/sectors")
 def get_sectors(market: Optional[str] = Query(None, description="Filter by market: 'US', 'India', or 'ALL'")):

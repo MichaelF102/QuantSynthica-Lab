@@ -203,6 +203,96 @@ export interface StockProfile {
   sector?: string;
 }
 
+export interface StockAnnualFinancials {
+  year: string;
+  revenue: number | null;
+  gross_profit: number | null;
+  operating_income: number | null;
+  net_income: number | null;
+}
+
+export interface StockFundamentals {
+  symbol: string;
+  clean_symbol: string;
+  name: string;
+  exchange: string;
+  sector: string;
+  industry: string;
+  market: "US" | "India" | "Custom";
+  currency: string;
+  currency_symbol: string;
+  isin: string;
+  summary: string;
+  data_sources: string[];
+
+  // Price & Market Context
+  price?: number | null;
+  change_1d?: number | null;
+  volume?: number | null;
+  beta?: number | null;
+  high_52w?: number | null;
+  low_52w?: number | null;
+  pct_from_52w_low?: number | null;
+  pct_to_52w_high?: number | null;
+
+  // Valuation Multiples
+  market_cap?: number | null;
+  market_cap_formatted?: string;
+  enterprise_value?: number | null;
+  enterprise_value_formatted?: string;
+  pe_ratio?: number | null;
+  forward_pe?: number | null;
+  peg_ratio?: number | null;
+  price_to_book?: number | null;
+  price_to_sales?: number | null;
+  ev_ebitda?: number | null;
+  ev_revenue?: number | null;
+  eps_ttm?: number | null;
+  book_value?: number | null;
+
+  // Profitability & Margins
+  gross_margin?: number | null;
+  operating_margin?: number | null;
+  net_margin?: number | null;
+  roe?: number | null;
+  roa?: number | null;
+
+  // Financials TTM
+  revenue_ttm?: number | null;
+  revenue_formatted?: string;
+  net_income_ttm?: number | null;
+  net_income_formatted?: string;
+  ebitda_ttm?: number | null;
+  ebitda_formatted?: string;
+  free_cash_flow?: number | null;
+  free_cash_flow_formatted?: string;
+  operating_cash_flow?: number | null;
+  operating_cash_flow_formatted?: string;
+
+  // Balance Sheet & Solvency
+  total_debt?: number | null;
+  total_debt_formatted?: string;
+  total_cash?: number | null;
+  total_cash_formatted?: string;
+  debt_to_equity?: number | null;
+  current_ratio?: number | null;
+  quick_ratio?: number | null;
+
+  // Dividend
+  dividend_yield?: number | null;
+  payout_ratio?: number | null;
+
+  // Quantitative Health Scores
+  piotroski_score?: number;
+  piotroski_rating?: string;
+  altman_z_score?: number | null;
+  altman_rating?: string;
+
+  // Multi-Year Trend
+  annual_history?: StockAnnualFinancials[];
+  last_updated?: string;
+}
+
 export interface MarketDataResponse {
   summary: {
     ticker: string;

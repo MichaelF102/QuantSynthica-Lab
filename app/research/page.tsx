@@ -18,7 +18,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { api } from "@/lib/api";
-import { MarketDataResponse, MarketBar } from "@/types";
+import { MarketDataResponse, MarketBar, StockFundamentals } from "@/types";
 import { BENCHMARKS } from "@/lib/constants";
 import { loadSystemSettings } from "@/lib/settings";
 import { formatCurrency, formatPercent, formatNumber } from "@/lib/formatters";
@@ -35,6 +35,7 @@ import ResearchHeroKpiBar from "@/components/research/ResearchHeroKpiBar";
 import ResearchSubNav from "@/components/research/ResearchSubNav";
 import ResearchFourCardsGrid from "@/components/research/ResearchFourCardsGrid";
 import ResearchPriceChartWidget from "@/components/research/ResearchPriceChartWidget";
+import InstitutionalFundamentals from "@/components/research/InstitutionalFundamentals";
 
 type SubNavTab =
   | "overview"
@@ -235,8 +236,28 @@ function ResearchContent() {
   // Data States
   const [marketData, setMarketData] = useState<MarketDataResponse | null>(null);
   const [benchmarkData, setBenchmarkData] = useState<MarketDataResponse | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Institutional Fundamentals state
+  const [fundamentals, setFundamentals] = useState<StockFundamentals | null>(null);
+  const [loadingFundamentals, setLoadingFundamentals] = useState(false);
+
+  const fetchFundamentals = async (sym: string, marketHint: string) => {
+    setLoadingFundamentals(true);
+    try {
+      const fund = await api.getFundamentals(sym, marketHint);
+      setFundamentals(fund);
+    } catch (err) {
+      console.warn("Failed to fetch fundamentals:", err);
+    } finally {
+      setLoadingFundamentals(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFundamentals(ticker, activeCountry);
+  }, [ticker, activeCountry]);
 
   // Keyboard Shortcuts Listener
   useEffect(() => {
@@ -969,82 +990,11 @@ function ResearchContent() {
                 TAB 4: FUNDAMENTALS
                 -------------------------------------------------------- */}
             {activeTab === "fundamentals" && (
-              <div className="border border-[#252A31] bg-[#0B0D10]">
-                <div className="px-3 py-1 border-b border-[#252A31] bg-[#0E1117] flex items-center justify-between text-[11px]">
-                  <span className="font-bold text-[#FF9900]">
-                    Institutional Fundamental Profile & Valuation Multiples
-                  </span>
-                  <span className="text-[#59616B]">18,547 Universe Record</span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-[#252A31] text-xs">
-                  <div className="p-3 space-y-2">
-                    <div className="flex justify-between py-1 border-b border-[#252A31]/50">
-                      <span className="text-[#89919C]">SECURITY NAME</span>
-                      <span className="text-white font-bold">{profile?.name || ticker}</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b border-[#252A31]/50">
-                      <span className="text-[#89919C]">SYMBOL</span>
-                      <span className="text-white font-bold">{ticker}</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b border-[#252A31]/50">
-                      <span className="text-[#89919C]">EXCHANGE</span>
-                      <span className="text-[#D8DCE2]">{profile?.exchange || "NASDAQ"}</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b border-[#252A31]/50">
-                      <span className="text-[#89919C]">SECTOR</span>
-                      <span className="text-[#D8DCE2]">{profile?.sector || "Technology"}</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b border-[#252A31]/50">
-                      <span className="text-[#89919C]">MARKET</span>
-                      <span className="text-[#D8DCE2]">{profile?.market || "US"}</span>
-                    </div>
-                    <div className="flex justify-between py-1">
-                      <span className="text-[#89919C]">ISIN</span>
-                      <span className="text-[#D8DCE2]">{profile?.isin || "US0378331005"}</span>
-                    </div>
-                  </div>
-
-                  <div className="p-3 space-y-2">
-                    <div className="flex justify-between py-1 border-b border-[#252A31]/50">
-                      <span className="text-[#89919C]">MARKET CAP</span>
-                      <span className="text-white font-bold">{marketCapFormatted}</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b border-[#252A31]/50">
-                      <span className="text-[#89919C]">P/E RATIO</span>
-                      <span className="text-[#D8DCE2] font-semibold">
-                        {profile?.pe_ratio ? Number(profile.pe_ratio).toFixed(2) : "N/A"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b border-[#252A31]/50">
-                      <span className="text-[#89919C]">EPS (TTM)</span>
-                      <span className="text-[#D8DCE2] font-semibold">
-                        {profile?.eps_ttm ? `${currencySymbol}${Number(profile.eps_ttm).toFixed(2)}` : "N/A"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b border-[#252A31]/50">
-                      <span className="text-[#89919C]">DIVIDEND YIELD</span>
-                      <span className="text-[#D8DCE2] font-semibold">
-                        {profile?.dividend_yield !== undefined && profile?.dividend_yield !== null
-                          ? `${Number(profile.dividend_yield).toFixed(2)}%`
-                          : "0.00%"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b border-[#252A31]/50">
-                      <span className="text-[#89919C]">52W HIGH</span>
-                      <span className="text-[#10B981] font-bold">
-                        {currencySymbol}{Math.max(...bars.map((b) => b.high)).toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between py-1">
-                      <span className="text-[#89919C]">52W LOW</span>
-                      <span className="text-[#EF4444] font-bold">
-                        {currencySymbol}{Math.min(...bars.map((b) => b.low)).toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <InstitutionalFundamentals
+                fundamentals={fundamentals}
+                loading={loadingFundamentals}
+                onRefresh={() => fetchFundamentals(ticker, activeCountry)}
+              />
             )}
 
             {/* --------------------------------------------------------
