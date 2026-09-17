@@ -1,16 +1,40 @@
+import sys
 import logging
+from pathlib import Path
+
+# Add both repository root and backend directory to sys.path for cloud deployment compatibility
+_backend_dir = Path(__file__).resolve().parent
+_root_dir = _backend_dir.parent
+if str(_root_dir) not in sys.path:
+    sys.path.insert(0, str(_root_dir))
+if str(_backend_dir) not in sys.path:
+    sys.path.insert(0, str(_backend_dir))
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .api import (
-    market_router,
-    strategies_router,
-    backtests_router,
-    analytics_router,
-    risk_router,
-    optimization_router,
-    pairs_router,
-    settings_router
-)
+
+try:
+    from backend.api import (
+        market_router,
+        strategies_router,
+        backtests_router,
+        analytics_router,
+        risk_router,
+        optimization_router,
+        pairs_router,
+        settings_router
+    )
+except ImportError:
+    from .api import (
+        market_router,
+        strategies_router,
+        backtests_router,
+        analytics_router,
+        risk_router,
+        optimization_router,
+        pairs_router,
+        settings_router
+    )
 
 logging.basicConfig(
     level=logging.INFO,
