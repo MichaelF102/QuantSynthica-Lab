@@ -38,8 +38,8 @@ export default function SystemStatusStrip({
       }
     } catch {
       try {
-        await api.getHealth();
-        setBackendStatus("online");
+        const health = await api.getHealth();
+        setBackendStatus(health.status === "online" || health.engine === "ready" ? "online" : "offline");
         setUniverseCount(18547);
       } catch {
         setBackendStatus("offline");

@@ -89,7 +89,7 @@ export default function ReturnDistributionChart({
             <Line
               type="monotone"
               dataKey="normal_fit"
-              stroke="#00F0FF"
+              stroke="#2962FF"
               strokeWidth={1.5}
               dot={false}
               isAnimationActive={false}

@@ -98,7 +98,7 @@ export default function SpreadZScoreChart({
             <Line
               type="monotone"
               dataKey="z_score"
-              stroke="#00F0FF"
+              stroke="#2962FF"
               strokeWidth={1.8}
               dot={false}
               isAnimationActive={false}

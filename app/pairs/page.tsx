@@ -52,24 +52,20 @@ export default function PairsTradingPage() {
   };
 
   return (
-    <div className="p-5 space-y-6 max-w-[1600px] mx-auto">
+    <div className="mx-auto max-w-[1600px] animate-fade-up space-y-6 p-5">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-border gap-4">
+      <div className="flex flex-col justify-between gap-4 border-b border-border/80 pb-5 sm:flex-row sm:items-end">
         <div>
-          <h1 className="text-lg font-semibold text-slate-100 tracking-tight">
-            Statistical Arbitrage & Pairs Trading
-          </h1>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Engle-Granger cointegration test, OLS hedge ratio (&beta;), and mean-reverting spread execution
+          <h1 className="qs-title">Pairs</h1>
+          <p className="mt-1.5 max-w-lg text-sm text-stone-500">
+            Two names, a hedge ratio, and a z-score band. Useful as a lab, not a black box.
           </p>
         </div>
       </div>
 
       {/* Configuration Form */}
-      <div className="border border-border rounded bg-surface p-4 space-y-3">
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 block">
-          Model Parameters
-        </span>
+      <div className="qs-panel space-y-3 p-4">
+        <span className="qs-section-label block">Parameters</span>
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 text-xs font-mono">
           <div>
             <label className="block text-[11px] text-slate-400 mb-1 font-sans">LEG A TICKER</label>

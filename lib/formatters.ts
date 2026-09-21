@@ -13,21 +13,6 @@ export function formatCurrency(
   })}`;
 }
 
-export function formatPrice(
-  value: number | undefined | null,
-  isIndia: boolean = false,
-  decimals: number = 2
-): string {
-  const symbol = isIndia ? "₹" : "$";
-  if (value === undefined || value === null || isNaN(value)) return `${symbol}0.00`;
-  const sign = value < 0 ? "-" : "";
-  const abs = Math.abs(value);
-  return `${sign}${symbol}${abs.toLocaleString(isIndia ? "en-IN" : "en-US", {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  })}`;
-}
-
 export function formatMarketCap(mcap?: number | null, isIndia: boolean = false): string {
   if (!mcap || isNaN(mcap) || mcap <= 0) return "N/A";
   if (isIndia) {
@@ -70,9 +55,4 @@ export function formatNumber(
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   });
-}
-
-export function getReturnColorClass(value: number | undefined | null): string {
-  if (!value || value === 0) return "text-slate-300";
-  return value > 0 ? "text-market-up font-medium" : "text-market-down font-medium";
 }

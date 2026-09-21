@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { AssetAllocation } from "@/components/portfolio/PortfolioAllocationWidget";
 
-export const INDIA_BENCHMARKS = [
+const INDIA_BENCHMARKS = [
   { value: "^NSEI", label: "NIFTY 50 (^NSEI)" },
   { value: "^NSEBANK", label: "NIFTY Bank (^NSEBANK)" },
   { value: "^BSESN", label: "BSE SENSEX (^BSESN)" },
@@ -24,7 +24,7 @@ export const INDIA_BENCHMARKS = [
   { value: "NIFTY_MIDCAP", label: "NIFTY Midcap 100" },
 ];
 
-export const US_BENCHMARKS = [
+const US_BENCHMARKS = [
   { value: "SPY", label: "SPY (S&P 500 ETF)" },
   { value: "QQQ", label: "QQQ (Nasdaq 100 ETF)" },
   { value: "IWM", label: "IWM (Russell 2000)" },
@@ -131,20 +131,14 @@ export default function PortfolioHeader({
         ];
 
   return (
-    <div className="space-y-2.5 pb-3 border-b border-[#1E2530]">
-      {/* 1. Main Title, Market Switcher & Action Buttons */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="space-y-2.5 border-b border-border/80 pb-3">
+      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <div>
-          <div className="flex items-center space-x-3">
-            <h1 className="text-xl font-bold text-white tracking-tight font-sans">
-              Portfolio &amp; Tail Risk Analytics
-            </h1>
-            <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-[#38BDF8]/15 text-[#38BDF8] font-semibold border border-[#38BDF8]/30">
-              INSTITUTIONAL
-            </span>
+          <div className="flex items-center gap-3">
+            <h1 className="qs-title text-[1.4rem]">Portfolio</h1>
           </div>
-          <p className="text-xs text-[#89919C] mt-0.5">
-            Comprehensive portfolio risk analysis, tail risk measurement, and multi-asset allocation insights
+          <p className="mt-1 text-sm text-stone-500">
+            Allocation, tail risk, and how the book is mixed.
           </p>
         </div>
 

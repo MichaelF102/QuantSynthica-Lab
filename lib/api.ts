@@ -546,12 +546,6 @@ export const api = {
       body: JSON.stringify(req),
     }, 8000),
 
-  compareStrategies: (backtestIds: string[]) =>
-    request<{ strategies: any[] }>("/analytics/compare", {
-      method: "POST",
-      body: JSON.stringify({ backtest_ids: backtestIds }),
-    }, 6000),
-
   deleteBacktest: async (id: string): Promise<{ status: string; id: string }> => {
     if (typeof window !== "undefined") {
       try {
@@ -570,8 +564,6 @@ export const api = {
 
   getExportTradesUrl: (id: string) => `${API_BASE}/backtests/${id}/export/trades`,
   getExportEquityUrl: (id: string) => `${API_BASE}/backtests/${id}/export/equity`,
-  getExportMonthlyUrl: (id: string) => `${API_BASE}/backtests/${id}/export/monthly`,
-  getExportReportUrl: (id: string) => `${API_BASE}/backtests/${id}/export/report`,
 
   getSettings: () => request<{ settings: any }>("/settings", {}, 3000),
 

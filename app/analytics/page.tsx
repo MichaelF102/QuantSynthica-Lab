@@ -290,7 +290,7 @@ export default function AnalyticsPage() {
   }, [backtests, selectedIds]);
 
   return (
-    <div className="p-4 sm:p-5 space-y-4 max-w-[1650px] mx-auto min-h-screen">
+    <div className="mx-auto min-h-[calc(100vh-6.5rem)] max-w-[1650px] animate-fade-up space-y-4 p-4 sm:p-5">
       {/* 1. Institutional Top Control Bar */}
       <AnalyticsHeader
         startDate={startDate}

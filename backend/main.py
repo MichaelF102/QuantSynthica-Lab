@@ -1,5 +1,6 @@
 import sys
 import logging
+from datetime import datetime, timezone
 from pathlib import Path
 
 # Add both repository root and backend directory to sys.path for cloud deployment compatibility
@@ -73,7 +74,7 @@ def health_check():
         "service": "QuantSynthica Lab Quantitative Engine",
         "version": "1.0.0",
         "engine": "ready",
-        "timestamp": "2026-09-16T11:20:00Z"
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 if __name__ == "__main__":

@@ -1,12 +1,24 @@
 import type { Metadata } from "next";
+import { Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
-import StatusBar from "@/components/layout/StatusBar";
+import AppShell from "@/components/layout/AppShell";
+
+const sans = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const mono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "QuantSynthica Lab — Systematic Quantitative Strategy Platform",
-  description:
-    "Institutional quantitative trading strategy research, backtesting, parameter optimization, risk analytics, and walk-forward validation platform.",
+  title: "QuantSynthica Lab",
+  description: "A research lab for charts, strategies, and backtests across US and India markets.",
 };
 
 export default function RootLayout({
@@ -15,11 +27,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="bg-background text-slate-100 min-h-screen antialiased flex flex-col font-sans selection:bg-brand-cyan/20 selection:text-brand-cyan">
-        <Navbar />
-        <main className="flex-1 pb-9 overflow-y-auto">{children}</main>
-        <StatusBar />
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+      <body className="qs-app min-h-screen bg-background font-sans text-[#d1d4dc] antialiased selection:bg-[#2962FF]/40 selection:text-white">
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

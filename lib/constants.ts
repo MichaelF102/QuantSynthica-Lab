@@ -1,4 +1,4 @@
-import { IndicatorConfig, StrategyConfig } from "@/types";
+import { StrategyConfig } from "@/types";
 
 export const BENCHMARKS = [
   { symbol: "SPY", name: "S&P 500 ETF Trust", region: "US" },
@@ -9,12 +9,21 @@ export const BENCHMARKS = [
   { symbol: "NIFTYBEES.NS", name: "Nippon Nifty BeES ETF", region: "India" },
 ];
 
-export const POPULAR_UNIVERSES: Record<string, string[]> = {
-  "US Tech Giants": ["AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "TSLA"],
-  "US Major ETFs": ["SPY", "QQQ", "IWM", "GLD", "TLT", "XLF", "XLE"],
-  "Consumer Staples Pairs": ["KO", "PEP", "PG", "WMT", "COST"],
-  "India Bluechips": ["RELIANCE.NS", "TCS.NS", "INFY.NS", "HDFCBANK.NS", "ICICIBANK.NS"],
-};
+export const DESK_INDICES = [
+  { symbol: "SPY", name: "S&P 500", market: "US", price: 588.45, change: 0.42 },
+  { symbol: "QQQ", name: "Nasdaq 100", market: "US", price: 509.12, change: 0.85 },
+  { symbol: "^NSEI", name: "Nifty 50", market: "India", price: 25142.8, change: 0.18 },
+  { symbol: "^BSESN", name: "Sensex", market: "India", price: 82110.4, change: -0.22 },
+] as const;
+
+export const DESK_NAMES = [
+  { symbol: "NVDA", name: "NVIDIA", market: "US", price: 138.25, change: 2.15 },
+  { symbol: "AAPL", name: "Apple", market: "US", price: 232.1, change: -0.34 },
+  { symbol: "MSFT", name: "Microsoft", market: "US", price: 428.15, change: -0.24 },
+  { symbol: "RELIANCE", name: "Reliance Industries", market: "India", price: 1290.9, change: -2.13 },
+  { symbol: "TCS", name: "TCS", market: "India", price: 3840.0, change: 0.65 },
+  { symbol: "INFY", name: "Infosys", market: "India", price: 1872.4, change: 0.28 },
+] as const;
 
 export const AVAILABLE_INDICATORS = [
   { id: "SMA", name: "Simple Moving Average (SMA)", category: "Trend", defaultParams: { period: 20 } },
