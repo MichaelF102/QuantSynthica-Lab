@@ -194,21 +194,13 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#06090E] text-slate-100 pb-28">
-      <div className="max-w-[1720px] mx-auto px-4 py-3 space-y-3.5">
-        {/* 1. Header & Primary Action Toolbar */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-[#1E2530]">
+    <div className="min-h-[calc(100vh-6.5rem)] pb-28 text-slate-100">
+      <div className="mx-auto max-w-[1720px] animate-fade-up space-y-3.5 px-4 py-4">
+        <div className="flex flex-col justify-between gap-3 border-b border-border/80 pb-3 md:flex-row md:items-center">
           <div>
-            <div className="flex items-center space-x-2.5">
-              <h1 className="text-xl font-bold text-white tracking-tight font-sans">
-                System Settings
-              </h1>
-              <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-[#38BDF8]/15 text-[#38BDF8] font-semibold border border-[#38BDF8]/30">
-                CONSOLE
-              </span>
-            </div>
-            <p className="text-xs text-[#89919C] mt-0.5 font-sans">
-              Terminal preferences, quantitative defaults, data infrastructure &amp; engine configuration
+            <h1 className="qs-title text-[1.4rem]">Settings</h1>
+            <p className="mt-1 text-sm text-stone-500">
+              Defaults for data, execution, and the desk.
             </p>
           </div>
 

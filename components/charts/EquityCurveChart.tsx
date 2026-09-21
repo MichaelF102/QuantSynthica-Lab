@@ -176,8 +176,8 @@ export default function EquityCurveChart({
             onClick={() => setIsLogScale(!isLogScale)}
             className={`px-2 py-1 text-[10px] font-bold uppercase rounded-[2px] border transition-colors ${
               isLogScale
-                ? "bg-[#38BDF8]/10 text-[#38BDF8] border-[#38BDF8]/40"
-                : "border-[#252A31] text-[#89919C] hover:border-[#38BDF8]/30"
+                ? "bg-[#2962FF]/10 text-[#2962FF] border-[#2962FF]/40"
+                : "border-[#252A31] text-[#89919C] hover:border-[#2962FF]/30"
             }`}
             title="Toggle Logarithmic Y-axis"
           >
@@ -200,7 +200,7 @@ export default function EquityCurveChart({
         {/* Center: Comparison Legend Toggles */}
         <div className="flex items-center space-x-3 text-[11px]">
           <div className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-0.5 bg-[#38BDF8] inline-block"></span>
+            <span className="w-2.5 h-0.5 bg-[#2962FF] inline-block"></span>
             <span className="text-[#D8DCE2] font-semibold">STRATEGY</span>
             <span className={`text-[10px] ${stratReturn >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
               {formatPercent(stratReturn)}
@@ -236,7 +236,7 @@ export default function EquityCurveChart({
               onClick={() => setRange(r)}
               className={`px-2 py-0.5 text-[10px] font-bold rounded-[2px] transition-colors ${
                 range === r
-                  ? "bg-[#252A31] text-[#38BDF8]"
+                  ? "bg-[#252A31] text-[#2962FF]"
                   : "text-[#89919C] hover:text-[#D8DCE2]"
               }`}
             >
@@ -292,7 +292,7 @@ export default function EquityCurveChart({
                       {d.date}
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-[#38BDF8]">STRATEGY:</span>
+                      <span className="text-[#2962FF]">STRATEGY:</span>
                       <span className="font-bold text-[#D8DCE2]">
                         {viewMode === "EQUITY" ? formatCurrency(stratVal) : formatPercent(d.strat_return)}
                       </span>
@@ -362,7 +362,7 @@ export default function EquityCurveChart({
               type="monotone"
               dataKey={stratKey}
               name="Strategy"
-              stroke="#38BDF8"
+              stroke="#2962FF"
               strokeWidth={2}
               dot={false}
               isAnimationActive={false}
@@ -379,7 +379,7 @@ export default function EquityCurveChart({
                   m.type === "ENTRY"
                     ? "#10B981"
                     : m.isWin
-                    ? "#38BDF8"
+                    ? "#2962FF"
                     : "#EF4444"
                 }
                 stroke={m.isSelected ? "#FFFFFF" : "#0B0D10"}

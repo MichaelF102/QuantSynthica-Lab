@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Search, X, ChevronDown, Check } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { api } from "@/lib/api";
 import { StockProfile } from "@/types";
 
-export type MarketCountry = "US" | "India";
+type MarketCountry = "US" | "India";
 
 export default function NavbarSecuritySearch() {
   const router = useRouter();
@@ -245,16 +245,16 @@ export default function NavbarSecuritySearch() {
   };
 
   return (
-    <div ref={containerRef} className="flex items-center space-x-2">
+    <div ref={containerRef} className="flex items-center gap-2">
       {/* Country Selector: US / INDIA */}
-      <div className="flex items-center rounded bg-[#0A0D13] border border-[#212836] p-0.5 font-mono text-[10px] select-none">
+      <div className="hidden items-center rounded-lg border border-border bg-[#131722] p-0.5 text-[11px] select-none xl:flex">
         <button
           type="button"
           onClick={() => handleCountryChange("US")}
-          className={`flex items-center space-x-1 px-2 py-0.5 rounded transition-all ${
+          className={`flex items-center gap-1 rounded px-2 py-0.5 transition-all ${
             country === "US"
-              ? "bg-[#1E293B] text-[#38BDF8] font-bold shadow-sm"
-              : "text-[#89919C] hover:text-[#D8DCE2]"
+              ? "bg-surface-active font-semibold text-brand-amber"
+              : "text-stone-500 hover:text-stone-200"
           }`}
           title="Filter US Equities (NYSE, NASDAQ)"
         >
@@ -264,10 +264,10 @@ export default function NavbarSecuritySearch() {
         <button
           type="button"
           onClick={() => handleCountryChange("India")}
-          className={`flex items-center space-x-1 px-2 py-0.5 rounded transition-all ${
+          className={`flex items-center gap-1 rounded px-2 py-0.5 transition-all ${
             country === "India"
-              ? "bg-[#1E293B] text-[#38BDF8] font-bold shadow-sm"
-              : "text-[#89919C] hover:text-[#D8DCE2]"
+              ? "bg-surface-active font-semibold text-brand-amber"
+              : "text-stone-500 hover:text-stone-200"
           }`}
           title="Filter Indian Equities (NSE, BSE)"
         >
@@ -277,9 +277,9 @@ export default function NavbarSecuritySearch() {
       </div>
 
       {/* Security Searchbar */}
-      <div className="relative w-44 sm:w-56 md:w-64 lg:w-72">
+      <div className="relative w-36 sm:w-44 md:w-52 lg:w-64">
         <div className="relative flex items-center">
-          <Search className="h-3 w-3 absolute left-2 text-[#59616B] pointer-events-none" />
+          <Search className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 text-slate-500" />
           <input
             ref={inputRef}
             type="text"
@@ -295,11 +295,11 @@ export default function NavbarSecuritySearch() {
                 ? activeSymbol ? `${activeSymbol} (NSE/BSE)...` : "Search India (RELIANCE, TCS)..."
                 : activeSymbol ? `${activeSymbol} (US)...` : "Search US (AAPL, NVDA)..."
             }
-            className="w-full pl-7 pr-12 py-1 h-7 rounded bg-[#0A0D13] border border-[#212836] text-[11px] font-mono text-[#D8DCE2] placeholder-[#59616B] focus:outline-none focus:border-[#38BDF8] focus:bg-[#0E131C] transition-colors"
+            className="h-8 w-full rounded-lg border border-border bg-[#131722] py-1 pl-8 pr-12 text-[13px] text-[#d1d4dc] placeholder-[#787b86] outline-none focus:border-[#2962FF]"
           />
 
           {/* Right badges: clear X or active symbol + '/' key */}
-          <div className="absolute right-1.5 flex items-center space-x-1">
+          <div className="absolute right-1.5 flex items-center gap-1">
             {query ? (
               <button
                 type="button"
@@ -307,16 +307,16 @@ export default function NavbarSecuritySearch() {
                   setQuery("");
                   inputRef.current?.focus();
                 }}
-                className="p-0.5 text-[#59616B] hover:text-[#D8DCE2] transition-colors"
+                className="p-0.5 text-slate-500 transition-colors hover:text-slate-200"
               >
-                <X className="w-3 h-3" />
+                <X className="h-3 w-3" />
               </button>
             ) : activeSymbol ? (
-              <span className="text-[9px] font-mono font-semibold text-[#38BDF8] bg-[#141A24] px-1 py-0.2 rounded border border-[#252E3E]">
+              <span className="rounded-sm border border-border bg-surface-muted px-1 py-0.5 font-mono text-[9px] text-brand-amber">
                 {activeSymbol}
               </span>
             ) : (
-              <span className="text-[9px] font-mono text-[#59616B] border border-[#212836] px-1 py-0.2 rounded bg-[#0A0D13]">
+              <span className="rounded border border-border bg-surface-muted px-1 py-0.5 font-mono text-[9px] text-slate-500">
                 /
               </span>
             )}
@@ -325,33 +325,25 @@ export default function NavbarSecuritySearch() {
 
         {/* Autocomplete Dropdown */}
         {isOpen && (
-          <div className="absolute right-0 top-full mt-1.5 w-80 sm:w-96 rounded border border-[#252E3E] bg-[#0E131C] overflow-hidden shadow-2xl z-50 flex flex-col font-mono text-xs">
-            {/* Dropdown Header */}
-            <div className="flex items-center justify-between px-3 py-1.5 border-b border-[#212836] bg-[#0A0D13] text-[10px] text-[#89919C]">
-              <div className="flex items-center space-x-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#38BDF8]" />
-                <span className="font-semibold text-[#D8DCE2]">
-                  {country === "India" ? "INDIA UNIVERSE" : "US UNIVERSE"}
-                </span>
-                <span className="text-[#59616B]">
-                  ({country === "India" ? "7,610 EQUITIES" : "10,936 EQUITIES"})
+          <div className="absolute right-0 z-50 mt-1.5 flex w-80 flex-col overflow-hidden rounded-lg border border-border bg-surface-elevated/95 font-mono text-xs shadow-panel backdrop-blur-xl sm:w-96">
+            <div className="flex items-center justify-between border-b border-border bg-background/60 px-3 py-1.5 text-[10px] text-slate-400">
+              <div className="flex items-center gap-1.5">
+                <span className="font-medium text-stone-200">
+                  {country === "India" ? "India" : "United States"}
                 </span>
               </div>
-              <span className="text-[9px] text-[#59616B]">↑↓ to navigate • ↵ select</span>
+              <span className="text-[9px] text-slate-500">↑↓ navigate · ↵ select</span>
             </div>
 
-            {/* Results List */}
-            <div className="max-h-80 overflow-y-auto divide-y divide-[#1E2530]">
+            <div className="max-h-80 divide-y divide-border/60 overflow-y-auto">
               {loading ? (
-                <div className="p-4 text-center text-[#89919C] text-xs">
-                  <span className="inline-block animate-pulse text-[#38BDF8]">
-                    Scanning universe...
-                  </span>
+                <div className="p-4 text-center text-xs text-slate-400">
+                  <span className="text-stone-400">Searching…</span>
                 </div>
               ) : results.length === 0 ? (
-                <div className="p-4 text-center text-[#89919C] text-xs">
+                <div className="p-4 text-center text-xs text-slate-400">
                   No matching securities found for &quot;{query}&quot;.
-                  <div className="mt-1 text-[10px] text-[#59616B]">
+                  <div className="mt-1 text-[10px] text-slate-500">
                     Press Enter to load symbol directly.
                   </div>
                 </div>
@@ -366,36 +358,34 @@ export default function NavbarSecuritySearch() {
                       key={`${stock.market}-${stock.symbol}-${stock.exchange || idx}`}
                       onClick={() => handleSelectSecurity(stock)}
                       onMouseEnter={() => setSelectedIndex(idx)}
-                      className={`flex items-center justify-between px-3 py-2 cursor-pointer transition-colors ${
+                      className={`flex cursor-pointer items-center justify-between px-3 py-2 transition-colors ${
                         isSelected
-                          ? "bg-[#141A24] border-l-2 border-[#38BDF8]"
-                          : "hover:bg-[#141A24]/60"
+                          ? "border-l-2 border-brand-amber bg-surface-hover"
+                          : "hover:bg-surface-hover/60"
                       }`}
                     >
-                      {/* Left: Symbol & Name */}
-                      <div className="flex items-center space-x-2.5 overflow-hidden">
+                      <div className="flex items-center gap-2.5 overflow-hidden">
                         <div className="w-16 shrink-0">
-                          <span className="font-bold text-sm text-[#D8DCE2] block">
+                          <span className="block text-sm font-bold text-slate-100">
                             {stock.symbol}
                           </span>
-                          <span className="text-[9px] text-[#38BDF8] uppercase tracking-wider block">
+                          <span className="block text-[9px] text-stone-500">
                             {stock.exchange || (isIndia ? "NSE" : "US")}
                           </span>
                         </div>
                         <div className="overflow-hidden">
-                          <div className="text-[11px] text-[#D8DCE2] truncate max-w-[150px] sm:max-w-[180px]">
+                          <div className="max-w-[150px] truncate text-[11px] text-slate-200 sm:max-w-[180px]">
                             {stock.name}
                           </div>
-                          <div className="text-[10px] text-[#59616B] truncate max-w-[150px]">
+                          <div className="max-w-[150px] truncate text-[10px] text-slate-500">
                             {stock.sector || stock.market}
                           </div>
                         </div>
                       </div>
 
-                      {/* Right: Price, Change %, Market Cap */}
-                      <div className="text-right shrink-0 font-mono">
+                      <div className="shrink-0 text-right font-mono">
                         {stock.price !== undefined && stock.price !== null && (
-                          <div className="text-xs font-semibold text-[#D8DCE2]">
+                          <div className="text-xs font-semibold tabular-nums text-slate-100">
                             {isIndia ? "₹" : "$"}
                             {Number(stock.price).toLocaleString(undefined, {
                               minimumFractionDigits: 2,
@@ -405,15 +395,15 @@ export default function NavbarSecuritySearch() {
                         )}
                         {stock.change_1d !== undefined && stock.change_1d !== null && (
                           <div
-                            className={`text-[10px] font-bold ${
-                              Number(stock.change_1d) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"
+                            className={`text-[10px] font-semibold tabular-nums ${
+                              Number(stock.change_1d) >= 0 ? "text-market-up" : "text-market-down"
                             }`}
                           >
                             {Number(stock.change_1d) >= 0 ? "+" : ""}
                             {Number(stock.change_1d).toFixed(2)}%
                           </div>
                         )}
-                        {mcap && <div className="text-[9px] text-[#59616B]">{mcap}</div>}
+                        {mcap && <div className="text-[9px] text-slate-500">{mcap}</div>}
                       </div>
                     </div>
                   );
@@ -421,10 +411,9 @@ export default function NavbarSecuritySearch() {
               )}
             </div>
 
-            {/* Dropdown Footer */}
-            <div className="px-3 py-1 bg-[#0A0D13] border-t border-[#212836] flex items-center justify-between text-[9px] text-[#59616B]">
+            <div className="flex items-center justify-between border-t border-border bg-background/50 px-3 py-1.5 text-[9px] text-slate-500">
               <span>Search across 18,500+ securities</span>
-              <span className="text-[#89919C]">ESC to close</span>
+              <span className="text-slate-400">ESC to close</span>
             </div>
           </div>
         )}

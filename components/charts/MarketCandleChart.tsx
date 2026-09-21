@@ -192,7 +192,7 @@ export default function MarketCandleChart({
               onClick={() => setChartType("candlestick")}
               className={`px-2 py-0.5 border border-[#252A31] transition-colors ${
                 chartType === "candlestick"
-                  ? "bg-[#141820] text-[#38BDF8] font-bold border-[#38BDF8]/40"
+                  ? "bg-[#141820] text-[#2962FF] font-bold border-[#2962FF]/40"
                   : "text-[#89919C] hover:text-[#D8DCE2]"
               }`}
             >
@@ -203,7 +203,7 @@ export default function MarketCandleChart({
               onClick={() => setChartType("line")}
               className={`px-2 py-0.5 border border-[#252A31] transition-colors ${
                 chartType === "line"
-                  ? "bg-[#141820] text-[#38BDF8] font-bold border-[#38BDF8]/40"
+                  ? "bg-[#141820] text-[#2962FF] font-bold border-[#2962FF]/40"
                   : "text-[#89919C] hover:text-[#D8DCE2]"
               }`}
             >
@@ -214,7 +214,7 @@ export default function MarketCandleChart({
               onClick={() => setChartType("area")}
               className={`px-2 py-0.5 border border-[#252A31] transition-colors ${
                 chartType === "area"
-                  ? "bg-[#141820] text-[#38BDF8] font-bold border-[#38BDF8]/40"
+                  ? "bg-[#141820] text-[#2962FF] font-bold border-[#2962FF]/40"
                   : "text-[#89919C] hover:text-[#D8DCE2]"
               }`}
             >
@@ -247,8 +247,8 @@ export default function MarketCandleChart({
           >
             <defs>
               <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#38BDF8" stopOpacity={0.2} />
-                <stop offset="95%" stopColor="#38BDF8" stopOpacity={0.0} />
+                <stop offset="5%" stopColor="#2962FF" stopOpacity={0.2} />
+                <stop offset="95%" stopColor="#2962FF" stopOpacity={0.0} />
               </linearGradient>
             </defs>
 
@@ -366,7 +366,7 @@ export default function MarketCandleChart({
                 yAxisId="price"
                 type="monotone"
                 dataKey="close"
-                stroke="#38BDF8"
+                stroke="#2962FF"
                 strokeWidth={1.5}
                 dot={false}
                 isAnimationActive={false}
@@ -380,7 +380,7 @@ export default function MarketCandleChart({
                 yAxisId="price"
                 type="monotone"
                 dataKey="close"
-                stroke="#38BDF8"
+                stroke="#2962FF"
                 strokeWidth={1.5}
                 fill="url(#areaGradient)"
                 dot={false}
@@ -431,7 +431,7 @@ export default function MarketCandleChart({
                 yAxisId="price"
                 type="monotone"
                 dataKey="bb_upper"
-                stroke="#38BDF8"
+                stroke="#2962FF"
                 strokeWidth={1}
                 strokeDasharray="2 2"
                 dot={false}
@@ -444,7 +444,7 @@ export default function MarketCandleChart({
                 yAxisId="price"
                 type="monotone"
                 dataKey="bb_lower"
-                stroke="#38BDF8"
+                stroke="#2962FF"
                 strokeWidth={1}
                 strokeDasharray="2 2"
                 dot={false}
@@ -457,7 +457,7 @@ export default function MarketCandleChart({
                 yAxisId="price"
                 type="monotone"
                 dataKey="vwap"
-                stroke="#06B6D4"
+                stroke="#2962FF"
                 strokeWidth={1}
                 dot={false}
                 isAnimationActive={false}
@@ -478,7 +478,7 @@ export default function MarketCandleChart({
               onClick={() => handleRangeClick(r)}
               className={`px-1.5 py-0.5 rounded-[2px] transition-colors ${
                 activeRange === r
-                  ? "bg-[#141820] text-[#38BDF8] font-bold border border-[#252A31]"
+                  ? "bg-[#141820] text-[#2962FF] font-bold border border-[#252A31]"
                   : "text-[#59616B] hover:text-[#D8DCE2]"
               }`}
             >
@@ -518,13 +518,13 @@ export default function MarketCandleChart({
           )}
           {activeIndicators.includes("bb_upper") && latestBar.bb_upper && (
             <div className="flex items-center space-x-1">
-              <span className="h-1.5 w-1.5 bg-[#38BDF8]" />
+              <span className="h-1.5 w-1.5 bg-[#2962FF]" />
               <span>BB: {latestBar.bb_upper.toFixed(1)}/{latestBar.bb_lower?.toFixed(1)}</span>
             </div>
           )}
           {activeIndicators.includes("vwap") && latestBar.vwap && (
             <div className="flex items-center space-x-1">
-              <span className="h-1.5 w-1.5 bg-[#06B6D4]" />
+              <span className="h-1.5 w-1.5 bg-[#2962FF]" />
               <span>VWAP: {latestBar.vwap.toFixed(2)}</span>
             </div>
           )}

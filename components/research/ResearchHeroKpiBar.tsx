@@ -161,23 +161,25 @@ export default function ResearchHeroKpiBar({
       });
 
   return (
-    <div className="border-b border-[#1E2530] bg-[#0A0D14] px-4 py-3">
-      <div className="max-w-[1720px] mx-auto flex flex-wrap items-center justify-between gap-4">
+    <div className="border-b border-border/80 bg-surface/30 px-4 py-4 backdrop-blur-sm">
+      <div className="mx-auto flex max-w-[1720px] flex-wrap items-center justify-between gap-4">
         {/* Left: Big Price & Change */}
         <div className="flex flex-col">
-          <div className="flex items-baseline space-x-2.5">
-            <span className="text-3xl font-bold text-white tracking-tight">
+          <div className="flex items-baseline gap-2.5">
+            <span className="text-3xl font-semibold tracking-tight text-white tabular-nums">
               {sym}{lastPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
             <span
-              className={`text-sm font-semibold tracking-tight ${
-                isPositive1D ? "text-[#10B981]" : "text-[#EF4444]"
+              className={`rounded-md px-1.5 py-0.5 text-sm font-semibold tracking-tight tabular-nums ${
+                isPositive1D
+                  ? "bg-market-up/10 text-market-up"
+                  : "bg-market-down/10 text-market-down"
               }`}
             >
               {isPositive1D ? "+" : "-"}{sym}{changeAbs} ({isPositive1D ? "+" : ""}{change1D.toFixed(2)}%)
             </span>
           </div>
-          <div className="text-[10px] text-[#59616B] font-mono mt-0.5">
+          <div className="mt-0.5 font-mono text-[10px] text-slate-500">
             Last Updated: {lastDateStr} 16:00:00 UTC
           </div>
         </div>
@@ -205,7 +207,7 @@ export default function ResearchHeroKpiBar({
             </ResponsiveContainer>
           </div>
           {/* Sparkline Y Axis Range Labels */}
-          <div className="absolute right-0 top-0 bottom-0 flex flex-col justify-between text-[9px] text-[#59616B] font-mono pl-1 select-none pointer-events-none">
+          <div className="absolute right-0 top-0 bottom-0 flex flex-col justify-between pl-1 font-mono text-[9px] text-slate-500 pointer-events-none select-none">
             <span>{maxSpark.toFixed(1)}</span>
             <span>{minSpark.toFixed(1)}</span>
           </div>
@@ -215,60 +217,60 @@ export default function ResearchHeroKpiBar({
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs">
           {/* Volume */}
           <div>
-            <span className="text-[10px] text-[#59616B] block">Volume</span>
-            <span className="text-sm font-bold text-white tabular-nums">{volDisplay}</span>
-            <span className="text-[9px] text-[#59616B] block mt-0.5">
+            <span className="block text-[10px] uppercase tracking-wide text-slate-500">Volume</span>
+            <span className="text-sm font-semibold tabular-nums text-white">{volDisplay}</span>
+            <span className="mt-0.5 block text-[9px] text-slate-500">
               Avg 30D: {volDisplay}
             </span>
           </div>
 
           {/* Market Cap */}
           <div>
-            <span className="text-[10px] text-[#59616B] block">Market Cap</span>
-            <span className="text-sm font-bold text-white tabular-nums">{mcapDisplay}</span>
-            <span className="text-[9px] text-[#59616B] block mt-0.5">
+            <span className="block text-[10px] uppercase tracking-wide text-slate-500">Market Cap</span>
+            <span className="text-sm font-semibold tabular-nums text-white">{mcapDisplay}</span>
+            <span className="mt-0.5 block text-[9px] text-slate-500">
               {profile?.exchange || (isIndiaStock ? "NSE" : "US")}
             </span>
           </div>
 
           {/* P/E (TTM) */}
           <div>
-            <span className="text-[10px] text-[#59616B] block">P/E (TTM)</span>
-            <span className="text-sm font-bold text-white tabular-nums">{peRatio}</span>
-            <span className="text-[9px] text-[#59616B] block mt-0.5">
+            <span className="block text-[10px] uppercase tracking-wide text-slate-500">P/E (TTM)</span>
+            <span className="text-sm font-semibold tabular-nums text-white">{peRatio}</span>
+            <span className="mt-0.5 block text-[9px] text-slate-500">
               {profile?.sector ? profile.sector.slice(0, 14) : "Equities"}
             </span>
           </div>
 
           {/* EPS (TTM) */}
           <div>
-            <span className="text-[10px] text-[#59616B] block">EPS (TTM)</span>
-            <span className="text-sm font-bold text-white tabular-nums">
+            <span className="block text-[10px] uppercase tracking-wide text-slate-500">EPS (TTM)</span>
+            <span className="text-sm font-semibold tabular-nums text-white">
               {epsTtm !== "--" ? `${sym}${epsTtm}` : "--"}
             </span>
-            <span className="text-[9px] text-[#10B981] font-semibold block mt-0.5">
+            <span className="mt-0.5 block text-[9px] font-semibold text-market-up">
               TTM Diluted
             </span>
           </div>
 
           {/* Dividend Yield */}
           <div>
-            <span className="text-[10px] text-[#59616B] block">Dividend Yield</span>
-            <span className="text-sm font-bold text-white tabular-nums">{divYield}</span>
-            <span className="text-[9px] text-[#59616B] block mt-0.5">
+            <span className="block text-[10px] uppercase tracking-wide text-slate-500">Dividend Yield</span>
+            <span className="text-sm font-semibold tabular-nums text-white">{divYield}</span>
+            <span className="mt-0.5 block text-[9px] text-slate-500">
               {divYield !== "--" ? "Annualized" : "None"}
             </span>
           </div>
 
           {/* 52W Range */}
           <div className="w-28 sm:w-32">
-            <span className="text-[10px] text-[#59616B] block">52W Range</span>
-            <span className="text-[11px] font-semibold text-[#D8DCE2] tabular-nums block">
+            <span className="block text-[10px] uppercase tracking-wide text-slate-500">52W Range</span>
+            <span className="block text-[11px] font-semibold tabular-nums text-slate-200">
               {sym}{w52Low} &ndash; {sym}{w52High}
             </span>
-            <div className="w-full h-1.5 bg-[#1B222E] rounded-full mt-1 relative overflow-hidden">
+            <div className="relative mt-1 h-1.5 w-full overflow-hidden rounded-full bg-surface-active">
               <div
-                className="h-full bg-gradient-to-r from-[#0284C7] to-[#10B981] rounded-full"
+                className="h-full rounded-full bg-gradient-to-r from-brand-blue to-market-up"
                 style={{ width: `${w52Pct}%` }}
               />
             </div>
@@ -276,13 +278,13 @@ export default function ResearchHeroKpiBar({
 
           {/* Day Range */}
           <div className="w-28 sm:w-32">
-            <span className="text-[10px] text-[#59616B] block">Day Range</span>
-            <span className="text-[11px] font-semibold text-[#D8DCE2] tabular-nums block">
+            <span className="block text-[10px] uppercase tracking-wide text-slate-500">Day Range</span>
+            <span className="block text-[11px] font-semibold tabular-nums text-slate-200">
               {sym}{dayLow} &ndash; {sym}{dayHigh}
             </span>
-            <div className="w-full h-1.5 bg-[#1B222E] rounded-full mt-1 relative overflow-hidden">
+            <div className="relative mt-1 h-1.5 w-full overflow-hidden rounded-full bg-surface-active">
               <div
-                className="h-full bg-gradient-to-r from-[#0284C7] to-[#10B981] rounded-full"
+                className="h-full rounded-full bg-gradient-to-r from-brand-blue to-market-up"
                 style={{ width: `${dayPct}%` }}
               />
             </div>

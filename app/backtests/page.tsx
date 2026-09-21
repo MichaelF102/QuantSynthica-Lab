@@ -9,11 +9,6 @@ import {
   RefreshCw,
   Search,
   Trash2,
-  Copy,
-  ExternalLink,
-  Sliders,
-  Filter,
-  Check,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { BacktestResult, StrategyConfig } from "@/types";
@@ -185,39 +180,28 @@ function BacktestsContent() {
   }, [backtests, filterAsset, filterStatus, searchQuery]);
 
   return (
-    <div className="p-4 space-y-4 max-w-[1920px] mx-auto font-mono text-xs select-none">
-      {/* Workstation Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#252A31] bg-[#101318] p-3 rounded-[2px] gap-3">
+    <div className="mx-auto max-w-[1920px] animate-fade-up space-y-4 p-4 font-sans text-xs">
+      <div className="flex flex-col justify-between gap-3 border-b border-border pb-5 sm:flex-row sm:items-end">
         <div>
-          <div className="flex items-center space-x-2">
-            <span className="font-bold text-sm text-white tracking-wide uppercase">
-              BACKTEST SIMULATION REGISTRY
-            </span>
-            <span className="px-1.5 py-0.5 rounded-[2px] bg-[#252A31] text-[#38BDF8] text-[10px]">
-              {backtests.length} RUNS
-            </span>
-          </div>
-          <p className="text-[11px] text-[#59616B] mt-0.5">
-            Zero-lookahead event execution &bull; Strict t+1 fill modeling &bull; Empirical trade attribution
+          <h1 className="qs-title text-[1.45rem]">Backtests</h1>
+          <p className="mt-1 text-sm text-stone-500">
+            {backtests.length} run{backtests.length === 1 ? "" : "s"} · fills at the next open
           </p>
         </div>
 
-        <button
-          onClick={loadData}
-          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-[2px] bg-[#141820] hover:bg-[#252A31] text-xs text-[#89919C] hover:text-[#D8DCE2] border border-[#252A31] transition-colors"
-        >
-          <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin text-[#38BDF8]" : ""}`} />
-          <span>REFRESH REGISTRY</span>
+        <button onClick={loadData} className="qs-btn-ghost">
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin text-brand-amber" : ""}`} />
+          Refresh
         </button>
       </div>
 
       {/* Execution Launcher Strip */}
-      <div className="border border-[#252A31] bg-[#101318] rounded-[2px] p-3 space-y-3">
+      <div className="qs-panel space-y-3 p-4">
         <div className="flex items-center justify-between border-b border-[#252A31] pb-1.5">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#89919C]">
-            DISPATCH NEW STRATEGY SIMULATION
+          <span className="text-[12px] font-medium text-stone-500">
+            New simulation
           </span>
-          <span className="text-[10px] text-[#59616B]">LOOKAHEAD: ZERO BIAS (NEXT BAR OPEN FILLS)</span>
+          <span className="text-[10px] text-stone-500">Fills at next open</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end text-xs">
@@ -234,7 +218,7 @@ function BacktestsContent() {
                   setTargetAsset(s.asset);
                 }
               }}
-              className="w-full rounded-[2px] bg-[#0B0D10] border border-[#252A31] px-2.5 py-1.5 text-xs text-[#D8DCE2] focus:outline-none focus:border-[#38BDF8]"
+              className="w-full rounded-[2px] bg-[#0B0D10] border border-[#252A31] px-2.5 py-1.5 text-xs text-[#D8DCE2] focus:outline-none focus:border-[#2962FF]"
             >
               {strategies.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -249,7 +233,7 @@ function BacktestsContent() {
               <label className="text-[10px] text-[#59616B] uppercase">
                 Target Stock
               </label>
-              <span className={`text-[9px] px-1 py-0.2 rounded font-bold ${isTargetIndia ? "text-[#10B981] bg-[#10B981]/15" : "text-[#38BDF8] bg-[#38BDF8]/15"}`}>
+              <span className={`text-[9px] px-1 py-0.2 rounded font-bold ${isTargetIndia ? "text-[#10B981] bg-[#10B981]/15" : "text-[#2962FF] bg-[#2962FF]/15"}`}>
                 {isTargetIndia ? "🇮🇳 INDIA" : "🇺🇸 US"}
               </span>
             </div>
@@ -259,7 +243,7 @@ function BacktestsContent() {
                 value={targetAsset}
                 placeholder="e.g. GENUSPOWER, RELIANCE, AAPL..."
                 onChange={(e) => setTargetAsset(e.target.value.toUpperCase())}
-                className="w-full rounded-[2px] bg-[#0B0D10] border border-[#252A31] px-2.5 py-1.5 text-xs font-mono font-bold text-white focus:outline-none focus:border-[#38BDF8]"
+                className="w-full rounded-[2px] bg-[#0B0D10] border border-[#252A31] px-2.5 py-1.5 text-xs font-mono font-bold text-white focus:outline-none focus:border-[#2962FF]"
               />
             </div>
           </div>
@@ -271,7 +255,7 @@ function BacktestsContent() {
             <select
               value={benchmark}
               onChange={(e) => setBenchmark(e.target.value)}
-              className="w-full rounded-[2px] bg-[#0B0D10] border border-[#252A31] px-2.5 py-1.5 text-xs text-[#D8DCE2] focus:outline-none focus:border-[#38BDF8]"
+              className="w-full rounded-[2px] bg-[#0B0D10] border border-[#252A31] px-2.5 py-1.5 text-xs text-[#D8DCE2] focus:outline-none focus:border-[#2962FF]"
             >
               {BENCHMARKS.map((b) => (
                 <option key={b.symbol} value={b.symbol}>
@@ -290,14 +274,14 @@ function BacktestsContent() {
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-1/2 rounded-[2px] bg-[#0B0D10] border border-[#252A31] px-1.5 py-1.5 text-[10px] text-[#D8DCE2] focus:outline-none focus:border-[#38BDF8]"
+                className="w-1/2 rounded-[2px] bg-[#0B0D10] border border-[#252A31] px-1.5 py-1.5 text-[10px] text-[#D8DCE2] focus:outline-none focus:border-[#2962FF]"
                 title="Start Date"
               />
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-1/2 rounded-[2px] bg-[#0B0D10] border border-[#252A31] px-1.5 py-1.5 text-[10px] text-[#D8DCE2] focus:outline-none focus:border-[#38BDF8]"
+                className="w-1/2 rounded-[2px] bg-[#0B0D10] border border-[#252A31] px-1.5 py-1.5 text-[10px] text-[#D8DCE2] focus:outline-none focus:border-[#2962FF]"
                 title="End Date"
               />
             </div>
@@ -307,10 +291,10 @@ function BacktestsContent() {
             <button
               onClick={handleLaunchBacktest}
               disabled={isExecuting || !selectedStratId}
-              className="flex-1 flex items-center justify-center space-x-1.5 rounded-[2px] bg-[#38BDF8] hover:bg-sky-500 px-3 py-1.5 text-xs font-bold text-[#0B0D10] transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
+              className="flex-1 flex items-center justify-center space-x-1.5 rounded-lg bg-[#2962FF] hover:bg-[#1e53e5] px-3 py-1.5 text-xs font-bold text-white transition-colors disabled:opacity-50 cursor-pointer"
             >
               <Play className="h-3.5 w-3.5 fill-current" />
-              <span>{isExecuting ? "SIMULATING..." : `RUN ON ${targetAsset || "STOCK"}`}</span>
+              <span>{isExecuting ? "Running…" : `Run ${targetAsset || "symbol"}`}</span>
             </button>
             <button
               type="button"
@@ -364,7 +348,7 @@ function BacktestsContent() {
                 onClick={() => setTargetAsset(sym)}
                 className={`px-1.5 py-0.5 rounded-[2px] border text-[9px] font-mono transition-colors cursor-pointer ${
                   targetAsset === sym
-                    ? "bg-[#38BDF8]/20 border-[#38BDF8] text-[#38BDF8] font-bold"
+                    ? "bg-[#2962FF]/20 border-[#2962FF] text-[#2962FF] font-bold"
                     : "bg-[#0B0D10] border-[#252A31] text-[#89919C] hover:text-white"
                 }`}
               >
@@ -376,9 +360,9 @@ function BacktestsContent() {
           <button
             type="button"
             onClick={() => setShowTestModal(true)}
-            className="text-[#38BDF8] hover:text-[#7DD3FC] underline font-mono text-[10px] flex items-center space-x-1 cursor-pointer"
+            className="text-[#2962FF] hover:text-[#7DD3FC] underline font-mono text-[10px] flex items-center space-x-1 cursor-pointer"
           >
-            <span>Browse Full Stock Universe (18,500+) →</span>
+            <span>Browse names</span>
           </button>
         </div>
       </div>
@@ -453,7 +437,7 @@ function BacktestsContent() {
                 <tr>
                   <td colSpan={12} className="py-12 text-center text-[#89919C]">
                     <div className="flex flex-col items-center justify-center space-y-2">
-                      <RefreshCw className="h-5 w-5 text-brand-cyan animate-spin" />
+                      <RefreshCw className="h-5 w-5 animate-spin text-brand-amber" />
                       <span>Loading simulation history from quantitative repository...</span>
                     </div>
                   </td>
@@ -462,7 +446,7 @@ function BacktestsContent() {
                 <tr>
                   <td colSpan={12} className="py-12 text-center text-[#59616B]">
                     <div className="flex flex-col items-center justify-center space-y-2">
-                      <Play className="h-6 w-6 text-[#38BDF8]/40" />
+                      <Play className="h-6 w-6 text-[#2962FF]/40" />
                       <span className="text-slate-300 font-medium text-xs">NO BACKTEST RUNS FOUND</span>
                       <span className="text-slate-500 text-[11px]">
                         Select a strategy and target stock above, then click EXECUTE BACKTEST.
@@ -481,7 +465,7 @@ function BacktestsContent() {
                       onClick={() => router.push(`/backtests/${bt.id}`)}
                       className="hover:bg-[#141820]/60 transition-colors cursor-pointer group"
                     >
-                      <td className="py-2.5 px-3 text-[#59616B] font-semibold group-hover:text-[#38BDF8]">
+                      <td className="py-2.5 px-3 text-[#59616B] font-semibold group-hover:text-[#2962FF]">
                         {bt.id}
                       </td>
                       <td className="py-2.5 px-3 font-bold text-[#D8DCE2] group-hover:text-white">
@@ -510,7 +494,7 @@ function BacktestsContent() {
                       <td className="py-2.5 px-3 text-right text-[#EF4444] tabular-nums font-semibold">
                         {m ? `-${m.max_drawdown.toFixed(1)}%` : "—"}
                       </td>
-                      <td className="py-2.5 px-3 text-right text-[#38BDF8] tabular-nums">
+                      <td className="py-2.5 px-3 text-right text-[#2962FF] tabular-nums">
                         {m ? m.num_trades : bt.trades.length}
                       </td>
                       <td className="py-2.5 px-3 text-center">
@@ -533,7 +517,7 @@ function BacktestsContent() {
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
-                          <span className="text-[#38BDF8] flex items-center space-x-0.5 group-hover:translate-x-0.5 transition-transform">
+                          <span className="text-[#2962FF] flex items-center space-x-0.5 group-hover:translate-x-0.5 transition-transform">
                             <span>OPEN</span>
                             <ArrowRight className="h-3 w-3" />
                           </span>
@@ -566,7 +550,7 @@ export default function BacktestsPage() {
         <div className="min-h-screen bg-[#0B0D10] text-[#D8DCE2] flex flex-col items-center justify-center space-y-3 font-mono text-xs select-none">
           <div className="relative w-8 h-8">
             <div className="w-8 h-8 border-2 border-[#252A31] rounded-full" />
-            <div className="w-8 h-8 border-2 border-[#38BDF8] border-t-transparent rounded-full animate-spin absolute top-0 left-0" />
+            <div className="w-8 h-8 border-2 border-[#2962FF] border-t-transparent rounded-full animate-spin absolute top-0 left-0" />
           </div>
           <span className="tracking-wider uppercase text-slate-300">
             LOADING BACKTEST REGISTRY...

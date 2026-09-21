@@ -32,7 +32,7 @@ import {
   ConditionRule,
   RuleOperator,
 } from "@/types";
-import { AVAILABLE_INDICATORS, DEFAULT_STRATEGY, POPULAR_UNIVERSES } from "@/lib/constants";
+import { AVAILABLE_INDICATORS, DEFAULT_STRATEGY } from "@/lib/constants";
 import { SEED_STRATEGIES } from "@/lib/seedData";
 import { loadSystemSettings } from "@/lib/settings";
 import StockSearchInput from "@/components/ui/StockSearchInput";

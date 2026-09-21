@@ -106,7 +106,7 @@ export default function TechnicalOscillators({
           <div className="flex items-center justify-between px-3 py-1.5 border-b border-[#252A31] bg-[#0B0D10] text-xs font-mono">
             <div className="flex items-center space-x-3">
               <span className="font-bold text-[#D8DCE2]">MACD (12, 26, 9)</span>
-              <span className="text-[#38BDF8]">
+              <span className="text-[#2962FF]">
                 MACD {latest.macd_line !== undefined ? latest.macd_line.toFixed(2) : "--"}
               </span>
               <span className="text-[#F59E0B]">
@@ -147,7 +147,7 @@ export default function TechnicalOscillators({
                     return (
                       <div className="rounded-[2px] border border-[#252A31] bg-[#101318] p-1.5 font-mono text-[11px] shadow-none">
                         <div className="text-[#89919C]">{d.date}</div>
-                        <div className="text-[#38BDF8]">MACD: {d.macd_line?.toFixed(2)}</div>
+                        <div className="text-[#2962FF]">MACD: {d.macd_line?.toFixed(2)}</div>
                         <div className="text-[#F59E0B]">SIG: {d.macd_signal?.toFixed(2)}</div>
                         <div className={d.macd_hist && d.macd_hist >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}>
                           HIST: {d.macd_hist?.toFixed(2)}
@@ -168,7 +168,7 @@ export default function TechnicalOscillators({
                 <Line
                   type="monotone"
                   dataKey="macd_line"
-                  stroke="#38BDF8"
+                  stroke="#2962FF"
                   strokeWidth={1.2}
                   dot={false}
                   isAnimationActive={false}
@@ -193,7 +193,7 @@ export default function TechnicalOscillators({
           <div className="flex items-center justify-between px-3 py-1.5 border-b border-[#252A31] bg-[#0B0D10] text-xs font-mono">
             <div className="flex items-center space-x-3">
               <span className="font-bold text-[#D8DCE2]">STOCHASTIC (14, 3)</span>
-              <span className="text-[#38BDF8]">
+              <span className="text-[#2962FF]">
                 %K {latest.stoch_k ? latest.stoch_k.toFixed(1) : "--"}
               </span>
               <span className="text-[#F59E0B]">
@@ -235,7 +235,7 @@ export default function TechnicalOscillators({
                     return (
                       <div className="rounded-[2px] border border-[#252A31] bg-[#101318] p-1.5 font-mono text-[11px] shadow-none">
                         <div className="text-[#89919C]">{d.date}</div>
-                        <div className="text-[#38BDF8]">%K: {d.stoch_k?.toFixed(1)}</div>
+                        <div className="text-[#2962FF]">%K: {d.stoch_k?.toFixed(1)}</div>
                         <div className="text-[#F59E0B]">%D: {d.stoch_d?.toFixed(1)}</div>
                       </div>
                     );
@@ -244,7 +244,7 @@ export default function TechnicalOscillators({
                 <Line
                   type="monotone"
                   dataKey="stoch_k"
-                  stroke="#38BDF8"
+                  stroke="#2962FF"
                   strokeWidth={1.2}
                   dot={false}
                   isAnimationActive={false}

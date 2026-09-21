@@ -233,8 +233,8 @@ export default function PortfolioPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#06090E] text-slate-100 pb-16 font-mono">
-      <div className="max-w-[1720px] mx-auto px-4 py-3 space-y-3.5">
+    <div className="min-h-[calc(100vh-6.5rem)] pb-16 text-slate-100">
+      <div className="mx-auto max-w-[1720px] animate-fade-up space-y-3.5 px-4 py-4">
         {/* 1. Header & Parameter Ribbon */}
         <PortfolioHeader
           portfolioName={portfolioName}

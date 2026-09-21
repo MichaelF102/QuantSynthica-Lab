@@ -41,19 +41,13 @@ export default function AnalyticsHeader({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row lg:items-center justify-between pb-4 border-b border-[#1E2530] gap-4">
-      {/* Title & Subtitle */}
+    <div className="flex flex-col justify-between gap-4 border-b border-border/80 pb-4 lg:flex-row lg:items-center">
       <div>
-        <div className="flex items-center space-x-3">
-          <h1 className="text-xl font-bold text-white tracking-tight font-sans">
-            Analytics
-          </h1>
-          <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-[#10B981]/15 text-[#10B981] font-semibold border border-[#10B981]/30">
-            PRO SUITE
-          </span>
+        <div className="flex items-center gap-3">
+          <h1 className="qs-title text-[1.4rem]">Analytics</h1>
         </div>
-        <p className="text-xs text-[#89919C] mt-0.5">
-          Deep insights into strategy performance, risk, behavior and market regime sensitivity
+        <p className="mt-1 text-sm text-stone-500">
+          Performance, risk, and how the book behaved in different markets.
         </p>
       </div>
 
@@ -64,7 +58,7 @@ export default function AnalyticsHeader({
           <button
             type="button"
             onClick={() => setShowDatePicker(!showDatePicker)}
-            className="flex items-center space-x-2 bg-[#0F141D] hover:bg-[#151C28] border border-[#202C3F] px-3 py-1.5 rounded text-slate-200 hover:text-white transition-colors text-xs font-mono"
+            className="qs-btn-ghost font-mono"
           >
             <span>{startDate}</span>
             <span className="text-slate-500">→</span>
@@ -149,12 +143,12 @@ export default function AnalyticsHeader({
           type="button"
           onClick={onRunAnalysis}
           disabled={isRunning}
-          className="flex items-center space-x-1.5 bg-[#0284C7] hover:bg-[#0369A1] active:bg-[#075985] text-white px-3.5 py-1.5 rounded text-xs font-semibold shadow-md transition-all disabled:opacity-50"
+          className="qs-btn-primary disabled:opacity-50"
         >
           {isRunning ? (
-            <RotateCw className="w-3.5 h-3.5 animate-spin text-white" />
+            <RotateCw className="h-3.5 w-3.5 animate-spin" />
           ) : (
-            <Play className="w-3.5 h-3.5 fill-white text-white" />
+            <Play className="h-3.5 w-3.5 fill-current" />
           )}
           <span>{isRunning ? "Simulating..." : "Run Analysis"}</span>
         </button>

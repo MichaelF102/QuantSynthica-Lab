@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { cn } from "@/lib/cn";
 
 export type ResearchNavTab =
   | "Overview"
@@ -36,8 +37,8 @@ const RESEARCH_TABS: ResearchNavTab[] = [
 
 export default function ResearchSubNav({ activeTab, onSelectTab }: ResearchSubNavProps) {
   return (
-    <div className="border-b border-[#1E2530] bg-[#07090D] px-4 select-none">
-      <div className="max-w-[1720px] mx-auto flex items-center space-x-1 overflow-x-auto no-scrollbar py-1">
+    <div className="select-none border-b border-border/80 bg-surface/20 px-4">
+      <div className="no-scrollbar mx-auto flex max-w-[1720px] items-center gap-1 overflow-x-auto py-1.5">
         {RESEARCH_TABS.map((tab) => {
           const isActive =
             activeTab.toLowerCase() === tab.toLowerCase() ||
@@ -48,13 +49,17 @@ export default function ResearchSubNav({ activeTab, onSelectTab }: ResearchSubNa
               key={tab}
               type="button"
               onClick={() => onSelectTab(tab)}
-              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors whitespace-nowrap ${
+              className={cn(
+                "relative whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
                 isActive
-                  ? "bg-[#141A24] text-white border border-[#252E3E] shadow-sm font-semibold"
-                  : "text-[#89919C] hover:text-white hover:bg-[#10141D]"
-              }`}
+                  ? "bg-surface-active text-white"
+                  : "text-slate-400 hover:bg-surface-hover hover:text-white"
+              )}
             >
               {tab}
+              {isActive && (
+                <span className="absolute inset-x-2 -bottom-[7px] h-px bg-brand-amber" />
+              )}
             </button>
           );
         })}

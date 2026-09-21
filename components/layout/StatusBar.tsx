@@ -1,20 +1,17 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Database, Server, Clock, ShieldCheck, Zap } from "lucide-react";
 import { api } from "@/lib/api";
+import { cn } from "@/lib/cn";
 
 export default function StatusBar() {
-  const [timeStr, setTimeStr] = useState<string>("");
-  const [engineStatus, setEngineStatus] = useState<"READY" | "STANDALONE">("STANDALONE");
-  const [latency, setLatency] = useState<string>("LOCAL");
+  const [timeStr, setTimeStr] = useState("");
+  const [engineReady, setEngineReady] = useState(false);
+  const [latency, setLatency] = useState("—");
 
   useEffect(() => {
     const updateTime = () => {
-      const now = new Date();
-      setTimeStr(
-        now.toTimeString().split(" ")[0] + " UTC"
-      );
+      setTimeStr(new Date().toTimeString().split(" ")[0]);
     };
     updateTime();
     const timer = setInterval(updateTime, 1000);
@@ -22,60 +19,34 @@ export default function StatusBar() {
   }, []);
 
   useEffect(() => {
-    const checkTelemetry = async () => {
+    const check = async () => {
       const t0 = performance.now();
       try {
-        await api.getHealth();
-        const elapsed = Math.round(performance.now() - t0);
-        setEngineStatus("READY");
-        setLatency(`${elapsed}ms`);
+        const health = await api.getHealth();
+        setEngineReady(health.status === "online" || health.engine === "ready");
+        setLatency(`${Math.round(performance.now() - t0)} ms`);
       } catch {
-        setEngineStatus("STANDALONE");
-        setLatency("LOCAL");
+        setEngineReady(false);
+        setLatency("offline");
       }
     };
-    checkTelemetry();
-    const interval = setInterval(checkTelemetry, 30000);
+    check();
+    const interval = setInterval(check, 30000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 z-40 h-6 border-t border-border bg-surface px-3 flex items-center justify-between text-[11px] font-mono text-slate-400 select-none">
-      {/* Left System Flags */}
-      <div className="flex items-center space-x-5">
-        <div className="flex items-center space-x-1.5">
-          <Database className="h-3 w-3 text-slate-400" />
-          <span className="text-slate-500">DATA:</span>
-          <span className="text-slate-300">18,547 EQUITIES (US & INDIA)</span>
-        </div>
-
-        <div className="hidden sm:flex items-center space-x-1.5">
-          <Server className={`h-3 w-3 ${engineStatus === "READY" ? "text-market-up" : "text-amber-400"}`} />
-          <span className="text-slate-500">ENGINE:</span>
-          <span className={engineStatus === "READY" ? "text-market-up" : "text-amber-400"}>
-            {engineStatus === "READY" ? "READY (FASTAPI)" : "STANDALONE"}
-          </span>
-        </div>
-
-        <div className="hidden md:flex items-center space-x-1.5">
-          <ShieldCheck className="h-3 w-3 text-slate-400" />
-          <span className="text-slate-500">LOOKAHEAD:</span>
-          <span className="text-slate-300">ZERO BIAS (t+1 FILLS)</span>
-        </div>
+    <footer className="fixed bottom-0 left-0 right-0 z-40 flex h-7 items-center justify-between border-t border-border bg-[#1e222d] px-4 text-[11px] text-[#787b86]">
+      <div className="flex items-center gap-4">
+        <span className="flex items-center gap-1.5">
+          <span className={cn("h-1.5 w-1.5 rounded-full", engineReady ? "bg-market-up" : "bg-brand-amber")} />
+          {engineReady ? "Engine connected" : "Frontend only"}
+        </span>
+        <span className="hidden sm:inline">Fills at next open · t+1</span>
       </div>
-
-      {/* Right Execution & Clock Flags */}
-      <div className="flex items-center space-x-4">
-        <div className="hidden lg:flex items-center space-x-1.5">
-          <Zap className="h-3 w-3 text-slate-500" />
-          <span className="text-slate-500">LATENCY:</span>
-          <span className="text-slate-300">~{latency}</span>
-        </div>
-
-        <div className="flex items-center space-x-1.5">
-          <Clock className="h-3 w-3 text-slate-500" />
-          <span className="text-slate-300">{timeStr || "12:00:00 UTC"}</span>
-        </div>
+      <div className="flex items-center gap-4">
+        <span className="hidden md:inline">{latency}</span>
+        <span className="tabular-nums text-[#d1d4dc]">{timeStr}</span>
       </div>
     </footer>
   );

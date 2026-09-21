@@ -43,7 +43,7 @@ export default function AnalyticsSubNav({
   onTabChange,
 }: AnalyticsSubNavProps) {
   return (
-    <div className="flex items-center space-x-1 overflow-x-auto border-b border-[#1E2530] scrollbar-none pb-0 text-xs font-sans">
+    <div className="no-scrollbar flex items-center gap-1 overflow-x-auto border-b border-border/80 pb-0 font-sans text-xs">
       {TABS.map((tab) => {
         const Icon = tab.icon;
         const isActive = activeTab === tab.key;
@@ -52,18 +52,21 @@ export default function AnalyticsSubNav({
             key={tab.key}
             type="button"
             onClick={() => onTabChange(tab.key)}
-            className={`flex items-center space-x-2 px-4 py-2.5 border-b-2 font-medium transition-all whitespace-nowrap ${
+            className={`relative flex items-center gap-2 whitespace-nowrap px-4 py-2.5 font-medium transition-all ${
               isActive
-                ? "border-[#38BDF8] text-white font-semibold bg-[#131822]/40"
-                : "border-transparent text-[#89919C] hover:text-slate-200 hover:border-[#252E3E]"
+                ? "bg-surface-active/40 font-semibold text-white"
+                : "text-slate-400 hover:text-slate-200"
             }`}
           >
             <Icon
-              className={`w-3.5 h-3.5 ${
-                isActive ? "text-[#38BDF8]" : "text-[#59616B]"
+              className={`h-3.5 w-3.5 ${
+                isActive ? "text-brand-amber" : "text-stone-500"
               }`}
             />
             <span>{tab.label}</span>
+            {isActive && (
+              <span className="absolute inset-x-3 bottom-0 h-px bg-brand-amber" />
+            )}
           </button>
         );
       })}

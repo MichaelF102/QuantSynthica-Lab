@@ -1,31 +1,15 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef, Suspense } from "react";
-import Link from "next/link";
+import React, { useState, useEffect, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  Search,
-  ArrowRight,
-  SlidersHorizontal,
-  ChevronDown,
-  Check,
-  Calendar,
-  Layers,
-  ArrowUpRight,
-  ArrowDownRight,
-  Command,
-  X,
-  TrendingUp,
-} from "lucide-react";
+import { Search, X } from "lucide-react";
 import { api } from "@/lib/api";
 import { MarketDataResponse, MarketBar, StockFundamentals } from "@/types";
 import { BENCHMARKS } from "@/lib/constants";
 import { loadSystemSettings } from "@/lib/settings";
-import { formatCurrency, formatPercent, formatNumber } from "@/lib/formatters";
 import MarketCandleChart, { ChartType } from "@/components/charts/MarketCandleChart";
 import UnderwaterDrawdownChart from "@/components/charts/UnderwaterDrawdownChart";
 import TechnicalOscillators from "@/components/charts/TechnicalOscillators";
-import StockSearchInput from "@/components/ui/StockSearchInput";
 import DrawdownWorkstation from "@/components/research/DrawdownWorkstation";
 import MarketRegimeTimeline from "@/components/research/MarketRegimeTimeline";
 import FactorAttributionRiskGrid from "@/components/research/FactorAttributionRiskGrid";
@@ -52,25 +36,6 @@ type SubNavTab =
   | "ownership"
   | "esg";
 
-interface IndicatorItem {
-  id: string;
-  label: string;
-  category: "TREND" | "MOMENTUM" | "VOLATILITY" | "VOLUME";
-}
-
-const INDICATOR_LIST: IndicatorItem[] = [
-  { id: "sma_20", label: "SMA 20", category: "TREND" },
-  { id: "sma_50", label: "SMA 50", category: "TREND" },
-  { id: "ema_20", label: "EMA 20", category: "TREND" },
-  { id: "rsi_14", label: "RSI (14)", category: "MOMENTUM" },
-  { id: "macd", label: "MACD (12, 26, 9)", category: "MOMENTUM" },
-  { id: "stochastic", label: "Stochastic (14, 3)", category: "MOMENTUM" },
-  { id: "bb_upper", label: "Bollinger Bands", category: "VOLATILITY" },
-  { id: "atr_14", label: "ATR (14)", category: "VOLATILITY" },
-  { id: "vwap", label: "VWAP", category: "VOLUME" },
-  { id: "volume", label: "Volume Bars", category: "VOLUME" },
-];
-
 const BACKEND_INDICATORS = [
   { id: "sma_20", name: "SMA", params: { period: 20 } },
   { id: "sma_50", name: "SMA", params: { period: 50 } },
@@ -85,19 +50,6 @@ const BACKEND_INDICATORS = [
   { id: "stoch_k", name: "STOCH_K", params: { k_period: 14 } },
   { id: "stoch_d", name: "STOCH_D", params: { k_period: 14, d_period: 3 } },
   { id: "vwap", name: "VWAP", params: {} },
-];
-
-// Reference ticker tape sample
-const TICKER_TAPE = [
-  { sym: "SPY", price: "512.40", chg: "+0.85%" },
-  { sym: "QQQ", price: "441.20", chg: "+1.12%" },
-  { sym: "NVDA", price: "128.90", chg: "+3.40%" },
-  { sym: "AAPL", price: "190.21", chg: "+0.89%" },
-  { sym: "MSFT", price: "428.15", chg: "-0.24%" },
-  { sym: "AMZN", price: "186.40", chg: "+0.72%" },
-  { sym: "META", price: "504.60", chg: "+1.52%" },
-  { sym: "TSLA", price: "178.50", chg: "+2.15%" },
-  { sym: "GOOGL", price: "176.80", chg: "-0.38%" },
 ];
 
 const getTodayStr = () => new Date().toISOString().split("T")[0];
@@ -215,23 +167,9 @@ function ResearchContent() {
     "atr_14",
     "volume",
   ]);
-  const [indicatorDrawerOpen, setIndicatorDrawerOpen] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [commandSearch, setCommandSearch] = useState("");
   const [watchlistToast, setWatchlistToast] = useState<string | null>(null);
-  const indicatorDropdownRef = useRef<HTMLDivElement>(null);
-
-  // Real-time UTC clock for status bar
-  const [utcTime, setUtcTime] = useState<string>("");
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      setUtcTime(now.toTimeString().split(" ")[0] + " UTC");
-    };
-    updateTime();
-    const timer = setInterval(updateTime, 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   // Data States
   const [marketData, setMarketData] = useState<MarketDataResponse | null>(null);
@@ -277,7 +215,6 @@ function ResearchContent() {
 
       // Escape: close overlays
       if (e.key === "Escape") {
-        setIndicatorDrawerOpen(false);
         setCommandPaletteOpen(false);
         return;
       }
@@ -313,20 +250,6 @@ function ResearchContent() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [router, ticker, benchmark, startDate, endDate, timeframe, activeIndicators]);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (
-        indicatorDropdownRef.current &&
-        !indicatorDropdownRef.current.contains(e.target as Node)
-      ) {
-        setIndicatorDrawerOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   // Fetch security data and benchmark data in parallel
   const fetchMarketData = async () => {
@@ -591,7 +514,7 @@ function ResearchContent() {
   }, [ticker, benchmark, startDate, endDate, timeframe, activeIndicators]);
 
   return (
-    <div className="min-h-screen bg-[#05070A] text-[#D8DCE2] flex flex-col font-mono selection:bg-[#FF9900] selection:text-black">
+    <div className="flex min-h-[calc(100vh-6.5rem)] flex-col text-slate-200">
       {/* Toast Notification */}
       {watchlistToast && (
         <div className="fixed top-2 right-4 z-50 bg-[#101318] border border-[#FF9900] px-3 py-1 text-xs text-[#FF9900]">
@@ -1281,49 +1204,6 @@ function ResearchContent() {
             )}
           </>
         ) : null}
-      </div>
-
-      {/* ========================================================
-          BLOOMBERG TICKER TAPE
-          ======================================================== */}
-      <div className="border-t border-[#252A31] bg-[#07090C] px-3 py-1 text-[10px] overflow-hidden whitespace-nowrap select-none">
-        <div className="flex items-center space-x-6">
-          <span className="text-[#FF9900] font-bold">MARKETS:</span>
-          {TICKER_TAPE.map((item) => (
-            <div key={item.sym} className="inline-flex items-center space-x-1">
-              <span className="text-[#D8DCE2] font-semibold">{item.sym}</span>
-              <span className="text-[#89919C]">{item.price}</span>
-              <span className={item.chg.startsWith("+") ? "text-[#10B981] font-bold" : "text-[#EF4444] font-bold"}>
-                {item.chg}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ========================================================
-          TERMINAL STATUS BAR
-          ======================================================== */}
-      <div className="border-t border-[#252A31] bg-[#05070A] px-3 py-1 text-[10px] text-[#89919C] shrink-0 select-none">
-        <div className="max-w-[1720px] mx-auto flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center space-x-3 text-[#59616B]">
-            <span>DATA <span className="text-[#D8DCE2]">18,547 EQUITIES</span></span>
-            <span>&bull;</span>
-            <span>FEED <span className="text-[#D8DCE2]">MARKET DATA</span></span>
-            <span>&bull;</span>
-            <span>ENGINE <span className="text-[#10B981] font-bold">READY</span></span>
-            <span>&bull;</span>
-            <span>CACHE <span className="text-[#38BDF8]">WARM</span></span>
-            <span>&bull;</span>
-            <span>LOOKAHEAD <span className="text-[#D8DCE2]">ZERO BIAS</span></span>
-            <span>&bull;</span>
-            <span>LATENCY <span className="text-[#D8DCE2]">1.2ms</span></span>
-          </div>
-
-          <div className="text-[#FF9900] font-bold">
-            {utcTime || "UTC TIME"}
-          </div>
-        </div>
       </div>
 
       {/* ========================================================

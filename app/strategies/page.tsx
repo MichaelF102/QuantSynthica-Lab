@@ -2,28 +2,16 @@
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   Search,
-  Plus,
   Play,
-  Copy,
-  Trash2,
-  SlidersHorizontal,
-  ArrowUpRight,
-  Layers,
-  FileCode,
-  X,
   Check,
-  ChevronRight,
   Star,
   MoreVertical,
   LayoutGrid,
   List,
-  ChevronDown,
-  ArrowRight,
   Users,
-  Sliders,
+  Layers,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { StrategyConfig } from "@/types";
@@ -34,7 +22,6 @@ import MiniSparkline from "@/components/charts/MiniSparkline";
 import TestStrategyModal from "@/components/strategies/TestStrategyModal";
 
 export default function StrategiesPage() {
-  const router = useRouter();
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const [strategies, setStrategies] = useState<StrategyConfig[]>(() => SEED_STRATEGIES);
@@ -272,61 +259,39 @@ export default function StrategiesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0D10] text-[#D8DCE2] font-mono text-xs flex flex-col select-none">
+    <div className="flex min-h-[calc(100vh-6.5rem)] select-none flex-col bg-transparent text-xs text-slate-200">
       {/* ============================================================ */}
       {/* 1. TOP METRIC RIBBON & STRATEGY HEADER                       */}
       {/* ============================================================ */}
-      <div className="border-b border-[#252A31] bg-[#101318] px-4 py-3">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 max-w-[1920px] mx-auto">
+      <div className="border-b border-border/80 bg-surface/40 px-4 py-4 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-[1920px] flex-col justify-between gap-4 lg:flex-row lg:items-center">
           {/* Title & Description */}
           <div>
-            <h1 className="text-base font-bold text-white tracking-wide uppercase">
-              Strategies
-            </h1>
-            <p className="text-[11px] text-[#89919C] mt-0.5">
-              Systematic trading models for research, backtesting and live deployment
+            <h1 className="qs-title text-[1.4rem]">Strategies</h1>
+            <p className="mt-1 text-sm text-stone-500">
+              Models you can backtest. Nothing here is routed live.
             </p>
           </div>
 
           {/* Top KPI Metrics Strip */}
-          <div className="flex items-center space-x-6 overflow-x-auto text-xs font-mono">
-            <div className="text-center">
-              <div className="text-sm font-bold text-white">{strategies.length}</div>
-              <div className="text-[10px] text-[#89919C] uppercase">Total Strategies</div>
+            <div className="flex items-center gap-2 overflow-x-auto font-mono text-xs">
+              {[
+                { label: "Total", value: strategies.length, tone: "text-white" },
+                { label: "Active", value: strategies.length, tone: "text-market-up" },
+                { label: "Trend", value: categoryCounts.TREND, tone: "text-white" },
+                { label: "Mean Rev", value: categoryCounts.MEAN_REVERSION, tone: "text-white" },
+                { label: "Momentum", value: categoryCounts.MOMENTUM, tone: "text-white" },
+                { label: "Breakout", value: categoryCounts.BREAKOUT, tone: "text-white" },
+                { label: "Vol", value: categoryCounts.VOLATILITY, tone: "text-white" },
+                { label: "Systematic", value: categoryCounts.SYSTEMATIC, tone: "text-white" },
+                { label: "Custom", value: categoryCounts.CUSTOM, tone: "text-brand-amber" },
+              ].map((kpi) => (
+                <div key={kpi.label} className="rounded-lg border border-border bg-surface-muted/50 px-3 py-1.5 text-center">
+                  <div className={`text-sm font-semibold tabular-nums ${kpi.tone}`}>{kpi.value}</div>
+                  <div className="text-[9px] uppercase tracking-wide text-slate-500">{kpi.label}</div>
+                </div>
+              ))}
             </div>
-            <div className="text-center">
-              <div className="text-sm font-bold text-[#10B981]">{strategies.length}</div>
-              <div className="text-[10px] text-[#10B981] uppercase">Active</div>
-            </div>
-            <div className="text-center">
-              <div className="text-sm font-bold text-white">{categoryCounts.TREND}</div>
-              <div className="text-[10px] text-[#89919C] uppercase">Trend</div>
-            </div>
-            <div className="text-center">
-              <div className="text-sm font-bold text-white">{categoryCounts.MEAN_REVERSION}</div>
-              <div className="text-[10px] text-[#89919C] uppercase">Mean Reversion</div>
-            </div>
-            <div className="text-center">
-              <div className="text-sm font-bold text-white">{categoryCounts.MOMENTUM}</div>
-              <div className="text-[10px] text-[#89919C] uppercase">Momentum</div>
-            </div>
-            <div className="text-center">
-              <div className="text-sm font-bold text-white">{categoryCounts.BREAKOUT}</div>
-              <div className="text-[10px] text-[#89919C] uppercase">Breakout</div>
-            </div>
-            <div className="text-center">
-              <div className="text-sm font-bold text-white">{categoryCounts.VOLATILITY}</div>
-              <div className="text-[10px] text-[#89919C] uppercase">Volatility</div>
-            </div>
-            <div className="text-center">
-              <div className="text-sm font-bold text-white">{categoryCounts.SYSTEMATIC}</div>
-              <div className="text-[10px] text-[#89919C] uppercase">Systematic</div>
-            </div>
-            <div className="text-center">
-              <div className="text-sm font-bold text-[#F59E0B]">{categoryCounts.CUSTOM}</div>
-              <div className="text-[10px] text-[#89919C] uppercase">Custom</div>
-            </div>
-          </div>
         </div>
       </div>
 

@@ -3,35 +3,93 @@
 @tailwind utilities;
 
 :root {
-  --background: #090c10;
-  --foreground: #e2e8f0;
+  --background: #131722;
+  --foreground: #d1d4dc;
+}
+
+html {
+  color-scheme: dark;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Crisp dark scrollbar */
+.qs-app {
+  position: relative;
+  z-index: 1;
+}
+
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #090c10;
+  background: #131722;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e2638;
-  border-radius: 2px;
+  background: #363a45;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #2b374e;
+  background: #434651;
 }
 
-/* Tabular numbers for clean financial alignment */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@layer components {
+  .qs-panel {
+    @apply border border-border bg-surface;
+    border-radius: 8px;
+  }
+
+  .qs-section-label {
+    @apply text-sm font-semibold text-[#d1d4dc];
+  }
+
+  .qs-title {
+    @apply text-2xl font-bold leading-tight tracking-tight text-white;
+  }
+
+  .qs-btn-primary {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#2962FF] px-3.5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[#1e53e5];
+  }
+
+  .qs-btn-ghost {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-transparent px-3.5 py-2 text-[13px] font-semibold text-[#d1d4dc] transition-colors hover:bg-surface-muted hover:text-white;
+  }
+
+  .qs-badge {
+    @apply inline-flex items-center rounded px-1.5 py-0.5 text-[11px] text-[#787b86];
+  }
+
+  .qs-link {
+    @apply inline-flex items-center gap-1 text-[13px] font-semibold text-[#2962FF] transition-colors hover:text-[#5b8def];
+  }
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+  cursor: pointer;
+}
+
+select,
+input,
+textarea,
+button {
+  font-family: inherit;
 }
