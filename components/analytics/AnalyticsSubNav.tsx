@@ -27,7 +27,7 @@ interface AnalyticsSubNavProps {
   onTabChange: (tab: AnalyticsTabKey) => void;
 }
 
-const TABS: { key: AnalyticsTabKey; label: string; icon: React.ElementType }[] = [
+const TABS: { key: AnalyticsTabKey; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { key: "Overview", label: "Overview", icon: LayoutDashboard },
   { key: "Performance", label: "Performance", icon: TrendingUp },
   { key: "Risk", label: "Risk", icon: ShieldAlert },
