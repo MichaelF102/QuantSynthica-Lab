@@ -8,6 +8,7 @@ import RiskOrbits from "./RiskOrbits";
 import RiskParticles from "./RiskParticles";
 import RiskShockwave from "./RiskShockwave";
 import { RiskState } from "./RiskNavigation";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 interface RiskObservatoryProps {
   activeRisk: RiskState;
@@ -46,6 +47,8 @@ function CameraRig({ activeRisk }: { activeRisk: RiskState }) {
 }
 
 export default function RiskObservatory({ activeRisk, onSelectRisk }: RiskObservatoryProps) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -61,7 +64,7 @@ export default function RiskObservatory({ activeRisk, onSelectRisk }: RiskObserv
 
   if (!mounted) {
     return (
-      <div className="w-full h-[560px] lg:h-[600px] rounded-3xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-400 text-sm">
+      <div className="w-full h-[560px] lg:h-[600px] rounded-3xl bg-slate-50 dark:bg-[#070D18] border border-slate-200/80 dark:border-slate-800 flex items-center justify-center text-slate-400 text-sm">
         Initializing Risk Observatory...
       </div>
     );
@@ -131,11 +134,11 @@ export default function RiskObservatory({ activeRisk, onSelectRisk }: RiskObserv
   }
 
   return (
-    <div className="w-full h-[560px] lg:h-[600px] relative rounded-3xl overflow-hidden bg-gradient-to-b from-[#F8FAFC] via-[#F1F5F9]/60 to-[#F8FAFC] border border-slate-200/90 shadow-xs">
+    <div className="w-full h-[560px] lg:h-[600px] relative rounded-3xl overflow-hidden bg-gradient-to-b from-[#F8FAFC] via-[#F1F5F9]/60 to-[#F8FAFC] dark:from-[#0B1528] dark:via-[#08101E] dark:to-[#060D17] border border-slate-200/90 dark:border-slate-800 shadow-xs dark:shadow-[0_12px_40px_rgba(0,0,0,0.5)] transition-colors duration-300">
       {/* Background Soft Gradients & Grid Lines */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_45%,rgba(23,105,255,0.06),transparent_55%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_65%_55%,rgba(239,68,68,0.05),transparent_55%)] pointer-events-none" />
-      <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(#0B1220_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_45%,rgba(23,105,255,0.06),transparent_55%)] dark:bg-[radial-gradient(circle_at_35%_45%,rgba(56,189,248,0.12),transparent_55%)] pointer-events-none transition-colors duration-300" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_65%_55%,rgba(239,68,68,0.05),transparent_55%)] dark:bg-[radial-gradient(circle_at_65%_55%,rgba(244,63,94,0.10),transparent_55%)] pointer-events-none transition-colors duration-300" />
+      <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.04] bg-[radial-gradient(#0B1220_1px,transparent_1px)] dark:bg-[radial-gradient(#FFFFFF_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
 
       {/* 3D Canvas */}
       <Canvas
@@ -147,35 +150,35 @@ export default function RiskObservatory({ activeRisk, onSelectRisk }: RiskObserv
           <CameraRig activeRisk={activeRisk} />
 
           {/* Dynamic Dual-Tone Lighting */}
-          <ambientLight intensity={0.8} />
+          <ambientLight intensity={isDark ? 0.65 : 0.85} />
           {/* Cool Normal Light (Left) */}
-          <directionalLight position={[-4, 3, 4]} intensity={1.4} color="#38BDF8" />
+          <directionalLight position={[-4, 3, 4]} intensity={isDark ? 1.5 : 1.3} color="#38BDF8" />
           {/* Warm Stress Light (Right) */}
-          <directionalLight position={[4, -2, 3]} intensity={1.3} color="#FB7185" />
-          <pointLight position={[0, 0, 3]} intensity={0.9} color="#818CF8" />
+          <directionalLight position={[4, -2, 3]} intensity={isDark ? 1.4 : 1.2} color="#FB7185" />
+          <pointLight position={[0, 0, 3]} intensity={isDark ? 1.0 : 0.8} color="#818CF8" />
 
           {/* 3D Scene Components */}
           <RiskParticles activeRisk={activeRisk} />
           <RiskCore activeRisk={activeRisk} />
-          <RiskOrbits activeRisk={activeRisk} onSelectRisk={onSelectRisk} />
+          <RiskOrbits activeRisk={activeRisk} onSelectRisk={onSelectRisk} isDark={isDark} />
           <RiskShockwave active={activeRisk === "stress"} />
         </Suspense>
       </Canvas>
 
       {/* Central Sphere Typography Overlay — Always Front, 100% Crisp */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-        <div className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl bg-[#08111F]/85 backdrop-blur-xs border border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.4)] text-center min-w-[145px]">
-          <div className="text-[10px] tracking-[0.24em] text-[#60A5FA] font-bold uppercase leading-none drop-shadow-md">
+        <div className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl bg-white/85 dark:bg-[#070E1B]/85 backdrop-blur-xs border border-slate-200/90 dark:border-white/15 shadow-md dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)] text-center min-w-[145px] transition-colors duration-300">
+          <div className="text-[10px] tracking-[0.24em] text-[#1769FF] dark:text-[#60A5FA] font-bold uppercase leading-none drop-shadow-xs">
             PORTFOLIO
           </div>
-          <div className="text-xl sm:text-2xl font-black tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)] mt-1 mb-1.5">
+          <div className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white drop-shadow-xs mt-1 mb-1.5">
             RISK
           </div>
-          <div className="h-0.5 w-12 bg-gradient-to-r from-blue-400 via-indigo-400 to-rose-400 mb-1.5 opacity-90 rounded-full" />
-          <div className="text-[8.5px] tracking-[0.18em] text-slate-200 font-bold uppercase leading-tight drop-shadow-md">
+          <div className="h-0.5 w-12 bg-gradient-to-r from-blue-500 via-indigo-500 to-rose-500 mb-1.5 opacity-90 rounded-full" />
+          <div className="text-[8.5px] tracking-[0.18em] text-slate-600 dark:text-slate-200 font-bold uppercase leading-tight">
             MEASURE · ANALYZE
           </div>
-          <div className="text-[8.5px] tracking-[0.18em] text-rose-300 font-bold uppercase leading-tight drop-shadow-md mt-0.5">
+          <div className="text-[8.5px] tracking-[0.18em] text-rose-600 dark:text-rose-300 font-bold uppercase leading-tight mt-0.5">
             STRESS · OPTIMIZE
           </div>
         </div>
