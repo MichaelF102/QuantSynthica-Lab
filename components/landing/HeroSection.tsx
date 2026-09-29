@@ -7,6 +7,7 @@ import HeroCopy from "./HeroCopy";
 import HeroStats from "./HeroStats";
 import MarketCards from "./MarketCards";
 import ProductPreview from "./ProductPreview";
+import SectionBackground from "@/components/backgrounds/SectionBackground";
 
 // Dynamically import Three.js Globe with SSR disabled
 const QuantMarketGlobe = dynamic(
@@ -52,29 +53,13 @@ export default function HeroSection() {
   return (
     <section
       onMouseMove={handleMouseMove}
-      className="relative min-h-[780px] w-full overflow-hidden bg-[#F8FAFC] pb-16 pt-8 sm:pt-12 lg:pb-24 lg:pt-14 dark:bg-[#070D18] transition-colors duration-200"
+      className="relative min-h-[780px] w-full overflow-hidden bg-[var(--bg-hero)] pb-16 pt-8 sm:pt-12 lg:pb-24 lg:pt-14 transition-colors duration-500"
     >
-      {/* 1. Subtle Quantitative Ambient Background */}
-      <div className="pointer-events-none absolute inset-0 z-0">
-        {/* Soft Radial Gradients */}
-        <div
-          className="absolute right-0 top-0 h-[680px] w-[880px] opacity-70"
-          style={{
-            background:
-              "radial-gradient(circle at 70% 30%, rgba(23,105,255,0.12) 0%, rgba(79,70,229,0.06) 35%, transparent 65%)",
-          }}
-        />
-        <div
-          className="absolute left-[-100px] top-[40%] h-[500px] w-[500px] opacity-40"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(56,189,248,0.08) 0%, transparent 60%)",
-          }}
-        />
-
-        {/* Faint Background Candlestick Silhouettes */}
-        <div className="absolute right-0 top-1/4 h-80 w-72 opacity-[0.035] mix-blend-multiply">
-          <svg viewBox="0 0 200 240" fill="currentColor" className="h-full w-full text-slate-900">
+      {/* 1. Component-Specific Semantic Hero Background */}
+      <SectionBackground variant="hero">
+        {/* Faint Candlestick Silhouettes */}
+        <div className="absolute right-0 top-1/4 h-80 w-72 opacity-[0.03] dark:opacity-[0.04] mix-blend-multiply dark:mix-blend-screen pointer-events-none">
+          <svg viewBox="0 0 200 240" fill="currentColor" className="h-full w-full text-slate-800 dark:text-slate-400">
             <rect x="20" y="40" width="10" height="80" />
             <line x1="25" y1="20" x2="25" y2="140" stroke="currentColor" strokeWidth="2" />
             <rect x="50" y="70" width="10" height="90" />
@@ -87,9 +72,8 @@ export default function HeroSection() {
             <line x1="145" y1="5" x2="145" y2="170" stroke="currentColor" strokeWidth="2" />
           </svg>
         </div>
-
         {/* Dotted Global Orbit Guides */}
-        <div className="absolute right-[5%] top-[10%] h-[560px] w-[700px] opacity-35">
+        <div className="absolute right-[5%] top-[10%] h-[560px] w-[700px] opacity-35 pointer-events-none">
           <svg viewBox="0 0 700 560" fill="none" className="h-full w-full">
             <ellipse
               cx="350"
@@ -113,7 +97,7 @@ export default function HeroSection() {
             />
           </svg>
         </div>
-      </div>
+      </SectionBackground>
 
       {/* 2. Main Two-Column Content Grid */}
       <div className="relative z-10 mx-auto max-w-[1520px] px-4 sm:px-6 lg:px-8">

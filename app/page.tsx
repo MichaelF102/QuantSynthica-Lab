@@ -10,10 +10,11 @@ import CoveredMarketsSection from "@/components/landing/markets/CoveredMarketsSe
 import RiskIntelligenceSection from "@/components/landing/risk-intelligence/RiskIntelligenceSection";
 import PortfolioIntelligenceSection from "@/components/landing/portfolio-intelligence/PortfolioIntelligenceSection";
 import FinalCTA from "@/components/landing/final-cta/FinalCTA";
+import SectionBackground from "@/components/backgrounds/SectionBackground";
 
 export default function LandingPage() {
   return (
-    <div className="w-full bg-[#F8FAFC] dark:bg-[#070D18] transition-colors duration-200">
+    <div className="w-full bg-[var(--background)] transition-colors duration-300">
       {/* 1. Master Redesigned Hero Section */}
       <HeroSection />
 
@@ -41,7 +42,9 @@ export default function LandingPage() {
       <PortfolioIntelligenceSection />
 
       {/* 9. Methodology & Rigor Section */}
-      <section id="coverage" className="border-t border-slate-200/80 bg-white py-16 dark:border-slate-800 dark:bg-[#070D18] transition-colors">
+      <section id="coverage" className="relative border-t border-slate-200/80 dark:border-slate-800 bg-[var(--bg-methodology)] py-16 overflow-hidden transition-colors duration-500">
+        {/* Component-Specific Semantic Methodology Background */}
+        <SectionBackground variant="methodology" />
         <div className="mx-auto max-w-[1520px] px-4 sm:px-6 lg:px-8">
           <div className="text-[12px] font-bold tracking-[0.2em] text-[#1769FF] uppercase">
             EXECUTION METHODOLOGY

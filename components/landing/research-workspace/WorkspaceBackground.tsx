@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 
+import SectionBackground from "@/components/backgrounds/SectionBackground";
+
 const ResearchAtmosphere = dynamic(
   () => import("@/components/three/ResearchAtmosphere"),
   { ssr: false }
@@ -24,17 +26,8 @@ export default function WorkspaceBackground() {
 
   return (
     <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden select-none">
-      {/* Primary Radial Glow Behind Terminal & Top Right */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: `
-            radial-gradient(circle at 75% 22%, rgba(37,99,235,0.09), transparent 36%),
-            radial-gradient(circle at 20% 75%, rgba(99,102,241,0.05), transparent 30%),
-            radial-gradient(circle at 50% 50%, rgba(241,245,249,0.5), transparent 70%)
-          `,
-        }}
-      />
+      {/* Component-Specific Semantic Research Background */}
+      <SectionBackground variant="research" />
 
       {/* Decorative Network Grid & Arcs (matching reference image) */}
       <svg

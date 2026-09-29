@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import MarketSectionHeader from "./MarketSectionHeader";
 import MarketCategoryTabs, { MarketCategoryId } from "./MarketCategoryTabs";
 import MarketOverviewPanel from "./MarketOverviewPanel";
+import SectionBackground from "@/components/backgrounds/SectionBackground";
 
 // Dynamic import of subtle 3D globe with SSR disabled
 const MarketUniverseGlobe = dynamic(
@@ -35,20 +36,14 @@ export default function CoveredMarketsSection() {
   }, []);
 
   return (
-    <section className="relative w-full overflow-hidden bg-[#F8FAFC] dark:bg-[#070D18] py-16 sm:py-24">
+    <section className="relative w-full border-t border-slate-200/80 dark:border-slate-800 overflow-hidden bg-[var(--bg-markets)] py-16 sm:py-24 transition-colors duration-500">
+      {/* Component-Specific Semantic Markets Background */}
+      <SectionBackground variant="markets" />
+
       {/* 1. Subtle 3D Globe & Atmospheric Background */}
       <div className="pointer-events-none absolute right-[-5%] top-[-5%] z-0 h-[480px] w-[580px] overflow-hidden lg:h-[560px] lg:w-[680px]">
         {mounted && <MarketUniverseGlobe />}
       </div>
-
-      {/* Background Soft Ambient Radial Glow */}
-      <div
-        className="pointer-events-none absolute right-10 top-20 z-0 h-[400px] w-[500px] opacity-40"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(23,105,255,0.08) 0%, rgba(79,70,229,0.03) 50%, transparent 70%)",
-        }}
-      />
 
       {/* Floating Global Orbit Marker Badges */}
       <div className="pointer-events-none absolute right-[28%] top-[12%] z-0 hidden lg:flex items-center gap-1.5 rounded-full border border-blue-200/60 dark:border-blue-900/60 bg-white/70 dark:bg-[#0B1528]/80 px-2.5 py-0.5 text-[10px] font-bold text-[#1769FF] dark:text-blue-400 shadow-2xs backdrop-blur-xs">

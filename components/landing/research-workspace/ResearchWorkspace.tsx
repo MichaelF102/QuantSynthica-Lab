@@ -34,7 +34,7 @@ export default function ResearchWorkspace() {
     <section
       ref={sectionRef}
       id="research-workspace"
-      className="relative w-full border-t border-slate-200/80 bg-[#F8FAFC] py-20 lg:py-28 overflow-hidden select-none dark:border-slate-800 dark:bg-[#070D18] transition-colors duration-200"
+      className="relative w-full border-t border-slate-200/80 dark:border-slate-800 bg-[var(--bg-research)] py-20 lg:py-28 overflow-hidden select-none transition-colors duration-500"
     >
       {/* Subtle Background Radial Glow, Decorative Arcs, Floating Badges & R3F */}
       <motion.div style={{ y: backgroundY }} className="absolute inset-0">

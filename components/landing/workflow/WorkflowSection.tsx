@@ -18,6 +18,7 @@ import WorkflowNavigation from "./WorkflowNavigation";
 import WorkflowStage from "./WorkflowStage";
 import WorkflowVisual from "./WorkflowVisual";
 import WorkflowProgress from "./WorkflowProgress";
+import SectionBackground from "@/components/backgrounds/SectionBackground";
 
 // Dynamically import subtle Three.js particle background with no SSR
 const WorkflowNetwork = dynamic(
@@ -180,13 +181,13 @@ export default function WorkflowSection() {
       onKeyDown={handleKeyDown}
       tabIndex={0}
       aria-label="Quantitative Workflow Section"
-      className="relative w-full border-t border-slate-200/90 bg-[#F8FAFC] py-10 sm:py-14 lg:py-16 overflow-hidden focus:outline-none dark:border-slate-800 dark:bg-[#070D18] transition-colors duration-200"
+      className="relative w-full border-t border-slate-200/90 dark:border-slate-800 bg-[var(--bg-workflow)] py-10 sm:py-14 lg:py-16 overflow-hidden focus:outline-none transition-colors duration-500"
     >
+      {/* Component-Specific Semantic Workflow Background */}
+      <SectionBackground variant="workflow" />
+
       {/* Subtle Quantitative Network Background (3D Three.js, Non-capturing) */}
       <WorkflowNetwork />
-
-      {/* Subtle Coordinate Grid Lines */}
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.03)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:48px_48px] -z-10" />
 
       {/* Main Content Container with Clamped Responsive Spacing */}
       <div className="relative z-10 flex flex-col justify-start gap-4 lg:gap-6 px-4 sm:px-6 lg:px-8 max-w-[1520px] mx-auto">

@@ -7,6 +7,7 @@ import ResearchUniverse from "./ResearchUniverse";
 import ResearchJourney from "./ResearchJourney";
 import CTAStats from "./CTAStats";
 import FinalFooter from "./FinalFooter";
+import SectionBackground from "@/components/backgrounds/SectionBackground";
 
 export default function FinalCTA() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -16,12 +17,10 @@ export default function FinalCTA() {
     <section
       id="final-cta"
       ref={sectionRef}
-      className="relative w-full bg-[#07111F] text-white pt-24 sm:pt-32 overflow-hidden border-t border-slate-800/80"
+      className="relative w-full bg-[var(--bg-cta)] text-white pt-24 sm:pt-32 overflow-hidden border-t border-slate-800/80 transition-colors duration-500"
     >
-      {/* Deep Atmospheric Gradients */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1400px] h-[800px] bg-[radial-gradient(ellipse_at_top,rgba(23,105,255,0.18),transparent_70%)] pointer-events-none" />
-      <div className="absolute top-1/3 left-1/4 w-[700px] h-[700px] bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.08),transparent_70%)] pointer-events-none" />
-      <div className="absolute top-1/3 right-1/4 w-[700px] h-[700px] bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.08),transparent_70%)] pointer-events-none" />
+      {/* Component-Specific Semantic CTA Background */}
+      <SectionBackground variant="cta" />
 
       {/* 1. Header & CTAs */}
       <motion.div

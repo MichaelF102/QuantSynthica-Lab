@@ -7,6 +7,7 @@ import LabsHeader from "./LabsHeader";
 import LabMatrix, { LabId } from "./LabMatrix";
 import ActiveLabVisualization from "./ActiveLabVisualization";
 import PopularModelsRail from "./PopularModelsRail";
+import SectionBackground from "@/components/backgrounds/SectionBackground";
 
 const LabsAtmosphere = dynamic(() => import("./LabsAtmosphere"), {
   ssr: false,
@@ -42,27 +43,17 @@ export default function QuantResearchLabs() {
 
   const matrixY = useTransform(smoothProgress, [0, 1], [15, -10]);
   const visualY = useTransform(smoothProgress, [0, 1], [25, -5]);
-  const backgroundY = useTransform(smoothProgress, [0, 1], [0, -40]);
 
   return (
     <section
       ref={sectionRef}
       id="quant-research-labs"
-      className="relative w-full border-t border-slate-200/80 dark:border-slate-800/80 bg-[#F8FAFC] dark:bg-[#070D18] py-20 lg:py-28 overflow-hidden select-none"
+      className="relative w-full border-t border-slate-200/80 dark:border-slate-800 bg-[var(--bg-labs)] py-20 lg:py-28 overflow-hidden select-none transition-colors duration-500"
     >
-      {/* Subtle Radial Glows & Background Atmosphere */}
-      <motion.div style={{ y: backgroundY }} className="pointer-events-none absolute inset-0 -z-10 select-none">
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `
-              radial-gradient(circle at 80% 25%, rgba(37,99,235,0.08), transparent 38%),
-              radial-gradient(circle at 15% 75%, rgba(99,102,241,0.05), transparent 32%)
-            `,
-          }}
-        />
+      {/* Component-Specific Semantic Labs Background */}
+      <SectionBackground variant="labs">
         {mounted && !isMobile && <LabsAtmosphere />}
-      </motion.div>
+      </SectionBackground>
 
       <div className="relative mx-auto max-w-[1520px] px-4 sm:px-6 lg:px-8">
         {/* Section Header with Eyebrow, Title, Copy & Top Capabilities Strip */}

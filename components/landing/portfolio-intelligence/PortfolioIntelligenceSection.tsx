@@ -10,6 +10,7 @@ import PortfolioMetrics from "./PortfolioMetrics";
 import RiskReturnProfile from "./RiskReturnProfile";
 import PortfolioWorkflow from "./PortfolioWorkflow";
 import { AssetAllocation } from "./PortfolioConstellation";
+import SectionBackground from "@/components/backgrounds/SectionBackground";
 
 const INITIAL_ALLOCATIONS: AssetAllocation[] = [
   {
@@ -128,11 +129,10 @@ export default function PortfolioIntelligenceSection() {
   return (
     <section
       id="portfolio-intelligence"
-      className="relative w-full bg-[#F8FAFC] dark:bg-[#070D18] py-20 lg:py-28 overflow-hidden border-t border-slate-200/80 dark:border-slate-800"
+      className="relative w-full bg-[var(--bg-portfolio)] py-20 lg:py-28 overflow-hidden border-t border-slate-200/80 dark:border-slate-800 transition-colors duration-500"
     >
-      {/* Background Soft Glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[1200px] h-[700px] bg-[radial-gradient(circle_at_center,rgba(23,105,255,0.035),transparent_70%)] pointer-events-none" />
-      <div className="absolute top-1/2 right-10 w-[600px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(139,92,246,0.025),transparent_70%)] pointer-events-none" />
+      {/* Component-Specific Semantic Portfolio Background */}
+      <SectionBackground variant="portfolio" />
 
       <div className="relative mx-auto max-w-[1520px] px-4 sm:px-6 lg:px-8">
         {/* 1. Header & Capability Strip */}

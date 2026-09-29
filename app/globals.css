@@ -3,11 +3,88 @@
 @tailwind utilities;
 
 :root {
-  --background: #131722;
-  --foreground: #d1d4dc;
+  /* Neutral Global Fallback */
+  --background: #F8FAFC;
+  --foreground: #0B1220;
+
+  /* Component-Specific Semantic Background Themes (Light) */
+  --bg-hero: #F8FBFF;
+  --glow-hero: rgba(23, 105, 255, 0.08);
+
+  --bg-workflow: #F7F9FC;
+  --glow-workflow: rgba(67, 56, 202, 0.07);
+
+  --bg-research: #F5F9FF;
+  --glow-research: rgba(2, 132, 199, 0.07);
+
+  --bg-strategy: #FAF8FF;
+  --glow-strategy: rgba(139, 92, 246, 0.07);
+
+  --bg-backtest: #F7FBFA;
+  --glow-backtest: rgba(13, 148, 136, 0.06);
+
+  --bg-labs: #F6F9FD;
+  --glow-labs: rgba(56, 189, 248, 0.07);
+
+  --bg-markets: #F5F8FD;
+  --glow-markets: rgba(23, 105, 255, 0.07);
+
+  --bg-risk: #F9FAFC;
+  --glow-risk: rgba(225, 29, 72, 0.04);
+
+  --bg-portfolio: #F7FBFF;
+  --glow-portfolio: rgba(16, 185, 129, 0.06);
+
+  --bg-methodology: #F8FAFC;
+  --glow-methodology: rgba(100, 116, 139, 0.05);
+
+  --bg-cta: #07111F;
+}
+
+html.dark {
+  /* Neutral Global Fallback (Dark) */
+  --background: #070D18;
+  --foreground: #F1F5F9;
+
+  /* Component-Specific Semantic Background Themes (Dark) */
+  --bg-hero: #050A14;
+  --glow-hero: rgba(23, 105, 255, 0.16);
+
+  --bg-workflow: #050B16;
+  --glow-workflow: rgba(67, 56, 202, 0.15);
+
+  --bg-research: #07101D;
+  --glow-research: rgba(2, 132, 199, 0.14);
+
+  --bg-strategy: #0B0818;
+  --glow-strategy: rgba(139, 92, 246, 0.15);
+
+  --bg-backtest: #061414;
+  --glow-backtest: rgba(13, 148, 136, 0.14);
+
+  --bg-labs: #080E1B;
+  --glow-labs: rgba(56, 189, 248, 0.13);
+
+  --bg-markets: #050D1A;
+  --glow-markets: rgba(23, 105, 255, 0.15);
+
+  --bg-risk: #0D0B12;
+  --glow-risk: rgba(225, 29, 72, 0.12);
+
+  --bg-portfolio: #061016;
+  --glow-portfolio: rgba(16, 185, 129, 0.13);
+
+  --bg-methodology: #080E1A;
+  --glow-methodology: rgba(71, 85, 105, 0.13);
+
+  --bg-cta: #03060C;
 }
 
 html {
+  color-scheme: light;
+}
+
+html.dark {
   color-scheme: dark;
 }
 
@@ -17,6 +94,16 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 300ms ease, color 300ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .qs-app {
