@@ -7,38 +7,48 @@
   --background: #F8FAFC;
   --foreground: #0B1220;
 
-  /* Component-Specific Semantic Background Themes (Light) */
+  /* Component-Specific Semantic Background Themes (Light: Gray-White-LightBlue-Blue) */
+  /* 1. Hero: Light Blue-White */
   --bg-hero: #F8FBFF;
   --glow-hero: rgba(23, 105, 255, 0.08);
 
-  --bg-workflow: #F7F9FC;
-  --glow-workflow: rgba(67, 56, 202, 0.07);
+  /* 2. Workflow: Technical Cool Slate-Gray */
+  --bg-workflow: #F1F5F9;
+  --glow-workflow: rgba(37, 99, 235, 0.07);
 
-  --bg-research: #F5F9FF;
-  --glow-research: rgba(2, 132, 199, 0.07);
+  /* 3. Research Workspace: Crisp Pure White */
+  --bg-research: #FFFFFF;
+  --glow-research: rgba(56, 189, 248, 0.07);
 
-  --bg-strategy: #FAF8FF;
-  --glow-strategy: rgba(139, 92, 246, 0.07);
+  /* 4. Strategy & Backtest: Soft Light Blue */
+  --bg-strategy: #EFF6FF;
+  --glow-strategy: rgba(23, 105, 255, 0.08);
 
-  --bg-backtest: #F7FBFA;
-  --glow-backtest: rgba(13, 148, 136, 0.06);
+  --bg-backtest: #EBF3FC;
+  --glow-backtest: rgba(2, 132, 199, 0.07);
 
-  --bg-labs: #F6F9FD;
+  /* 5. Quant Research Labs: Technical Cool Gray */
+  --bg-labs: #F8FAFC;
   --glow-labs: rgba(56, 189, 248, 0.07);
 
-  --bg-markets: #F5F8FD;
+  /* 6. Covered Markets: Crisp Pure White */
+  --bg-markets: #FFFFFF;
   --glow-markets: rgba(23, 105, 255, 0.07);
 
-  --bg-risk: #F9FAFC;
-  --glow-risk: rgba(225, 29, 72, 0.04);
+  /* 7. Risk Intelligence: Structured Cool Slate-Gray */
+  --bg-risk: #F1F5F9;
+  --glow-risk: rgba(37, 99, 235, 0.05);
 
-  --bg-portfolio: #F7FBFF;
-  --glow-portfolio: rgba(16, 185, 129, 0.06);
+  /* 8. Portfolio Intelligence: Luminous Light Blue */
+  --bg-portfolio: #EDF5FE;
+  --glow-portfolio: rgba(23, 105, 255, 0.07);
 
+  /* 9. Execution Methodology: Clean Light Gray-White */
   --bg-methodology: #F8FAFC;
   --glow-methodology: rgba(100, 116, 139, 0.05);
 
-  --bg-cta: #07111F;
+  /* 10. Final CTA: Deep Executive Navy-Blue */
+  --bg-cta: #0A192F;
 }
 
 html.dark {
