@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 120" fill="none">
+  <defs>
+    <linearGradient id="logoQRibbonLeft" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="25%" stop-color="#0284C7"/>
+      <stop offset="65%" stop-color="#1D4ED8"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="logoQRibbonRight" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%" stop-color="#1E3A8A"/>
+      <stop offset="45%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+    <linearGradient id="logoQTail" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E40AF"/>
+      <stop offset="50%" stop-color="#1E3A8A"/>
+      <stop offset="100%" stop-color="#0B132B"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Q Mark scaled and centered at (60, 60) -->
+  <g transform="translate(10, 10) scale(0.5)">
+    <!-- Aperture -->
+    <circle cx="98" cy="94" r="50" fill="#FFFFFF"/>
+
+    <!-- Candles -->
+    <line x1="68" y1="94" x2="68" y2="116" stroke="#0F172A" stroke-width="1.8"/>
+    <rect x="65.5" y="98" width="5" height="12" rx="1.2" fill="#0F172A"/>
+    <line x1="76" y1="88" x2="76" y2="110" stroke="#0284C7" stroke-width="1.8"/>
+    <rect x="73.5" y="92" width="5" height="13" rx="1.2" fill="#0284C7"/>
+    <line x1="84" y1="82" x2="84" y2="104" stroke="#0369A1" stroke-width="1.8"/>
+    <rect x="81.5" y="86" width="5" height="12" rx="1.2" fill="#0369A1"/>
+    <line x1="92" y1="76" x2="92" y2="98" stroke="#64748B" stroke-width="1.8"/>
+    <rect x="89.5" y="80" width="5" height="13" rx="1.2" fill="#64748B"/>
+    <line x1="100" y1="70" x2="100" y2="92" stroke="#94A3B8" stroke-width="1.8"/>
+    <rect x="97.5" y="74" width="5" height="13" rx="1.2" fill="#94A3B8"/>
+    <line x1="108" y1="64" x2="108" y2="86" stroke="#475569" stroke-width="1.8"/>
+    <rect x="105.5" y="68" width="5" height="13" rx="1.2" fill="#475569"/>
+    <line x1="116" y1="58" x2="116" y2="80" stroke="#1D4ED8" stroke-width="1.8"/>
+    <rect x="113.5" y="61" width="5" height="14" rx="1.2" fill="#1D4ED8"/>
+    <line x1="124" y1="50" x2="124" y2="74" stroke="#0F172A" stroke-width="1.8"/>
+    <rect x="121.5" y="54" width="5" height="15" rx="1.2" fill="#0F172A"/>
+
+    <!-- Trend curve -->
+    <path d="M 64 116 C 76 112, 88 102, 102 90 C 114 80, 124 68, 134 58" stroke="#0F172A" stroke-width="2.4" stroke-linecap="round"/>
+    <circle cx="134" cy="58" r="3.8" fill="#0F172A"/>
+
+    <!-- Outer Q Ring -->
+    <path d="M 98 22 A 72 72 0 0 1 170 94 A 72 72 0 0 1 146 142 L 128 124 A 48 48 0 0 0 146 94 A 48 48 0 0 0 98 46 Z" fill="url(#logoQRibbonRight)"/>
+    <path d="M 98 22 A 72 72 0 0 0 26 94 A 72 72 0 0 0 98 166 A 72 72 0 0 0 126 160 L 114 138 A 48 48 0 0 1 98 142 A 48 48 0 0 1 50 94 A 48 48 0 0 1 98 46 Z" fill="url(#logoQRibbonLeft)"/>
+    <polygon points="112,118 138,92 168,146 142,166" fill="url(#logoQTail)"/>
+  </g>
+
+  <!-- Typography: QUANTSYNTHICALAB -->
+  <g font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif" font-size="44" font-weight="800" letter-spacing="1">
+    <text x="124" y="68" fill="#0F172A">QUANT</text>
+    <text x="312" y="68" fill="#1D4ED8">SYNTHICA</text>
+    <text x="590" y="68" fill="#64748B" font-weight="600">LAB</text>
+  </g>
+
+  <!-- Subtitle Tagline -->
+  <g font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif" font-size="12" font-weight="600" letter-spacing="6" fill="#64748B">
+    <text x="128" y="96">DATA   |   MODELS   |   MARKETS   |   INSIGHTS</text>
+  </g>
+</svg>

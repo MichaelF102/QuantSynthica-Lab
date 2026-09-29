@@ -7,6 +7,7 @@ import ResearchSidebar from "./ResearchSidebar";
 import SecurityHeader from "./SecurityHeader";
 import SecurityChart from "./SecurityChart";
 import SecurityInsightPanel from "./SecurityInsightPanel";
+import QuantSynthicaLogo from "@/components/branding/QuantSynthicaLogo";
 
 interface SecurityTerminalProps {
   activeFeature: WorkspaceFeatureKey;
@@ -40,14 +41,7 @@ export default function SecurityTerminal({
       {/* Top Bar Header */}
       <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-white/[0.08] bg-[#070D18] px-3.5 py-2.5 sm:px-4">
         {/* Left: Brand Logo & Title */}
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[#1769FF] shadow-xs">
-            <span className="text-[12px] font-black text-white font-mono">Q</span>
-          </div>
-          <span className="text-[13px] font-bold tracking-tight text-white">
-            QuantSynthica <span className="font-light text-slate-400">Lab</span>
-          </span>
-        </div>
+        <QuantSynthicaLogo variant="full" size="xs" theme="dark" link={false} />
 
         {/* Center: Interactive Feature Navigation Pills */}
         <div className="hidden xl:flex items-center gap-1 rounded-lg bg-white/[0.03] p-0.5 border border-white/[0.04]">

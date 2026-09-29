@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import QuantSynthicaLogo from "@/components/branding/QuantSynthicaLogo";
 import {
   LineChart,
   BarChart2,
@@ -52,14 +53,7 @@ export default function ProductPreview() {
             <div className="flex h-10 items-center justify-between border-b border-slate-800/90 bg-[#0D111A] px-3">
               {/* Brand and Nav Tabs */}
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1.5">
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#1769FF]">
-                    <span className="font-mono text-[10px] font-bold text-white">Q</span>
-                  </div>
-                  <span className="text-[11px] font-bold tracking-tight text-white">
-                    QuantSynthica <span className="text-slate-400 font-normal">Lab</span>
-                  </span>
-                </div>
+                <QuantSynthicaLogo variant="full" size="xs" theme="dark" link={false} />
 
                 <div className="hidden sm:flex items-center gap-1 text-[10px]">
                   <span className="rounded bg-[#1769FF] px-2 py-0.5 font-semibold text-white">

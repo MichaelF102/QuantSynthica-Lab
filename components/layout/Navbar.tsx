@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import NavbarSecuritySearch from "@/components/layout/NavbarSecuritySearch";
-import Logo from "@/components/ui/Logo";
+import QuantSynthicaLogo from "@/components/branding/QuantSynthicaLogo";
 import { cn } from "@/lib/cn";
 
 const PRIMARY_NAV = [
@@ -22,12 +22,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 border-b border-border bg-[#1e222d]">
       <div className="flex h-14 items-center justify-between gap-4 px-4">
         <div className="flex min-w-0 flex-1 items-center gap-6">
-          <Link href="/" className="flex shrink-0 items-center gap-2">
-            <Logo />
-            <span className="hidden text-[15px] font-bold tracking-tight text-white sm:block">
-              QuantSynthica
-            </span>
-          </Link>
+          <QuantSynthicaLogo variant="compact" size="sm" priority theme="dark" />
 
           <nav className="no-scrollbar hidden min-w-0 flex-1 items-center gap-1 overflow-x-auto text-[14px] md:flex">
             {PRIMARY_NAV.map((item) => {

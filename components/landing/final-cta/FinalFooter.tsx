@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { Linkedin, Twitter, Youtube, Github, ExternalLink } from "lucide-react";
+import QuantSynthicaLogo from "@/components/branding/QuantSynthicaLogo";
 
 export default function FinalFooter() {
   return (
@@ -17,14 +18,9 @@ export default function FinalFooter() {
         <div className="flex flex-col lg:flex-row items-center justify-between gap-6 pt-4 border-t border-slate-800/60">
           {/* Left Brand */}
           <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-[#1769FF] text-white font-black text-xs flex items-center justify-center">
-                Q
-              </div>
-              <span className="font-bold text-white text-sm">QuantSynthica Lab</span>
-            </div>
+            <QuantSynthicaLogo variant="full" size="sm" theme="dark" />
             <span className="hidden sm:inline text-slate-600">|</span>
-            <span className="text-xs text-slate-500">Quantitative research for modern investors.</span>
+            <span className="text-xs text-slate-500">Quantitative intelligence for modern markets.</span>
           </div>
 
           {/* Center Links */}

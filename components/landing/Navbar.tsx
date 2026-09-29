@@ -7,6 +7,7 @@ import { Search, ArrowRight, X, Sun, Moon } from "lucide-react";
 import { api } from "@/lib/api";
 import { StockProfile } from "@/types";
 import { useTheme } from "@/components/providers/ThemeProvider";
+import QuantSynthicaLogo from "@/components/branding/QuantSynthicaLogo";
 
 const NAV_ITEMS = [
   { label: "Home", href: "/" },
@@ -137,15 +138,7 @@ export default function LandingNavbar() {
       <div className="mx-auto flex h-16 max-w-[1520px] items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Left: Brand Identity */}
         <div className="flex items-center gap-7">
-          <Link href="/" className="group flex items-center gap-2.5">
-            <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-[#1769FF] shadow-sm transition-transform duration-200 group-hover:scale-105">
-              <span className="font-mono text-base font-bold text-white tracking-tighter">Q</span>
-              <div className="absolute inset-0 rounded-full border border-white/20" />
-            </div>
-            <span className="text-[17px] font-bold tracking-tight text-[#0B1220] dark:text-white">
-              QuantSynthica <span className="font-semibold text-[#526174] dark:text-slate-400">Lab</span>
-            </span>
-          </Link>
+          <QuantSynthicaLogo variant="compact" size="default" priority />
 
           {/* Center Navigation Links */}
           <nav className="hidden items-center gap-1 xl:flex">
