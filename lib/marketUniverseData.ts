@@ -43,7 +43,47 @@ export interface TickerUniverseItem {
   bars: MarketBar[];
 }
 
-export const REAL_UNIVERSE_MAP: Record<string, TickerUniverseItem> = realDataJson as Record<string, TickerUniverseItem>;
+import liveSnapshot from "@/data/market_universe_live.json";
+
+// Merge live snapshot assets into universe map for backward compatibility
+const baseMap = (realDataJson || {}) as Record<string, TickerUniverseItem>;
+const liveAssets = ((liveSnapshot as any)?.assets || {}) as Record<string, any>;
+
+const mergedMap: Record<string, TickerUniverseItem> = { ...baseMap };
+
+// Enhance with real live yfinance attributes where available
+Object.entries(liveAssets).forEach(([sym, asset]) => {
+  const existing = mergedMap[sym] || {};
+  mergedMap[sym] = {
+    ...existing,
+    symbol: asset.symbol || sym,
+    name: asset.name || existing.name || sym,
+    country: asset.flag === "🇮🇳" ? "India" : "US",
+    flag: asset.flag || (asset.currency === "₹" ? "🇮🇳" : "🇺🇸"),
+    exchange: asset.exchange || existing.exchange || "NYSE",
+    currency: asset.currency || "$",
+    sector: asset.classification || existing.sector || "Equities",
+    price: asset.price || existing.price || 0,
+    change: asset.change || existing.change || 0,
+    change_pct: asset.changePercent || existing.change_pct || 0,
+    is_positive: asset.isPositive ?? (asset.change >= 0),
+    open: asset.open || asset.price || 0,
+    high: asset.high || asset.price || 0,
+    low: asset.low || asset.price || 0,
+    close: asset.price || 0,
+    volume: asset.volume || 0,
+    high_52w: asset.fiftyTwoWeekHigh || existing.high_52w || 0,
+    low_52w: asset.fiftyTwoWeekLow || existing.low_52w || 0,
+    avg_volume_30d: asset.volume || existing.avg_volume_30d || 0,
+    beta: asset.beta || existing.beta || 1.0,
+    volatility: existing.volatility || 18.0,
+    sparkline_d: asset.sparklineSvg || existing.sparkline_d || "M 0 11 L 54 11",
+    bars: asset.bars || existing.bars || [],
+  };
+});
+
+export const REAL_UNIVERSE_MAP: Record<string, TickerUniverseItem> = mergedMap;
+
 
 // Additional representative options & macro instruments
 export const OPTIONS_UNIVERSE_ITEMS: Record<string, TickerUniverseItem> = {

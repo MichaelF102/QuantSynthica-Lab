@@ -232,3 +232,69 @@ def get_market_data(
         "summary": summary,
         "bars": bars
     }
+
+# ==============================================================================
+# Real Market Universe Endpoints (yfinance backed)
+# ==============================================================================
+
+@router.get("/universe/asset")
+def get_universe_asset(
+    symbol: str = Query("SPY", description="Asset symbol (e.g. AAPL, RELIANCE.NS, SPY, ^GSPC, ^TNX)"),
+    timeframe: str = Query("6M", description="Timeframe: 1D, 1W, 1M, 3M, 6M, 1Y, 5Y, ALL")
+):
+    """
+    Returns normalized market asset quote, metadata, and real OHLCV historical bars.
+    """
+    from ..services.market_data import get_asset_details
+    try:
+        return get_asset_details(symbol=symbol, timeframe=timeframe)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch asset data: {str(e)}")
+
+@router.get("/universe/options")
+def get_universe_options(
+    symbol: str = Query("SPY", description="Underlying ticker symbol"),
+    expiration: Optional[str] = Query(None, description="Expiration date (YYYY-MM-DD)")
+):
+    """
+    Returns authentic option chain from yfinance with calls, puts, strikes, OI, and IV.
+    """
+    from ..services.market_data import get_option_chain_data
+    try:
+        return get_option_chain_data(symbol=symbol, expiration=expiration)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch option chain: {str(e)}")
+
+@router.get("/universe/benchmarks")
+def get_universe_benchmarks():
+    """
+    Returns real Market Benchmarks (S&P 500, Nasdaq, Dow Jones, NIFTY 50, Sensex) with sparklines.
+    """
+    from ..services.market_data import get_benchmarks_data
+    try:
+        return get_benchmarks_data()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch benchmarks: {str(e)}")
+
+@router.get("/universe/watchlist")
+def get_universe_watchlist():
+    """
+    Returns real Watchlist stocks (US + India) with current prices and sparklines.
+    """
+    from ..services.market_data import get_watchlist_data
+    try:
+        return get_watchlist_data()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch watchlist: {str(e)}")
+
+@router.get("/universe/macro")
+def get_universe_macro():
+    """
+    Returns Macro & Cross-Asset Instruments categorized into Rates, Currencies, and Commodities.
+    """
+    from ..services.market_data import get_macro_cross_asset_data
+    try:
+        return get_macro_cross_asset_data()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch macro data: {str(e)}")
+

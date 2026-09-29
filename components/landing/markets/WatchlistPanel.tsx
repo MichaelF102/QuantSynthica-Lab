@@ -1,61 +1,42 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { REAL_UNIVERSE_MAP, TickerUniverseItem, formatPrice } from "@/lib/marketUniverseData";
-
-export interface WatchlistItem {
-  symbol: string;
-  name: string;
-  country: "US" | "India";
-  flag: string;
-  price: string;
-  change: string;
-  isPositive: boolean;
-  sparklineD: string;
-  universeItem: TickerUniverseItem;
-}
-
-const WATCHLIST_SYMBOLS = [
-  "NVDA",
-  "AAPL",
-  "RELIANCE",
-  "TCS",
-  "INFY",
-  "MSFT",
-  "AMZN",
-  "TSLA",
-];
-
-export function getWatchlistList(): WatchlistItem[] {
-  return WATCHLIST_SYMBOLS.map((sym) => {
-    const item = REAL_UNIVERSE_MAP[sym] || REAL_UNIVERSE_MAP["SPY"];
-    const prefix = item.change >= 0 ? "+" : "";
-    return {
-      symbol: item.symbol,
-      name: item.name,
-      country: item.country,
-      flag: item.flag,
-      price: formatPrice(item.price, item.currency),
-      change: `${prefix}${item.change_pct.toFixed(2)}%`,
-      isPositive: item.is_positive,
-      sparklineD: item.sparkline_d,
-      universeItem: item,
-    };
-  });
-}
+import {
+  fetchWatchlist,
+  WatchlistItem,
+  formatCurrencyValue,
+} from "@/lib/market/yahooFinance";
+import liveSnapshot from "@/data/market_universe_live.json";
 
 interface WatchlistPanelProps {
   selectedSymbol?: string;
-  onSelectInstrument: (instrument: TickerUniverseItem) => void;
+  onSelectInstrument: (symbol: string) => void;
 }
 
 export default function WatchlistPanel({
-  selectedSymbol = "SPY",
+  selectedSymbol = "AAPL",
   onSelectInstrument,
 }: WatchlistPanelProps) {
-  const watchlist = getWatchlistList();
+  const [watchlist, setWatchlist] = useState<WatchlistItem[]>(
+    (liveSnapshot as any)?.watchlist || []
+  );
+
+  useEffect(() => {
+    let isCancelled = false;
+    fetchWatchlist()
+      .then((data) => {
+        if (isCancelled || !data?.length) return;
+        setWatchlist(data);
+      })
+      .catch(() => {
+        // Fallback to snapshot
+      });
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
 
   return (
     <div className="flex flex-col justify-between h-full rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-[#070D18] p-3.5 sm:p-4 shadow-2xs">
@@ -91,12 +72,14 @@ export default function WatchlistPanel({
         {/* Rows */}
         <div className="divide-y divide-slate-100/70 dark:divide-slate-800/70 overflow-hidden">
           {watchlist.map((item) => {
-            const isSelected = selectedSymbol === item.symbol;
+            const isSelected =
+              selectedSymbol === item.symbol ||
+              selectedSymbol === item.displaySymbol;
 
             return (
               <div
                 key={item.symbol}
-                onClick={() => onSelectInstrument(item.universeItem)}
+                onClick={() => onSelectInstrument(item.symbol)}
                 className={`group flex cursor-pointer items-center justify-between py-1.5 px-2 rounded-lg transition-all duration-150 ${
                   isSelected
                     ? "bg-blue-50/90 dark:bg-blue-950/40 border-l-2 border-[#1769FF] shadow-2xs"
@@ -107,14 +90,14 @@ export default function WatchlistPanel({
                 <div className="flex items-center gap-1.5">
                   <span className="text-[12px] leading-none">{item.flag}</span>
                   <span className="font-bold font-mono text-[12px] text-[#0B1220] dark:text-white">
-                    {item.symbol}
+                    {item.displaySymbol}
                   </span>
                 </div>
 
                 {/* Price, Change & Micro-Sparkline */}
                 <div className="flex items-center gap-2">
                   <div className="font-mono text-[11px] font-semibold text-[#0B1220] dark:text-white tabular-nums">
-                    {item.price}
+                    {formatCurrencyValue(item.price, item.currency)}
                   </div>
 
                   <div
@@ -122,7 +105,8 @@ export default function WatchlistPanel({
                       item.isPositive ? "text-[#00A878] dark:text-emerald-400" : "text-[#E5484D] dark:text-rose-400"
                     }`}
                   >
-                    {item.change}
+                    {item.isPositive ? "+" : ""}
+                    {item.changePercent.toFixed(2)}%
                   </div>
 
                   {/* Real SVG Sparkline */}
@@ -134,7 +118,7 @@ export default function WatchlistPanel({
                       className="h-full w-full overflow-visible"
                     >
                       <path
-                        d={item.sparklineD}
+                        d={item.sparklineSvg || "M 0 11 L 54 11"}
                         stroke={item.isPositive ? "#00A878" : "#E5484D"}
                         strokeWidth="1.6"
                         strokeLinecap="round"

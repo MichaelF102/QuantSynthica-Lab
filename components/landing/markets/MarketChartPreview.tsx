@@ -2,27 +2,51 @@
 
 import React, { useState, useMemo, useRef } from "react";
 import Link from "next/link";
-import { Sliders, GitCompare, Maximize2, Activity, ArrowUpRight, ArrowDownRight } from "lucide-react";
-import { TickerUniverseItem, MarketBar, formatPrice, formatVolume, REAL_UNIVERSE_MAP } from "@/lib/marketUniverseData";
+import {
+  Sliders,
+  Maximize2,
+  ArrowUpRight,
+  ArrowDownRight,
+  Info,
+} from "lucide-react";
+import {
+  NormalizedMarketAsset,
+  MarketBar,
+  formatCurrencyValue,
+  formatLargeVolume,
+  formatMarketCap,
+} from "@/lib/market/yahooFinance";
 
-export type { TickerUniverseItem, MarketBar };
+export type { NormalizedMarketAsset, MarketBar };
 
 interface MarketChartPreviewProps {
-  instrument?: TickerUniverseItem;
+  instrument: NormalizedMarketAsset;
+  onSelectTimeframe?: (timeframe: string) => void;
+  availableTickers?: { symbol: string; label: string; flag?: string }[];
+  onSelectTicker?: (symbol: string) => void;
 }
 
 const TIMEFRAMES = ["1D", "1W", "1M", "3M", "6M", "1Y", "ALL"] as const;
 type Timeframe = (typeof TIMEFRAMES)[number];
 
 export default function MarketChartPreview({
-  instrument = REAL_UNIVERSE_MAP["SPY"],
+  instrument,
+  onSelectTimeframe,
+  availableTickers = [],
+  onSelectTicker,
 }: MarketChartPreviewProps) {
   const [activeTimeframe, setActiveTimeframe] = useState<Timeframe>("6M");
   const [showIndicators, setShowIndicators] = useState(true);
-  const [showBenchmark, setShowBenchmark] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleTimeframeChange = (tf: Timeframe) => {
+    setActiveTimeframe(tf);
+    if (onSelectTimeframe) {
+      onSelectTimeframe(tf);
+    }
+  };
 
   // Filter bars based on timeframe
   const rawBars = instrument.bars || [];
@@ -32,7 +56,7 @@ export default function MarketChartPreview({
       case "1D":
         return rawBars.slice(-2);
       case "1W":
-        return rawBars.slice(-6);
+        return rawBars.slice(-7);
       case "1M":
         return rawBars.slice(-22);
       case "3M":
@@ -65,7 +89,7 @@ export default function MarketChartPreview({
       minPrice: low - pad,
       maxPrice: high + pad,
       maxVolume: Math.max(1, vol),
-      priceRange: Math.max(1, (high + pad) - (low - pad)),
+      priceRange: Math.max(0.1, (high + pad) - (low - pad)),
     };
   }, [visibleBars]);
 
@@ -92,15 +116,16 @@ export default function MarketChartPreview({
 
   // SVG Geometry Dimensions
   const svgW = 760;
-  const svgH = 360;
+  const svgH = 340;
   const chartPadLeft = 14;
-  const chartPadRight = 68; // Space for price labels on right
-  const chartTop = 32;
-  const chartBottom = 265;
+  const chartPadRight = 68;
+  const chartTop = 24;
+  const hasVolume = visibleBars.some((b) => b.volume > 0) && instrument.assetType !== "index";
+  const chartBottom = hasVolume ? 245 : 300;
   const chartHeight = chartBottom - chartTop;
 
-  const volTop = 280;
-  const volBottom = 338;
+  const volTop = 258;
+  const volBottom = 318;
   const volHeight = volBottom - volTop;
 
   const plotWidth = svgW - chartPadLeft - chartPadRight;
@@ -108,7 +133,6 @@ export default function MarketChartPreview({
   const barStep = numBars > 1 ? plotWidth / (numBars - 1) : plotWidth;
   const barWidth = Math.max(2, Math.min(10, (plotWidth / Math.max(1, numBars)) * 0.68));
 
-  // Helper coordinate mappers
   const getY = (price: number) => {
     return chartTop + (1 - (price - minPrice) / priceRange) * chartHeight;
   };
@@ -130,7 +154,7 @@ export default function MarketChartPreview({
     return lines;
   }, [minPrice, priceRange, chartTop, chartHeight]);
 
-  // Date labels along X axis (up to 5 labels)
+  // Date labels along X axis
   const dateLabels = useMemo(() => {
     if (visibleBars.length < 2) return [];
     const count = Math.min(5, visibleBars.length);
@@ -140,7 +164,6 @@ export default function MarketChartPreview({
       const idx = i === count - 1 ? visibleBars.length - 1 : i * step;
       const bar = visibleBars[idx];
       const x = chartPadLeft + idx * barStep;
-      // Format YYYY-MM-DD to MMM DD
       const d = new Date(bar.date);
       const dateStr = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
       labels.push({ x, text: dateStr });
@@ -171,7 +194,7 @@ export default function MarketChartPreview({
     };
   }, [showIndicators, visibleBars, minPrice, maxPrice, barStep, chartPadLeft]);
 
-  // Handle Mouse Hover on SVG
+  // Mouse Hover on SVG
   const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
@@ -190,18 +213,24 @@ export default function MarketChartPreview({
     setHoveredIndex(null);
   };
 
+  const currencySymbol = instrument.currency || "$";
+
   // 52-Week Range position percentage
   const range52wPct = useMemo(() => {
-    if (instrument.high_52w <= instrument.low_52w) return 50;
-    const pct = ((instrument.price - instrument.low_52w) / (instrument.high_52w - instrument.low_52w)) * 100;
+    const h = instrument.fiftyTwoWeekHigh || 0;
+    const l = instrument.fiftyTwoWeekLow || 0;
+    if (h <= l) return 50;
+    const pct = ((instrument.price - l) / (h - l)) * 100;
     return Math.max(0, Math.min(100, pct));
   }, [instrument]);
 
-  const currencySymbol = instrument.currency || "$";
+  const isIndex = instrument.assetType === "index";
+  const isEtf = instrument.assetType === "etf";
+  const isEquity = instrument.assetType === "equity";
 
   return (
     <div ref={containerRef} className="flex h-full flex-col justify-between">
-      {/* 1. TOP HEADER ROW: Symbol, Price, Key Stats, Timeframe Selector */}
+      {/* 1. TOP HEADER: Symbol, Price, Key Stats, Timeframe Selector */}
       <div className="pb-3 border-b border-slate-100 dark:border-slate-800">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           {/* Left: Ticker identity & real price */}
@@ -217,56 +246,64 @@ export default function MarketChartPreview({
               <span className="rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase">
                 {instrument.exchange}
               </span>
-              <span className="hidden sm:inline-block rounded bg-blue-50/60 dark:bg-blue-950/60 px-1.5 py-0.5 text-[10px] font-medium text-blue-600 dark:text-blue-400">
-                {instrument.sector}
-              </span>
+
+              {/* Class-Specific Label */}
+              {isEtf && instrument.classification && (
+                <span className="rounded bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 text-[10px] font-bold text-purple-600 dark:text-purple-400">
+                  {instrument.classification}
+                </span>
+              )}
+              {isIndex && (
+                <span className="rounded bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-400">
+                  Benchmark Index
+                </span>
+              )}
             </div>
 
             {/* Price & Change */}
             <div className="mt-1.5 flex flex-wrap items-baseline gap-3">
               <span className="font-mono text-[28px] sm:text-[32px] font-extrabold text-[#0B1220] dark:text-white tracking-tight tabular-nums">
-                {formatPrice(instrument.price, currencySymbol)}
+                {formatCurrencyValue(instrument.price, currencySymbol)}
               </span>
 
               <div
                 className={`flex items-center gap-1 rounded-md px-2 py-0.5 font-mono text-[13px] font-bold tabular-nums ${
-                  instrument.is_positive
+                  instrument.isPositive
                     ? "bg-emerald-50 dark:bg-emerald-950/40 text-[#00A878] dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/40"
                     : "bg-red-50 dark:bg-rose-950/40 text-[#E5484D] dark:text-rose-400 border border-red-200/50 dark:border-rose-800/40"
                 }`}
               >
-                {instrument.is_positive ? (
-                  <ArrowUpRight className="h-4 w-4" />
-                ) : (
-                  <ArrowDownRight className="h-4 w-4" />
-                )}
+                {instrument.isPositive ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
                 <span>
-                  {instrument.is_positive ? "+" : ""}
+                  {instrument.isPositive ? "+" : ""}
                   {instrument.change >= 0 ? instrument.change.toFixed(2) : instrument.change.toFixed(2)}{" "}
-                  ({instrument.is_positive ? "+" : ""}
-                  {instrument.change_pct.toFixed(2)}%)
+                  ({instrument.isPositive ? "+" : ""}
+                  {instrument.changePercent.toFixed(2)}%)
                 </span>
               </div>
 
-              <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">
-                Market Session · As of Sep 27, 2024
+              {/* Real Observation Date Badge */}
+              <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500">
+                Yahoo Finance · As of {instrument.lastObservationDate || "Latest Close"}
               </span>
             </div>
           </div>
 
-          {/* Right: Timeframe pills & quick chart tool icons */}
+          {/* Right: Quick Timeframe Selector & Indicators Toggle */}
           <div className="flex flex-wrap items-center gap-2">
-            {/* Timeframe Selector */}
-            <div className="no-scrollbar inline-flex items-center rounded-lg border border-slate-200/90 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 p-0.5 text-[11px]">
+            <div
+              role="group"
+              aria-label="Timeframe selector"
+              className="inline-flex rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-0.5"
+            >
               {TIMEFRAMES.map((tf) => (
                 <button
                   key={tf}
-                  type="button"
-                  onClick={() => setActiveTimeframe(tf)}
-                  className={`rounded-md px-2.5 py-1 font-semibold transition-all ${
+                  onClick={() => handleTimeframeChange(tf)}
+                  className={`rounded-md px-2.5 py-1 text-[11px] font-mono font-bold transition-all ${
                     activeTimeframe === tf
-                      ? "bg-[#1769FF] text-white shadow-xs"
-                      : "text-slate-600 dark:text-slate-400 hover:text-[#0B1220] dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-800/60"
+                      ? "bg-[#1769FF] text-white shadow-2xs"
+                      : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
                   }`}
                 >
                   {tf}
@@ -274,373 +311,300 @@ export default function MarketChartPreview({
               ))}
             </div>
 
-            {/* Quick Chart Tools */}
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setShowIndicators(!showIndicators)}
-                className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-                  showIndicators
-                    ? "border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/60 text-[#1769FF] dark:text-blue-400"
-                    : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-                }`}
-                title="Toggle Moving Averages"
-              >
-                <Sliders className="h-3 w-3" />
-                <span>Indicators</span>
-                {showIndicators && (
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#1769FF]" />
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowBenchmark(!showBenchmark)}
-                className={`hidden sm:inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-                  showBenchmark
-                    ? "border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/60 text-[#1769FF] dark:text-blue-400"
-                    : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-                }`}
-                title="Compare Benchmark"
-              >
-                <GitCompare className="h-3 w-3" />
-                <span>Compare</span>
-              </button>
-
-              <Link
-                href={`/research?ticker=${instrument.symbol}`}
-                className="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-1 text-[11px] font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-[#1769FF] dark:hover:text-blue-400"
-                title="Launch Full Research Desk"
-              >
-                <Maximize2 className="h-3 w-3" />
-              </Link>
-            </div>
+            <button
+              onClick={() => setShowIndicators(!showIndicators)}
+              className={`flex items-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-all ${
+                showIndicators
+                  ? "border-blue-500/40 bg-blue-50/60 text-[#1769FF] dark:bg-blue-950/60 dark:text-blue-400"
+                  : "border-slate-200 bg-white text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              }`}
+            >
+              <Sliders className="h-3 w-3" />
+              <span>Indicators</span>
+              <span className={`h-1.5 w-1.5 rounded-full ${showIndicators ? "bg-blue-500" : "bg-slate-300"}`} />
+            </button>
           </div>
         </div>
 
-        {/* 2. REAL TICKER METRICS STRIP: High/Low 52W, Day Range, Vol, Beta */}
-        <div className="mt-2.5 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-5 rounded-lg bg-slate-50/80 dark:bg-slate-900/60 p-2 text-[11px] border border-slate-100 dark:border-slate-800 font-mono">
-          <div>
-            <span className="text-slate-400 dark:text-slate-500 block text-[10px] uppercase">Day Open / High</span>
-            <span className="font-semibold text-slate-700 dark:text-slate-300">
-              {formatPrice(instrument.open, currencySymbol)} / {formatPrice(instrument.high, currencySymbol)}
+        {/* Quick Tickers Selector (if provided) */}
+        {availableTickers.length > 0 && (
+          <div className="mt-3 flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-2 border-t border-slate-100/60 dark:border-slate-800/60">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">
+              Select:
+            </span>
+            {availableTickers.map((t) => {
+              const isSelected = instrument.symbol === t.symbol;
+              return (
+                <button
+                  key={t.symbol}
+                  onClick={() => onSelectTicker && onSelectTicker(t.symbol)}
+                  className={`rounded-md px-2 py-0.5 text-[11px] font-mono font-semibold transition-colors whitespace-nowrap ${
+                    isSelected
+                      ? "bg-[#1769FF] text-white shadow-2xs"
+                      : "bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                  }`}
+                >
+                  {t.flag && <span className="mr-1">{t.flag}</span>}
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* 2. ADAPTIVE CLASS-AWARE METRICS ROW */}
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 font-mono text-[11px]">
+          {/* Day Range */}
+          <div className="rounded-lg bg-slate-50/80 dark:bg-slate-900/40 p-2 border border-slate-100 dark:border-slate-800/60">
+            <span className="text-[10px] text-slate-400 uppercase block font-sans">
+              Day Open / High
+            </span>
+            <span className="font-bold text-slate-800 dark:text-slate-200">
+              {formatCurrencyValue(instrument.open || instrument.price, currencySymbol)} / {formatCurrencyValue(instrument.high || instrument.price, currencySymbol)}
             </span>
           </div>
 
-          <div>
-            <span className="text-slate-400 dark:text-slate-500 block text-[10px] uppercase">Day Low / Vol</span>
-            <span className="font-semibold text-slate-700 dark:text-slate-300">
-              {formatPrice(instrument.low, currencySymbol)} · {formatVolume(instrument.volume)}
+          {/* Low & Volume / Point Change */}
+          <div className="rounded-lg bg-slate-50/80 dark:bg-slate-900/40 p-2 border border-slate-100 dark:border-slate-800/60">
+            <span className="text-[10px] text-slate-400 uppercase block font-sans">
+              {isIndex ? "Day Low / Prev Close" : "Day Low / Volume"}
+            </span>
+            <span className="font-bold text-slate-800 dark:text-slate-200">
+              {formatCurrencyValue(instrument.low || instrument.price, currencySymbol)} /{" "}
+              {isIndex ? formatCurrencyValue(instrument.previousClose, currencySymbol) : formatLargeVolume(instrument.volume)}
             </span>
           </div>
 
-          <div className="col-span-2 sm:col-span-2 lg:col-span-2">
-            <div className="flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500 uppercase">
-              <span>52W Low: {formatPrice(instrument.low_52w, currencySymbol)}</span>
-              <span>52W High: {formatPrice(instrument.high_52w, currencySymbol)}</span>
+          {/* 52-Week Range */}
+          <div className="rounded-lg bg-slate-50/80 dark:bg-slate-900/40 p-2 border border-slate-100 dark:border-slate-800/60">
+            <div className="flex justify-between text-[10px] text-slate-400 uppercase font-sans">
+              <span>52W Low</span>
+              <span>52W High</span>
             </div>
-            {/* Visual 52-week slider marker */}
-            <div className="relative mt-1 h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-700">
+            <div className="flex justify-between font-bold text-slate-800 dark:text-slate-200">
+              <span>{formatCurrencyValue(instrument.fiftyTwoWeekLow || instrument.price * 0.8, currencySymbol)}</span>
+              <span>{formatCurrencyValue(instrument.fiftyTwoWeekHigh || instrument.price * 1.2, currencySymbol)}</span>
+            </div>
+            <div className="relative mt-1 h-1 w-full rounded-full bg-slate-200 dark:bg-slate-800">
               <div
-                className="absolute top-0 bottom-0 left-0 rounded-full bg-blue-500/40"
+                className="absolute top-0 h-1 rounded-full bg-[#1769FF]"
                 style={{ width: `${range52wPct}%` }}
               />
-              <div
-                className="absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full border-2 border-white dark:border-slate-800 bg-[#1769FF] shadow-xs"
-                style={{ left: `calc(${range52wPct}% - 5px)` }}
-              />
             </div>
           </div>
 
-          <div className="hidden lg:block text-right">
-            <span className="text-slate-400 dark:text-slate-500 block text-[10px] uppercase">Beta / Ann Vol</span>
-            <span className="font-semibold text-slate-700 dark:text-slate-300">
-              {instrument.beta.toFixed(2)} · {instrument.volatility.toFixed(1)}%
+          {/* Equity / ETF / Index Dynamic 4th Metric */}
+          <div className="rounded-lg bg-slate-50/80 dark:bg-slate-900/40 p-2 border border-slate-100 dark:border-slate-800/60">
+            <span className="text-[10px] text-slate-400 uppercase block font-sans">
+              {isEquity ? "Market Cap / Beta" : isEtf ? "Fund Classification" : "Asset Category"}
+            </span>
+            <span className="font-bold text-slate-800 dark:text-slate-200 truncate block">
+              {isEquity
+                ? `${formatMarketCap(instrument.marketCap, currencySymbol)} · β ${instrument.beta ?? "1.00"}`
+                : isEtf
+                ? instrument.classification || "Exchange Traded Fund"
+                : "Global Equity Benchmark"}
             </span>
           </div>
         </div>
       </div>
 
-      {/* 3. MAIN CANDLESTICK CHART CONTAINER (DARK #111827 SURFACE) */}
-      <div className="relative mt-3 rounded-xl border border-slate-800 bg-[#111827] p-2.5 sm:p-3 shadow-inner">
-        {/* Dynamic Interactive OHLCV Readout Bar */}
-        <div className="mb-2 flex flex-wrap items-center justify-between gap-y-1 border-b border-white/5 pb-2 text-[10px] sm:text-[11px] font-mono text-slate-400">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
-            <span className="text-slate-300 font-bold">
-              {activeBar?.date || "2024-09-27"}
-            </span>
+      {/* 3. ACTIVE BAR STATS / CROSSHAIR HEADER */}
+      {activeBar && (
+        <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[11px] text-slate-500 dark:text-slate-400">
+          <span className="font-semibold text-slate-700 dark:text-slate-300">
+            {activeBar.date}
+          </span>
+          <span>
+            O: <strong className="text-slate-900 dark:text-white">{formatCurrencyValue(activeBar.open, currencySymbol)}</strong>
+          </span>
+          <span>
+            H: <strong className="text-[#00A878] dark:text-emerald-400">{formatCurrencyValue(activeBar.high, currencySymbol)}</strong>
+          </span>
+          <span>
+            L: <strong className="text-[#E5484D] dark:text-rose-400">{formatCurrencyValue(activeBar.low, currencySymbol)}</strong>
+          </span>
+          <span>
+            C: <strong className="text-slate-900 dark:text-white">{formatCurrencyValue(activeBar.close, currencySymbol)}</strong>
+          </span>
+          <span className={activeBarChange.isPos ? "text-emerald-500" : "text-rose-500"}>
+            ({activeBarChange.isPos ? "+" : ""}{activeBarChange.pct.toFixed(2)}%)
+          </span>
+          {activeBar.volume > 0 && (
             <span>
-              O: <strong className="text-white">{activeBar ? formatPrice(activeBar.open, currencySymbol) : "--"}</strong>
+              Vol: <strong className="text-slate-700 dark:text-slate-300">{formatLargeVolume(activeBar.volume)}</strong>
             </span>
-            <span>
-              H: <strong className="text-[#10B981]">{activeBar ? formatPrice(activeBar.high, currencySymbol) : "--"}</strong>
-            </span>
-            <span>
-              L: <strong className="text-[#EF4444]">{activeBar ? formatPrice(activeBar.low, currencySymbol) : "--"}</strong>
-            </span>
-            <span>
-              C: <strong className="text-white">{activeBar ? formatPrice(activeBar.close, currencySymbol) : "--"}</strong>
-            </span>
-            <span className={activeBarChange.isPos ? "text-[#10B981]" : "text-[#EF4444]"}>
-              ({activeBarChange.isPos ? "+" : ""}{activeBarChange.pct.toFixed(2)}%)
-            </span>
-            <span className="text-slate-400">
-              Vol: <strong className="text-slate-300">{activeBar ? formatVolume(activeBar.volume) : "--"}</strong>
-            </span>
-          </div>
+          )}
 
-          {/* Indicator Legends */}
-          {showIndicators && (
-            <div className="flex items-center gap-2.5">
-              <span className="flex items-center gap-1 text-[#3B82F6]">
-                <span className="h-1.5 w-2.5 rounded-full bg-[#3B82F6]" />
-                EMA 20 {activeBar?.ema_20 ? formatPrice(activeBar.ema_20, currencySymbol) : ""}
-              </span>
-              <span className="flex items-center gap-1 text-[#06B6D4]">
-                <span className="h-1.5 w-2.5 rounded-full bg-[#06B6D4]" />
-                EMA 50 {activeBar?.ema_50 ? formatPrice(activeBar.ema_50, currencySymbol) : ""}
-              </span>
-            </div>
+          {/* EMA Indicators in header */}
+          {showIndicators && activeBar.ema_20 != null && (
+            <span className="text-blue-500 font-semibold">
+              EMA 20: {formatCurrencyValue(activeBar.ema_20, currencySymbol)}
+            </span>
+          )}
+          {showIndicators && activeBar.ema_50 != null && (
+            <span className="text-cyan-500 font-semibold">
+              EMA 50: {formatCurrencyValue(activeBar.ema_50, currencySymbol)}
+            </span>
           )}
         </div>
+      )}
 
-        {/* Dynamic SVG Candlestick & Volume Surface */}
-        <div className="relative w-full overflow-hidden">
-          <svg
-            viewBox={`0 0 ${svgW} ${svgH}`}
-            className="w-full h-auto cursor-crosshair select-none"
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-          >
-            <defs>
-              <linearGradient id="volGradPos" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10B981" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#10B981" stopOpacity="0.1" />
-              </linearGradient>
-              <linearGradient id="volGradNeg" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#EF4444" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#EF4444" stopOpacity="0.1" />
-              </linearGradient>
-            </defs>
+      {/* 4. REAL INTERACTIVE CANDLESTICK CHART */}
+      <div className="relative my-2 flex-1 min-h-[280px]">
+        <svg
+          viewBox={`0 0 ${svgW} ${svgH}`}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          className="h-full w-full overflow-visible cursor-crosshair select-none"
+        >
+          {/* Grid lines & price labels */}
+          {gridLines.map((line, i) => (
+            <g key={i}>
+              <line
+                x1={chartPadLeft}
+                y1={line.y}
+                x2={chartPadLeft + plotWidth}
+                y2={line.y}
+                stroke="currentColor"
+                className="text-slate-200/80 dark:text-slate-800/80"
+                strokeDasharray="2 3"
+              />
+              <text
+                x={chartPadLeft + plotWidth + 8}
+                y={line.y + 3.5}
+                fill="currentColor"
+                className="text-[10px] font-mono fill-slate-400 dark:fill-slate-500"
+              >
+                {formatCurrencyValue(line.price, currencySymbol)}
+              </text>
+            </g>
+          ))}
 
-            {/* Background Grid Lines & Price Labels */}
-            {gridLines.map((gl, i) => (
-              <g key={i}>
+          {/* Candlesticks */}
+          {visibleBars.map((bar, i) => {
+            const x = chartPadLeft + i * barStep;
+            const openY = getY(bar.open);
+            const closeY = getY(bar.close);
+            const highY = getY(bar.high);
+            const lowY = getY(bar.low);
+
+            const isUp = bar.close >= bar.open;
+            const color = isUp ? "#00A878" : "#E5484D";
+            const topBody = Math.min(openY, closeY);
+            const bodyHeight = Math.max(1.5, Math.abs(closeY - openY));
+
+            return (
+              <g key={bar.date}>
+                {/* Wick */}
                 <line
-                  x1={chartPadLeft}
-                  y1={gl.y}
-                  x2={svgW - chartPadRight}
-                  y2={gl.y}
-                  stroke="rgba(255,255,255,0.06)"
-                  strokeDasharray="3 3"
+                  x1={x}
+                  y1={highY}
+                  x2={x}
+                  y2={lowY}
+                  stroke={color}
+                  strokeWidth="1.2"
                 />
-                <text
-                  x={svgW - chartPadRight + 6}
-                  y={gl.y + 3.5}
-                  fill="rgba(255,255,255,0.4)"
-                  fontSize="9.5"
-                  fontFamily="monospace"
-                >
-                  {formatPrice(gl.price, currencySymbol)}
-                </text>
-              </g>
-            ))}
-
-            {/* Volume Baseline Separator */}
-            <line
-              x1={chartPadLeft}
-              y1={volTop - 4}
-              x2={svgW - chartPadRight}
-              y2={volTop - 4}
-              stroke="rgba(255,255,255,0.08)"
-            />
-            <text
-              x={chartPadLeft}
-              y={volTop + 10}
-              fill="rgba(255,255,255,0.25)"
-              fontSize="8.5"
-              fontFamily="monospace"
-            >
-              VOL HISTOGRAM
-            </text>
-
-            {/* Volume Histogram Bars */}
-            {visibleBars.map((bar, i) => {
-              const x = chartPadLeft + i * barStep;
-              const y = getVolY(bar.volume);
-              const h = Math.max(1, volBottom - y);
-              const isUp = bar.close >= bar.open;
-
-              return (
+                {/* Real Candlestick Body */}
                 <rect
-                  key={`vol-${i}`}
                   x={x - barWidth / 2}
-                  y={y}
+                  y={topBody}
                   width={barWidth}
-                  height={h}
-                  fill={isUp ? "url(#volGradPos)" : "url(#volGradNeg)"}
-                  rx={0.5}
+                  height={bodyHeight}
+                  fill={color}
+                  rx="0.5"
                 />
-              );
-            })}
 
-            {/* Candlesticks (Wick + Body) */}
-            {visibleBars.map((bar, i) => {
-              const x = chartPadLeft + i * barStep;
-              const yHigh = getY(bar.high);
-              const yLow = getY(bar.low);
-              const yOpen = getY(bar.open);
-              const yClose = getY(bar.close);
-
-              const isUp = bar.close >= bar.open;
-              const color = isUp ? "#10B981" : "#EF4444";
-              const bodyTop = Math.min(yOpen, yClose);
-              const bodyHeight = Math.max(1.5, Math.abs(yClose - yOpen));
-
-              const isHovered = hoveredIndex === i;
-
-              return (
-                <g key={`candle-${i}`}>
-                  {/* Wick */}
-                  <line
-                    x1={x}
-                    y1={yHigh}
-                    x2={x}
-                    y2={yLow}
-                    stroke={color}
-                    strokeWidth={isHovered ? "1.8" : "1.2"}
-                  />
-                  {/* Body */}
+                {/* Volume bar at bottom */}
+                {hasVolume && bar.volume > 0 && (
                   <rect
                     x={x - barWidth / 2}
-                    y={bodyTop}
+                    y={getVolY(bar.volume)}
                     width={barWidth}
-                    height={bodyHeight}
+                    height={volBottom - getVolY(bar.volume)}
                     fill={color}
-                    stroke={isHovered ? "#FFFFFF" : color}
-                    strokeWidth={isHovered ? "0.8" : "0"}
-                    rx={0.5}
+                    opacity="0.3"
                   />
-                </g>
-              );
-            })}
-
-            {/* EMA 20 & EMA 50 Moving Average Curves */}
-            {showIndicators && emaPaths.ema20 && (
-              <path
-                d={emaPaths.ema20}
-                fill="none"
-                stroke="#3B82F6"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            )}
-            {showIndicators && emaPaths.ema50 && (
-              <path
-                d={emaPaths.ema50}
-                fill="none"
-                stroke="#06B6D4"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            )}
-
-            {/* Benchmark Overlay (If Toggled) */}
-            {showBenchmark && (
-              <path
-                d={`M ${chartPadLeft} ${chartBottom - 40} Q ${svgW / 2} ${chartTop + 40}, ${svgW - chartPadRight} ${chartTop + 30}`}
-                fill="none"
-                stroke="#F59E0B"
-                strokeWidth="1.5"
-                strokeDasharray="4 4"
-              />
-            )}
-
-            {/* Date X-Axis Labels */}
-            {dateLabels.map((dl, i) => (
-              <text
-                key={`date-${i}`}
-                x={dl.x}
-                y={svgH - 8}
-                textAnchor={i === 0 ? "start" : i === dateLabels.length - 1 ? "end" : "middle"}
-                fill="rgba(255,255,255,0.4)"
-                fontSize="9"
-                fontFamily="monospace"
-              >
-                {dl.text}
-              </text>
-            ))}
-
-            {/* Interactive Crosshair & Cursor HUD */}
-            {hoveredIndex !== null && visibleBars[hoveredIndex] && (
-              <g>
-                {/* Vertical Crosshair Line */}
-                <line
-                  x1={chartPadLeft + hoveredIndex * barStep}
-                  y1={chartTop}
-                  x2={chartPadLeft + hoveredIndex * barStep}
-                  y2={volBottom}
-                  stroke="rgba(255,255,255,0.4)"
-                  strokeWidth="1"
-                  strokeDasharray="3 3"
-                />
-
-                {/* Horizontal Price Line */}
-                <line
-                  x1={chartPadLeft}
-                  y1={getY(visibleBars[hoveredIndex].close)}
-                  x2={svgW - chartPadRight}
-                  y2={getY(visibleBars[hoveredIndex].close)}
-                  stroke="rgba(255,255,255,0.4)"
-                  strokeWidth="1"
-                  strokeDasharray="3 3"
-                />
-
-                {/* Right Axis Highlight Price Badge */}
-                <rect
-                  x={svgW - chartPadRight + 2}
-                  y={getY(visibleBars[hoveredIndex].close) - 8}
-                  width="64"
-                  height="16"
-                  fill="#1769FF"
-                  rx="3"
-                />
-                <text
-                  x={svgW - chartPadRight + 34}
-                  y={getY(visibleBars[hoveredIndex].close) + 3.5}
-                  textAnchor="middle"
-                  fill="#FFFFFF"
-                  fontSize="9.5"
-                  fontWeight="bold"
-                  fontFamily="monospace"
-                >
-                  {formatPrice(visibleBars[hoveredIndex].close, currencySymbol)}
-                </text>
+                )}
               </g>
-            )}
-          </svg>
+            );
+          })}
+
+          {/* Indicator Lines: EMA 20 & EMA 50 */}
+          {showIndicators && emaPaths.ema20 && (
+            <path
+              d={emaPaths.ema20}
+              fill="none"
+              stroke="#2563EB"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+          )}
+          {showIndicators && emaPaths.ema50 && (
+            <path
+              d={emaPaths.ema50}
+              fill="none"
+              stroke="#06B6D4"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+          )}
+
+          {/* Crosshair when hovering */}
+          {hoveredIndex !== null && visibleBars[hoveredIndex] && (
+            <g>
+              <line
+                x1={chartPadLeft + hoveredIndex * barStep}
+                y1={chartTop}
+                x2={chartPadLeft + hoveredIndex * barStep}
+                y2={chartBottom}
+                stroke="#1769FF"
+                strokeWidth="1"
+                strokeDasharray="3 3"
+              />
+              <line
+                x1={chartPadLeft}
+                y1={getY(visibleBars[hoveredIndex].close)}
+                x2={chartPadLeft + plotWidth}
+                y2={getY(visibleBars[hoveredIndex].close)}
+                stroke="#1769FF"
+                strokeWidth="1"
+                strokeDasharray="3 3"
+              />
+            </g>
+          )}
+
+          {/* Date labels along bottom */}
+          {dateLabels.map((lbl, i) => (
+            <text
+              key={i}
+              x={lbl.x}
+              y={hasVolume ? volBottom + 16 : chartBottom + 18}
+              textAnchor="middle"
+              fill="currentColor"
+              className="text-[9px] font-mono fill-slate-400 dark:fill-slate-500"
+            >
+              {lbl.text}
+            </text>
+          ))}
+        </svg>
+      </div>
+
+      {/* 5. FOOTER STATUS BAR */}
+      <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+        <div className="flex items-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span>Real yfinance historical feed active</span>
+          <span>·</span>
+          <span>Timeframe: {activeTimeframe} ({visibleBars.length} bars)</span>
         </div>
 
-        {/* Bottom Status & Research CTA */}
-        <div className="mt-2.5 flex flex-wrap items-center justify-between border-t border-white/5 pt-2 text-[10px] text-slate-400">
-          <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1 font-mono text-emerald-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Real Historical Feed Active
-            </span>
-            <span>·</span>
-            <span>Timeframe: <strong>{activeTimeframe}</strong> ({visibleBars.length} bars)</span>
-          </div>
-
-          <Link
-            href={`/research?ticker=${instrument.symbol}`}
-            className="flex items-center gap-1 font-semibold text-[#1769FF] hover:text-blue-400 transition-colors"
-          >
-            <span>Launch full analytical research desk for {instrument.symbol} →</span>
-          </Link>
-        </div>
+        <Link
+          href={`/research?ticker=${instrument.symbol}`}
+          className="text-[#1769FF] dark:text-blue-400 font-medium hover:underline"
+        >
+          Launch full analytical research desk for {instrument.symbol} →
+        </Link>
       </div>
     </div>
   );
