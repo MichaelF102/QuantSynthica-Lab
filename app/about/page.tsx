@@ -1,48 +1,56 @@
 import type { Metadata } from "next";
 import AboutHero from "@/components/about/AboutHero";
-import BackgroundSection from "@/components/about/BackgroundSection";
-import EducationTimeline from "@/components/about/EducationTimeline";
-import SkillsSection from "@/components/about/SkillsSection";
-import ProjectShowcase from "@/components/about/ProjectShowcase";
-import QuantSynthicaConnection from "@/components/about/QuantSynthicaConnection";
-import AboutContactCTA from "@/components/about/AboutContactCTA";
+import AboutBio from "@/components/about/AboutBio";
+import CurrentlySection from "@/components/about/CurrentlySection";
+import JourneyTimeline from "@/components/about/JourneyTimeline";
+import WorkAreas from "@/components/about/WorkAreas";
+import EducationSection from "@/components/about/EducationSection";
+import InterestsSection from "@/components/about/InterestsSection";
+import PersonalProjectSection from "@/components/about/PersonalProjectSection";
+import ConnectSection from "@/components/about/ConnectSection";
 import Footer from "@/components/footer/Footer";
 
 export const metadata: Metadata = {
   title: "Michael Fernandes — QuantSynthicaLab",
-  description: "Background, education, projects, and quantitative research work of Michael Fernandes.",
+  description: "Meet Michael Fernandes: Data Analyst, quantitative researcher, and graduate student in Big Data Analytics.",
   openGraph: {
     title: "Michael Fernandes — QuantSynthicaLab",
-    description: "Background, education, projects, and quantitative research work of Michael Fernandes.",
-    images: [{ url: "/branding/quantsynthicalab-logo.png", width: 1024, height: 682, alt: "Michael Fernandes — QuantSynthicaLab" }],
+    description: "Meet Michael Fernandes: Data Analyst, quantitative researcher, and graduate student in Big Data Analytics.",
+    images: [{ url: "/profile/michael-fernandes.jpg", width: 800, height: 800, alt: "Michael Fernandes" }],
   },
 };
 
 export default function AboutPage() {
   return (
     <div className="w-full bg-white dark:bg-[#070D18] text-slate-900 dark:text-white transition-colors duration-300">
-      {/* 1. Hero Section */}
+      {/* 1. Hero: Personal introduction & Researcher profile card */}
       <AboutHero />
 
-      {/* 2. Professional & Academic Background */}
-      <BackgroundSection />
+      {/* 2. A little about me (Genuine personal story) */}
+      <AboutBio />
 
-      {/* 3. Education Timeline */}
-      <EducationTimeline />
+      {/* 3. What I'm doing now (Industry, study, building) */}
+      <CurrentlySection />
 
-      {/* 4. Categorized Skills */}
-      <SkillsSection />
+      {/* 4. My journey (Human timeline) */}
+      <JourneyTimeline />
 
-      {/* 5. Selected Projects */}
-      <ProjectShowcase />
+      {/* 5. What I enjoy working on (4 core areas) */}
+      <WorkAreas />
 
-      {/* 6. Why QuantSynthicaLab? Architecture & Pipeline Connection */}
-      <QuantSynthicaConnection />
+      {/* 6. Education (Secondary, clean profile entries) */}
+      <EducationSection />
 
-      {/* 7. Collaboration CTA */}
-      <AboutContactCTA />
+      {/* 7. Beyond the work (Personal curiosities & interests) */}
+      <InterestsSection />
 
-      {/* 8. Unified Footer */}
+      {/* 8. Why I built QuantSynthicaLab (Supporting personal project section) */}
+      <PersonalProjectSection />
+
+      {/* 9. Let's connect (Warm human closing) */}
+      <ConnectSection />
+
+      {/* 10. Unified site footer */}
       <Footer />
     </div>
   );
