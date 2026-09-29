@@ -6,12 +6,19 @@ import { MarketCategoryId } from "./MarketCategoryTabs";
 import MarketChartPreview from "./MarketChartPreview";
 import OptionsChainPreview from "./OptionsChainPreview";
 import MacroCrossAssetPreview from "./MacroCrossAssetPreview";
-import IndexPanel from "./IndexPanel";
-import WatchlistPanel from "./WatchlistPanel";
+import { MarketSidebarPanels } from "./MarketSidebarPanels";
 import {
   fetchMarketAsset,
   NormalizedMarketAsset,
 } from "@/lib/market/yahooFinance";
+import {
+  US_EQUITIES,
+  INDIAN_EQUITIES,
+  ETFS,
+  INDICES,
+  OPTIONS_UNDERLYINGS,
+  TickerConfig,
+} from "@/lib/market/symbols";
 import liveSnapshot from "@/data/market_universe_live.json";
 import { RefreshCw, AlertCircle } from "lucide-react";
 
@@ -28,62 +35,6 @@ const CATEGORY_DEFAULT_SYMBOLS: Record<MarketCategoryId, string> = {
   economic_data: "^TNX",
 };
 
-const CATEGORY_TICKERS: Record<MarketCategoryId, { symbol: string; label: string; flag?: string }[]> = {
-  us_equities: [
-    { symbol: "AAPL", label: "AAPL", flag: "🇺🇸" },
-    { symbol: "MSFT", label: "MSFT", flag: "🇺🇸" },
-    { symbol: "NVDA", label: "NVDA", flag: "🇺🇸" },
-    { symbol: "AMZN", label: "AMZN", flag: "🇺🇸" },
-    { symbol: "GOOGL", label: "GOOGL", flag: "🇺🇸" },
-    { symbol: "META", label: "META", flag: "🇺🇸" },
-    { symbol: "TSLA", label: "TSLA", flag: "🇺🇸" },
-    { symbol: "JPM", label: "JPM", flag: "🇺🇸" },
-  ],
-  indian_equities: [
-    { symbol: "RELIANCE.NS", label: "RELIANCE", flag: "🇮🇳" },
-    { symbol: "TCS.NS", label: "TCS", flag: "🇮🇳" },
-    { symbol: "INFY.NS", label: "INFY", flag: "🇮🇳" },
-    { symbol: "HDFCBANK.NS", label: "HDFCBANK", flag: "🇮🇳" },
-    { symbol: "ICICIBANK.NS", label: "ICICIBANK", flag: "🇮🇳" },
-    { symbol: "SBIN.NS", label: "SBIN", flag: "🇮🇳" },
-    { symbol: "ITC.NS", label: "ITC", flag: "🇮🇳" },
-    { symbol: "LT.NS", label: "LT", flag: "🇮🇳" },
-  ],
-  etfs: [
-    { symbol: "SPY", label: "SPY (S&P 500)", flag: "🇺🇸" },
-    { symbol: "QQQ", label: "QQQ (Nasdaq 100)", flag: "🇺🇸" },
-    { symbol: "IWM", label: "IWM (Russell 2000)", flag: "🇺🇸" },
-    { symbol: "VOO", label: "VOO (S&P 500)", flag: "🇺🇸" },
-    { symbol: "VTI", label: "VTI (Total Market)", flag: "🇺🇸" },
-    { symbol: "GLD", label: "GLD (Gold Trust)", flag: "🇺🇸" },
-    { symbol: "TLT", label: "TLT (20Y Treasury)", flag: "🇺🇸" },
-  ],
-  indices: [
-    { symbol: "^GSPC", label: "S&P 500", flag: "🇺🇸" },
-    { symbol: "^IXIC", label: "Nasdaq Composite", flag: "🇺🇸" },
-    { symbol: "^DJI", label: "Dow Jones", flag: "🇺🇸" },
-    { symbol: "^NSEI", label: "NIFTY 50", flag: "🇮🇳" },
-    { symbol: "^BSESN", label: "Sensex", flag: "🇮🇳" },
-    { symbol: "^NSEBANK", label: "NIFTY Bank", flag: "🇮🇳" },
-  ],
-  options: [
-    { symbol: "SPY", label: "SPY", flag: "🇺🇸" },
-    { symbol: "QQQ", label: "QQQ", flag: "🇺🇸" },
-    { symbol: "AAPL", label: "AAPL", flag: "🇺🇸" },
-    { symbol: "NVDA", label: "NVDA", flag: "🇺🇸" },
-    { symbol: "RELIANCE.NS", label: "RELIANCE", flag: "🇮🇳" },
-  ],
-  economic_data: [
-    { symbol: "^TNX", label: "US 10Y Yield", flag: "🇺🇸" },
-    { symbol: "^FVX", label: "US 5Y Yield", flag: "🇺🇸" },
-    { symbol: "^IRX", label: "13-Week T-Bill", flag: "🇺🇸" },
-    { symbol: "EURUSD=X", label: "EUR / USD", flag: "🇪🇺" },
-    { symbol: "USDINR=X", label: "USD / INR", flag: "🇮🇳" },
-    { symbol: "GC=F", label: "Gold", flag: "🌐" },
-    { symbol: "CL=F", label: "Crude Oil", flag: "🌐" },
-  ],
-};
-
 export default function MarketOverviewPanel({
   activeCategory,
 }: MarketOverviewPanelProps) {
@@ -98,15 +49,19 @@ export default function MarketOverviewPanel({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Options context for sidebar
+  const [optionsExpiration, setOptionsExpiration] = useState<string | undefined>(undefined);
+  const [optionsExpirationsList, setOptionsExpirationsList] = useState<string[]>([]);
+
   // Sync symbol when active category tab changes
   useEffect(() => {
     const defaultSym = CATEGORY_DEFAULT_SYMBOLS[activeCategory] || "AAPL";
     setCurrentSymbol(defaultSym);
   }, [activeCategory]);
 
-  // Load asset data whenever currentSymbol or selectedTimeframe changes (for chart view)
+  // Load asset data whenever currentSymbol or selectedTimeframe changes
   useEffect(() => {
-    if (activeCategory === "options" || activeCategory === "economic_data") {
+    if (activeCategory === "economic_data") {
       return;
     }
 
@@ -128,7 +83,7 @@ export default function MarketOverviewPanel({
           setAssetData(snapshotAssets[currentSymbol]);
           setLoading(false);
         } else {
-          setError(err.message || "Market data temporarily unavailable.");
+          setError(err.message || "Unable to load market data.");
           setLoading(false);
         }
       });
@@ -138,63 +93,112 @@ export default function MarketOverviewPanel({
     };
   }, [currentSymbol, selectedTimeframe, activeCategory]);
 
+  // Keep options expirations in sync for options tab
+  useEffect(() => {
+    if (activeCategory === "options") {
+      const snapshotOptions = (liveSnapshot as any)?.options || {};
+      const opt = snapshotOptions[currentSymbol] || snapshotOptions["SPY"];
+      if (opt?.expirations?.length) {
+        setOptionsExpirationsList(opt.expirations);
+        if (!optionsExpiration) {
+          setOptionsExpiration(opt.selectedExpiration || opt.expirations[0]);
+        }
+      }
+    }
+  }, [activeCategory, currentSymbol, optionsExpiration]);
+
   const handleSelectTicker = (sym: string) => {
     setCurrentSymbol(sym);
   };
 
-  const handleSelectFromPanel = (sym: string) => {
-    setCurrentSymbol(sym);
-  };
+  // Determine tickers strip for active category
+  const { primaryTickers, secondaryTickers } = React.useMemo(() => {
+    switch (activeCategory) {
+      case "us_equities":
+        return {
+          primaryTickers: US_EQUITIES.slice(0, 8), // AAPL, MSFT, NVDA, AMZN, GOOGL, META, TSLA, JPM
+          secondaryTickers: US_EQUITIES.slice(8),  // JNJ, XOM, AVGO
+        };
+      case "indian_equities":
+        return {
+          primaryTickers: INDIAN_EQUITIES, // RELIANCE, TCS, INFY, HDFC BANK, ICICI BANK, SBI, ITC, L&T
+          secondaryTickers: [],
+        };
+      case "etfs":
+        return {
+          primaryTickers: ETFS.filter((e) => e.category === "Core"),     // SPY, QQQ, IWM, DIA, VOO, VTI
+          secondaryTickers: ETFS.filter((e) => e.category === "Thematic"), // XLK, XLF, XLE, GLD, TLT
+        };
+      case "indices":
+        return {
+          primaryTickers: INDICES,
+          secondaryTickers: [],
+        };
+      case "options":
+        return {
+          primaryTickers: OPTIONS_UNDERLYINGS,
+          secondaryTickers: [],
+        };
+      case "economic_data":
+      default:
+        return {
+          primaryTickers: [],
+          secondaryTickers: [],
+        };
+    }
+  }, [activeCategory]);
 
   return (
-    <div className="w-full rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-[#0B1528] p-3.5 sm:p-5 lg:p-6 shadow-sm">
+    <div className="w-full rounded-xl border border-border/70 dark:border-border/40 bg-card p-3 sm:p-5 lg:p-6 shadow-sm font-sans transition-colors duration-200">
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={activeCategory}
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.25, ease: "easeOut" }}
-          className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-12"
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          className="grid grid-cols-1 gap-5 lg:grid-cols-12"
         >
-          {/* 1. Main Interactive Workspace (6 cols out of 12) */}
-          <div className="md:col-span-2 lg:col-span-6 flex flex-col justify-between min-h-[460px]">
+          {/* 1. Main Interactive Research Desk Workspace (8 columns out of 12 on Desktop) */}
+          <div className="lg:col-span-8 xl:col-span-8 flex flex-col justify-between min-h-[500px]">
             {activeCategory === "options" ? (
               <OptionsChainPreview
                 initialSymbol={currentSymbol.includes("SPY") ? "SPY" : currentSymbol}
                 onSelectUnderlying={handleSelectTicker}
+                onSelectExpiration={setOptionsExpiration}
               />
             ) : activeCategory === "economic_data" ? (
               <MacroCrossAssetPreview onSelectInstrument={handleSelectTicker} />
             ) : loading && !assetData ? (
-              /* Skeleton Loading State */
-              <div className="flex h-full min-h-[440px] flex-col justify-between p-4 animate-pulse">
-                <div className="space-y-3">
-                  <div className="h-6 w-48 rounded-lg bg-slate-200 dark:bg-slate-800" />
-                  <div className="h-10 w-36 rounded-lg bg-slate-200 dark:bg-slate-800" />
+              /* Minimal Institutional Skeleton */
+              <div className="flex h-full min-h-[460px] flex-col justify-between p-4 animate-pulse space-y-4">
+                <div className="space-y-2">
+                  <div className="h-4 w-32 rounded bg-muted/60" />
+                  <div className="h-8 w-48 rounded bg-muted/60" />
                   <div className="grid grid-cols-4 gap-2 pt-2">
-                    <div className="h-14 rounded-lg bg-slate-200 dark:bg-slate-800" />
-                    <div className="h-14 rounded-lg bg-slate-200 dark:bg-slate-800" />
-                    <div className="h-14 rounded-lg bg-slate-200 dark:bg-slate-800" />
-                    <div className="h-14 rounded-lg bg-slate-200 dark:bg-slate-800" />
+                    <div className="h-10 rounded bg-muted/40" />
+                    <div className="h-10 rounded bg-muted/40" />
+                    <div className="h-10 rounded bg-muted/40" />
+                    <div className="h-10 rounded bg-muted/40" />
                   </div>
                 </div>
-                <div className="my-6 h-64 rounded-xl bg-slate-100 dark:bg-slate-800/50" />
-                <div className="h-4 w-60 rounded bg-slate-200 dark:bg-slate-800" />
+                <div className="my-4 h-64 rounded bg-muted/30" />
+                <div className="h-4 w-64 rounded bg-muted/40" />
               </div>
             ) : error && !assetData ? (
-              /* Professional Inline Error State with Retry */
-              <div className="flex h-full min-h-[440px] flex-col items-center justify-center p-6 text-center">
-                <div className="rounded-full bg-rose-500/10 p-3 text-rose-500 mb-3">
+              /* High-Density Terminal Error */
+              <div className="flex h-full min-h-[460px] flex-col items-center justify-center p-6 text-center">
+                <div className="rounded-full bg-rose-500/10 p-3 text-rose-500 mb-2">
                   <AlertCircle className="h-6 w-6" />
                 </div>
-                <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                  Market Data Temporarily Unavailable
+                <h4 className="text-sm font-bold font-mono tracking-wider text-foreground uppercase">
+                  Unable to load market data.
                 </h4>
-                <p className="mt-1.5 max-w-sm text-xs text-slate-500 dark:text-slate-400">
+                <p className="mt-1.5 max-w-sm text-xs text-muted-foreground">
                   {error}
                 </p>
                 <button
+                  type="button"
                   onClick={() => {
                     setLoading(true);
                     setError(null);
@@ -203,36 +207,35 @@ export default function MarketOverviewPanel({
                       .catch((e) => setError(e.message))
                       .finally(() => setLoading(false));
                   }}
-                  className="mt-4 flex items-center gap-1.5 rounded-lg bg-[#1769FF] px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-blue-600 transition-colors"
+                  className="mt-4 flex items-center gap-1.5 rounded bg-primary px-3 py-1.5 text-xs font-mono font-semibold text-primary-foreground shadow-2xs hover:bg-primary/90 transition-colors"
                 >
-                  <RefreshCw className="h-3.5 w-3.5" />
-                  <span>Retry</span>
+                  <RefreshCw className="h-3 w-3" />
+                  <span>RETRY FEED</span>
                 </button>
               </div>
             ) : assetData ? (
-              /* Class-Aware Candlestick Chart View */
+              /* Quant Chart and Research Workbench */
               <MarketChartPreview
                 instrument={assetData}
                 onSelectTimeframe={setSelectedTimeframe}
-                availableTickers={CATEGORY_TICKERS[activeCategory]}
+                tickerConfigs={primaryTickers}
+                secondaryTickers={secondaryTickers}
                 onSelectTicker={handleSelectTicker}
+                activeCategory={activeCategory}
               />
             ) : null}
           </div>
 
-          {/* 2. Middle Panel: Market Benchmarks (3 cols out of 12) */}
-          <div className="md:col-span-1 lg:col-span-3">
-            <IndexPanel
+          {/* 2. Right Context-Aware Benchmarks & Watchlist Panels (4 columns out of 12 on Desktop) */}
+          <div className="lg:col-span-4 xl:col-span-4">
+            <MarketSidebarPanels
+              activeCategory={activeCategory}
               selectedSymbol={currentSymbol}
-              onSelectInstrument={handleSelectFromPanel}
-            />
-          </div>
-
-          {/* 3. Right Panel: Watchlist (3 cols out of 12) */}
-          <div className="md:col-span-1 lg:col-span-3">
-            <WatchlistPanel
-              selectedSymbol={currentSymbol}
-              onSelectInstrument={handleSelectFromPanel}
+              onSelectSymbol={handleSelectTicker}
+              underlyingAsset={assetData}
+              selectedExpiration={optionsExpiration}
+              availableExpirations={optionsExpirationsList}
+              onSelectExpiration={setOptionsExpiration}
             />
           </div>
         </motion.div>

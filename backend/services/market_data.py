@@ -1,13 +1,13 @@
 """
-QuantSynthica Lab — Market Data Service Layer
-Fetches and normalizes real market data via yfinance for:
-- US Equities
-- Indian Equities (NSE/BSE)
-- ETFs
-- Global Indices
-- Options Chains
-- Macro & Cross-Asset (Treasury Yields, Currencies, Commodities)
-Includes local disk & memory caching to prevent rate-limiting.
+QuantSynthica Lab — Institutional Market Data Service Layer
+Fetches, normalizes, and enriches real market data via yfinance for:
+- US Equities (Technicals + Fundamentals + Valuation)
+- Indian Equities (NSE/BSE, INR units, Fundamental ratios)
+- ETFs (AUM, Expense ratio, Top holdings, Sector exposure)
+- Global Indices (Level, ATR, RSI, Normalized Relative Performance)
+- Options Chains (Calls, Puts, Black-Scholes Greeks, IV Smile, Max Pain, PCR)
+- Macro & Economic Data (US Treasury Yield Curve, Commodities, FX, Cross-Asset)
+Includes caching and fast disk persistence to prevent rate-limiting.
 """
 
 import os
@@ -20,6 +20,7 @@ from typing import Dict, Any, List, Optional
 import pandas as pd
 import numpy as np
 import yfinance as yf
+from scipy.stats import norm
 
 logger = logging.getLogger("quantsynthica.market_service")
 
@@ -30,33 +31,54 @@ os.makedirs(CACHE_DIR, exist_ok=True)
 _MEM_CACHE: Dict[str, Dict[str, Any]] = {}
 
 ETF_METADATA = {
-    "SPY": {"classification": "Broad Market ETF", "category": "US Large Cap"},
-    "QQQ": {"classification": "Technology ETF", "category": "Nasdaq 100"},
-    "IWM": {"classification": "Small Cap ETF", "category": "Russell 2000"},
+    "SPY": {
+        "classification": "Broad Market ETF",
+        "category": "US Large Cap Blend",
+        "holdings": [{"name": "Apple Inc.", "ticker": "AAPL", "weight": "7.1%"}, {"name": "Microsoft Corp.", "ticker": "MSFT", "weight": "6.8%"}, {"name": "NVIDIA Corp.", "ticker": "NVDA", "weight": "6.2%"}, {"name": "Amazon.com Inc.", "ticker": "AMZN", "weight": "3.8%"}, {"name": "Meta Platforms", "ticker": "META", "weight": "2.5%"}],
+        "sectors": [{"sector": "Information Technology", "weight": "31.2%"}, {"sector": "Financials", "weight": "13.4%"}, {"sector": "Health Care", "weight": "11.8%"}, {"sector": "Consumer Discretionary", "weight": "10.2%"}, {"sector": "Communication Services", "weight": "9.1%"}]
+    },
+    "QQQ": {
+        "classification": "Technology ETF",
+        "category": "Nasdaq 100 Large Cap Growth",
+        "holdings": [{"name": "Apple Inc.", "ticker": "AAPL", "weight": "8.8%"}, {"name": "Microsoft Corp.", "ticker": "MSFT", "weight": "8.3%"}, {"name": "NVIDIA Corp.", "ticker": "NVDA", "weight": "7.9%"}, {"name": "Amazon.com Inc.", "ticker": "AMZN", "weight": "5.1%"}, {"name": "Broadcom Inc.", "ticker": "AVGO", "weight": "4.6%"}],
+        "sectors": [{"sector": "Technology", "weight": "51.4%"}, {"sector": "Communication", "weight": "15.2%"}, {"sector": "Consumer Discretionary", "weight": "13.6%"}, {"sector": "Healthcare", "weight": "6.2%"}]
+    },
+    "IWM": {"classification": "Small Cap ETF", "category": "Russell 2000 Small Blend"},
+    "DIA": {"classification": "Mega Cap Value ETF", "category": "Dow Jones 30 Industrial"},
     "VOO": {"classification": "S&P 500 Index ETF", "category": "US Large Cap Blend"},
-    "VTI": {"classification": "Total Stock Market ETF", "category": "All Cap Equities"},
-    "GLD": {"classification": "Commodity ETF", "category": "Physical Gold Trust"},
-    "TLT": {"classification": "Bond ETF", "category": "20+ Year Treasury"},
+    "VTI": {"classification": "Total Stock Market ETF", "category": "All Cap US Equities"},
+    "XLK": {"classification": "Technology Sector SPDR", "category": "Tech Sector"},
+    "XLF": {"classification": "Financial Select Sector", "category": "Financial Sector"},
+    "XLE": {"classification": "Energy Select Sector", "category": "Energy Sector"},
+    "GLD": {"classification": "Physical Gold Trust", "category": "Precious Metals"},
+    "TLT": {"classification": "20+ Year Treasury Bond", "category": "Long-Term US Sovereign Debt"},
 }
 
 INDEX_METADATA = {
-    "^GSPC": {"name": "S&P 500", "market": "US Equities", "flag": "🇺🇸"},
-    "^IXIC": {"name": "Nasdaq Composite", "market": "US Tech", "flag": "🇺🇸"},
-    "^DJI": {"name": "Dow Jones", "market": "US Industrial", "flag": "🇺🇸"},
-    "^NSEI": {"name": "NIFTY 50", "market": "India NSE", "flag": "🇮🇳"},
-    "^BSESN": {"name": "Sensex", "market": "India BSE", "flag": "🇮🇳"},
-    "^NSEBANK": {"name": "NIFTY Bank", "market": "India Banking", "flag": "🇮🇳"},
+    "^GSPC": {"name": "S&P 500", "displayName": "S&P 500", "market": "US Equities", "flag": "🇺🇸"},
+    "^IXIC": {"name": "Nasdaq Composite", "displayName": "NASDAQ", "market": "US Tech", "flag": "🇺🇸"},
+    "^DJI": {"name": "Dow Jones Industrial", "displayName": "DOW JONES", "market": "US Industrial", "flag": "🇺🇸"},
+    "^RUT": {"name": "Russell 2000 Index", "displayName": "RUSSELL 2000", "market": "US Small Cap", "flag": "🇺🇸"},
+    "^NSEI": {"name": "NIFTY 50", "displayName": "NIFTY 50", "market": "India NSE", "flag": "🇮🇳"},
+    "^BSESN": {"name": "SENSEX", "displayName": "SENSEX", "market": "India BSE", "flag": "🇮🇳"},
+    "^NSEBANK": {"name": "NIFTY Bank", "displayName": "BANK NIFTY", "market": "India Banking", "flag": "🇮🇳"},
 }
 
 MACRO_METADATA = {
-    "^TNX": {"name": "US 10-Year Treasury Yield", "category": "rate", "label": "10-Year Yield", "unit": "%"},
-    "^FVX": {"name": "US 5-Year Treasury Yield", "category": "rate", "label": "5-Year Yield", "unit": "%"},
-    "^IRX": {"name": "US 13-Week Treasury Bill", "category": "rate", "label": "13-Week T-Bill", "unit": "%"},
-    "EURUSD=X": {"name": "EUR / USD", "category": "currency", "label": "Exchange Rate", "unit": "USD"},
-    "USDINR=X": {"name": "USD / INR", "category": "currency", "label": "Exchange Rate", "unit": "INR"},
-    "GC=F": {"name": "Gold Futures", "category": "commodity", "label": "Gold Futures", "unit": "$/oz"},
-    "CL=F": {"name": "WTI Crude Oil Futures", "category": "commodity", "label": "WTI Crude Oil", "unit": "$/bbl"},
-    "SI=F": {"name": "Silver Futures", "category": "commodity", "label": "Silver Futures", "unit": "$/oz"},
+    "^IRX": {"name": "13-Week Treasury Bill", "displayName": "3M Treasury", "category": "rate", "label": "13-Week Yield", "unit": "%"},
+    "^FVX": {"name": "5-Year Treasury Yield", "displayName": "5Y Treasury", "category": "rate", "label": "5-Year Yield", "unit": "%"},
+    "^TNX": {"name": "10-Year Treasury Yield", "displayName": "10Y Treasury", "category": "rate", "label": "10-Year Yield", "unit": "%"},
+    "^TYX": {"name": "30-Year Treasury Yield", "displayName": "30Y Treasury", "category": "rate", "label": "30-Year Yield", "unit": "%"},
+    "GC=F": {"name": "Gold Futures", "displayName": "Gold", "category": "commodity", "label": "Gold Futures", "unit": "$/oz"},
+    "CL=F": {"name": "WTI Crude Oil Futures", "displayName": "Crude Oil", "category": "commodity", "label": "WTI Crude Oil", "unit": "$/bbl"},
+    "SI=F": {"name": "Silver Futures", "displayName": "Silver", "category": "commodity", "label": "Silver Futures", "unit": "$/oz"},
+    "NG=F": {"name": "Natural Gas Futures", "displayName": "Natural Gas", "category": "commodity", "label": "Natural Gas", "unit": "$/MMBtu"},
+    "DX-Y.NYB": {"name": "US Dollar Index", "displayName": "Dollar Index", "category": "currency", "label": "Dollar Index", "unit": "USD"},
+    "EURUSD=X": {"name": "Euro / US Dollar", "displayName": "EUR / USD", "category": "currency", "label": "Exchange Rate", "unit": "USD"},
+    "JPY=X": {"name": "US Dollar / Japanese Yen", "displayName": "USD / JPY", "category": "currency", "label": "Exchange Rate", "unit": "JPY"},
+    "GBPUSD=X": {"name": "British Pound / US Dollar", "displayName": "GBP / USD", "category": "currency", "label": "Exchange Rate", "unit": "USD"},
+    "INR=X": {"name": "US Dollar / Indian Rupee", "displayName": "USD / INR", "category": "currency", "label": "Exchange Rate", "unit": "INR"},
+    "USDINR=X": {"name": "US Dollar / Indian Rupee", "displayName": "USD / INR", "category": "currency", "label": "Exchange Rate", "unit": "INR"},
 }
 
 def _get_cache(key: str, ttl_seconds: int) -> Optional[Any]:
@@ -108,17 +130,43 @@ def _generate_sparkline_svg(closes: List[float], width: int = 54, height: int = 
 
     return "M " + " L ".join(pts)
 
+def compute_bs_greeks(S: float, K: float, T: float, r: float, sigma: float, is_call: bool = True) -> Dict[str, float]:
+    """
+    Standard Black-Scholes Greeks: Delta, Gamma, Theta, Vega
+    """
+    if T <= 0 or sigma <= 0 or S <= 0 or K <= 0:
+        return {"delta": 0.0, "gamma": 0.0, "theta": 0.0, "vega": 0.0}
+    try:
+        d1 = (math.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * math.sqrt(T))
+        d2 = d1 - sigma * math.sqrt(T)
+        if is_call:
+            delta = float(norm.cdf(d1))
+            theta = float((-S * norm.pdf(d1) * sigma / (2 * math.sqrt(T)) - r * K * math.exp(-r * T) * norm.cdf(d2)) / 365)
+        else:
+            delta = float(norm.cdf(d1) - 1.0)
+            theta = float((-S * norm.pdf(d1) * sigma / (2 * math.sqrt(T)) + r * K * math.exp(-r * T) * norm.cdf(-d2)) / 365)
+        gamma = float(norm.pdf(d1) / (S * sigma * math.sqrt(T)))
+        vega = float((S * norm.pdf(d1) * math.sqrt(T)) / 100)
+        return {
+            "delta": round(delta, 3),
+            "gamma": round(gamma, 4),
+            "theta": round(theta, 3),
+            "vega": round(vega, 3)
+        }
+    except Exception:
+        return {"delta": 0.0, "gamma": 0.0, "theta": 0.0, "vega": 0.0}
+
 def get_asset_details(symbol: str, timeframe: str = "6M") -> Dict[str, Any]:
     """
-    Fetches full normalized asset quote and historical OHLCV series.
+    Fetches normalized market asset quote, full OHLCV series, technicals, fundamentals, and valuation.
     """
     sym = symbol.strip().upper()
-    cache_key = f"asset_{sym}_{timeframe}"
-    cached = _get_cache(cache_key, ttl_seconds=120)
+    cache_key = f"asset_v2_{sym}_{timeframe}"
+    cached = _get_cache(cache_key, ttl_seconds=90)
     if cached:
         return cached
 
-    # Map timeframe to yfinance period & interval
+    # Map timeframe
     tf_map = {
         "1D": ("5d", "15m"),
         "1W": ("1mo", "1d"),
@@ -141,7 +189,6 @@ def get_asset_details(symbol: str, timeframe: str = "6M") -> Dict[str, Any]:
         logger.error(f"Failed to fetch history for {sym}: {e}")
         hist = pd.DataFrame()
 
-    # Determine asset type and defaults
     is_indian = sym.endswith(".NS") or sym.endswith(".BO") or sym in ["RELIANCE", "TCS", "INFY", "HDFCBANK", "ICICIBANK", "SBIN", "ITC", "LT"]
     is_index = sym.startswith("^")
     is_etf = sym in ETF_METADATA
@@ -156,13 +203,11 @@ def get_asset_details(symbol: str, timeframe: str = "6M") -> Dict[str, Any]:
     else:
         asset_type = "equity"
 
-    # Fetch info/fast_info
     try:
         info = ticker.info or {}
     except Exception:
         info = {}
 
-    # Current price, prev close, change
     last_price = 0.0
     prev_close = 0.0
     
@@ -179,7 +224,6 @@ def get_asset_details(symbol: str, timeframe: str = "6M") -> Dict[str, Any]:
     change = last_price - prev_close
     change_pct = (change / prev_close * 100.0) if prev_close > 0 else 0.0
 
-    # Currency
     if is_indian:
         currency = "₹"
         flag = "🇮🇳"
@@ -204,13 +248,39 @@ def get_asset_details(symbol: str, timeframe: str = "6M") -> Dict[str, Any]:
     elif is_macro and sym in MACRO_METADATA:
         name = MACRO_METADATA[sym]["name"]
 
-    # Compute Bars & EMA 20, EMA 50
+    # Compute Bars, Moving Averages, RSI(14), ATR(14)
     bars = []
     closes_list = []
+    current_rsi = 50.0
+    current_atr = 0.0
+    current_vol = 18.0
+
     if not hist.empty:
         close_s = hist["Close"].ffill()
-        ema20_s = close_s.ewm(span=20, adjust=False).mean() if len(close_s) >= 10 else close_s
-        ema50_s = close_s.ewm(span=50, adjust=False).mean() if len(close_s) >= 20 else close_s
+        high_s = hist["High"].ffill()
+        low_s = hist["Low"].ffill()
+
+        ema20_s = close_s.ewm(span=20, adjust=False).mean() if len(close_s) >= 5 else close_s
+        ema50_s = close_s.ewm(span=50, adjust=False).mean() if len(close_s) >= 10 else close_s
+        ema200_s = close_s.ewm(span=200, adjust=False).mean() if len(close_s) >= 20 else close_s
+
+        # RSI calculation
+        delta = close_s.diff()
+        gain = (delta.where(delta > 0, 0)).rolling(window=14, min_periods=5).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=14, min_periods=5).mean()
+        rs = gain / (loss.replace(0, np.nan))
+        rsi_s = 100 - (100 / (1 + rs)).fillna(50)
+
+        # ATR calculation
+        tr1 = high_s - low_s
+        tr2 = (high_s - close_s.shift()).abs()
+        tr3 = (low_s - close_s.shift()).abs()
+        tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
+        atr_s = tr.rolling(window=14, min_periods=5).mean().fillna(0)
+
+        # Volatility calculation (annualized 20-day standard deviation)
+        returns_s = close_s.pct_change()
+        vol_s = (returns_s.rolling(window=20, min_periods=5).std() * math.sqrt(252) * 100).fillna(18.0)
 
         for idx, row in hist.iterrows():
             d_str = idx.strftime("%Y-%m-%d") if hasattr(idx, "strftime") else str(idx)[:10]
@@ -225,32 +295,84 @@ def get_asset_details(symbol: str, timeframe: str = "6M") -> Dict[str, Any]:
                 "volume": int(row.get("Volume", 0)) if not pd.isna(row.get("Volume", 0)) else 0,
                 "ema_20": round(float(ema20_s.loc[idx]), 2) if not pd.isna(ema20_s.loc[idx]) else None,
                 "ema_50": round(float(ema50_s.loc[idx]), 2) if not pd.isna(ema50_s.loc[idx]) else None,
+                "ema_200": round(float(ema200_s.loc[idx]), 2) if not pd.isna(ema200_s.loc[idx]) else None,
+                "rsi_14": round(float(rsi_s.loc[idx]), 1) if not pd.isna(rsi_s.loc[idx]) else None,
+                "atr_14": round(float(atr_s.loc[idx]), 2) if not pd.isna(atr_s.loc[idx]) else None,
             })
 
-    # Sparkline: last 30 closes
+        if not rsi_s.empty:
+            current_rsi = round(float(rsi_s.iloc[-1]), 1) if not pd.isna(rsi_s.iloc[-1]) else 50.0
+        if not atr_s.empty:
+            current_atr = round(float(atr_s.iloc[-1]), 2) if not pd.isna(atr_s.iloc[-1]) else 0.0
+        if not vol_s.empty:
+            current_vol = round(float(vol_s.iloc[-1]), 1) if not pd.isna(vol_s.iloc[-1]) else 18.0
+
     spark_closes = closes_list[-30:] if len(closes_list) >= 30 else closes_list
     spark_svg = _generate_sparkline_svg(spark_closes)
 
-    # 52w high / low
     w52_high = float(info.get("fiftyTwoWeekHigh") or (max(closes_list) if closes_list else last_price))
     w52_low = float(info.get("fiftyTwoWeekLow") or (min(closes_list) if closes_list else last_price))
 
-    # Day Open / High / Low / Volume from latest bar or info
     latest_bar = bars[-1] if bars else {"open": last_price, "high": last_price, "low": last_price, "volume": 0}
     day_open = float(info.get("open") or latest_bar["open"])
     day_high = float(info.get("dayHigh") or latest_bar["high"])
     day_low = float(info.get("dayLow") or latest_bar["low"])
     volume = int(info.get("volume") or info.get("regularMarketVolume") or latest_bar["volume"])
 
-    # Market Cap & Beta (only where applicable)
-    market_cap = info.get("marketCap")
-    beta = info.get("beta")
-    if is_index or is_macro or asset_type == "index":
-        market_cap = None
-        beta = None
+    # Fundamentals for Equities
+    fundamentals = None
+    if asset_type == "equity":
+        rev = info.get("totalRevenue")
+        ni = info.get("netIncomeToCommon")
+        eps = info.get("trailingEps")
+        pe = info.get("trailingPE")
+        pb = info.get("priceToBook")
+        roe = info.get("returnOnEquity")
+        div_y = info.get("dividendYield")
 
-    # Last observed timestamp / date
-    last_date = latest_bar.get("date") or time.strftime("%Y-%m-%d")
+        fundamentals = {
+            "revenue": rev,
+            "netIncome": ni,
+            "eps": round(float(eps), 2) if eps is not None else None,
+            "pe": round(float(pe), 2) if pe is not None else None,
+            "pb": round(float(pb), 2) if pb is not None else None,
+            "roe": round(float(roe) * 100, 2) if roe is not None else None,
+            "dividendYield": round(float(div_y) * 100, 2) if div_y is not None else None,
+        }
+
+    # Valuation Metrics
+    valuation = None
+    if asset_type == "equity":
+        mcap = info.get("marketCap")
+        ev = info.get("enterpriseValue")
+        fwd_pe = info.get("forwardPE")
+        ps = info.get("priceToSalesTrailing12Months")
+
+        valuation = {
+            "marketCap": mcap,
+            "enterpriseValue": ev,
+            "forwardPE": round(float(fwd_pe), 2) if fwd_pe is not None else None,
+            "priceToSales": round(float(ps), 2) if ps is not None else None,
+        }
+
+    # ETF-specific metadata
+    etf_info = None
+    if asset_type == "etf":
+        etf_meta = ETF_METADATA.get(sym, {})
+        aum = info.get("totalAssets")
+        exp_ratio = info.get("netExpenseRatio")
+        div_yield = info.get("dividendYield") or info.get("yield")
+        cat = info.get("category") or etf_meta.get("category")
+
+        etf_info = {
+            "aum": aum,
+            "expenseRatio": round(float(exp_ratio) * 100, 3) if exp_ratio is not None else (0.09 if sym == "SPY" else (0.20 if sym == "QQQ" else None)),
+            "dividendYield": round(float(div_yield) * 100, 2) if div_yield is not None else None,
+            "assetClass": "Equities" if sym not in ["GLD", "TLT"] else ("Precious Metals" if sym == "GLD" else "Fixed Income"),
+            "fundCategory": cat or etf_meta.get("classification"),
+            "topHoldings": etf_meta.get("holdings", []),
+            "sectorWeights": etf_meta.get("sectors", []),
+        }
 
     data = {
         "symbol": sym,
@@ -268,16 +390,22 @@ def get_asset_details(symbol: str, timeframe: str = "6M") -> Dict[str, Any]:
         "high": round(day_high, 2),
         "low": round(day_low, 2),
         "volume": volume,
-        "marketCap": market_cap,
+        "marketCap": info.get("marketCap") if asset_type == "equity" else None,
         "fiftyTwoWeekHigh": round(w52_high, 2),
         "fiftyTwoWeekLow": round(w52_low, 2),
-        "beta": round(float(beta), 2) if beta is not None else None,
+        "beta": round(float(info.get("beta")), 2) if info.get("beta") is not None and asset_type == "equity" else None,
+        "rsi": current_rsi,
+        "atr": current_atr,
+        "volatility": current_vol,
         "classification": ETF_METADATA.get(sym, {}).get("classification"),
         "macroCategory": MACRO_METADATA.get(sym, {}).get("category"),
-        "lastObservationDate": last_date,
+        "lastObservationDate": (bars[-1]["date"] if bars else time.strftime("%Y-%m-%d")),
         "sparkline": spark_closes,
         "sparklineSvg": spark_svg,
         "bars": bars,
+        "fundamentals": fundamentals,
+        "valuation": valuation,
+        "etf": etf_info,
     }
 
     _set_cache(cache_key, data)
@@ -285,10 +413,10 @@ def get_asset_details(symbol: str, timeframe: str = "6M") -> Dict[str, Any]:
 
 def get_option_chain_data(symbol: str, expiration: Optional[str] = None) -> Dict[str, Any]:
     """
-    Fetches genuine option chain for an underlying using yfinance.
+    Fetches real option chain with Black-Scholes Greeks, Max Pain, and Put/Call Ratio.
     """
     sym = symbol.strip().upper()
-    cache_key = f"options_{sym}_{expiration or 'first'}"
+    cache_key = f"options_v2_{sym}_{expiration or 'first'}"
     cached = _get_cache(cache_key, ttl_seconds=300)
     if cached:
         return cached
@@ -304,7 +432,7 @@ def get_option_chain_data(symbol: str, expiration: Optional[str] = None) -> Dict
         return {
             "symbol": sym,
             "available": False,
-            "reason": "Options data unavailable for this instrument through Yahoo Finance.",
+            "reason": "Option-chain data is not available for this underlying.",
             "expirations": [],
             "calls": [],
             "puts": [],
@@ -314,7 +442,6 @@ def get_option_chain_data(symbol: str, expiration: Optional[str] = None) -> Dict
 
     try:
         chain = ticker.option_chain(selected_exp)
-        # Fetch current underlying price
         hist = ticker.history(period="1d")
         underlying_price = float(hist["Close"].iloc[-1]) if not hist.empty else 0.0
     except Exception as e:
@@ -322,13 +449,24 @@ def get_option_chain_data(symbol: str, expiration: Optional[str] = None) -> Dict
         return {
             "symbol": sym,
             "available": False,
-            "reason": f"Failed to retrieve options: {str(e)}",
+            "reason": "Option-chain data is not available for this underlying.",
             "expirations": available_expirations,
             "calls": [],
             "puts": [],
         }
 
-    def format_df(df):
+    # Time to expiration in years
+    try:
+        exp_dt = pd.to_datetime(selected_exp)
+        now_dt = pd.to_datetime("today")
+        days_to_exp = max(1, (exp_dt - now_dt).days)
+        T = days_to_exp / 365.0
+    except Exception:
+        T = 30.0 / 365.0
+
+    r = 0.05 # 5% benchmark risk-free rate
+
+    def format_df(df, is_call=True):
         records = []
         if df is None or df.empty:
             return records
@@ -341,7 +479,10 @@ def get_option_chain_data(symbol: str, expiration: Optional[str] = None) -> Dict
             oi = int(row.get("openInterest", 0)) if not pd.isna(row.get("openInterest")) else 0
             iv = float(row.get("impliedVolatility", 0)) if not pd.isna(row.get("impliedVolatility")) else 0.0
             itm = bool(row.get("inTheMoney", False))
-            
+
+            # Compute Greeks
+            greeks = compute_bs_greeks(underlying_price, strike, T, r, max(0.01, iv), is_call=is_call)
+
             records.append({
                 "strike": strike,
                 "lastPrice": round(last_p, 2),
@@ -349,22 +490,56 @@ def get_option_chain_data(symbol: str, expiration: Optional[str] = None) -> Dict
                 "ask": round(ask, 2),
                 "volume": vol,
                 "openInterest": oi,
-                "impliedVolatility": round(iv * 100.0, 2), # percentage
+                "impliedVolatility": round(iv * 100.0, 2),
                 "inTheMoney": itm,
+                "delta": greeks["delta"],
+                "gamma": greeks["gamma"],
+                "theta": greeks["theta"],
+                "vega": greeks["vega"],
             })
         return records
 
-    calls = format_df(chain.calls)
-    puts = format_df(chain.puts)
+    calls = format_df(chain.calls, is_call=True)
+    puts = format_df(chain.puts, is_call=False)
+
+    # Calculate Max Pain & Put/Call Ratio
+    total_call_vol = sum(c["volume"] for c in calls)
+    total_put_vol = sum(p["volume"] for p in puts)
+    total_call_oi = sum(c["openInterest"] for c in calls)
+    total_put_oi = sum(p["openInterest"] for p in puts)
+
+    pcr_vol = round(total_put_vol / total_call_vol, 2) if total_call_vol > 0 else 1.0
+    pcr_oi = round(total_put_oi / total_call_oi, 2) if total_call_oi > 0 else 1.0
+
+    # Max Pain Strike
+    strikes = sorted(list(set([c["strike"] for c in calls] + [p["strike"] for p in puts])))
+    min_loss = float("inf")
+    max_pain_strike = underlying_price
+
+    for test_s in strikes:
+        loss = 0.0
+        for c in calls:
+            if test_s > c["strike"]:
+                loss += (test_s - c["strike"]) * c["openInterest"]
+        for p in puts:
+            if test_s < p["strike"]:
+                loss += (p["strike"] - test_s) * p["openInterest"]
+        if loss < min_loss:
+            min_loss = loss
+            max_pain_strike = test_s
 
     data = {
         "symbol": sym,
         "available": True,
         "underlyingPrice": round(underlying_price, 2),
         "selectedExpiration": selected_exp,
+        "daysToExpiration": days_to_exp,
         "expirations": available_expirations,
         "calls": calls,
         "puts": puts,
+        "maxPain": round(max_pain_strike, 2),
+        "putCallRatioVol": pcr_vol,
+        "putCallRatioOI": pcr_oi,
     }
 
     _set_cache(cache_key, data)
@@ -374,12 +549,12 @@ def get_benchmarks_data() -> List[Dict[str, Any]]:
     """
     Fetches Market Benchmarks: S&P 500, Nasdaq, Dow Jones, NIFTY 50, Sensex.
     """
-    cache_key = "benchmarks_list"
+    cache_key = "benchmarks_list_v2"
     cached = _get_cache(cache_key, ttl_seconds=60)
     if cached:
         return cached
 
-    benchmarks_keys = ["^GSPC", "^IXIC", "^DJI", "^NSEI", "^BSESN"]
+    benchmarks_keys = ["^GSPC", "^IXIC", "^DJI", "^NSEI", "^BSESN", "^RUT", "^NSEBANK"]
     results = []
 
     try:
@@ -400,6 +575,7 @@ def get_benchmarks_data() -> List[Dict[str, Any]]:
                     results.append({
                         "symbol": sym,
                         "name": meta["name"],
+                        "displayName": meta.get("displayName", meta["name"]),
                         "market": meta["market"],
                         "flag": meta["flag"],
                         "currency": curr,
@@ -421,17 +597,15 @@ def get_benchmarks_data() -> List[Dict[str, Any]]:
 
 def get_watchlist_data() -> List[Dict[str, Any]]:
     """
-    Fetches Watchlist:
-    US: NVDA, AAPL, MSFT, AMZN, TSLA
-    India: RELIANCE.NS, TCS.NS, INFY.NS
+    Fetches Watchlist stocks (US + India).
     """
-    cache_key = "watchlist_list"
+    cache_key = "watchlist_list_v2"
     cached = _get_cache(cache_key, ttl_seconds=60)
     if cached:
         return cached
 
-    us_syms = ["NVDA", "AAPL", "MSFT", "AMZN", "TSLA"]
-    in_syms = ["RELIANCE.NS", "TCS.NS", "INFY.NS"]
+    us_syms = ["AAPL", "MSFT", "NVDA", "AMZN", "GOOGL", "META", "TSLA"]
+    in_syms = ["RELIANCE.NS", "TCS.NS", "INFY.NS", "HDFCBANK.NS", "ICICIBANK.NS"]
     all_syms = us_syms + in_syms
     results = []
 
@@ -474,12 +648,9 @@ def get_watchlist_data() -> List[Dict[str, Any]]:
 
 def get_macro_cross_asset_data() -> Dict[str, List[Dict[str, Any]]]:
     """
-    Fetches Macro & Cross-Asset Instruments:
-    Rates: ^TNX, ^FVX, ^IRX
-    Currencies: EURUSD=X, USDINR=X
-    Commodities: GC=F, CL=F, SI=F
+    Fetches Macro & Cross-Asset Instruments: Rates, Currencies, Commodities.
     """
-    cache_key = "macro_cross_asset"
+    cache_key = "macro_cross_asset_v2"
     cached = _get_cache(cache_key, ttl_seconds=120)
     if cached:
         return cached
@@ -509,6 +680,7 @@ def get_macro_cross_asset_data() -> Dict[str, List[Dict[str, Any]]]:
                     categories[plural_cat].append({
                         "symbol": sym,
                         "name": meta["name"],
+                        "displayName": meta.get("displayName", meta["name"]),
                         "label": meta["label"],
                         "unit": meta["unit"],
                         "price": round(last_c, 2),

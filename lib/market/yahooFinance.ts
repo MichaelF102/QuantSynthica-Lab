@@ -13,11 +13,42 @@ export interface MarketBar {
   volume: number;
   ema_20?: number | null;
   ema_50?: number | null;
+  ema_200?: number | null;
+  rsi_14?: number | null;
+  atr_14?: number | null;
+}
+
+export interface MarketFundamentals {
+  revenue?: number | null;
+  netIncome?: number | null;
+  eps?: number | null;
+  pe?: number | null;
+  pb?: number | null;
+  roe?: number | null;
+  dividendYield?: number | null;
+}
+
+export interface MarketValuation {
+  marketCap?: number | null;
+  enterpriseValue?: number | null;
+  forwardPE?: number | null;
+  priceToSales?: number | null;
+}
+
+export interface ETFMetadata {
+  aum?: number | null;
+  expenseRatio?: number | null;
+  dividendYield?: number | null;
+  assetClass?: string;
+  fundCategory?: string;
+  topHoldings?: Array<{ symbol: string; name: string; weight: number }>;
+  sectorWeights?: Array<{ sector: string; weight: number }>;
 }
 
 export interface NormalizedMarketAsset {
   symbol: string;
   name: string;
+  displayName?: string;
   exchange: string;
   assetType: "equity" | "etf" | "index" | "option" | "macro";
   currency: string;
@@ -35,12 +66,18 @@ export interface NormalizedMarketAsset {
   fiftyTwoWeekHigh?: number;
   fiftyTwoWeekLow?: number;
   beta?: number | null;
+  rsi?: number;
+  atr?: number;
+  volatility?: number;
   classification?: string;
   macroCategory?: "rate" | "currency" | "commodity";
   lastObservationDate?: string;
   sparkline: number[];
   sparklineSvg: string;
   bars: MarketBar[];
+  fundamentals?: MarketFundamentals | null;
+  valuation?: MarketValuation | null;
+  etf?: ETFMetadata | null;
 }
 
 export interface OptionContract {
@@ -52,6 +89,10 @@ export interface OptionContract {
   openInterest: number;
   impliedVolatility: number;
   inTheMoney: boolean;
+  delta?: number;
+  gamma?: number;
+  theta?: number;
+  vega?: number;
 }
 
 export interface OptionChainData {
@@ -60,9 +101,13 @@ export interface OptionChainData {
   reason?: string;
   underlyingPrice?: number;
   selectedExpiration?: string;
+  daysToExpiration?: number;
   expirations: string[];
   calls: OptionContract[];
   puts: OptionContract[];
+  maxPain?: number;
+  putCallRatioVol?: number;
+  putCallRatioOI?: number;
 }
 
 export interface BenchmarkItem {
@@ -241,6 +286,32 @@ export function formatMarketCap(cap?: number | null, currency: string = "$"): st
   if (cap >= 1_000_000_000) return `$${(cap / 1_000_000_000).toFixed(2)}B`;
   if (cap >= 1_000_000) return `$${(cap / 1_000_000).toFixed(1)}M`;
   return `$${cap.toLocaleString()}`;
+}
+
+export function formatStatValue(
+  val?: number | null,
+  suffix = "",
+  prefix = ""
+): string {
+  if (val === null || val === undefined || isNaN(val)) {
+    return "Data unavailable";
+  }
+  return `${prefix}${val.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${suffix}`;
+}
+
+export function formatLargeCurrency(val?: number | null, currency: string = "$"): string {
+  if (val === null || val === undefined || isNaN(val) || val === 0) {
+    return "Data unavailable";
+  }
+  if (currency === "₹") {
+    const cr = val / 10_000_000;
+    if (cr >= 100_000) return `₹${(cr / 100_000).toFixed(2)} Lakh Cr`;
+    return `₹${cr.toFixed(0)} Cr`;
+  }
+  if (Math.abs(val) >= 1_000_000_000_000) return `$${(val / 1_000_000_000_000).toFixed(2)}T`;
+  if (Math.abs(val) >= 1_000_000_000) return `$${(val / 1_000_000_000).toFixed(2)}B`;
+  if (Math.abs(val) >= 1_000_000) return `$${(val / 1_000_000).toFixed(1)}M`;
+  return `$${val.toLocaleString()}`;
 }
 
 /**

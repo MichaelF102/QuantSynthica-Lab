@@ -25,7 +25,7 @@ const CATEGORIES: CategoryItem[] = [
   { id: "etfs", label: "ETFs", icon: Layers },
   { id: "indices", label: "Indices", icon: BarChart2 },
   { id: "options", label: "Options", icon: Target },
-  { id: "economic_data", label: "Economic Data", icon: Activity },
+  { id: "economic_data", label: "Macro & Economic Data", icon: Activity },
 ];
 
 interface MarketCategoryTabsProps {
