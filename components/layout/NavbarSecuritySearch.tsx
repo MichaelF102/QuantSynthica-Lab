@@ -23,7 +23,7 @@ export default function NavbarSecuritySearch() {
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Initialize active country & symbol from storage / settings
+  // Initialize active country & symbol from storage / settings / URL
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedCountry = localStorage.getItem("algolab_active_country") as MarketCountry;
@@ -41,6 +41,10 @@ export default function NavbarSecuritySearch() {
       if (urlTicker) {
         setActiveSymbol(urlTicker.toUpperCase());
       }
+      const urlCountry = params.get("country");
+      if (urlCountry === "India" || urlCountry === "US") {
+        setCountry(urlCountry as MarketCountry);
+      }
     }
 
     const handleExternalSecurityChange = (e: any) => {
@@ -52,9 +56,17 @@ export default function NavbarSecuritySearch() {
       }
     };
 
+    const handleExternalCountryChange = (e: any) => {
+      if (e.detail?.country && (e.detail.country === "US" || e.detail.country === "India")) {
+        setCountry(e.detail.country);
+      }
+    };
+
     window.addEventListener("algolab:security-change", handleExternalSecurityChange);
+    window.addEventListener("algolab:country-change", handleExternalCountryChange);
     return () => {
       window.removeEventListener("algolab:security-change", handleExternalSecurityChange);
+      window.removeEventListener("algolab:country-change", handleExternalCountryChange);
     };
   }, []);
 
@@ -188,13 +200,14 @@ export default function NavbarSecuritySearch() {
     }
 
     if (pathname.startsWith("/research")) {
-      // Already on research page, update URL without full reload
+      // Already on research page, update URL with both ticker & country
       const url = new URL(window.location.href);
       url.searchParams.set("ticker", sym);
+      url.searchParams.set("country", stockCountry);
       window.history.pushState(null, "", url.toString());
     } else {
       // Navigate to research page
-      router.push(`/research?ticker=${encodeURIComponent(sym)}`);
+      router.push(`/research?ticker=${encodeURIComponent(sym)}&country=${encodeURIComponent(stockCountry)}`);
     }
   };
 
@@ -246,38 +259,8 @@ export default function NavbarSecuritySearch() {
 
   return (
     <div ref={containerRef} className="flex items-center gap-2">
-      {/* Country Selector: US / INDIA */}
-      <div className="hidden items-center rounded-lg border border-border bg-[#131722] p-0.5 text-[11px] select-none xl:flex">
-        <button
-          type="button"
-          onClick={() => handleCountryChange("US")}
-          className={`flex items-center gap-1 rounded px-2 py-0.5 transition-all ${
-            country === "US"
-              ? "bg-surface-active font-semibold text-brand-amber"
-              : "text-stone-500 hover:text-stone-200"
-          }`}
-          title="Filter US Equities (NYSE, NASDAQ)"
-        >
-          <span className="text-[11px] leading-none">🇺🇸</span>
-          <span>US</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => handleCountryChange("India")}
-          className={`flex items-center gap-1 rounded px-2 py-0.5 transition-all ${
-            country === "India"
-              ? "bg-surface-active font-semibold text-brand-amber"
-              : "text-stone-500 hover:text-stone-200"
-          }`}
-          title="Filter Indian Equities (NSE, BSE)"
-        >
-          <span className="text-[11px] leading-none">🇮🇳</span>
-          <span>INDIA</span>
-        </button>
-      </div>
-
-      {/* Security Searchbar */}
-      <div className="relative w-36 sm:w-44 md:w-52 lg:w-64">
+      {/* Security Searchbar (Moved to the left) */}
+      <div className="relative w-44 sm:w-56 md:w-64 lg:w-72 xl:w-80">
         <div className="relative flex items-center">
           <Search className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 text-slate-500" />
           <input
@@ -292,13 +275,13 @@ export default function NavbarSecuritySearch() {
             onKeyDown={handleKeyDown}
             placeholder={
               country === "India"
-                ? activeSymbol ? `${activeSymbol} (NSE/BSE)...` : "Search India (RELIANCE, TCS)..."
-                : activeSymbol ? `${activeSymbol} (US)...` : "Search US (AAPL, NVDA)..."
+                ? "Search NSE/BSE (e.g. RELIANCE)..."
+                : "Search US (e.g. AAPL, NVDA)..."
             }
-            className="h-8 w-full rounded-lg border border-border bg-[#131722] py-1 pl-8 pr-12 text-[13px] text-[#d1d4dc] placeholder-[#787b86] outline-none focus:border-[#2962FF]"
+            className="h-8 w-full rounded-lg border border-border bg-[#131722] py-1 pl-8 pr-16 text-[12px] text-[#d1d4dc] placeholder-[#787b86] outline-none transition-colors focus:border-[#2962FF] sm:text-[13px] sm:pr-20"
           />
 
-          {/* Right badges: clear X or active symbol + '/' key */}
+          {/* Right badges: clear X or active symbol badge + '/' shortcut */}
           <div className="absolute right-1.5 flex items-center gap-1">
             {query ? (
               <button
@@ -307,29 +290,33 @@ export default function NavbarSecuritySearch() {
                   setQuery("");
                   inputRef.current?.focus();
                 }}
-                className="p-0.5 text-slate-500 transition-colors hover:text-slate-200"
+                className="p-1 text-slate-400 transition-colors hover:text-white"
+                title="Clear search"
               >
                 <X className="h-3 w-3" />
               </button>
             ) : activeSymbol ? (
-              <span className="rounded-sm border border-border bg-surface-muted px-1 py-0.5 font-mono text-[9px] text-brand-amber">
+              <span
+                className="rounded border border-border/80 bg-surface-muted px-1.5 py-0.5 font-mono text-[10px] font-semibold text-brand-amber shadow-2xs"
+                title={`Active security: ${activeSymbol}`}
+              >
                 {activeSymbol}
               </span>
             ) : (
-              <span className="rounded border border-border bg-surface-muted px-1 py-0.5 font-mono text-[9px] text-slate-500">
+              <span className="rounded border border-border/80 bg-surface-muted px-1.5 py-0.5 font-mono text-[9px] text-slate-500">
                 /
               </span>
             )}
           </div>
         </div>
 
-        {/* Autocomplete Dropdown */}
+        {/* Autocomplete Dropdown - aligned to left-0 */}
         {isOpen && (
-          <div className="absolute right-0 z-50 mt-1.5 flex w-80 flex-col overflow-hidden rounded-lg border border-border bg-surface-elevated/95 font-mono text-xs shadow-panel backdrop-blur-xl sm:w-96">
+          <div className="absolute left-0 z-50 mt-1.5 flex w-80 sm:w-96 max-w-[calc(100vw-24px)] flex-col overflow-hidden rounded-lg border border-border bg-surface-elevated/95 font-mono text-xs shadow-panel backdrop-blur-xl">
             <div className="flex items-center justify-between border-b border-border bg-background/60 px-3 py-1.5 text-[10px] text-slate-400">
               <div className="flex items-center gap-1.5">
                 <span className="font-medium text-stone-200">
-                  {country === "India" ? "India" : "United States"}
+                  {country === "India" ? "India (NSE / BSE)" : "United States (NYSE / NASDAQ)"}
                 </span>
               </div>
               <span className="text-[9px] text-slate-500">↑↓ navigate · ↵ select</span>
@@ -338,13 +325,13 @@ export default function NavbarSecuritySearch() {
             <div className="max-h-80 divide-y divide-border/60 overflow-y-auto">
               {loading ? (
                 <div className="p-4 text-center text-xs text-slate-400">
-                  <span className="text-stone-400">Searching…</span>
+                  <span className="text-stone-400">Searching securities…</span>
                 </div>
               ) : results.length === 0 ? (
                 <div className="p-4 text-center text-xs text-slate-400">
                   No matching securities found for &quot;{query}&quot;.
                   <div className="mt-1 text-[10px] text-slate-500">
-                    Press Enter to load symbol directly.
+                    Press Enter to load ticker directly.
                   </div>
                 </div>
               ) : (
@@ -417,6 +404,36 @@ export default function NavbarSecuritySearch() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Country Selector: US / INDIA (Moved to the right) */}
+      <div className="flex shrink-0 items-center rounded-lg border border-border bg-[#131722] p-0.5 text-[11px] select-none">
+        <button
+          type="button"
+          onClick={() => handleCountryChange("US")}
+          className={`flex items-center gap-1 rounded px-2 py-0.5 transition-all ${
+            country === "US"
+              ? "bg-surface-active font-semibold text-brand-amber"
+              : "text-stone-500 hover:text-stone-200"
+          }`}
+          title="Filter US Equities (NYSE, NASDAQ)"
+        >
+          <span className="text-[11px] leading-none">🇺🇸</span>
+          <span>US</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => handleCountryChange("India")}
+          className={`flex items-center gap-1 rounded px-2 py-0.5 transition-all ${
+            country === "India"
+              ? "bg-surface-active font-semibold text-brand-amber"
+              : "text-stone-500 hover:text-stone-200"
+          }`}
+          title="Filter Indian Equities (NSE, BSE)"
+        >
+          <span className="text-[11px] leading-none">🇮🇳</span>
+          <span>INDIA</span>
+        </button>
       </div>
     </div>
   );

@@ -45,11 +45,6 @@ export default function Navbar() {
 
         <div className="flex shrink-0 items-center gap-2">
           <NavbarSecuritySearch />
-          {pathname !== "/app" && (
-            <Link href="/app" className="qs-btn-primary shrink-0">
-              Open lab
-            </Link>
-          )}
         </div>
       </div>
     </header>
