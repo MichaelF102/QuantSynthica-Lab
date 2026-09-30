@@ -7,7 +7,7 @@ import QuantSynthicaLogo from "@/components/branding/QuantSynthicaLogo";
 import { cn } from "@/lib/cn";
 
 const PRIMARY_NAV = [
-  { href: "/research", label: "Charts" },
+  { href: "/research", label: "Research" },
   { href: "/strategies", label: "Strategies" },
   { href: "/backtests", label: "Backtests" },
   { href: "/analytics", label: "Analytics" },

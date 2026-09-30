@@ -199,16 +199,8 @@ export default function NavbarSecuritySearch() {
       );
     }
 
-    if (pathname.startsWith("/research")) {
-      // Already on research page, update URL with both ticker & country
-      const url = new URL(window.location.href);
-      url.searchParams.set("ticker", sym);
-      url.searchParams.set("country", stockCountry);
-      window.history.pushState(null, "", url.toString());
-    } else {
-      // Navigate to research page
-      router.push(`/research?ticker=${encodeURIComponent(sym)}&country=${encodeURIComponent(stockCountry)}`);
-    }
+    const targetUrl = `/research?ticker=${encodeURIComponent(sym)}&country=${encodeURIComponent(stockCountry)}`;
+    router.push(targetUrl);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

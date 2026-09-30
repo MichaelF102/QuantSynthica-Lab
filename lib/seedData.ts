@@ -375,6 +375,22 @@ export const SEED_STOCK_PROFILES: Record<string, StockProfile> = {
     dividend_yield: 0.05,
     currency: "INR",
   },
+  TATAMOTORS: {
+    symbol: "TATAMOTORS",
+    yf_symbol: "TATAMOTORS.NS",
+    name: "Tata Motors Limited",
+    market: "India",
+    exchange: "NSE",
+    sector: "Automotive",
+    price: 978.40,
+    change_1d: 5.60,
+    volume_1d: 8420000,
+    market_cap: 3590000000000,
+    pe_ratio: 11.2,
+    eps_ttm: 87.35,
+    dividend_yield: 0.61,
+    currency: "INR",
+  },
 };
 
 /**
