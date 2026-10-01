@@ -343,8 +343,8 @@ export default function ResearchWorkspace() {
   const change1D = profile?.change_1d !== undefined && profile?.change_1d !== null
     ? profile.change_1d
     : latestBar?.return !== undefined
-    ? latestBar.return * 100
-    : 0;
+      ? latestBar.return * 100
+      : 0;
   const isPositive1D = change1D >= 0;
 
   // Volume formatting
@@ -565,7 +565,7 @@ export default function ResearchWorkspace() {
       <div className="flex-1 max-w-[1720px] w-full mx-auto p-3 space-y-3">
         {loading ? (
           <div className="py-24 text-center text-xs text-[#89919C]">
-            QUERYING BLOOMBERG-COMPATIBLE MARKET DATA ENGINE FOR {ticker}...
+            Loading Data For {ticker}...
           </div>
         ) : error ? (
           <div className="my-16 max-w-md mx-auto p-8 rounded-2xl border border-rose-500/30 bg-[#0E131F]/90 text-center space-y-4 shadow-2xl backdrop-blur-xl">
@@ -647,9 +647,8 @@ export default function ResearchWorkspace() {
                           <tr key={row.period} className="hover:bg-[#10141C]">
                             <td className="py-1 px-3 text-[#D8DCE2] font-bold">{row.period}</td>
                             <td
-                              className={`py-1 px-3 text-right font-bold tabular-nums ${
-                                row.securityReturn >= 0 ? "text-[#10B981]" : "text-[#EF4444]"
-                              }`}
+                              className={`py-1 px-3 text-right font-bold tabular-nums ${row.securityReturn >= 0 ? "text-[#10B981]" : "text-[#EF4444]"
+                                }`}
                             >
                               {row.securityReturn >= 0 ? "+" : ""}{row.securityReturn.toFixed(2)}%
                             </td>
@@ -657,9 +656,8 @@ export default function ResearchWorkspace() {
                               {row.benchmarkReturn >= 0 ? "+" : ""}{row.benchmarkReturn.toFixed(2)}%
                             </td>
                             <td
-                              className={`py-1 px-3 text-right font-bold tabular-nums ${
-                                row.excessReturn >= 0 ? "text-[#10B981]" : "text-[#EF4444]"
-                              }`}
+                              className={`py-1 px-3 text-right font-bold tabular-nums ${row.excessReturn >= 0 ? "text-[#10B981]" : "text-[#EF4444]"
+                                }`}
                             >
                               {row.excessReturn >= 0 ? "+" : ""}{row.excessReturn.toFixed(2)}%
                             </td>
@@ -718,11 +716,10 @@ export default function ResearchWorkspace() {
                       <div className="flex items-center justify-between">
                         <span className="text-[#89919C]">Excess Return (Alpha Proxy)</span>
                         <span
-                          className={`font-bold ${
-                            summary.total_return - (benchmarkData?.summary?.total_return || 0) >= 0
+                          className={`font-bold ${summary.total_return - (benchmarkData?.summary?.total_return || 0) >= 0
                               ? "text-[#10B981]"
                               : "text-[#EF4444]"
-                          }`}
+                            }`}
                         >
                           {(summary.total_return - (benchmarkData?.summary?.total_return || 0)).toFixed(2)}%
                         </span>
@@ -1124,9 +1121,8 @@ export default function ResearchWorkspace() {
                               <td className="py-2 px-3 text-[#89919C]">{row.date}</td>
                               <td className="py-2 px-3 text-white font-bold">{row.firm}</td>
                               <td className="py-2 px-3">
-                                <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                                  row.rec === "BUY" ? "bg-[#10B981]/20 text-[#10B981]" : "bg-[#F59E0B]/20 text-[#F59E0B]"
-                                }`}>
+                                <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${row.rec === "BUY" ? "bg-[#10B981]/20 text-[#10B981]" : "bg-[#F59E0B]/20 text-[#F59E0B]"
+                                  }`}>
                                   {row.rec}
                                 </span>
                               </td>
@@ -1197,9 +1193,8 @@ export default function ResearchWorkspace() {
                           <span className="text-[#59616B]">&bull;</span>
                           <span className="text-[#89919C]">{news.time}</span>
                         </div>
-                        <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${
-                          news.sentiment === "BULLISH" ? "bg-[#10B981]/20 text-[#10B981]" : "bg-[#38BDF8]/20 text-[#38BDF8]"
-                        }`}>
+                        <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${news.sentiment === "BULLISH" ? "bg-[#10B981]/20 text-[#10B981]" : "bg-[#38BDF8]/20 text-[#38BDF8]"
+                          }`}>
                           {news.sentiment}
                         </span>
                       </div>
