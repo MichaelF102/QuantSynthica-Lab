@@ -58,7 +58,18 @@ export function inferCountryFromTicker(
       "LT",
       "HINDUNILVR",
       "AXISBANK",
-    ].includes(t)
+      "^NSEI",
+      "^BSESN",
+      "^NSEBANK",
+      "^CNXIT",
+      "^CNXAUTO",
+      "^CNXPHARMA",
+      "^CNXFMCG",
+      "^CNXMETAL",
+    ].includes(t) ||
+    t.startsWith("^CNX") ||
+    t.startsWith("^NSE") ||
+    t.startsWith("^BSE")
   ) {
     return "India";
   }

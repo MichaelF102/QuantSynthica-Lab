@@ -45,7 +45,8 @@ def main():
         # ETFs
         "SPY", "QQQ", "IWM", "DIA", "VOO", "VTI", "XLK", "XLF", "XLE", "GLD", "TLT",
         # Indices
-        "^GSPC", "^IXIC", "^DJI", "^RUT", "^NSEI", "^BSESN", "^NSEBANK",
+        "^GSPC", "^IXIC", "^NDX", "^DJI", "^RUT", "^NYA", "^MID",
+        "^NSEI", "^BSESN", "^NSEBANK", "^CNXIT", "^CNXAUTO", "^CNXPHARMA", "^CNXFMCG", "^CNXMETAL",
         # Macro
         "^TNX", "^FVX", "^IRX", "^TYX", "GC=F", "CL=F", "SI=F", "NG=F", "DX-Y.NYB", "EURUSD=X", "JPY=X", "GBPUSD=X", "INR=X"
     ]

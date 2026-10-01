@@ -57,11 +57,19 @@ ETF_METADATA = {
 INDEX_METADATA = {
     "^GSPC": {"name": "S&P 500", "displayName": "S&P 500", "market": "US Equities", "flag": "🇺🇸"},
     "^IXIC": {"name": "Nasdaq Composite", "displayName": "NASDAQ", "market": "US Tech", "flag": "🇺🇸"},
+    "^NDX": {"name": "NASDAQ-100", "displayName": "NASDAQ-100", "market": "US Tech", "flag": "🇺🇸"},
     "^DJI": {"name": "Dow Jones Industrial", "displayName": "DOW JONES", "market": "US Industrial", "flag": "🇺🇸"},
     "^RUT": {"name": "Russell 2000 Index", "displayName": "RUSSELL 2000", "market": "US Small Cap", "flag": "🇺🇸"},
+    "^NYA": {"name": "NYSE Composite", "displayName": "NYSE COMP", "market": "US Broad", "flag": "🇺🇸"},
+    "^MID": {"name": "S&P MidCap 400", "displayName": "S&P 400", "market": "US Mid Cap", "flag": "🇺🇸"},
     "^NSEI": {"name": "NIFTY 50", "displayName": "NIFTY 50", "market": "India NSE", "flag": "🇮🇳"},
     "^BSESN": {"name": "SENSEX", "displayName": "SENSEX", "market": "India BSE", "flag": "🇮🇳"},
     "^NSEBANK": {"name": "NIFTY Bank", "displayName": "BANK NIFTY", "market": "India Banking", "flag": "🇮🇳"},
+    "^CNXIT": {"name": "NIFTY IT", "displayName": "NIFTY IT", "market": "India IT", "flag": "🇮🇳"},
+    "^CNXAUTO": {"name": "NIFTY AUTO", "displayName": "NIFTY AUTO", "market": "India Auto", "flag": "🇮🇳"},
+    "^CNXPHARMA": {"name": "NIFTY PHARMA", "displayName": "NIFTY PHARMA", "market": "India Pharma", "flag": "🇮🇳"},
+    "^CNXFMCG": {"name": "NIFTY FMCG", "displayName": "NIFTY FMCG", "market": "India FMCG", "flag": "🇮🇳"},
+    "^CNXMETAL": {"name": "NIFTY METAL", "displayName": "NIFTY METAL", "market": "India Metal", "flag": "🇮🇳"},
 }
 
 MACRO_METADATA = {
@@ -189,7 +197,14 @@ def get_asset_details(symbol: str, timeframe: str = "6M") -> Dict[str, Any]:
         logger.error(f"Failed to fetch history for {sym}: {e}")
         hist = pd.DataFrame()
 
-    is_indian = sym.endswith(".NS") or sym.endswith(".BO") or sym in ["RELIANCE", "TCS", "INFY", "HDFCBANK", "ICICIBANK", "SBIN", "ITC", "LT"]
+    is_indian = (
+        sym.endswith(".NS")
+        or sym.endswith(".BO")
+        or sym.startswith("^CNX")
+        or sym.startswith("^NSE")
+        or sym.startswith("^BSE")
+        or sym in ["RELIANCE", "TCS", "INFY", "HDFCBANK", "ICICIBANK", "SBIN", "ITC", "LT"]
+    )
     is_index = sym.startswith("^")
     is_etf = sym in ETF_METADATA
     is_macro = sym in MACRO_METADATA
@@ -216,7 +231,7 @@ def get_asset_details(symbol: str, timeframe: str = "6M") -> Dict[str, Any]:
         if len(hist) > 1:
             prev_close = float(hist["Close"].iloc[-2])
         else:
-            prev_close = last_price
+            prev_close = float(info.get("previousClose") or last_price)
     elif "regularMarketPrice" in info and info["regularMarketPrice"]:
         last_price = float(info["regularMarketPrice"])
         prev_close = float(info.get("previousClose") or last_price)
@@ -227,10 +242,10 @@ def get_asset_details(symbol: str, timeframe: str = "6M") -> Dict[str, Any]:
     if is_indian:
         currency = "₹"
         flag = "🇮🇳"
-        exchange = "NSE"
+        exchange = "NSE" if sym.startswith("^") else (info.get("exchange") or "NSE")
     elif sym.startswith("^"):
         currency = "" if "Yield" not in MACRO_METADATA.get(sym, {}).get("name", "") else "%"
-        flag = "🇺🇸" if "^NSE" not in sym and "^BSE" not in sym else "🇮🇳"
+        flag = "🇺🇸" if not ("^NSE" in sym or "^BSE" in sym or "^CNX" in sym) else "🇮🇳"
         exchange = "INDEX"
     elif is_macro and MACRO_METADATA.get(sym, {}).get("unit") == "%":
         currency = "%"
@@ -308,6 +323,8 @@ def get_asset_details(symbol: str, timeframe: str = "6M") -> Dict[str, Any]:
             current_vol = round(float(vol_s.iloc[-1]), 1) if not pd.isna(vol_s.iloc[-1]) else 18.0
 
     spark_closes = closes_list[-30:] if len(closes_list) >= 30 else closes_list
+    if len(spark_closes) < 2 and prev_close > 0 and last_price > 0:
+        spark_closes = [prev_close, last_price]
     spark_svg = _generate_sparkline_svg(spark_closes)
 
     w52_high = float(info.get("fiftyTwoWeekHigh") or (max(closes_list) if closes_list else last_price))
@@ -554,7 +571,10 @@ def get_benchmarks_data() -> List[Dict[str, Any]]:
     if cached:
         return cached
 
-    benchmarks_keys = ["^GSPC", "^IXIC", "^DJI", "^NSEI", "^BSESN", "^RUT", "^NSEBANK"]
+    benchmarks_keys = [
+        "^GSPC", "^IXIC", "^NDX", "^DJI", "^RUT", "^NYA", "^MID",
+        "^NSEI", "^BSESN", "^NSEBANK", "^CNXIT", "^CNXAUTO", "^CNXPHARMA", "^CNXFMCG", "^CNXMETAL"
+    ]
     results = []
 
     try:
@@ -570,7 +590,7 @@ def get_benchmarks_data() -> List[Dict[str, Any]]:
                     chg_pct = (chg / prev_c * 100.0) if prev_c > 0 else 0.0
                     closes = [round(float(c), 2) for c in sub["Close"].tolist()]
                     spark_svg = _generate_sparkline_svg(closes)
-                    is_ind = "^NSE" in sym or "^BSE" in sym
+                    is_ind = "^NSE" in sym or "^BSE" in sym or "^CNX" in sym
                     curr = "₹" if is_ind else ""
                     results.append({
                         "symbol": sym,

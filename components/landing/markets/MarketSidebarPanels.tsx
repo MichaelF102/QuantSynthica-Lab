@@ -96,8 +96,8 @@ export const MarketSidebarPanels: React.FC<MarketSidebarPanelsProps> = ({
       symbol: sym,
       name: customName || sym,
       displayName: customName || sym,
-      currency: sym.endsWith(".NS") || sym.startsWith("^NSE") || sym.startsWith("^BSE") ? "₹" : (sym.startsWith("^") && sym.endsWith("X") ? "%" : "$"),
-      flag: sym.endsWith(".NS") || sym.startsWith("^NSE") || sym.startsWith("^BSE") ? "🇮🇳" : "🇺🇸",
+      currency: sym.endsWith(".NS") || sym.startsWith("^NSE") || sym.startsWith("^BSE") || sym.startsWith("^CNX") ? "₹" : (sym.startsWith("^") && sym.endsWith("X") ? "%" : "$"),
+      flag: sym.endsWith(".NS") || sym.startsWith("^NSE") || sym.startsWith("^BSE") || sym.startsWith("^CNX") ? "🇮🇳" : "🇺🇸",
       price: 0,
       change: 0,
       changePercent: 0,
@@ -192,8 +192,11 @@ export const MarketSidebarPanels: React.FC<MarketSidebarPanelsProps> = ({
             items: [
               getItemData("^GSPC", "S&P 500", "Standard & Poor's"),
               getItemData("^IXIC", "Nasdaq Composite", "Tech / Growth"),
+              getItemData("^NDX", "NASDAQ-100", "Tech / Growth"),
               getItemData("^DJI", "Dow Jones 30", "Industrial Average"),
               getItemData("^RUT", "Russell 2000", "FTSE Russell"),
+              getItemData("^NYA", "NYSE Composite", "Broad Market"),
+              getItemData("^MID", "S&P MidCap 400", "Mid Cap"),
             ],
           },
           panel2: {
@@ -202,7 +205,12 @@ export const MarketSidebarPanels: React.FC<MarketSidebarPanelsProps> = ({
             items: [
               getItemData("^NSEI", "NIFTY 50", "50 Heavyweights"),
               getItemData("^BSESN", "BSE SENSEX", "30 Bluechips"),
-              getItemData("^NSEBANK", "BANK NIFTY", "Banking Index"),
+              getItemData("^NSEBANK", "NIFTY BANK", "Banking Index"),
+              getItemData("^CNXIT", "NIFTY IT", "Information Technology"),
+              getItemData("^CNXAUTO", "NIFTY AUTO", "Automobile"),
+              getItemData("^CNXPHARMA", "NIFTY PHARMA", "Pharmaceuticals"),
+              getItemData("^CNXFMCG", "NIFTY FMCG", "FMCG / Consumer"),
+              getItemData("^CNXMETAL", "NIFTY METAL", "Metals"),
             ],
           },
         };

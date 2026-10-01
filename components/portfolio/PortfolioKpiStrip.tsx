@@ -64,18 +64,37 @@ export default function PortfolioKpiStrip({
         return "NIFTY Bank";
       case "^BSESN":
         return "SENSEX";
+      case "^CNXIT":
       case "NIFTY_IT":
         return "NIFTY IT";
+      case "^CNXAUTO":
+        return "NIFTY AUTO";
+      case "^CNXPHARMA":
+        return "NIFTY PHARMA";
+      case "^CNXFMCG":
+        return "NIFTY FMCG";
+      case "^CNXMETAL":
+        return "NIFTY METAL";
       case "NIFTY_MIDCAP":
         return "NIFTY Midcap";
+      case "^GSPC":
       case "SPY":
         return "S&P 500";
+      case "^NDX":
       case "QQQ":
-        return "QQQ";
+        return "NASDAQ-100";
+      case "^IXIC":
+        return "NASDAQ";
+      case "^RUT":
       case "IWM":
         return "Russell 2000";
+      case "^DJI":
       case "DIA":
         return "Dow Jones";
+      case "^NYA":
+        return "NYSE Composite";
+      case "^MID":
+        return "S&P MidCap 400";
       default:
         return benchmarkSymbol;
     }

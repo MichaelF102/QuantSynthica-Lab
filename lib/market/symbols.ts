@@ -54,13 +54,23 @@ export const ETFS: TickerConfig[] = [
 ];
 
 export const INDICES: TickerConfig[] = [
-  { symbol: "^GSPC", name: "S&P 500 Index", displayName: "S&P 500", exchange: "CBOE", currency: "", flag: "🇺🇸", category: "US" },
-  { symbol: "^IXIC", name: "Nasdaq Composite", displayName: "NASDAQ", exchange: "NASDAQ", currency: "", flag: "🇺🇸", category: "US" },
-  { symbol: "^DJI", name: "Dow Jones Industrial Average", displayName: "DOW JONES", exchange: "DJI", currency: "", flag: "🇺🇸", category: "US" },
-  { symbol: "^RUT", name: "Russell 2000 Index", displayName: "RUSSELL 2000", exchange: "FTSE Russell", currency: "", flag: "🇺🇸", category: "US" },
-  { symbol: "^NSEI", name: "NIFTY 50 Index", displayName: "NIFTY 50", exchange: "NSE", currency: "₹", flag: "🇮🇳", category: "India" },
-  { symbol: "^BSESN", name: "S&P BSE SENSEX", displayName: "SENSEX", exchange: "BSE", currency: "₹", flag: "🇮🇳", category: "India" },
-  { symbol: "^NSEBANK", name: "NIFTY Bank Index", displayName: "BANK NIFTY", exchange: "NSE", currency: "₹", flag: "🇮🇳", category: "India" },
+  // US Indices
+  { symbol: "^GSPC", name: "S&P 500 Index", displayName: "S&P 500", exchange: "CBOE", currency: "", flag: "🇺🇸", category: "US", classification: "Large Cap Blend" },
+  { symbol: "^IXIC", name: "Nasdaq Composite", displayName: "NASDAQ", exchange: "NASDAQ", currency: "", flag: "🇺🇸", category: "US", classification: "Tech / Growth" },
+  { symbol: "^NDX", name: "NASDAQ-100", displayName: "NASDAQ-100", exchange: "NASDAQ", currency: "", flag: "🇺🇸", category: "US", classification: "Tech / Growth" },
+  { symbol: "^DJI", name: "Dow Jones Industrial Average", displayName: "DOW JONES", exchange: "DJI", currency: "", flag: "🇺🇸", category: "US", classification: "Industrial Average" },
+  { symbol: "^RUT", name: "Russell 2000 Index", displayName: "RUSSELL 2000", exchange: "FTSE Russell", currency: "", flag: "🇺🇸", category: "US", classification: "Small Cap" },
+  { symbol: "^NYA", name: "NYSE Composite", displayName: "NYSE COMP", exchange: "NYSE", currency: "", flag: "🇺🇸", category: "US", classification: "Broad Market" },
+  { symbol: "^MID", name: "S&P MidCap 400", displayName: "S&P 400", exchange: "S&P", currency: "", flag: "🇺🇸", category: "US", classification: "Mid Cap" },
+  // Indian Indices
+  { symbol: "^NSEI", name: "NIFTY 50 Index", displayName: "NIFTY 50", exchange: "NSE", currency: "₹", flag: "🇮🇳", category: "India", classification: "Broad Market" },
+  { symbol: "^BSESN", name: "S&P BSE SENSEX", displayName: "SENSEX", exchange: "BSE", currency: "₹", flag: "🇮🇳", category: "India", classification: "Mega Cap" },
+  { symbol: "^NSEBANK", name: "NIFTY Bank Index", displayName: "BANK NIFTY", exchange: "NSE", currency: "₹", flag: "🇮🇳", category: "India", classification: "Banking Sector" },
+  { symbol: "^CNXIT", name: "NIFTY IT Index", displayName: "NIFTY IT", exchange: "NSE", currency: "₹", flag: "🇮🇳", category: "India", classification: "Information Technology" },
+  { symbol: "^CNXAUTO", name: "NIFTY AUTO Index", displayName: "NIFTY AUTO", exchange: "NSE", currency: "₹", flag: "🇮🇳", category: "India", classification: "Automobile" },
+  { symbol: "^CNXPHARMA", name: "NIFTY PHARMA Index", displayName: "NIFTY PHARMA", exchange: "NSE", currency: "₹", flag: "🇮🇳", category: "India", classification: "Pharmaceuticals" },
+  { symbol: "^CNXFMCG", name: "NIFTY FMCG Index", displayName: "NIFTY FMCG", exchange: "NSE", currency: "₹", flag: "🇮🇳", category: "India", classification: "FMCG / Consumer" },
+  { symbol: "^CNXMETAL", name: "NIFTY METAL Index", displayName: "NIFTY METAL", exchange: "NSE", currency: "₹", flag: "🇮🇳", category: "India", classification: "Metals" },
 ];
 
 export const OPTIONS_UNDERLYINGS: TickerConfig[] = [
@@ -141,12 +151,12 @@ export const CONTEXTUAL_SIDEBAR_CONFIG = {
     panel1: {
       title: "US INDICES",
       tag: "WALL STREET",
-      symbols: ["^GSPC", "^IXIC", "^DJI", "^RUT"],
+      symbols: ["^GSPC", "^IXIC", "^NDX", "^DJI", "^RUT", "^NYA", "^MID"],
     },
     panel2: {
       title: "INDIA INDICES",
       tag: "DALAL STREET",
-      symbols: ["^NSEI", "^BSESN", "^NSEBANK"],
+      symbols: ["^NSEI", "^BSESN", "^NSEBANK", "^CNXIT", "^CNXAUTO", "^CNXPHARMA", "^CNXFMCG", "^CNXMETAL"],
     },
   },
   options: {

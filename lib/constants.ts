@@ -2,10 +2,23 @@ import { StrategyConfig } from "@/types";
 
 export const BENCHMARKS = [
   { symbol: "SPY", name: "S&P 500 ETF Trust", region: "US" },
+  { symbol: "^GSPC", name: "S&P 500 Index", region: "US" },
   { symbol: "QQQ", name: "Invesco Nasdaq 100", region: "US" },
+  { symbol: "^NDX", name: "NASDAQ-100", region: "US" },
+  { symbol: "^IXIC", name: "Nasdaq Composite", region: "US" },
+  { symbol: "^DJI", name: "Dow Jones 30", region: "US" },
   { symbol: "IWM", name: "Russell 2000 Small Cap", region: "US" },
+  { symbol: "^RUT", name: "Russell 2000 Index", region: "US" },
+  { symbol: "^NYA", name: "NYSE Composite", region: "US" },
+  { symbol: "^MID", name: "S&P MidCap 400", region: "US" },
   { symbol: "^NSEI", name: "NIFTY 50 Index", region: "India" },
   { symbol: "^BSESN", name: "BSE SENSEX", region: "India" },
+  { symbol: "^NSEBANK", name: "NIFTY Bank", region: "India" },
+  { symbol: "^CNXIT", name: "NIFTY IT", region: "India" },
+  { symbol: "^CNXAUTO", name: "NIFTY AUTO", region: "India" },
+  { symbol: "^CNXPHARMA", name: "NIFTY PHARMA", region: "India" },
+  { symbol: "^CNXFMCG", name: "NIFTY FMCG", region: "India" },
+  { symbol: "^CNXMETAL", name: "NIFTY METAL", region: "India" },
   { symbol: "NIFTYBEES.NS", name: "Nippon Nifty BeES ETF", region: "India" },
 ];
 

@@ -18,17 +18,26 @@ import { AssetAllocation } from "@/components/portfolio/PortfolioAllocationWidge
 
 const INDIA_BENCHMARKS = [
   { value: "^NSEI", label: "NIFTY 50 (^NSEI)" },
-  { value: "^NSEBANK", label: "NIFTY Bank (^NSEBANK)" },
   { value: "^BSESN", label: "BSE SENSEX (^BSESN)" },
-  { value: "NIFTY_IT", label: "NIFTY IT Index" },
+  { value: "^NSEBANK", label: "NIFTY Bank (^NSEBANK)" },
+  { value: "^CNXIT", label: "NIFTY IT (^CNXIT)" },
+  { value: "^CNXAUTO", label: "NIFTY AUTO (^CNXAUTO)" },
+  { value: "^CNXPHARMA", label: "NIFTY PHARMA (^CNXPHARMA)" },
+  { value: "^CNXFMCG", label: "NIFTY FMCG (^CNXFMCG)" },
+  { value: "^CNXMETAL", label: "NIFTY METAL (^CNXMETAL)" },
   { value: "NIFTY_MIDCAP", label: "NIFTY Midcap 100" },
 ];
 
 const US_BENCHMARKS = [
   { value: "SPY", label: "SPY (S&P 500 ETF)" },
+  { value: "^GSPC", label: "S&P 500 (^GSPC)" },
   { value: "QQQ", label: "QQQ (Nasdaq 100 ETF)" },
-  { value: "IWM", label: "IWM (Russell 2000)" },
+  { value: "^NDX", label: "NASDAQ-100 (^NDX)" },
+  { value: "^IXIC", label: "Nasdaq Composite (^IXIC)" },
   { value: "DIA", label: "DIA (Dow Jones 30)" },
+  { value: "IWM", label: "IWM (Russell 2000)" },
+  { value: "^NYA", label: "NYSE Composite (^NYA)" },
+  { value: "^MID", label: "S&P MidCap 400 (^MID)" },
 ];
 
 interface PortfolioHeaderProps {
