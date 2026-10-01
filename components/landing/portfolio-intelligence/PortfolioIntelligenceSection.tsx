@@ -2,12 +2,11 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Layers, ShieldCheck } from "lucide-react";
+import { ArrowRight, Layers } from "lucide-react";
 import PortfolioHeader from "./PortfolioHeader";
-import { ConstructPortfolioPanel, PortfolioAllocationBars } from "./AllocationPanel";
-import Portfolio3DScene from "./Portfolio3DScene";
-import PortfolioMetrics from "./PortfolioMetrics";
-import RiskReturnProfile from "./RiskReturnProfile";
+import { ConstructPortfolioPanel } from "./AllocationPanel";
+import PortfolioExplorerScene from "./PortfolioExplorerScene";
+import PortfolioContextualPanel from "./PortfolioContextualPanel";
 import PortfolioWorkflow from "./PortfolioWorkflow";
 import { AssetAllocation } from "./PortfolioConstellation";
 import SectionBackground from "@/components/backgrounds/SectionBackground";
@@ -94,9 +93,12 @@ const INITIAL_ALLOCATIONS: AssetAllocation[] = [
 
 export default function PortfolioIntelligenceSection() {
   const [allocations, setAllocations] = useState<AssetAllocation[]>(INITIAL_ALLOCATIONS);
+  const [drilldownLevel, setDrilldownLevel] = useState<number>(0); // 0 = Portfolio, 1 = Asset Class, 2 = Sector, 3 = Asset
+  const [selectedAssetClass, setSelectedAssetClass] = useState<"equity" | "factors" | "options" | "cash" | null>(null);
+  const [selectedSector, setSelectedSector] = useState<string | null>(null);
   const [selectedAsset, setSelectedAsset] = useState<string | null>("RELIANCE");
 
-  // Handle + / - adjustments
+  // Handle + / - adjustments in left panel
   const handleUpdateWeight = (id: string, delta: number) => {
     setAllocations((prev) => {
       return prev.map((asset) => {
@@ -126,6 +128,54 @@ export default function PortfolioIntelligenceSection() {
   const var95 = -(+(volatility * 0.25).toFixed(1));
   const sortinoRatio = +(sharpeRatio * 1.38).toFixed(2);
 
+  // Drilldown and View mode handlers
+  const handleDrilldown = (level: number, id: string) => {
+    if (level === 0) {
+      setDrilldownLevel(0);
+      setSelectedAssetClass(null);
+      setSelectedSector(null);
+      setSelectedAsset(null);
+    } else if (level === 1) {
+      setDrilldownLevel(1);
+      setSelectedAssetClass(id as any);
+      setSelectedSector(null);
+      setSelectedAsset(null);
+    } else if (level === 2) {
+      setDrilldownLevel(2);
+      setSelectedSector(id);
+      setSelectedAsset(null);
+    } else if (level === 3) {
+      setDrilldownLevel(3);
+      setSelectedAsset(id);
+    }
+  };
+
+  const handleReset = () => {
+    setDrilldownLevel(0);
+    setSelectedAssetClass(null);
+    setSelectedSector(null);
+    setSelectedAsset(null);
+  };
+
+  const handleSelectViewMode = (mode: "assetClass" | "sector" | "individual") => {
+    if (mode === "assetClass") {
+      setDrilldownLevel(0);
+      setSelectedAssetClass(null);
+      setSelectedSector(null);
+      setSelectedAsset(null);
+    } else if (mode === "sector") {
+      setDrilldownLevel(1);
+      setSelectedAssetClass("equity");
+      setSelectedSector("technology");
+      setSelectedAsset(null);
+    } else {
+      setDrilldownLevel(2);
+      setSelectedAssetClass("equity");
+      setSelectedSector("technology");
+      setSelectedAsset("TCS");
+    }
+  };
+
   return (
     <section
       id="portfolio-intelligence"
@@ -138,67 +188,84 @@ export default function PortfolioIntelligenceSection() {
         {/* 1. Header & Capability Strip */}
         <PortfolioHeader />
 
-        {/* 2. Main Tripartite Layout: Left Construct Panel - Center 3D Scene - Right Analytics */}
+        {/* 2. Main Tripartite Layout: Left Construct Panel - Center 3D Portfolio Explorer - Right Contextual Analytics */}
         <div className="mt-10 flex flex-col lg:flex-row items-center lg:items-stretch gap-6">
           {/* Left: Construct Portfolio Panel */}
           <ConstructPortfolioPanel
             allocations={allocations}
             onUpdateWeight={handleUpdateWeight}
             selectedAsset={selectedAsset}
-            onSelectAsset={setSelectedAsset}
+            onSelectAsset={(id) => {
+              setSelectedAsset(id);
+            }}
           />
 
-          {/* Center: 3D Portfolio Constellation Scene */}
+          {/* Center: Interactive 3D Portfolio Explorer Scene */}
           <div className="flex-1 w-full min-w-0">
-            <Portfolio3DScene
-              allocations={allocations}
+            <PortfolioExplorerScene
+              drilldownLevel={drilldownLevel}
+              selectedAssetClass={selectedAssetClass}
+              selectedSector={selectedSector}
               selectedAsset={selectedAsset}
-              onSelectAsset={setSelectedAsset}
+              onDrilldown={handleDrilldown}
+              onReset={handleReset}
+              onSelectViewMode={handleSelectViewMode}
               assetClassWeights={{
                 equity: equityWeight,
                 factors: factorsWeight,
                 options: optionsWeight,
                 cash: cashWeight,
               }}
+              allocations={allocations}
             />
           </div>
 
-          {/* Right Column: Allocation Bars + Metrics + Risk/Return Scatter */}
-          <div className="w-full lg:w-[310px] shrink-0 space-y-4">
-            <PortfolioAllocationBars
-              weights={{
-                equity: equityWeight,
-                factors: factorsWeight,
-                options: optionsWeight,
-                cash: cashWeight,
-              }}
-            />
-
-            <PortfolioMetrics
-              metrics={{
-                expectedReturn,
-                volatility,
-                sharpeRatio,
-                maxDrawdown,
-                var95,
-                sortinoRatio,
-              }}
-            />
-
-            <RiskReturnProfile
-              volatility={volatility}
-              expectedReturn={expectedReturn}
-            />
-          </div>
+          {/* Right Column: Contextual Analytics Connected to 3D Selection */}
+          <PortfolioContextualPanel
+            drilldownLevel={drilldownLevel}
+            selectedAssetClass={selectedAssetClass}
+            selectedSector={selectedSector}
+            selectedAsset={selectedAsset}
+            onReset={handleReset}
+            onSelectAsset={(id) => setSelectedAsset(id)}
+            assetClassWeights={{
+              equity: equityWeight,
+              factors: factorsWeight,
+              options: optionsWeight,
+              cash: cashWeight,
+            }}
+            metrics={{
+              expectedReturn,
+              volatility,
+              sharpeRatio,
+              maxDrawdown,
+              var95,
+              sortinoRatio,
+            }}
+            allocations={allocations}
+          />
         </div>
 
-        {/* 3. Three Editorial Stages (Construct, Optimize, Analyze) & Portfolio DNA */}
-        <PortfolioWorkflow />
+        {/* 3. Bottom Sections: Allocation Hierarchy, Sector Breakdown, Equity Allocation & Portfolio DNA */}
+        <PortfolioWorkflow
+          drilldownLevel={drilldownLevel}
+          selectedAssetClass={selectedAssetClass}
+          selectedSector={selectedSector}
+          selectedAsset={selectedAsset}
+          assetClassWeights={{
+            equity: equityWeight,
+            factors: factorsWeight,
+            options: optionsWeight,
+            cash: cashWeight,
+          }}
+          allocations={allocations}
+          onDrilldown={handleDrilldown}
+        />
 
         {/* 4. Section Narrative Transition */}
         <div className="mt-12 p-8 sm:p-10 rounded-3xl bg-white dark:bg-[#0B1528] border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="max-w-2xl">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1769FF] dark:text-blue-400 mb-2">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1769FF] dark:text-cyan-400 mb-2">
               <Layers className="w-4 h-4" />
               <span>THE PORTFOLIO THESIS</span>
             </div>
