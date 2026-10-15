@@ -14,7 +14,6 @@ import {
   ShieldCheck,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
 } from "lucide-react";
 
 interface CarouselCard {
@@ -233,17 +232,17 @@ export default function StoriesCarousel() {
 
   return (
     <div className="relative z-20 w-full select-none">
-      {/* Top Controls: Filter Pills + Navigation Arrows */}
+      {/* Top Header: Filter Pills + Counter */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 px-1">
         {/* Category Filter Pills */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             type="button"
             onClick={() => {
               setFilter("all");
               if (scrollContainerRef.current) scrollContainerRef.current.scrollLeft = 0;
             }}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
               filter === "all"
                 ? "bg-white text-slate-900 shadow-md scale-105"
                 : "bg-slate-900/80 text-slate-400 border border-slate-800 hover:text-white hover:bg-slate-800"
@@ -257,7 +256,7 @@ export default function StoriesCarousel() {
               setFilter("journey");
               if (scrollContainerRef.current) scrollContainerRef.current.scrollLeft = 0;
             }}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
               filter === "journey"
                 ? "bg-white text-slate-900 shadow-md scale-105"
                 : "bg-slate-900/80 text-slate-400 border border-slate-800 hover:text-white hover:bg-slate-800"
@@ -271,7 +270,7 @@ export default function StoriesCarousel() {
               setFilter("capability");
               if (scrollContainerRef.current) scrollContainerRef.current.scrollLeft = 0;
             }}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
               filter === "capability"
                 ? "bg-white text-slate-900 shadow-md scale-105"
                 : "bg-slate-900/80 text-slate-400 border border-slate-800 hover:text-white hover:bg-slate-800"
@@ -281,107 +280,110 @@ export default function StoriesCarousel() {
           </button>
         </div>
 
-        {/* Carousel Navigation Arrows & Counter */}
-        <div className="flex items-center gap-2.5 self-end sm:self-auto">
-          <span className="text-[11px] font-mono font-bold text-slate-400 mr-1">
-            <span className="text-white">{activeIndex + 1}</span> / {filteredItems.length}
-          </span>
-
-          <button
-            type="button"
-            onClick={() => scroll("left")}
-            disabled={!canScrollLeft}
-            aria-label="Previous Slide"
-            className={`flex h-9 w-9 items-center justify-center rounded-full border border-slate-700/80 bg-slate-900/80 transition-all ${
-              canScrollLeft
-                ? "text-white hover:bg-slate-800 hover:border-slate-500 cursor-pointer shadow-md active:scale-95"
-                : "text-slate-600 opacity-40 cursor-not-allowed"
-            }`}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => scroll("right")}
-            disabled={!canScrollRight}
-            aria-label="Next Slide"
-            className={`flex h-9 w-9 items-center justify-center rounded-full border border-slate-700/80 bg-slate-900/80 transition-all ${
-              canScrollRight
-                ? "text-white hover:bg-slate-800 hover:border-slate-500 cursor-pointer shadow-md active:scale-95"
-                : "text-slate-600 opacity-40 cursor-not-allowed"
-            }`}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
+        {/* Counter */}
+        <div className="text-[12px] font-mono font-bold text-slate-400">
+          <span className="text-white">{activeIndex + 1}</span> / {filteredItems.length}
         </div>
       </div>
 
-      {/* Scrollable Card Container */}
-      <div
-        ref={scrollContainerRef}
-        className="flex gap-4 sm:gap-5 overflow-x-auto no-scrollbar scroll-smooth pb-4 pt-1 snap-x snap-mandatory"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-      >
-        {filteredItems.map((item, idx) => {
-          const Icon = item.icon;
+      {/* Relative Carousel Wrapper with Extreme Left & Right Floating Arrows */}
+      <div className="relative w-full group/carousel">
+        {/* Extreme Left Arrow (Bigger, High-Contrast) */}
+        <button
+          type="button"
+          onClick={() => scroll("left")}
+          disabled={!canScrollLeft}
+          aria-label="Previous Slide"
+          className={`absolute -left-3 sm:-left-5 lg:-left-7 top-1/2 -translate-y-1/2 z-30 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full border border-slate-700/90 bg-[#070E1C]/95 text-white shadow-2xl shadow-black/90 backdrop-blur-md transition-all duration-200 ${
+            canScrollLeft
+              ? "hover:border-cyan-400 hover:text-cyan-300 hover:bg-[#0C1A30] hover:scale-110 active:scale-95 cursor-pointer ring-1 ring-white/10"
+              : "opacity-0 pointer-events-none"
+          }`}
+        >
+          <ChevronLeft className="h-6 w-6 sm:h-7 sm:w-7 stroke-[2.2]" />
+        </button>
 
-          return (
-            <div
-              key={item.id}
-              className="snap-start shrink-0 w-[300px] sm:w-[330px] lg:w-[350px] rounded-3xl border border-slate-800/90 bg-gradient-to-b from-[#0B1528]/95 via-[#091120]/95 to-[#050C18]/95 p-5 sm:p-6 backdrop-blur-md shadow-xl transition-all duration-300 hover:border-slate-700 hover:shadow-2xl hover:-translate-y-1 group flex flex-col justify-between"
-            >
-              <div>
-                {/* Card Top Header: Step Number / Badge + Icon */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-full bg-slate-800 text-[11px] font-mono font-black text-white border border-slate-700/60">
-                      {item.stepNumber}
-                    </span>
-                    <span className="text-[10.5px] font-mono font-bold uppercase tracking-wider text-slate-400">
-                      {item.categoryLabel}
-                    </span>
+        {/* Extreme Right Arrow (Bigger, High-Contrast) */}
+        <button
+          type="button"
+          onClick={() => scroll("right")}
+          disabled={!canScrollRight}
+          aria-label="Next Slide"
+          className={`absolute -right-3 sm:-right-5 lg:-right-7 top-1/2 -translate-y-1/2 z-30 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full border border-slate-700/90 bg-[#070E1C]/95 text-white shadow-2xl shadow-black/90 backdrop-blur-md transition-all duration-200 ${
+            canScrollRight
+              ? "hover:border-cyan-400 hover:text-cyan-300 hover:bg-[#0C1A30] hover:scale-110 active:scale-95 cursor-pointer ring-1 ring-white/10"
+              : "opacity-0 pointer-events-none"
+          }`}
+        >
+          <ChevronRight className="h-6 w-6 sm:h-7 sm:w-7 stroke-[2.2]" />
+        </button>
+
+        {/* Scrollable Card Container */}
+        <div
+          ref={scrollContainerRef}
+          className="flex gap-4 sm:gap-5 overflow-x-auto no-scrollbar scroll-smooth pb-4 pt-1 snap-x snap-mandatory px-1 sm:px-2"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          {filteredItems.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <div
+                key={item.id}
+                className="snap-start shrink-0 w-[300px] sm:w-[330px] lg:w-[350px] rounded-3xl border border-slate-800/90 bg-gradient-to-b from-[#0B1528]/95 via-[#091120]/95 to-[#050C18]/95 p-5 sm:p-6 backdrop-blur-md shadow-xl transition-all duration-300 hover:border-slate-700 hover:shadow-2xl hover:-translate-y-1 group flex flex-col justify-between"
+              >
+                <div>
+                  {/* Card Top Header: Step Number / Badge + Icon */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-0.5 rounded-full bg-slate-800 text-[11px] font-mono font-black text-white border border-slate-700/60">
+                        {item.stepNumber}
+                      </span>
+                      <span className="text-[10.5px] font-mono font-bold uppercase tracking-wider text-slate-400">
+                        {item.categoryLabel}
+                      </span>
+                    </div>
+
+                    <div
+                      className={`flex h-10 w-10 items-center justify-center rounded-2xl border ${item.accentBg} ${item.accentBorder} ${item.accentColor} shadow-md transition-transform group-hover:scale-110`}
+                    >
+                      <Icon className="h-5 w-5" />
+                    </div>
                   </div>
 
-                  <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-2xl border ${item.accentBg} ${item.accentBorder} ${item.accentColor} shadow-md transition-transform group-hover:scale-110`}
-                  >
-                    <Icon className="h-5 w-5" />
-                  </div>
+                  {/* Title & Tagline */}
+                  <h4 className="text-xl font-bold text-white tracking-tight leading-snug group-hover:text-cyan-300 transition-colors">
+                    {item.title}
+                  </h4>
+                  <p className={`text-[12px] font-semibold mt-0.5 ${item.accentColor} font-mono uppercase tracking-wider`}>
+                    {item.tagline}
+                  </p>
+
+                  {/* Description Paragraph */}
+                  <p className="mt-3 text-[13.5px] leading-[1.65] text-slate-300/85 font-normal">
+                    {item.description}
+                  </p>
                 </div>
 
-                {/* Title & Tagline */}
-                <h4 className="text-xl font-bold text-white tracking-tight leading-snug group-hover:text-cyan-300 transition-colors">
-                  {item.title}
-                </h4>
-                <p className={`text-[12px] font-semibold mt-0.5 ${item.accentColor} font-mono uppercase tracking-wider`}>
-                  {item.tagline}
-                </p>
-
-                {/* Description Paragraph */}
-                <p className="mt-3 text-[13.5px] leading-[1.65] text-slate-300/85 font-normal">
-                  {item.description}
-                </p>
+                {/* Bottom Feature Tags */}
+                <div className="pt-5 mt-5 border-t border-slate-800/80 flex flex-wrap gap-1.5">
+                  {item.tags.map((tag, tIdx) => (
+                    <span
+                      key={tIdx}
+                      className="px-2 py-0.5 rounded-lg bg-slate-900/80 text-[10px] font-mono text-slate-400 border border-slate-800 group-hover:border-slate-700"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
-
-              {/* Bottom Feature Tags */}
-              <div className="pt-5 mt-5 border-t border-slate-800/80 flex flex-wrap gap-1.5">
-                {item.tags.map((tag, tIdx) => (
-                  <span
-                    key={tIdx}
-                    className="px-2 py-0.5 rounded-lg bg-slate-900/80 text-[10px] font-mono text-slate-400 border border-slate-800 group-hover:border-slate-700"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {/* Scroll Indicators / Dots Bar */}
-      <div className="flex items-center justify-center gap-1.5 mt-2">
+      <div className="flex items-center justify-center gap-1.5 mt-3">
         {filteredItems.map((item, idx) => (
           <button
             key={item.id}
