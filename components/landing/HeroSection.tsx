@@ -6,6 +6,7 @@ import HeroStats from "./HeroStats";
 import MarketCards from "./MarketCards";
 import ProductPreview from "./ProductPreview";
 import SectionBackground from "@/components/backgrounds/SectionBackground";
+import HeroWavesBackground from "./HeroWavesBackground";
 
 export default function HeroSection() {
   const [mounted, setMounted] = useState(false);
@@ -47,7 +48,10 @@ export default function HeroSection() {
         </div>
       </SectionBackground>
 
-      {/* 2. Main Two-Column Content Grid */}
+      {/* 2. Interactive Animated Financial Waves (Green Bullish & Red Bearish with mouse interaction) */}
+      <HeroWavesBackground />
+
+      {/* 3. Main Two-Column Content Grid */}
       <div className="relative z-10 mx-auto max-w-[1520px] px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-8">
           {/* Left Column: Copy & Stats (approx 45% width = 5.5 cols out of 12) */}
