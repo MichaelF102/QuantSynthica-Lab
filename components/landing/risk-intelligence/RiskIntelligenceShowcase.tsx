@@ -193,17 +193,10 @@ export default function RiskIntelligenceShowcase() {
 
   return (
     <div className="w-full">
-      {/* 1. SECTION HEADER (Quantiphi style with Industry-Specific Solutions pill + Headline) */}
+      {/* 1. SECTION HEADER */}
       <div className="text-center max-w-4xl mx-auto mb-8 sm:mb-10">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-slate-700/60 bg-slate-800/60 dark:bg-slate-900/80 backdrop-blur-md mb-4 shadow-sm">
-          <span className="h-2 w-2 rounded-full bg-[#00c853] animate-pulse" />
-          <span className="text-[11px] sm:text-[12px] font-bold tracking-[0.18em] text-slate-300 uppercase">
-            Risk Regimes &amp; Stress Scenarios
-          </span>
-        </div>
-
         <h2 className="text-[32px] sm:text-[44px] lg:text-[50px] font-extrabold tracking-[-0.035em] text-[#0B1220] dark:text-white leading-[1.12]">
-          Stress-Testing Across Market Regimes
+          Regimes
         </h2>
 
         <p className="mt-3.5 text-[15px] sm:text-[16px] text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto">
@@ -212,7 +205,7 @@ export default function RiskIntelligenceShowcase() {
       </div>
 
       {/* 2. MAIN SHOWCASE CONTAINER (2-Column Split: Left Info + Right Mockup) */}
-      <div className="relative rounded-3xl border border-slate-800/80 bg-gradient-to-b from-[#081326] via-[#071120] to-[#050c18] p-6 sm:p-8 lg:p-10 shadow-2xl overflow-hidden mb-8">
+      <div className="relative rounded-xl border border-slate-800/80 bg-gradient-to-b from-[#081326] via-[#071120] to-[#050c18] p-6 sm:p-8 lg:p-10 shadow-2xl overflow-hidden mb-8">
         {/* Subtle Ambient Radial Glow */}
         <div className="pointer-events-none absolute -top-40 right-1/4 h-96 w-96 rounded-full bg-rose-500/10 blur-[100px]" />
         <div className="pointer-events-none absolute -bottom-40 left-10 h-96 w-96 rounded-full bg-blue-500/10 blur-[100px]" />
@@ -231,10 +224,10 @@ export default function RiskIntelligenceShowcase() {
                 transition={{ duration: 0.25 }}
                 className="space-y-5"
               >
-                {/* Square Icon Badge & Title (Quantiphi style) */}
+                {/* Square Icon Badge & Title */}
                 <div className="flex items-center gap-3.5">
                   <div
-                    className={`flex h-12 w-12 items-center justify-center rounded-2xl border ${activeRegime.iconBg} ${activeRegime.iconColor} shadow-md`}
+                    className={`flex h-12 w-12 items-center justify-center rounded-lg border ${activeRegime.iconBg} ${activeRegime.iconColor} shadow-md`}
                   >
                     <activeRegime.icon className="h-6 w-6" />
                   </div>
@@ -254,20 +247,20 @@ export default function RiskIntelligenceShowcase() {
                 </p>
 
                 {/* Scenario Metric Highlights */}
-                <div className="grid grid-cols-2 gap-2.5 p-3 rounded-2xl bg-[#0B1528] border border-slate-800 text-[11px] font-mono">
-                  <div className="p-2 rounded-xl bg-slate-900/80">
+                <div className="grid grid-cols-2 gap-2.5 p-3 rounded-lg bg-[#0B1528] border border-slate-800 text-[11px] font-mono">
+                  <div className="p-2 rounded-md bg-slate-900/80">
                     <span className="text-slate-500 block text-[9.5px]">SIMULATED LOSS</span>
                     <span className="text-rose-400 font-extrabold text-[15px]">{activeRegime.simulatedLoss}</span>
                   </div>
-                  <div className="p-2 rounded-xl bg-slate-900/80">
+                  <div className="p-2 rounded-md bg-slate-900/80">
                     <span className="text-slate-500 block text-[9.5px]">MAX DRAWDOWN</span>
                     <span className="text-amber-400 font-extrabold text-[15px]">{activeRegime.maxDrawdown}</span>
                   </div>
-                  <div className="p-2 rounded-xl bg-slate-900/80">
+                  <div className="p-2 rounded-md bg-slate-900/80">
                     <span className="text-slate-500 block text-[9.5px]">VOLATILITY JUMP</span>
                     <span className="text-purple-400 font-extrabold text-[15px]">{activeRegime.volatilitySpike}</span>
                   </div>
-                  <div className="p-2 rounded-xl bg-slate-900/80">
+                  <div className="p-2 rounded-md bg-slate-900/80">
                     <span className="text-slate-500 block text-[9.5px]">99% TAIL VAR</span>
                     <span className="text-cyan-400 font-extrabold text-[15px]">{activeRegime.var99}</span>
                   </div>
@@ -287,7 +280,7 @@ export default function RiskIntelligenceShowcase() {
                 <div className="pt-2">
                   <Link
                     href={activeRegime.ctaHref}
-                    className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl sm:rounded-2xl text-[14px] font-bold text-white shadow-lg bg-[#00c853] hover:bg-[#00b047] hover:shadow-emerald-500/25 transition-all duration-200 cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
+                    className="inline-flex items-center gap-2.5 px-6 py-3 rounded-lg text-[14px] font-bold text-white shadow-lg bg-[#00c853] hover:bg-[#00b047] hover:shadow-emerald-500/25 transition-all duration-200 cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
                   >
                     <span>{activeRegime.ctaText}</span>
                     <ArrowRight className="h-4 w-4" />
@@ -321,9 +314,9 @@ export default function RiskIntelligenceShowcase() {
         </div>
       </div>
 
-      {/* 3. ICONIC FLOATING DOCK OF CIRCULAR ICONS AT THE BOTTOM (Quantiphi style) */}
+      {/* 3. ICONIC FLOATING DOCK AT THE BOTTOM */}
       <div className="flex justify-center items-center">
-        <div className="inline-flex items-center gap-3 sm:gap-4 px-5 py-3 rounded-full bg-white dark:bg-[#0B1528] border border-slate-200/90 dark:border-slate-800 shadow-xl backdrop-blur-md">
+        <div className="inline-flex items-center gap-2.5 sm:gap-3 px-4 py-2 rounded-xl bg-white dark:bg-[#0B1528] border border-slate-200/90 dark:border-slate-800 shadow-xl backdrop-blur-md">
           {REGIMES.map((regime) => {
             const isActive = regime.id === activeRegimeId;
             const Icon = regime.icon;
@@ -334,9 +327,9 @@ export default function RiskIntelligenceShowcase() {
                 type="button"
                 onClick={() => setActiveRegimeId(regime.id)}
                 title={`${regime.name}: ${regime.tagline}`}
-                className={`group relative flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full transition-all duration-200 cursor-pointer ${
+                className={`group relative flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-lg transition-all duration-200 cursor-pointer ${
                   isActive
-                    ? "bg-[#0B1220] dark:bg-emerald-500 text-white shadow-lg ring-4 ring-emerald-500/25 scale-110"
+                    ? "bg-[#0B1220] dark:bg-emerald-500 text-white shadow-lg ring-2 ring-emerald-500/30 scale-105"
                     : "text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
                 }`}
               >
@@ -355,7 +348,7 @@ export default function RiskIntelligenceShowcase() {
 {/* ========================================================================= */}
 function CrashScenarioMockup() {
   return (
-    <div className="w-full rounded-2xl border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
+    <div className="w-full rounded-lg border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
       <div className="flex items-center justify-between px-4 py-3 bg-[#08101E] border-b border-slate-800">
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full bg-rose-500/80" />
@@ -365,14 +358,14 @@ function CrashScenarioMockup() {
             Macro Stress Simulator: -15% Systemic Plunge
           </span>
         </div>
-        <span className="px-2 py-0.5 rounded-full bg-rose-950/70 border border-rose-500/40 text-[10px] font-mono font-bold text-rose-400">
+        <span className="px-2 py-0.5 rounded-md bg-rose-950/70 border border-rose-500/40 text-[10px] font-mono font-bold text-rose-400">
           ● TAIL RISK SHOCK: SEVERE
         </span>
       </div>
 
       <div className="p-4 sm:p-5 space-y-4">
         {/* Analog & Calibration */}
-        <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] font-mono">
+        <div className="grid grid-cols-3 gap-2 p-2.5 rounded-md bg-slate-900/80 border border-slate-800 text-[11px] font-mono">
           <div>
             <span className="text-slate-500 block text-[9.5px]">HISTORICAL ANALOG</span>
             <span className="text-rose-400 font-bold">March 2020 Liquidity</span>
@@ -388,7 +381,7 @@ function CrashScenarioMockup() {
         </div>
 
         {/* Tail Shock SVG Curve */}
-        <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 relative">
+        <div className="p-3.5 rounded-md bg-slate-950 border border-slate-800 relative">
           <div className="flex items-center justify-between text-[11px] font-mono mb-2">
             <span className="text-slate-300 font-bold">Probability Distribution Shift (Normal vs Crash)</span>
             <span className="text-rose-400 font-bold">Cornish-Fisher Left Tail</span>
@@ -443,15 +436,15 @@ function CrashScenarioMockup() {
 
         {/* Asset Shock Breakdown Table */}
         <div className="grid grid-cols-3 gap-2 text-[11px] font-mono">
-          <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+          <div className="p-2.5 rounded-md bg-slate-900/60 border border-slate-800">
             <span className="text-slate-400 block text-[10px]">US TECH (NVDA/MSFT)</span>
             <span className="text-rose-400 font-bold text-[13px]">-18.4% Impact</span>
           </div>
-          <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+          <div className="p-2.5 rounded-md bg-slate-900/60 border border-slate-800">
             <span className="text-slate-400 block text-[10px]">INDIA (RELIANCE/TCS)</span>
             <span className="text-rose-400 font-bold text-[13px]">-14.2% Impact</span>
           </div>
-          <div className="p-2.5 rounded-xl bg-slate-900/60 border border-emerald-500/30">
+          <div className="p-2.5 rounded-md bg-slate-900/60 border border-emerald-500/30">
             <span className="text-slate-400 block text-[10px]">TAIL HEDGE / CASH</span>
             <span className="text-emerald-400 font-bold text-[13px]">+24.6% Offset</span>
           </div>
@@ -466,7 +459,7 @@ function CrashScenarioMockup() {
 {/* ========================================================================= */}
 function RatesScenarioMockup() {
   return (
-    <div className="w-full rounded-2xl border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
+    <div className="w-full rounded-lg border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
       <div className="flex items-center justify-between px-4 py-3 bg-[#08101E] border-b border-slate-800">
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full bg-rose-500/80" />
@@ -476,13 +469,13 @@ function RatesScenarioMockup() {
             Yield Curve Dislocation: +200 bps Shock
           </span>
         </div>
-        <span className="px-2 py-0.5 rounded-full bg-amber-950/70 border border-amber-500/40 text-[10px] font-mono font-bold text-amber-400">
+        <span className="px-2 py-0.5 rounded-md bg-amber-950/70 border border-amber-500/40 text-[10px] font-mono font-bold text-amber-400">
           ● MONETARY POLICY TIGHTENING
         </span>
       </div>
 
       <div className="p-4 sm:p-5 space-y-4">
-        <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] font-mono">
+        <div className="grid grid-cols-3 gap-2 p-2.5 rounded-md bg-slate-900/80 border border-slate-800 text-[11px] font-mono">
           <div>
             <span className="text-slate-500 block text-[9.5px]">10Y US TREASURY</span>
             <span className="text-amber-400 font-bold">4.20% → 6.20%</span>
@@ -498,7 +491,7 @@ function RatesScenarioMockup() {
         </div>
 
         {/* Yield Curve Twist Chart */}
-        <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+        <div className="p-3.5 rounded-md bg-slate-950 border border-slate-800">
           <div className="flex items-center justify-between text-[11px] font-mono mb-2">
             <span className="text-slate-300 font-bold">Yield Curve Twist (+200 bps Parallel Shift)</span>
             <span className="text-amber-400 font-bold">Inversion Risk: High</span>
@@ -531,7 +524,7 @@ function RatesScenarioMockup() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] font-mono">
+        <div className="flex items-center justify-between p-2.5 rounded-md bg-slate-900/60 border border-slate-800 text-[11px] font-mono">
           <span className="text-slate-400">Equity P/E Multiple Contraction: <strong className="text-white">24.5x → 18.2x</strong></span>
           <span className="text-amber-400 font-bold">Simulated Loss: -8.1%</span>
         </div>
@@ -545,7 +538,7 @@ function RatesScenarioMockup() {
 {/* ========================================================================= */}
 function VolScenarioMockup() {
   return (
-    <div className="w-full rounded-2xl border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
+    <div className="w-full rounded-lg border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
       <div className="flex items-center justify-between px-4 py-3 bg-[#08101E] border-b border-slate-800">
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full bg-rose-500/80" />
@@ -555,33 +548,33 @@ function VolScenarioMockup() {
             Volatility Surface: +80% VIX Blowout
           </span>
         </div>
-        <span className="px-2 py-0.5 rounded-full bg-purple-950/70 border border-purple-500/40 text-[10px] font-mono font-bold text-purple-400">
+        <span className="px-2 py-0.5 rounded-md bg-purple-950/70 border border-purple-500/40 text-[10px] font-mono font-bold text-purple-400">
           ● VEGA SHOCK &amp; SKEW INVERSION
         </span>
       </div>
 
       <div className="p-4 sm:p-5 space-y-4">
         <div className="grid grid-cols-4 gap-2">
-          <div className="p-2 rounded-xl bg-slate-900/80 border border-purple-500/30">
+          <div className="p-2 rounded-md bg-slate-900/80 border border-purple-500/30">
             <span className="text-slate-500 block text-[9.5px]">SPOT VIX</span>
             <span className="text-purple-400 font-bold text-[14px]">14.2 → 42.8</span>
           </div>
-          <div className="p-2 rounded-xl bg-slate-900/80 border border-slate-800">
+          <div className="p-2 rounded-md bg-slate-900/80 border border-slate-800">
             <span className="text-slate-500 block text-[9.5px]">INDIA VIX</span>
             <span className="text-purple-400 font-bold text-[14px]">12.8 → 34.5</span>
           </div>
-          <div className="p-2 rounded-xl bg-slate-900/80 border border-slate-800">
+          <div className="p-2 rounded-md bg-slate-900/80 border border-slate-800">
             <span className="text-slate-500 block text-[9.5px]">TERM STRUCTURE</span>
             <span className="text-rose-400 font-bold text-[13px]">Backwardation</span>
           </div>
-          <div className="p-2 rounded-xl bg-slate-900/80 border border-slate-800">
+          <div className="p-2 rounded-md bg-slate-900/80 border border-slate-800">
             <span className="text-slate-500 block text-[9.5px]">OPTION VEGA</span>
             <span className="text-white font-bold text-[13px]">-$18,400</span>
           </div>
         </div>
 
         {/* Volatility Surface Inversion SVG */}
-        <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+        <div className="p-3.5 rounded-md bg-slate-950 border border-slate-800">
           <div className="flex items-center justify-between text-[11px] font-mono mb-2">
             <span className="text-slate-300 font-bold">Implied Volatility Term Structure (Contango vs Backwardation)</span>
             <span className="text-purple-400 font-bold">Gamma Squeeze</span>
@@ -611,7 +604,7 @@ function VolScenarioMockup() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] font-mono">
+        <div className="flex items-center justify-between p-2.5 rounded-md bg-slate-900/60 border border-slate-800 text-[11px] font-mono">
           <span className="text-slate-400">Vega Risk Mitigated via Dynamic Delta Neutrality: <strong className="text-white">Active</strong></span>
           <span className="text-purple-400 font-bold">Loss: -12.4%</span>
         </div>
@@ -625,7 +618,7 @@ function VolScenarioMockup() {
 {/* ========================================================================= */}
 function LiquidityScenarioMockup() {
   return (
-    <div className="w-full rounded-2xl border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
+    <div className="w-full rounded-lg border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
       <div className="flex items-center justify-between px-4 py-3 bg-[#08101E] border-b border-slate-800">
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full bg-rose-500/80" />
@@ -635,13 +628,13 @@ function LiquidityScenarioMockup() {
             Order Book Evaporation: -20% Depth Shock
           </span>
         </div>
-        <span className="px-2 py-0.5 rounded-full bg-cyan-950/70 border border-cyan-500/40 text-[10px] font-mono font-bold text-cyan-400">
+        <span className="px-2 py-0.5 rounded-md bg-cyan-950/70 border border-cyan-500/40 text-[10px] font-mono font-bold text-cyan-400">
           ● FLASH CRASH SLIPPAGE RISK
         </span>
       </div>
 
       <div className="p-4 sm:p-5 space-y-4">
-        <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] font-mono">
+        <div className="grid grid-cols-3 gap-2 p-2.5 rounded-md bg-slate-900/80 border border-slate-800 text-[11px] font-mono">
           <div>
             <span className="text-slate-500 block text-[9.5px]">BID-ASK SPREAD</span>
             <span className="text-cyan-400 font-bold">2.1 bps → 48.6 bps</span>
@@ -657,7 +650,7 @@ function LiquidityScenarioMockup() {
         </div>
 
         {/* Order Book Depth Depletion SVG */}
-        <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+        <div className="p-3.5 rounded-md bg-slate-950 border border-slate-800">
           <div className="flex items-center justify-between text-[11px] font-mono mb-2">
             <span className="text-slate-300 font-bold">Limit Order Depth (Normal vs Evaporated)</span>
             <span className="text-cyan-400 font-bold">Liquidity Gap</span>
@@ -688,7 +681,7 @@ function LiquidityScenarioMockup() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] font-mono">
+        <div className="flex items-center justify-between p-2.5 rounded-md bg-slate-900/60 border border-slate-800 text-[11px] font-mono">
           <span className="text-slate-400">Adaptive TWAP / VWAP Router Execution: <strong className="text-white">Active</strong></span>
           <span className="text-cyan-400 font-bold">Simulated Loss: -9.8%</span>
         </div>
@@ -702,7 +695,7 @@ function LiquidityScenarioMockup() {
 {/* ========================================================================= */}
 function VaRScenarioMockup() {
   return (
-    <div className="w-full rounded-2xl border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
+    <div className="w-full rounded-lg border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
       <div className="flex items-center justify-between px-4 py-3 bg-[#08101E] border-b border-slate-800">
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full bg-rose-500/80" />
@@ -712,13 +705,13 @@ function VaRScenarioMockup() {
             Parametric &amp; Historical VaR Model
           </span>
         </div>
-        <span className="px-2 py-0.5 rounded-full bg-blue-950/70 border border-blue-500/40 text-[10px] font-mono font-bold text-blue-400">
+        <span className="px-2 py-0.5 rounded-md bg-blue-950/70 border border-blue-500/40 text-[10px] font-mono font-bold text-blue-400">
           ● CONFIDENCE INTERVAL: 99%
         </span>
       </div>
 
       <div className="p-4 sm:p-5 space-y-4">
-        <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] font-mono">
+        <div className="grid grid-cols-3 gap-2 p-2.5 rounded-md bg-slate-900/80 border border-slate-800 text-[11px] font-mono">
           <div>
             <span className="text-slate-500 block text-[9.5px]">95% 1-DAY VAR</span>
             <span className="text-blue-400 font-bold text-[14px]">-3.2% ($8,000)</span>
@@ -734,7 +727,7 @@ function VaRScenarioMockup() {
         </div>
 
         {/* VaR Bell Curve SVG */}
-        <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+        <div className="p-3.5 rounded-md bg-slate-950 border border-slate-800">
           <div className="flex items-center justify-between text-[11px] font-mono mb-2">
             <span className="text-slate-300 font-bold">Loss Distribution &amp; Tail Cutoffs</span>
             <span className="text-blue-400 font-bold">10,000 Monte Carlo Paths</span>
@@ -783,7 +776,7 @@ function VaRScenarioMockup() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] font-mono">
+        <div className="flex items-center justify-between p-2.5 rounded-md bg-slate-900/60 border border-slate-800 text-[11px] font-mono">
           <span className="text-slate-400">Expected Shortfall (Avg loss beyond 99%): <strong className="text-rose-400">-6.8%</strong></span>
           <span className="text-blue-400 font-bold">Pass: Within Limits</span>
         </div>
@@ -797,7 +790,7 @@ function VaRScenarioMockup() {
 {/* ========================================================================= */}
 function DrawdownScenarioMockup() {
   return (
-    <div className="w-full rounded-2xl border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
+    <div className="w-full rounded-lg border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
       <div className="flex items-center justify-between px-4 py-3 bg-[#08101E] border-b border-slate-800">
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full bg-rose-500/80" />
@@ -807,13 +800,13 @@ function DrawdownScenarioMockup() {
             Underwater Curve &amp; Recovery Analysis
           </span>
         </div>
-        <span className="px-2 py-0.5 rounded-full bg-emerald-950/70 border border-emerald-500/40 text-[10px] font-mono font-bold text-emerald-400">
+        <span className="px-2 py-0.5 rounded-md bg-emerald-950/70 border border-emerald-500/40 text-[10px] font-mono font-bold text-emerald-400">
           ● RECOVERY RATE: OPTIMAL
         </span>
       </div>
 
       <div className="p-4 sm:p-5 space-y-4">
-        <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] font-mono">
+        <div className="grid grid-cols-3 gap-2 p-2.5 rounded-md bg-slate-900/80 border border-slate-800 text-[11px] font-mono">
           <div>
             <span className="text-slate-500 block text-[9.5px]">MAX DRAWDOWN</span>
             <span className="text-rose-400 font-bold text-[14px]">-11.4% (Strategy)</span>
@@ -829,7 +822,7 @@ function DrawdownScenarioMockup() {
         </div>
 
         {/* Underwater Spikes SVG */}
-        <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
+        <div className="p-3.5 rounded-md bg-slate-950 border border-slate-800">
           <div className="flex items-center justify-between text-[11px] font-mono mb-2">
             <span className="text-slate-300 font-bold">Historical Underwater Equity Degradation (%)</span>
             <span className="text-emerald-400 font-bold">0% Waterline</span>
@@ -871,7 +864,7 @@ function DrawdownScenarioMockup() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] font-mono">
+        <div className="flex items-center justify-between p-2.5 rounded-md bg-slate-900/60 border border-slate-800 text-[11px] font-mono">
           <span className="text-slate-400">Average Drawdown: <strong className="text-white">-4.2%</strong> across 142 closed cycles</span>
           <span className="text-emerald-400 font-bold">Calmar Ratio: 2.54</span>
         </div>

@@ -169,7 +169,7 @@ export default function StrategyBacktestShowcase() {
               key={tab.id}
               type="button"
               onClick={() => setActiveTabId(tab.id)}
-              className={`relative px-5 sm:px-6 py-2.5 rounded-xl sm:rounded-2xl text-[13px] sm:text-[14px] font-bold transition-all duration-200 cursor-pointer select-none ${
+              className={`relative px-5 sm:px-6 py-2.5 rounded-lg text-[13px] sm:text-[14px] font-bold transition-all duration-200 cursor-pointer select-none ${
                 isActive
                   ? `${tab.pillColor} shadow-lg shadow-emerald-500/20 scale-[1.02]`
                   : "bg-[#0c182c]/80 dark:bg-[#0c182c]/90 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 hover:bg-[#13223c]"
@@ -182,7 +182,7 @@ export default function StrategyBacktestShowcase() {
       </div>
 
       {/* 3. MAIN SHOWCASE CONTAINER (2-Column Split: Info + UI Mockup) */}
-      <div className="relative rounded-3xl border border-slate-800/80 bg-gradient-to-b from-[#081326] via-[#071120] to-[#050c18] p-6 sm:p-8 lg:p-10 shadow-2xl overflow-hidden">
+      <div className="relative rounded-xl border border-slate-800/80 bg-gradient-to-b from-[#081326] via-[#071120] to-[#050c18] p-6 sm:p-8 lg:p-10 shadow-2xl overflow-hidden">
         {/* Subtle Background Glow Radial */}
         <div className="pointer-events-none absolute -top-40 right-1/4 h-96 w-96 rounded-full bg-emerald-500/10 blur-[100px]" />
         <div className="pointer-events-none absolute -bottom-40 left-10 h-96 w-96 rounded-full bg-blue-500/10 blur-[100px]" />
@@ -203,7 +203,7 @@ export default function StrategyBacktestShowcase() {
               >
                 {/* Brand Logo & Product Name */}
                 <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-[#00c853]">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-[#00c853]">
                     {activeTab.id === "strategy-studio" && <Code className="h-6 w-6" />}
                     {activeTab.id === "backtest-engine" && <Cpu className="h-6 w-6" />}
                     {activeTab.id === "performance-lab" && <BarChart3 className="h-6 w-6" />}
@@ -238,7 +238,7 @@ export default function StrategyBacktestShowcase() {
                 <div className="pt-2">
                   <Link
                     href={activeTab.ctaHref}
-                    className={`inline-flex items-center gap-2.5 px-6 py-3 rounded-xl sm:rounded-2xl text-[14px] font-bold text-white shadow-lg transition-all duration-200 cursor-pointer ${activeTab.btnBg} ${activeTab.btnHover} hover:shadow-emerald-500/25 hover:-translate-y-0.5 active:translate-y-0`}
+                    className={`inline-flex items-center gap-2.5 px-6 py-3 rounded-lg text-[14px] font-bold text-white shadow-lg transition-all duration-200 cursor-pointer ${activeTab.btnBg} ${activeTab.btnHover} hover:shadow-emerald-500/25 hover:-translate-y-0.5 active:translate-y-0`}
                   >
                     <span>{activeTab.ctaText}</span>
                     <ArrowRight className="h-4 w-4" />
@@ -293,7 +293,7 @@ function StrategyStudioMockup() {
     "Period: 14 | Dynamic";
 
   return (
-    <div className="w-full rounded-2xl border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
+    <div className="w-full rounded-lg border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
       {/* Window Title Bar */}
       <div className="flex items-center justify-between px-4 py-3 bg-[#08101E] border-b border-slate-800">
         <div className="flex items-center gap-2">
@@ -305,7 +305,7 @@ function StrategyStudioMockup() {
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/70 border border-emerald-500/40 text-[10px] font-mono font-bold text-emerald-400">
+          <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-950/70 border border-emerald-500/40 text-[10px] font-mono font-bold text-emerald-400">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
             SYNTAX VALIDATED
           </span>
@@ -432,7 +432,7 @@ function BacktestEngineMockup() {
   const [activeRange, setActiveRange] = useState<string>("5Y");
 
   return (
-    <div className="w-full rounded-2xl border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
+    <div className="w-full rounded-lg border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
       {/* Title Bar */}
       <div className="flex items-center justify-between px-4 py-3 bg-[#08101E] border-b border-slate-800">
         <div className="flex items-center gap-2">
@@ -444,7 +444,7 @@ function BacktestEngineMockup() {
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="px-2 py-0.5 rounded-full bg-emerald-950/70 border border-emerald-500/40 text-[10px] font-mono font-bold text-emerald-400">
+          <span className="px-2 py-0.5 rounded-md bg-emerald-950/70 border border-emerald-500/40 text-[10px] font-mono font-bold text-emerald-400">
             SIMULATION COMPLETE (18ms)
           </span>
         </div>
@@ -610,7 +610,7 @@ function BacktestEngineMockup() {
 {/* ========================================================================= */}
 function PerformanceLabMockup() {
   return (
-    <div className="w-full rounded-2xl border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
+    <div className="w-full rounded-lg border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
       {/* Title Bar */}
       <div className="flex items-center justify-between px-4 py-3 bg-[#08101E] border-b border-slate-800">
         <div className="flex items-center gap-2">
@@ -621,7 +621,7 @@ function PerformanceLabMockup() {
             Institutional Tear-Sheet: Risk &amp; Alpha
           </span>
         </div>
-        <span className="px-2 py-0.5 rounded-full bg-indigo-950/70 border border-indigo-500/40 text-[10px] font-mono font-bold text-indigo-300">
+        <span className="px-2 py-0.5 rounded-md bg-indigo-950/70 border border-indigo-500/40 text-[10px] font-mono font-bold text-indigo-300">
           GRADE: INSTITUTIONAL A+
         </span>
       </div>
@@ -756,7 +756,7 @@ function PerformanceLabMockup() {
 {/* ========================================================================= */}
 function PortfolioDeskMockup() {
   return (
-    <div className="w-full rounded-2xl border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
+    <div className="w-full rounded-lg border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
       {/* Title Bar */}
       <div className="flex items-center justify-between px-4 py-3 bg-[#08101E] border-b border-slate-800">
         <div className="flex items-center gap-2">
@@ -767,7 +767,7 @@ function PortfolioDeskMockup() {
             Portfolio Desk: Global &amp; Domestic Desk
           </span>
         </div>
-        <span className="px-2 py-0.5 rounded-full bg-emerald-950/70 border border-emerald-500/40 text-[10px] font-mono font-bold text-emerald-400">
+        <span className="px-2 py-0.5 rounded-md bg-emerald-950/70 border border-emerald-500/40 text-[10px] font-mono font-bold text-emerald-400">
           REBALANCING OPTIMAL
         </span>
       </div>

@@ -23,7 +23,7 @@ export default function RiskIntelligenceSection() {
         <RiskIntelligenceShowcase />
 
         {/* 2. Section Narrative Thesis & Transition */}
-        <div className="p-8 sm:p-10 rounded-3xl bg-white dark:bg-[#0B1528] border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div className="p-8 sm:p-10 rounded-xl bg-white dark:bg-[#0B1528] border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="max-w-2xl">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1769FF] dark:text-blue-400 mb-2">
               <ShieldCheck className="w-4 h-4" />
@@ -40,7 +40,7 @@ export default function RiskIntelligenceSection() {
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href="/risk"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#0B1220] dark:bg-blue-600 hover:bg-[#1e293b] dark:hover:bg-blue-500 text-white text-sm font-semibold shadow-sm transition-all group"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-[#0B1220] dark:bg-blue-600 hover:bg-[#1e293b] dark:hover:bg-blue-500 text-white text-sm font-semibold shadow-sm transition-all group"
             >
               Explore Risk Analytics
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
@@ -48,7 +48,7 @@ export default function RiskIntelligenceSection() {
 
             <Link
               href="/risk"
-              className="inline-flex items-center gap-2 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-[#0B1220] dark:text-white text-sm font-semibold transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-[#0B1220] dark:text-white text-sm font-semibold transition-colors"
             >
               Stress Test a Portfolio →
             </Link>
