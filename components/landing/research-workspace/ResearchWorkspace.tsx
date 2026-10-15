@@ -42,41 +42,38 @@ export default function ResearchWorkspace() {
       </motion.div>
 
       <div className="relative mx-auto max-w-[1520px] px-4 sm:px-6 lg:px-8">
-        {/* 2-Column Responsive Composition (Left: ~38%, Right: ~62%) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-14 items-start">
-          {/* Left Column: Intro + Feature Navigation */}
-          <motion.div
-            initial={{ opacity: 1, y: 0 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="lg:col-span-5 flex flex-col justify-between"
-          >
-            <WorkspaceIntro />
+        {/* Centered Section Header & Horizontal Feature Navigation */}
+        <motion.div
+          initial={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="flex flex-col items-center text-center"
+        >
+          <WorkspaceIntro />
 
-            <WorkspaceNavigation
-              activeFeature={activeFeature}
-              onSelectFeature={setActiveFeature}
-            />
-          </motion.div>
+          <WorkspaceNavigation
+            activeFeature={activeFeature}
+            onSelectFeature={setActiveFeature}
+          />
+        </motion.div>
 
-          {/* Right Column: Interactive Security Research Terminal */}
-          <motion.div
-            initial={{ opacity: 1, scale: 1, y: 0 }}
-            whileInView={{ opacity: 1, scale: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            style={{ y: terminalY }}
-            className="lg:col-span-7 w-full"
-          >
-            <SecurityTerminal
-              activeFeature={activeFeature}
-              onSelectFeature={setActiveFeature}
-              selectedSymbol={selectedSymbol}
-              onSelectSymbol={setSelectedSymbol}
-            />
-          </motion.div>
-        </div>
+        {/* Security Research Terminal Widget (Brought Down & Centered) */}
+        <motion.div
+          initial={{ opacity: 1, scale: 1, y: 0 }}
+          whileInView={{ opacity: 1, scale: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          style={{ y: terminalY }}
+          className="mt-10 mb-14 w-full max-w-[1320px] mx-auto"
+        >
+          <SecurityTerminal
+            activeFeature={activeFeature}
+            onSelectFeature={setActiveFeature}
+            selectedSymbol={selectedSymbol}
+            onSelectSymbol={setSelectedSymbol}
+          />
+        </motion.div>
 
         {/* Bottom Feature Rail: 6 Equal Height Capability Cards */}
         <motion.div

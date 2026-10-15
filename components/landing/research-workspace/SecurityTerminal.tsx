@@ -37,7 +37,7 @@ export default function SecurityTerminal({
   const [selectedTimeframe, setSelectedTimeframe] = useState("3M");
 
   return (
-    <div className="relative w-full rounded-2xl border border-white/[0.10] bg-[#0B1220] shadow-[0_30px_80px_rgba(15,23,42,0.22)] overflow-hidden">
+    <div className="relative w-full rounded-xl border border-white/[0.10] bg-[#0B1220] shadow-[0_30px_80px_rgba(15,23,42,0.22)] overflow-hidden">
       {/* Top Bar Header */}
       <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-white/[0.08] bg-[#070D18] px-3.5 py-2.5 sm:px-4">
         {/* Left: Brand Logo & Title */}
