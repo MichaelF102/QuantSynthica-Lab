@@ -486,46 +486,8 @@ export default function ProductPreview() {
           <div className="mx-auto h-1 w-16 rounded-full bg-slate-600/60" />
         </div>
 
-        {/* Rocky Outcrop Base Pedestal matching Reference Image */}
-        <div className="relative -mt-3 w-full overflow-hidden rounded-b-2xl">
-          <svg
-            viewBox="0 0 800 130"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-full h-auto opacity-95 drop-shadow-2xl"
-            preserveAspectRatio="none"
-          >
-            {/* Rock facets gradient definition */}
-            <defs>
-              <linearGradient id="rockGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#1E2638" />
-                <stop offset="50%" stopColor="#0E131E" />
-                <stop offset="100%" stopColor="#05070B" />
-              </linearGradient>
-              <linearGradient id="rockGrad2" x1="0%" y1="100%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#2A354C" />
-                <stop offset="100%" stopColor="#0D111A" />
-              </linearGradient>
-              <linearGradient id="rockRim" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.4" />
-                <stop offset="50%" stopColor="#1E40AF" stopOpacity="0.2" />
-                <stop offset="100%" stopColor="#38BDF8" stopOpacity="0.5" />
-              </linearGradient>
-            </defs>
-
-            {/* Faceted Craggy Cliffs */}
-            <polygon points="0,70 120,40 240,65 380,30 520,55 680,25 800,60 800,130 0,130" fill="url(#rockGrad1)" />
-            <polygon points="120,40 200,85 240,65 310,105 380,30 460,80 520,55 610,95 680,25 760,80 800,60 800,130 0,130" fill="url(#rockGrad2)" opacity="0.8" />
-            
-            {/* Mountain / Ridge Highlight Edge */}
-            <polyline
-              points="0,70 120,40 240,65 380,30 520,55 680,25 800,60"
-              stroke="url(#rockRim)"
-              strokeWidth="2"
-              fill="none"
-            />
-          </svg>
-        </div>
+        {/* Subtle Bottom Ambient Shadow */}
+        <div className="mx-auto mt-2 h-4 w-4/5 rounded-full bg-blue-500/20 blur-xl" />
       </div>
     </div>
   );
