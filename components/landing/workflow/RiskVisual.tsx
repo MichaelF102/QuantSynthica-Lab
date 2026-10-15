@@ -6,14 +6,14 @@ import { ShieldAlert, AlertTriangle, Activity, BarChart2 } from "lucide-react";
 
 export default function RiskVisual() {
   return (
-    <div className="relative flex h-[460px] sm:h-[490px] w-full flex-col justify-between rounded-2xl bg-[#090E17] p-4 sm:p-5 text-white border border-slate-800 shadow-2xl overflow-hidden">
+    <div className="relative flex h-[460px] sm:h-[490px] w-full flex-col justify-between rounded-lg bg-[#090E17] p-4 sm:p-5 text-white border border-slate-800 shadow-2xl overflow-hidden">
       {/* Background glow */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(239,68,68,0.08)_0,transparent_65%)]" />
 
       {/* Top Header */}
       <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20">
             <ShieldAlert className="h-4 w-4" />
           </div>
           <div>
@@ -35,22 +35,22 @@ export default function RiskVisual() {
 
       {/* Metric Cards Row */}
       <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2.5 my-2">
-        <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-2.5">
+        <div className="rounded-md border border-slate-800 bg-slate-900/80 p-2.5">
           <div className="text-[9px] font-mono uppercase text-slate-400">Max Drawdown</div>
           <div className="text-base font-mono font-bold text-rose-400">-12.4%</div>
           <div className="text-[9px] text-slate-500">Duration: 18 bars</div>
         </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-2.5">
+        <div className="rounded-md border border-slate-800 bg-slate-900/80 p-2.5">
           <div className="text-[9px] font-mono uppercase text-slate-400">Annual Volatility</div>
           <div className="text-base font-mono font-bold text-blue-400">18.6%</div>
           <div className="text-[9px] text-slate-500">Benchmark: 15.2%</div>
         </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-2.5">
+        <div className="rounded-md border border-slate-800 bg-slate-900/80 p-2.5">
           <div className="text-[9px] font-mono uppercase text-slate-400">VaR (95% 1-Day)</div>
           <div className="text-base font-mono font-bold text-rose-400">-2.8%</div>
           <div className="text-[9px] text-slate-500">Parametric model</div>
         </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-2.5">
+        <div className="rounded-md border border-slate-800 bg-slate-900/80 p-2.5">
           <div className="text-[9px] font-mono uppercase text-slate-400">Beta vs SPY</div>
           <div className="text-base font-mono font-bold text-white">0.92</div>
           <div className="text-[9px] text-slate-500">Correlation: 0.81</div>
@@ -60,7 +60,7 @@ export default function RiskVisual() {
       {/* Dual Coordinated Charts (Underwater DD + VaR Distribution) */}
       <div className="relative z-10 my-auto grid grid-cols-1 sm:grid-cols-12 gap-3 py-1">
         {/* Left: Underwater Drawdown Area (7 cols) */}
-        <div className="sm:col-span-7 rounded-xl border border-slate-800/80 bg-slate-950/70 p-3">
+        <div className="sm:col-span-7 rounded-md border border-slate-800/80 bg-slate-950/70 p-3">
           <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
             <span className="text-rose-400 font-bold uppercase">Underwater Drawdown (%)</span>
             <span>Trough: -12.4%</span>
@@ -101,7 +101,7 @@ export default function RiskVisual() {
         </div>
 
         {/* Right: Return Distribution & VaR Cutoff (5 cols) */}
-        <div className="sm:col-span-5 rounded-xl border border-slate-800/80 bg-slate-950/70 p-3">
+        <div className="sm:col-span-5 rounded-md border border-slate-800/80 bg-slate-950/70 p-3">
           <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
             <span className="text-blue-400 font-bold uppercase">Return Distribution</span>
             <span className="text-rose-400">VaR -2.8%</span>

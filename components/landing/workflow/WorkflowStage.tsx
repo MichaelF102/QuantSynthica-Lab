@@ -307,9 +307,9 @@ export default function WorkflowStage({
               return (
                 <div
                   key={i}
-                  className="flex items-start gap-2.5 p-2 rounded-xl bg-slate-50/80 border border-slate-100/90 dark:bg-[#0B1528] dark:border-slate-800"
+                  className="flex items-start gap-2.5 p-2 rounded-lg bg-slate-50/80 border border-slate-100/90 dark:bg-[#0B1528] dark:border-slate-800"
                 >
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-blue-50 border border-blue-100 text-[#1769FF] dark:bg-blue-950/40 dark:border-blue-900 dark:text-blue-400 mt-0.5">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-blue-50 border border-blue-100 text-[#1769FF] dark:bg-blue-950/40 dark:border-blue-900 dark:text-blue-400 mt-0.5">
                     <Icon className="h-3.5 w-3.5" />
                   </div>
                   <div className="min-w-0">
@@ -329,7 +329,7 @@ export default function WorkflowStage({
           <div className="pt-2 flex flex-wrap items-center gap-3">
             <Link
               href={current.ctaHref}
-              className="inline-flex items-center gap-2 rounded-xl bg-[#1769FF] px-4.5 py-2.5 text-[13px] font-semibold text-white shadow-md shadow-blue-500/20 transition-all hover:bg-blue-600 hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#1769FF] px-4.5 py-2.5 text-[13px] font-semibold text-white shadow-md shadow-blue-500/20 transition-all hover:bg-blue-600 hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5"
             >
               <span>{current.ctaText}</span>
               <ArrowRight className="h-4 w-4" />

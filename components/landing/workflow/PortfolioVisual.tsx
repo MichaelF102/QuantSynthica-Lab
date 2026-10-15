@@ -16,14 +16,14 @@ const ALLOCATIONS = [
 
 export default function PortfolioVisual() {
   return (
-    <div className="relative flex h-[460px] sm:h-[490px] w-full flex-col justify-between rounded-2xl bg-[#090E17] p-4 sm:p-5 text-white border border-slate-800 shadow-2xl overflow-hidden">
+    <div className="relative flex h-[460px] sm:h-[490px] w-full flex-col justify-between rounded-lg bg-[#090E17] p-4 sm:p-5 text-white border border-slate-800 shadow-2xl overflow-hidden">
       {/* Background glow */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(20,184,166,0.1)_0,transparent_70%)]" />
 
       {/* Top Header */}
       <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/20">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-teal-500/10 text-teal-400 border border-teal-500/20">
             <Briefcase className="h-4 w-4" />
           </div>
           <div>
@@ -45,22 +45,22 @@ export default function PortfolioVisual() {
 
       {/* Top Stat Row */}
       <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2.5 my-2">
-        <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-2.5">
+        <div className="rounded-md border border-slate-800 bg-slate-900/80 p-2.5">
           <div className="text-[9px] font-mono uppercase text-slate-400">Expected Return</div>
           <div className="text-base font-mono font-bold text-emerald-400">19.4% p.a.</div>
           <div className="text-[9px] text-slate-500">Optimized weights</div>
         </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-2.5">
+        <div className="rounded-md border border-slate-800 bg-slate-900/80 p-2.5">
           <div className="text-[9px] font-mono uppercase text-slate-400">Book Volatility</div>
           <div className="text-base font-mono font-bold text-blue-400">14.2%</div>
           <div className="text-[9px] text-slate-500">Diversified risk</div>
         </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-2.5">
+        <div className="rounded-md border border-slate-800 bg-slate-900/80 p-2.5">
           <div className="text-[9px] font-mono uppercase text-slate-400">Portfolio Sharpe</div>
           <div className="text-base font-mono font-bold text-teal-400">1.58</div>
           <div className="text-[9px] text-slate-500">Max Sharpe frontier</div>
         </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-2.5">
+        <div className="rounded-md border border-slate-800 bg-slate-900/80 p-2.5">
           <div className="text-[9px] font-mono uppercase text-slate-400">Diversification</div>
           <div className="text-base font-mono font-bold text-amber-400">8.6 / 10</div>
           <div className="text-[9px] text-slate-500">Low correlation cross-asset</div>
@@ -184,12 +184,12 @@ export default function PortfolioVisual() {
               </div>
 
               {/* Progress bar */}
-              <div className="h-1.5 w-full rounded-full bg-slate-800/80 overflow-hidden">
+              <div className="h-1.5 w-full rounded-xs bg-slate-800/80 overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${item.weight * 3.5}%` }}
                   transition={{ delay: i * 0.05, duration: 0.4 }}
-                  className="h-full rounded-full"
+                  className="h-full rounded-xs"
                   style={{ backgroundColor: item.color }}
                 />
               </div>

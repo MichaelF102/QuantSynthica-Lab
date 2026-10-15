@@ -42,7 +42,7 @@ const BOTTOM_PREVIEWS: BottomPreview[] = [
     desc: "Market universe",
     renderMini: () => (
       <div className="flex h-11 w-full items-center justify-center">
-        <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/10 border border-blue-400/40 text-blue-600">
+        <div className="relative flex h-8 w-8 items-center justify-center rounded-md bg-blue-500/10 border border-blue-400/40 text-blue-600">
           <Globe className="h-4 w-4" />
         </div>
       </div>
@@ -127,7 +127,7 @@ const BOTTOM_PREVIEWS: BottomPreview[] = [
     desc: "Optimized allocation",
     renderMini: () => (
       <div className="flex h-11 w-full items-center justify-center gap-2">
-        <div className="h-6 w-6 rounded-full border-3 border-blue-500 border-t-teal-400 border-r-indigo-500" />
+        <div className="h-6 w-6 rounded-md border-2 border-blue-500 border-t-teal-400 border-r-indigo-500" />
         <div className="flex flex-col text-[8px] font-mono text-slate-600 leading-none">
           <span>AAPL 24%</span>
           <span className="mt-0.5 text-teal-600">RELIANCE 18%</span>
@@ -214,7 +214,7 @@ export default function WorkflowSection() {
 
           {/* Right Side Metric Badges */}
           <div className="hidden sm:flex items-center gap-3 lg:gap-4 shrink-0">
-            <div className="flex items-center gap-2 rounded-xl bg-white dark:bg-[#0B1528] border border-slate-200/80 dark:border-slate-800 px-3 py-2 shadow-2xs">
+            <div className="flex items-center gap-2 rounded-lg bg-white dark:bg-[#0B1528] border border-slate-200/80 dark:border-slate-800 px-3 py-2 shadow-2xs">
               <Globe className="h-4 w-4 text-[#1769FF]" />
               <div>
                 <div className="text-xs font-bold text-[#0B1220] dark:text-white">1,000+</div>
@@ -222,7 +222,7 @@ export default function WorkflowSection() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 rounded-xl bg-white dark:bg-[#0B1528] border border-slate-200/80 dark:border-slate-800 px-3 py-2 shadow-2xs">
+            <div className="flex items-center gap-2 rounded-lg bg-white dark:bg-[#0B1528] border border-slate-200/80 dark:border-slate-800 px-3 py-2 shadow-2xs">
               <BarChart3 className="h-4 w-4 text-[#1769FF]" />
               <div>
                 <div className="text-xs font-bold text-[#0B1220] dark:text-white">50+</div>
@@ -230,7 +230,7 @@ export default function WorkflowSection() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 rounded-xl bg-white dark:bg-[#0B1528] border border-slate-200/80 dark:border-slate-800 px-3 py-2 shadow-2xs">
+            <div className="flex items-center gap-2 rounded-lg bg-white dark:bg-[#0B1528] border border-slate-200/80 dark:border-slate-800 px-3 py-2 shadow-2xs">
               <Layers className="h-4 w-4 text-[#1769FF]" />
               <div>
                 <div className="text-xs font-bold text-[#0B1220] dark:text-white">10+</div>
@@ -285,7 +285,7 @@ export default function WorkflowSection() {
                   onClick={() => goToStep(bp.id)}
                   aria-pressed={isActive}
                   aria-label={`Select stage ${bp.tag} ${bp.label}`}
-                  className={`group flex flex-col justify-between rounded-xl border p-2 sm:p-2.5 text-left transition-all duration-200 cursor-pointer ${
+                  className={`group flex flex-col justify-between rounded-lg border p-2 sm:p-2.5 text-left transition-all duration-200 cursor-pointer ${
                     isActive
                       ? "border-[#1769FF] bg-white shadow-md ring-2 ring-blue-500/20 -translate-y-0.5 dark:bg-[#0B1528] dark:border-[#1769FF]"
                       : "border-slate-200/90 bg-white/75 hover:border-slate-300 hover:bg-white hover:-translate-y-0.5 dark:border-slate-800 dark:bg-[#0B1528]/80 dark:hover:border-slate-700 dark:hover:bg-[#0B1528]"

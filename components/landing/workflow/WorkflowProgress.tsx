@@ -41,7 +41,7 @@ export default function WorkflowProgress({
               aria-selected={isActive}
               aria-label={`Jump to stage ${m.num}: ${m.name}`}
               onClick={() => onSelectStage(m.id)}
-              className={`group relative z-10 flex items-center gap-3 w-full min-h-[44px] px-2 py-1.5 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769FF] cursor-pointer text-left ${
+              className={`group relative z-10 flex items-center gap-3 w-full min-h-[44px] px-2 py-1.5 rounded-lg transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769FF] cursor-pointer text-left ${
                 isActive
                   ? "bg-blue-50/80 text-[#0B1220] shadow-xs"
                   : "hover:bg-slate-100/70 text-slate-500"
@@ -49,15 +49,15 @@ export default function WorkflowProgress({
             >
               {/* Node indicator */}
               <div
-                className={`h-4 w-4 shrink-0 rounded-full border-2 transition-all duration-200 flex items-center justify-center ${
+                className={`h-4 w-4 shrink-0 rounded-md border-2 transition-all duration-200 flex items-center justify-center ${
                   isActive
-                    ? "border-[#1769FF] bg-white ring-4 ring-blue-100/80 scale-110"
+                    ? "border-[#1769FF] bg-white ring-2 ring-blue-500/30 scale-105"
                     : isPast
                     ? "border-blue-500 bg-[#1769FF]"
                     : "border-slate-300 bg-white group-hover:border-slate-400"
                 }`}
               >
-                {isActive && <div className="h-1.5 w-1.5 rounded-full bg-[#1769FF]" />}
+                {isActive && <div className="h-1.5 w-1.5 rounded-xs bg-[#1769FF]" />}
               </div>
 
               {/* Text label */}

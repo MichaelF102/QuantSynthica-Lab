@@ -6,14 +6,14 @@ import { Sliders, ArrowDown, CheckCircle2, Zap, ShieldCheck } from "lucide-react
 
 export default function StrategyVisual() {
   return (
-    <div className="relative flex h-[460px] sm:h-[490px] w-full flex-col justify-between rounded-2xl bg-[#090E17] p-4 sm:p-5 text-white border border-slate-800 shadow-2xl overflow-hidden">
+    <div className="relative flex h-[460px] sm:h-[490px] w-full flex-col justify-between rounded-lg bg-[#090E17] p-4 sm:p-5 text-white border border-slate-800 shadow-2xl overflow-hidden">
       {/* Background glow */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.12)_0,transparent_70%)]" />
 
       {/* Top Header */}
       <div className="relative z-10 flex items-center justify-between border-b border-slate-800/80 pb-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
             <Sliders className="h-4 w-4" />
           </div>
           <div>
@@ -26,7 +26,7 @@ export default function StrategyVisual() {
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-400 border border-emerald-500/20">
+        <div className="flex items-center gap-1.5 rounded-md bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-400 border border-emerald-500/20">
           <CheckCircle2 className="h-3 w-3" />
           <span>VALIDATED SPEC</span>
         </div>
@@ -41,7 +41,7 @@ export default function StrategyVisual() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="rounded-xl border border-indigo-500/30 bg-slate-900/90 p-3 shadow-lg"
+            className="rounded-md border border-indigo-500/30 bg-slate-900/90 p-3 shadow-lg"
           >
             <div className="flex items-center justify-between text-[10px] font-mono">
               <span className="text-indigo-400 font-bold uppercase">Condition 01 · Trend</span>
@@ -60,7 +60,7 @@ export default function StrategyVisual() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.3 }}
-            className="rounded-xl border border-purple-500/30 bg-slate-900/90 p-3 shadow-lg"
+            className="rounded-md border border-purple-500/30 bg-slate-900/90 p-3 shadow-lg"
           >
             <div className="flex items-center justify-between text-[10px] font-mono">
               <span className="text-purple-400 font-bold uppercase">Condition 02 · Momentum</span>
@@ -78,7 +78,7 @@ export default function StrategyVisual() {
         {/* Junction Connector: LOGICAL AND */}
         <div className="flex items-center justify-center relative">
           <div className="h-6 w-0.5 bg-gradient-to-b from-indigo-500 to-blue-500" />
-          <div className="absolute z-10 rounded-full bg-[#1769FF] px-2.5 py-0.5 text-[9px] font-mono font-bold text-white shadow-md shadow-blue-500/40">
+          <div className="absolute z-10 rounded-md bg-[#1769FF] px-2.5 py-0.5 text-[9px] font-mono font-bold text-white shadow-md shadow-blue-500/40">
             LOGICAL AND
           </div>
         </div>
@@ -88,10 +88,10 @@ export default function StrategyVisual() {
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 0.3 }}
-          className="rounded-xl border-2 border-emerald-500/40 bg-emerald-950/20 p-3 text-center shadow-lg shadow-emerald-500/10"
+          className="rounded-md border-2 border-emerald-500/40 bg-emerald-950/20 p-3 text-center shadow-lg shadow-emerald-500/10"
         >
           <div className="flex items-center justify-center gap-2">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-white text-[11px] font-bold">
+            <span className="flex h-5 w-5 items-center justify-center rounded-md bg-emerald-500 text-white text-[11px] font-bold">
               ✓
             </span>
             <span className="text-xs font-mono font-bold tracking-wider text-emerald-300 uppercase">
@@ -114,11 +114,11 @@ export default function StrategyVisual() {
 
         {/* Exit Rules Block */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="rounded-xl border border-rose-500/20 bg-slate-900/70 p-2.5 text-[10px] font-mono">
+          <div className="rounded-md border border-rose-500/20 bg-slate-900/70 p-2.5 text-[10px] font-mono">
             <span className="text-rose-400 font-bold uppercase">Exit Rule 01 (Trend Breakdown)</span>
             <div className="text-xs font-bold text-white mt-0.5">Price &lt; EMA (20)</div>
           </div>
-          <div className="rounded-xl border border-rose-500/20 bg-slate-900/70 p-2.5 text-[10px] font-mono">
+          <div className="rounded-md border border-rose-500/20 bg-slate-900/70 p-2.5 text-[10px] font-mono">
             <span className="text-amber-400 font-bold uppercase">Exit Rule 02 (Risk Boundaries)</span>
             <div className="text-xs font-bold text-white mt-0.5">SL: -3.5% | TP: +8.0%</div>
           </div>

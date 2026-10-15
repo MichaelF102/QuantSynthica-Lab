@@ -26,7 +26,7 @@ export default function DataVisual() {
   const [activeCategory, setActiveCategory] = useState("Equities");
 
   return (
-    <div className="relative flex h-[460px] sm:h-[490px] w-full flex-col justify-between rounded-2xl bg-[#090E17] p-4 sm:p-5 text-white border border-slate-800 shadow-2xl overflow-hidden">
+    <div className="relative flex h-[460px] sm:h-[490px] w-full flex-col justify-between rounded-lg bg-[#090E17] p-4 sm:p-5 text-white border border-slate-800 shadow-2xl overflow-hidden">
       {/* Background glow and subtle grid */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(23,105,255,0.12)_0,transparent_70%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:24px_24px]" />
@@ -43,7 +43,7 @@ export default function DataVisual() {
         </div>
 
         {/* Category Pills */}
-        <div className="flex flex-wrap items-center gap-1 rounded-lg bg-slate-900/90 p-0.5 border border-slate-800">
+        <div className="flex flex-wrap items-center gap-1 rounded-md bg-slate-900/90 p-0.5 border border-slate-800">
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
@@ -64,7 +64,7 @@ export default function DataVisual() {
       <div className="relative z-10 my-auto grid grid-cols-12 items-center gap-2 py-2">
         {/* Left Side: US Markets (3 cols) */}
         <div className="col-span-3 space-y-1.5 z-10">
-          <div className="inline-flex items-center gap-1 rounded-full bg-slate-800/70 px-2 py-0.5 text-[9px] font-semibold text-slate-300 border border-slate-700/60 mb-0.5">
+          <div className="inline-flex items-center gap-1 rounded-md bg-slate-800/70 px-2 py-0.5 text-[9px] font-semibold text-slate-300 border border-slate-700/60 mb-0.5">
             <span>🇺🇸</span>
             <span>US MARKETS</span>
           </div>
@@ -72,10 +72,10 @@ export default function DataVisual() {
           {US_NODES.map((node, i) => (
             <div
               key={node.id}
-              className="group flex items-center gap-1.5 rounded-lg border border-slate-800/80 bg-slate-900/80 px-2 py-1 backdrop-blur-sm transition-all hover:border-blue-500/50 hover:bg-slate-850"
+              className="group flex items-center gap-1.5 rounded-md border border-slate-800/80 bg-slate-900/80 px-2 py-1 backdrop-blur-sm transition-all hover:border-blue-500/50 hover:bg-slate-850"
             >
               <div
-                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${node.badgeBg} text-[8px] font-bold text-white shadow-xs`}
+                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md ${node.badgeBg} text-[8px] font-bold text-white shadow-xs`}
               >
                 {node.badgeText}
               </div>
@@ -192,13 +192,13 @@ export default function DataVisual() {
               ],
             }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="relative flex h-28 w-28 sm:h-32 sm:w-32 flex-col items-center justify-center rounded-full border-2 border-blue-400/50 bg-[#0B1220] text-center shadow-2xl backdrop-blur-md"
+            className="relative flex h-28 w-28 sm:h-32 sm:w-32 flex-col items-center justify-center rounded-2xl border-2 border-blue-400/50 bg-[#0B1220] text-center shadow-2xl backdrop-blur-md"
           >
             {/* Outer dotted orbit ring */}
-            <div className="absolute -inset-2 rounded-full border border-blue-500/30 border-dashed animate-spin [animation-duration:24s]" />
-            <div className="absolute -inset-5 rounded-full border border-indigo-500/20 [animation-duration:40s]" />
+            <div className="absolute -inset-2 rounded-2xl border border-blue-500/30 border-dashed animate-spin [animation-duration:24s]" />
+            <div className="absolute -inset-5 rounded-2xl border border-indigo-500/20 [animation-duration:40s]" />
 
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1769FF] text-white font-bold text-lg shadow-lg shadow-blue-500/40">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1769FF] text-white font-bold text-lg shadow-lg shadow-blue-500/40">
               Q
             </div>
             <div className="mt-1 text-[11px] font-bold text-white tracking-tight">
@@ -210,7 +210,7 @@ export default function DataVisual() {
 
         {/* Right Side: Indian Markets (3 cols) */}
         <div className="col-span-3 space-y-1.5 z-10 text-right">
-          <div className="inline-flex items-center gap-1 rounded-full bg-slate-800/70 px-2 py-0.5 text-[9px] font-semibold text-slate-300 border border-slate-700/60 mb-0.5">
+          <div className="inline-flex items-center gap-1 rounded-md bg-slate-800/70 px-2 py-0.5 text-[9px] font-semibold text-slate-300 border border-slate-700/60 mb-0.5">
             <span>🇮🇳</span>
             <span>INDIAN MARKETS</span>
           </div>
@@ -218,7 +218,7 @@ export default function DataVisual() {
           {INDIA_NODES.map((node, i) => (
             <div
               key={node.id}
-              className="group flex items-center justify-end gap-1.5 rounded-lg border border-slate-800/80 bg-slate-900/80 px-2 py-1 backdrop-blur-sm transition-all hover:border-indigo-500/50 hover:bg-slate-850"
+              className="group flex items-center justify-end gap-1.5 rounded-md border border-slate-800/80 bg-slate-900/80 px-2 py-1 backdrop-blur-sm transition-all hover:border-indigo-500/50 hover:bg-slate-850"
             >
               <div className="min-w-0">
                 <div className="text-[10px] font-bold text-white leading-tight truncate">
@@ -229,7 +229,7 @@ export default function DataVisual() {
                 </div>
               </div>
               <div
-                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${node.badgeBg} text-[8px] font-bold text-white shadow-xs`}
+                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md ${node.badgeBg} text-[8px] font-bold text-white shadow-xs`}
               >
                 {node.badgeText}
               </div>

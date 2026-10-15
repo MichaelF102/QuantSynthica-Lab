@@ -6,14 +6,14 @@ import { PlayCircle, TrendingUp, Award, CheckCircle } from "lucide-react";
 
 export default function BacktestVisual() {
   return (
-    <div className="relative flex h-[460px] sm:h-[490px] w-full flex-col justify-between rounded-2xl bg-[#090E17] p-4 sm:p-5 text-white border border-slate-800 shadow-2xl overflow-hidden">
+    <div className="relative flex h-[460px] sm:h-[490px] w-full flex-col justify-between rounded-lg bg-[#090E17] p-4 sm:p-5 text-white border border-slate-800 shadow-2xl overflow-hidden">
       {/* Background glow */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(23,105,255,0.12)_0,transparent_60%)]" />
 
       {/* Top Header */}
       <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20">
             <PlayCircle className="h-4 w-4" />
           </div>
           <div>
@@ -29,11 +29,11 @@ export default function BacktestVisual() {
         {/* Legend */}
         <div className="flex items-center gap-4 text-[11px] font-mono">
           <div className="flex items-center gap-1.5">
-            <span className="h-2 w-3 rounded-full bg-[#1769FF]" />
+            <span className="h-2 w-3 rounded-xs bg-[#1769FF]" />
             <span className="text-blue-300 font-bold">Strategy (+24.8%)</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="h-2 w-3 rounded-full bg-slate-500" />
+            <span className="h-2 w-3 rounded-xs bg-slate-500" />
             <span className="text-slate-400">Benchmark (+16.2%)</span>
           </div>
         </div>
@@ -41,22 +41,22 @@ export default function BacktestVisual() {
 
       {/* Metric Cards Row */}
       <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2.5 my-2">
-        <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-2.5">
+        <div className="rounded-md border border-slate-800 bg-slate-900/80 p-2.5">
           <div className="text-[9px] font-mono uppercase text-slate-400">Cumulative Return</div>
           <div className="text-base font-mono font-bold text-emerald-400">+24.8%</div>
           <div className="text-[9px] text-slate-500">Alpha: +8.6% vs SPY</div>
         </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-2.5">
+        <div className="rounded-md border border-slate-800 bg-slate-900/80 p-2.5">
           <div className="text-[9px] font-mono uppercase text-slate-400">Sharpe Ratio</div>
           <div className="text-base font-mono font-bold text-blue-400">1.42</div>
           <div className="text-[9px] text-slate-500">Sortino: 2.10</div>
         </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-2.5">
+        <div className="rounded-md border border-slate-800 bg-slate-900/80 p-2.5">
           <div className="text-[9px] font-mono uppercase text-slate-400">Max Drawdown</div>
           <div className="text-base font-mono font-bold text-rose-400">-8.4%</div>
           <div className="text-[9px] text-slate-500">Benchmark: -18.2%</div>
         </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-2.5">
+        <div className="rounded-md border border-slate-800 bg-slate-900/80 p-2.5">
           <div className="text-[9px] font-mono uppercase text-slate-400">Win Rate</div>
           <div className="text-base font-mono font-bold text-white">64.2%</div>
           <div className="text-[9px] text-slate-500">Profit Factor: 2.18</div>
@@ -119,7 +119,7 @@ export default function BacktestVisual() {
         </svg>
 
         {/* Trade Marker Callout in Canvas */}
-        <div className="absolute right-4 top-2 rounded-lg bg-slate-900/90 border border-slate-800 px-2 py-1 text-[10px] font-mono text-slate-300">
+        <div className="absolute right-4 top-2 rounded-md bg-slate-900/90 border border-slate-800 px-2 py-1 text-[10px] font-mono text-slate-300">
           <span className="text-emerald-400 font-bold">● Buy</span> /{" "}
           <span className="text-rose-400 font-bold">● Exit</span> Execution Points
         </div>

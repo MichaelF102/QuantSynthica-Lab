@@ -26,14 +26,14 @@ export default function AnalysisVisual() {
   ];
 
   return (
-    <div className="relative flex h-[460px] sm:h-[490px] w-full flex-col justify-between rounded-2xl bg-[#090E17] p-4 sm:p-5 text-white border border-slate-800 shadow-2xl overflow-hidden">
+    <div className="relative flex h-[460px] sm:h-[490px] w-full flex-col justify-between rounded-lg bg-[#090E17] p-4 sm:p-5 text-white border border-slate-800 shadow-2xl overflow-hidden">
       {/* Background radial glow */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(0,210,255,0.08)_0,transparent_60%)]" />
 
       {/* Top Header & Mode Tabs */}
       <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10 text-cyan-400 border border-cyan-500/20">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-500/10 text-cyan-400 border border-cyan-500/20">
             <Activity className="h-4 w-4" />
           </div>
           <div>
@@ -49,7 +49,7 @@ export default function AnalysisVisual() {
         </div>
 
         {/* Technical / Statistical / Fundamental Pill */}
-        <div className="flex items-center gap-1 rounded-lg bg-slate-900 p-1 border border-slate-800">
+        <div className="flex items-center gap-1 rounded-md bg-slate-900 p-1 border border-slate-800">
           {(["Technical", "Statistical", "Fundamental"] as const).map((tab) => (
             <button
               key={tab}

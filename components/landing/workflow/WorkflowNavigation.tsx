@@ -65,14 +65,14 @@ export default function WorkflowNavigation({
               aria-label={`Stage ${s.num}: ${s.label} — ${s.descriptor}`}
               tabIndex={0}
               onClick={() => onSelectStage(s.id)}
-              className="group relative flex flex-col items-center text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769FF] focus-visible:ring-offset-2 rounded-xl py-1 px-1.5 min-w-[95px] md:min-w-0 md:flex-1 cursor-pointer select-none"
+              className="group relative flex flex-col items-center text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1769FF] focus-visible:ring-offset-2 rounded-lg py-1 px-1.5 min-w-[95px] md:min-w-0 md:flex-1 cursor-pointer select-none"
             >
-              {/* Milestone Indicator Node Circle */}
+              {/* Milestone Indicator Node */}
               <div className="relative flex items-center justify-center">
                 <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-mono font-bold transition-all duration-300 ${
+                  className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-mono font-bold transition-all duration-300 ${
                     isActive
-                      ? "bg-[#1769FF] text-white shadow-lg shadow-blue-500/40 ring-4 ring-blue-100 dark:ring-blue-950/60 scale-105"
+                      ? "bg-[#1769FF] text-white shadow-lg shadow-blue-500/40 ring-2 ring-blue-500/30 scale-105"
                       : isCompleted
                       ? "bg-blue-50 text-[#1769FF] border border-blue-200 hover:bg-blue-100/70 dark:bg-blue-950/40 dark:text-blue-400 dark:border-blue-900 dark:hover:bg-blue-900/60"
                       : "bg-white text-slate-400 border border-slate-200 group-hover:border-slate-300 group-hover:text-slate-600 dark:bg-[#0B1528] dark:text-slate-500 dark:border-slate-800 dark:group-hover:border-slate-700 dark:group-hover:text-slate-300"
