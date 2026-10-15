@@ -1,13 +1,8 @@
 "use client";
 
-import React, { Suspense, useState, useRef, useEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
-import * as THREE from "three";
-import { RotateCcw, ChevronRight, Home, Layers, PieChart, Box } from "lucide-react";
-import PortfolioPlatform from "./PortfolioPlatform";
-import AllocationCubes from "./AllocationCubes";
-import { PORTFOLIO_VISUAL_CONFIG } from "@/lib/portfolio/portfolioVisualConfig";
+import React, { useState, useMemo } from "react";
+import { RotateCcw, ChevronRight, Home, PieChart } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface PortfolioExplorerSceneProps {
   drilldownLevel: number;
@@ -32,30 +27,52 @@ interface PortfolioExplorerSceneProps {
   }[];
 }
 
-// Camera transition rig
-function DynamicCameraRig({ drilldownLevel }: { drilldownLevel: number }) {
-  const targetPos = useRef(new THREE.Vector3(0, 3.2, 6.8));
-  const targetLook = useRef(new THREE.Vector3(0, 0, 0));
+interface SliceData {
+  id: string;
+  label: string;
+  sublabel: string;
+  weight: number;
+  color: string;
+  startAngle: number;
+  endAngle: number;
+  midAngle: number;
+}
 
-  useEffect(() => {
-    if (drilldownLevel === 0) {
-      targetPos.current.set(0, 3.2, 6.8);
-      targetLook.current.set(0, 0, 0);
-    } else if (drilldownLevel === 1) {
-      targetPos.current.set(-0.2, 3.8, 6.0);
-      targetLook.current.set(0, 0.2, 0);
-    } else {
-      targetPos.current.set(0, 3.5, 5.6);
-      targetLook.current.set(0, 0.25, 0);
-    }
-  }, [drilldownLevel]);
+// Polar to Cartesian conversion helper
+function polarToCartesian(centerX: number, centerY: number, radius: number, angleInDegrees: number) {
+  const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
+  return {
+    x: centerX + radius * Math.cos(angleInRadians),
+    y: centerY + radius * Math.sin(angleInRadians),
+  };
+}
 
-  useFrame((state, delta) => {
-    state.camera.position.lerp(targetPos.current, delta * 3.5);
-    state.camera.lookAt(targetLook.current);
-  });
+// Generate SVG Donut Path
+function describeDonutArc(
+  x: number,
+  y: number,
+  innerRadius: number,
+  outerRadius: number,
+  startAngle: number,
+  endAngle: number
+) {
+  const sweepAngle = Math.min(359.999, Math.max(0.1, endAngle - startAngle));
+  const safeEndAngle = startAngle + sweepAngle;
 
-  return null;
+  const startOuter = polarToCartesian(x, y, outerRadius, startAngle);
+  const endOuter = polarToCartesian(x, y, outerRadius, safeEndAngle);
+  const startInner = polarToCartesian(x, y, innerRadius, startAngle);
+  const endInner = polarToCartesian(x, y, innerRadius, safeEndAngle);
+
+  const largeArcFlag = sweepAngle > 180 ? 1 : 0;
+
+  return [
+    `M ${startOuter.x} ${startOuter.y}`,
+    `A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${endOuter.x} ${endOuter.y}`,
+    `L ${endInner.x} ${endInner.y}`,
+    `A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${startInner.x} ${startInner.y}`,
+    "Z",
+  ].join(" ");
 }
 
 export default function PortfolioExplorerScene({
@@ -69,113 +86,106 @@ export default function PortfolioExplorerScene({
   assetClassWeights,
   allocations,
 }: PortfolioExplorerSceneProps) {
-  const [mounted, setMounted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const controlsRef = useRef<any>(null);
-
-  useEffect(() => {
-    setMounted(true);
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  const handleResetCamera = () => {
-    onReset();
-    if (controlsRef.current) {
-      controlsRef.current.reset();
-    }
-  };
+  const [hoveredSliceId, setHoveredSliceId] = useState<string | null>(null);
 
   const currentViewMode: "assetClass" | "sector" | "individual" =
     drilldownLevel === 0 ? "assetClass" : drilldownLevel === 1 ? "sector" : "individual";
 
-  if (!mounted) {
-    return (
-      <div className="w-full h-[580px] lg:h-[640px] rounded-3xl bg-[#070E1A] border border-slate-800 flex items-center justify-center text-slate-400 text-sm">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-          <span>Initializing 3D Portfolio Explorer...</span>
-        </div>
-      </div>
-    );
-  }
+  // Build slices data depending on current view mode
+  const slices: SliceData[] = useMemo(() => {
+    let items: { id: string; label: string; sublabel: string; weight: number; color: string }[] = [];
 
-  // Accessible Fallback for Mobile / WebGL Disabled
-  if (isMobile) {
-    return (
-      <div className="w-full min-h-[500px] p-6 rounded-3xl bg-[#070E1A] border border-slate-800 text-white flex flex-col justify-between relative overflow-hidden">
-        <div>
-          {/* Header */}
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-            <div>
-              <div className="text-xs font-mono font-bold tracking-widest text-cyan-400 uppercase">
-                PORTFOLIO EXPLORER
-              </div>
-              <div className="text-[11px] text-slate-400">Hierarchy & Allocation</div>
-            </div>
-            <button
-              onClick={onReset}
-              className="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-300"
-            >
-              Reset
-            </button>
-          </div>
+    if (currentViewMode === "assetClass") {
+      items = [
+        {
+          id: "equity",
+          label: "Equity",
+          sublabel: "6 Core Assets",
+          weight: assetClassWeights.equity,
+          color: "#00E5FF",
+        },
+        {
+          id: "factors",
+          label: "Factors",
+          sublabel: "Smart Beta Overlay",
+          weight: assetClassWeights.factors,
+          color: "#A855F7",
+        },
+        {
+          id: "options",
+          label: "Options",
+          sublabel: "Tail Risk Hedging",
+          weight: assetClassWeights.options,
+          color: "#F59E0B",
+        },
+        {
+          id: "cash",
+          label: "Cash & Repos",
+          sublabel: "Liquid Yield",
+          weight: assetClassWeights.cash,
+          color: "#10B981",
+        },
+      ];
+    } else if (currentViewMode === "sector") {
+      items = [
+        { id: "tech", label: "Technology", sublabel: "NVDA, AAPL, TCS, INFY", weight: 38.5, color: "#06B6D4" },
+        { id: "fin", label: "Financials", sublabel: "HDFCBANK", weight: 26.2, color: "#3B82F6" },
+        { id: "energy", label: "Energy", sublabel: "RELIANCE", weight: 18.4, color: "#F59E0B" },
+        { id: "etf", label: "Index ETF", sublabel: "SPY (S&P 500)", weight: 10.2, color: "#8B5CF6" },
+        { id: "other", label: "Other", sublabel: "Cash & Cash Equivalents", weight: 6.7, color: "#10B981" },
+      ];
+    } else {
+      // Individual Asset mode
+      items = allocations.map((a) => ({
+        id: a.id,
+        label: a.name,
+        sublabel: a.company,
+        weight: a.weight,
+        color: a.color,
+      }));
+    }
 
-          {/* Asset Class List */}
-          <div className="mt-4 space-y-2.5">
-            <div
-              onClick={() => onDrilldown(1, "equity")}
-              className="p-3 rounded-2xl bg-blue-950/40 border border-blue-500/40 flex items-center justify-between cursor-pointer"
-            >
-              <div>
-                <div className="text-xs font-bold text-white">Equity</div>
-                <div className="text-[10px] text-slate-400">6 Assets • Technology, Financials...</div>
-              </div>
-              <div className="text-sm font-black text-cyan-400">{assetClassWeights.equity.toFixed(1)}%</div>
-            </div>
+    const total = items.reduce((acc, it) => acc + it.weight, 0);
+    let currentAngle = 0;
 
-            <div className="p-3 rounded-2xl bg-purple-950/40 border border-purple-500/40 flex items-center justify-between">
-              <div>
-                <div className="text-xs font-bold text-white">Factors</div>
-                <div className="text-[10px] text-slate-400">Momentum, Quality, Low Volatility</div>
-              </div>
-              <div className="text-sm font-black text-purple-300">{assetClassWeights.factors.toFixed(1)}%</div>
-            </div>
+    return items.map((it) => {
+      const angleSpan = (it.weight / Math.max(0.1, total)) * 360;
+      const startAngle = currentAngle;
+      const endAngle = currentAngle + angleSpan;
+      const midAngle = startAngle + angleSpan / 2;
+      currentAngle += angleSpan;
 
-            <div className="p-3 rounded-2xl bg-amber-950/40 border border-amber-500/40 flex items-center justify-between">
-              <div>
-                <div className="text-xs font-bold text-white">Options</div>
-                <div className="text-[10px] text-slate-400">Overlays & Tail Risk Hedges</div>
-              </div>
-              <div className="text-sm font-black text-amber-400">{assetClassWeights.options.toFixed(1)}%</div>
-            </div>
+      return {
+        ...it,
+        startAngle,
+        endAngle,
+        midAngle,
+      };
+    });
+  }, [currentViewMode, assetClassWeights, allocations]);
 
-            <div className="p-3 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 flex items-center justify-between">
-              <div>
-                <div className="text-xs font-bold text-white">Cash</div>
-                <div className="text-[10px] text-slate-400">Overnight Repos & Liquid Yield</div>
-              </div>
-              <div className="text-sm font-black text-emerald-400">{assetClassWeights.cash.toFixed(1)}%</div>
-            </div>
-          </div>
-        </div>
+  // Active slice calculation for central display
+  const activeSlice =
+    slices.find((s) => s.id === hoveredSliceId) ||
+    slices.find((s) => s.id === selectedAsset) ||
+    slices.find((s) => s.id === selectedAssetClass) ||
+    null;
 
-        {/* Total Stat */}
-        <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-center text-xs text-slate-300 font-mono">
-          Total Portfolio • 100% • ₹10,00,000
-        </div>
-      </div>
-    );
-  }
+  const handleSliceClick = (slice: SliceData) => {
+    if (currentViewMode === "assetClass") {
+      onDrilldown(1, slice.id);
+    } else if (currentViewMode === "sector") {
+      onDrilldown(2, slice.id);
+    } else {
+      onDrilldown(3, slice.id);
+    }
+  };
 
   return (
-    <div className="w-full h-[580px] lg:h-[640px] relative rounded-3xl overflow-hidden bg-gradient-to-b from-[#080E1B] via-[#050912] to-[#04070E] border border-cyan-500/20 shadow-[0_12px_48px_rgba(0,0,0,0.6)]">
-      {/* 1. TOP HEADER & BREADCRUMB CONTROLS (Floating Over Three.js Scene) */}
-      <div className="absolute top-4 inset-x-5 z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pointer-events-auto select-none">
+    <div className="w-full h-[580px] lg:h-[640px] relative rounded-3xl overflow-hidden bg-gradient-to-b from-[#080E1B] via-[#050912] to-[#04070E] border border-cyan-500/20 shadow-[0_12px_48px_rgba(0,0,0,0.6)] flex flex-col justify-between p-5 select-none">
+      {/* 1. TOP HEADER & INTERACTIVE VIEW MODE TOGGLES */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 z-10">
         <div>
-          {/* Eyebrow & Title */}
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
             <h3 className="text-sm font-black tracking-[0.16em] text-white uppercase drop-shadow-md">
@@ -243,12 +253,12 @@ export default function PortfolioExplorerScene({
           </div>
         </div>
 
-        {/* View Toggle Segmented Control & Reset Button */}
+        {/* View Mode Switcher & Reset Button */}
         <div className="flex items-center gap-2 shrink-0">
           <div className="flex p-1 rounded-xl bg-[#091120]/90 border border-slate-700/80 backdrop-blur-md shadow-inner text-[11px] font-bold text-slate-300">
             <button
               onClick={() => onSelectViewMode("assetClass")}
-              className={`px-3 py-1 rounded-lg transition-all ${
+              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
                 currentViewMode === "assetClass"
                   ? "bg-cyan-500 text-slate-950 font-black shadow-md shadow-cyan-500/25"
                   : "hover:text-white"
@@ -258,7 +268,7 @@ export default function PortfolioExplorerScene({
             </button>
             <button
               onClick={() => onSelectViewMode("sector")}
-              className={`px-3 py-1 rounded-lg transition-all ${
+              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
                 currentViewMode === "sector"
                   ? "bg-cyan-500 text-slate-950 font-black shadow-md shadow-cyan-500/25"
                   : "hover:text-white"
@@ -268,7 +278,7 @@ export default function PortfolioExplorerScene({
             </button>
             <button
               onClick={() => onSelectViewMode("individual")}
-              className={`px-3 py-1 rounded-lg transition-all ${
+              className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
                 currentViewMode === "individual"
                   ? "bg-cyan-500 text-slate-950 font-black shadow-md shadow-cyan-500/25"
                   : "hover:text-white"
@@ -279,85 +289,168 @@ export default function PortfolioExplorerScene({
           </div>
 
           <button
-            onClick={handleResetCamera}
-            title="Reset View and Camera"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#091120]/90 border border-slate-700/80 hover:border-cyan-400/60 text-slate-300 hover:text-white text-xs font-semibold backdrop-blur-md transition-all shadow-md active:scale-95"
+            onClick={onReset}
+            title="Reset View"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#091120]/90 border border-slate-700/80 hover:border-cyan-400/60 text-slate-300 hover:text-white text-xs font-semibold backdrop-blur-md transition-all shadow-md active:scale-95 cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="hidden sm:inline">Reset View</span>
+            <span className="hidden sm:inline">Reset</span>
           </button>
         </div>
       </div>
 
-      {/* 2. TOTAL PORTFOLIO BADGE (Top-Left Sub-Pill) */}
-      <div className="absolute top-24 left-5 z-20 pointer-events-none select-none">
-        <div className="px-3.5 py-2 rounded-2xl bg-[#060D1A]/90 border border-cyan-500/30 backdrop-blur-md shadow-lg">
-          <div className="text-[9.5px] font-mono font-bold tracking-widest text-cyan-400 uppercase">
-            TOTAL PORTFOLIO
+      {/* 2. 2D INTERACTIVE PIE / DONUT CANVAS & CENTER METRICS */}
+      <div className="relative flex-1 w-full flex items-center justify-center my-2">
+        {/* Subtle Ambient Radial Glow */}
+        <div className="pointer-events-none absolute h-72 w-72 rounded-full bg-cyan-500/10 blur-[80px]" />
+
+        {/* Top-Left Total Weight Pill */}
+        <div className="absolute top-0 left-0 z-10 pointer-events-none">
+          <div className="px-3.5 py-2 rounded-2xl bg-[#060D1A]/90 border border-cyan-500/30 backdrop-blur-md shadow-lg">
+            <div className="text-[9.5px] font-mono font-bold tracking-widest text-cyan-400 uppercase">
+              TOTAL PORTFOLIO
+            </div>
+            <div className="text-xl font-black text-white tracking-tight leading-none mt-0.5">
+              100%
+            </div>
+            <div className="text-[10px] text-slate-400 mt-0.5">
+              {allocations.length} Active Assets • ₹10,00,000
+            </div>
           </div>
-          <div className="text-xl font-black text-white tracking-tight leading-none mt-0.5">
-            100%
-          </div>
-          <div className="text-[10px] text-slate-400 mt-0.5">
-            {allocations.length} Active Assets • ₹10,00,000
+        </div>
+
+        {/* The 2D SVG Pie Chart Container */}
+        <div className="relative w-full max-w-[340px] h-[340px] flex items-center justify-center">
+          <svg
+            viewBox="0 0 320 320"
+            className="w-full h-full overflow-visible"
+          >
+            <defs>
+              <filter id="pieGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+
+            {/* Background Track Ring */}
+            <circle
+              cx="160"
+              cy="160"
+              r="135"
+              fill="none"
+              stroke="#0C1A30"
+              strokeWidth="42"
+            />
+
+            {/* Interactive Slices */}
+            {slices.map((slice) => {
+              const isHovered = hoveredSliceId === slice.id;
+              const isSelected =
+                slice.id === selectedAsset || slice.id === selectedAssetClass;
+              const isHighlighted = isHovered || isSelected;
+
+              // Compute slight radial explosion offset when hovered
+              const midRad = ((slice.midAngle - 90) * Math.PI) / 180;
+              const offset = isHighlighted ? 8 : 0;
+              const offsetX = offset * Math.cos(midRad);
+              const offsetY = offset * Math.sin(midRad);
+
+              const innerRadius = 90;
+              const outerRadius = isHighlighted ? 138 : 132;
+
+              const pathData = describeDonutArc(
+                160 + offsetX,
+                160 + offsetY,
+                innerRadius,
+                outerRadius,
+                slice.startAngle,
+                slice.endAngle
+              );
+
+              return (
+                <g key={slice.id} className="transition-all duration-200">
+                  <path
+                    d={pathData}
+                    fill={slice.color}
+                    fillOpacity={isHighlighted ? 0.95 : 0.82}
+                    stroke="#050912"
+                    strokeWidth="3.5"
+                    strokeLinejoin="round"
+                    filter={isHighlighted ? "url(#pieGlow)" : undefined}
+                    className="cursor-pointer transition-all duration-200 hover:brightness-110"
+                    onMouseEnter={() => setHoveredSliceId(slice.id)}
+                    onMouseLeave={() => setHoveredSliceId(null)}
+                    onClick={() => handleSliceClick(slice)}
+                  />
+                </g>
+              );
+            })}
+          </svg>
+
+          {/* Central Donut Hole Typography */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none select-none">
+            <span className="text-[10px] font-mono font-bold tracking-widest text-cyan-400 uppercase">
+              {activeSlice ? activeSlice.label : "PORTFOLIO"}
+            </span>
+            <span className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-none my-0.5">
+              {activeSlice ? `${activeSlice.weight.toFixed(1)}%` : "100%"}
+            </span>
+            <span className="text-[10px] font-mono text-slate-400">
+              {activeSlice
+                ? `₹${((1000000 * activeSlice.weight) / 100).toLocaleString("en-IN")}`
+                : "₹10,00,000"}
+            </span>
+            <span className="mt-1 px-2 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-[9px] font-mono font-bold text-cyan-300">
+              {activeSlice ? activeSlice.sublabel : "Balanced Mix"}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* 3. THREE.JS 3D CANVAS */}
-      <Canvas
-        camera={{ position: [0, 3.2, 6.8], fov: 42 }}
-        dpr={[1, 1.5]}
-        gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-      >
-        <Suspense fallback={null}>
-          <DynamicCameraRig drilldownLevel={drilldownLevel} />
+      {/* 3. INTERACTIVE LEGEND PILLS */}
+      <div className="z-10 pt-2 border-t border-slate-800/80">
+        <div className="flex items-center justify-center gap-2 flex-wrap max-h-24 overflow-y-auto no-scrollbar">
+          {slices.map((slice) => {
+            const isHovered = hoveredSliceId === slice.id;
+            const isSelected =
+              slice.id === selectedAsset || slice.id === selectedAssetClass;
+            const isHighlighted = isHovered || isSelected;
 
-          <OrbitControls
-            ref={controlsRef}
-            enableDamping
-            dampingFactor={0.05}
-            minDistance={4.2}
-            maxDistance={9.5}
-            minPolarAngle={Math.PI / 6}
-            maxPolarAngle={Math.PI / 2.08}
-            maxAzimuthAngle={Math.PI / 2.5}
-            minAzimuthAngle={-Math.PI / 2.5}
-          />
+            return (
+              <button
+                key={slice.id}
+                type="button"
+                onMouseEnter={() => setHoveredSliceId(slice.id)}
+                onMouseLeave={() => setHoveredSliceId(null)}
+                onClick={() => handleSliceClick(slice)}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-mono font-semibold transition-all cursor-pointer ${
+                  isHighlighted
+                    ? "bg-slate-800 text-white border border-cyan-400/60 ring-1 ring-cyan-400/30 scale-105"
+                    : "bg-[#091120]/80 text-slate-400 border border-slate-800 hover:text-slate-200 hover:bg-slate-800/80"
+                }`}
+              >
+                <span
+                  className="w-2.5 h-2.5 rounded-full shrink-0"
+                  style={{ backgroundColor: slice.color }}
+                />
+                <span className="text-white font-bold">{slice.label}</span>
+                <span className="text-slate-400">{slice.weight.toFixed(1)}%</span>
+              </button>
+            );
+          })}
+        </div>
 
-          {/* Lighting */}
-          <ambientLight intensity={0.85} />
-          <directionalLight position={[-4, 6, 4]} intensity={1.8} color="#00E5FF" />
-          <directionalLight position={[4, -2, 3]} intensity={1.5} color="#C084FC" />
-          <directionalLight position={[0, 5, -3]} intensity={1.2} color="#FBBF24" />
-          <pointLight position={[0, 1.5, 0]} intensity={1.1} color="#38BDF8" />
-
-          {/* Cyber Platform */}
-          <PortfolioPlatform drilldownLevel={drilldownLevel} />
-
-          {/* Allocation Cubes */}
-          <AllocationCubes
-            drilldownLevel={drilldownLevel}
-            selectedAssetClass={selectedAssetClass}
-            selectedSector={selectedSector}
-            selectedAsset={selectedAsset}
-            onDrilldown={onDrilldown}
-            assetClassWeights={assetClassWeights}
-            allocations={allocations}
-          />
-        </Suspense>
-      </Canvas>
-
-      {/* 4. BASE PLATFORM BADGE: "PORTFOLIO" */}
-      <div className="absolute bottom-4 inset-x-0 flex items-center justify-center pointer-events-none select-none">
-        <div className="flex items-center gap-2 px-5 py-1.5 rounded-full bg-[#060D1A]/90 border border-cyan-500/40 backdrop-blur-md shadow-[0_0_25px_rgba(0,229,255,0.25)]">
-          <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-          <span className="text-xs font-mono font-black tracking-[0.25em] text-cyan-300 uppercase">
-            PORTFOLIO PLATFORM
-          </span>
-          <span className="text-[10px] text-slate-400 font-mono">
-            [Click blocks to drill down]
-          </span>
+        {/* Bottom Platform Ribbon */}
+        <div className="mt-2 flex items-center justify-center">
+          <div className="flex items-center gap-2 px-4 py-1 rounded-full bg-[#060D1A]/90 border border-cyan-500/40 backdrop-blur-md shadow-sm">
+            <PieChart className="w-3 h-3 text-cyan-400 animate-pulse" />
+            <span className="text-[10px] font-mono font-bold tracking-[0.2em] text-cyan-300 uppercase">
+              2D INTERACTIVE PIE ALLOCATION
+            </span>
+            <span className="text-[9.5px] text-slate-400 font-mono hidden sm:inline">
+              [Click slice or legend to inspect &amp; drill down]
+            </span>
+          </div>
         </div>
       </div>
     </div>

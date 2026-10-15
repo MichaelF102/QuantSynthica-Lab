@@ -2,80 +2,53 @@
 
 import React, { useState, useRef } from "react";
 import Link from "next/link";
-import { ArrowRight, ShieldCheck, Activity } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import RiskHeader from "./RiskHeader";
-import RiskNavigation, { RiskState } from "./RiskNavigation";
-import RiskObservatory from "./RiskObservatory";
-import RiskProfile from "./RiskProfile";
+import { ArrowRight, ShieldCheck } from "lucide-react";
+import RiskIntelligenceShowcase from "./RiskIntelligenceShowcase";
 import RiskMetrics from "./RiskMetrics";
-import RiskProgress from "./RiskProgress";
-import StressScenarioPanel from "./StressScenarioPanel";
+import { RiskState } from "./RiskNavigation";
 import SectionBackground from "@/components/backgrounds/SectionBackground";
 
 export default function RiskIntelligenceSection() {
-  const [activeRisk, setActiveRisk] = useState<RiskState>("overview");
+  const [activeRisk, setActiveRisk] = useState<RiskState>("var");
   const sectionRef = useRef<HTMLElement>(null);
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
 
   const handleSelectRisk = (state: RiskState) => {
     setActiveRisk(state);
-  };
-
-  const handleTriggerScenario = (scenarioId: string) => {
-    setActiveRisk("stress");
   };
 
   return (
     <section
       id="risk-intelligence"
       ref={sectionRef}
-      className="relative w-full bg-[var(--bg-risk)] py-20 lg:py-28 overflow-hidden border-t border-slate-200/80 dark:border-slate-800 transition-colors duration-500"
+      className="relative w-full bg-[var(--bg-risk)] py-16 sm:py-20 lg:py-28 overflow-hidden border-t border-slate-200/80 dark:border-slate-800 transition-colors duration-500"
     >
       {/* Component-Specific Semantic Risk Background */}
       <SectionBackground variant="risk" />
 
-      <div className="relative mx-auto max-w-[1520px] px-4 sm:px-6 lg:px-8">
-        {/* 1. Header & Capability Strip */}
-        <RiskHeader />
+      <div className="relative mx-auto max-w-[1520px] px-4 sm:px-6 lg:px-8 space-y-12">
+        {/* 1. Quantiphi-Style Risk Regimes & Stress Scenarios Showcase (3JS Globe Removed) */}
+        <RiskIntelligenceShowcase />
 
-        {/* 2. Interactive Stage Progress Navigator */}
-        <div className="mt-8">
-          <RiskProgress activeRisk={activeRisk} onSelectRisk={handleSelectRisk} />
-        </div>
-
-        {/* 3. Main Visual Tripartite Workspace (Left Nav - Center 3D Observatory - Right Risk Profile) */}
-        <div className="mt-6 flex flex-col lg:flex-row items-center lg:items-stretch gap-6">
-          {/* Left: Vertical Risk Navigation */}
-          <div className="w-full lg:w-auto flex flex-col justify-center">
-            <RiskNavigation activeRisk={activeRisk} onSelectRisk={handleSelectRisk} />
+        {/* 2. Analytical Metrics 4-Card Strip (VaR, Drawdown, Volatility, Stress Testing) */}
+        <div id="risk-analytics-cards" className="pt-2">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <span className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#1769FF] dark:text-blue-400 font-mono">
+                INSTITUTIONAL METRIC TEAR-SHEET
+              </span>
+              <h3 className="text-xl sm:text-2xl font-bold text-[#0B1220] dark:text-white tracking-tight">
+                Fundamental Risk Dimensions
+              </h3>
+            </div>
+            <span className="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline font-mono">
+              Confidence Interval: 99% (1-Day Horizon)
+            </span>
           </div>
-
-          {/* Center: 3D Risk Observatory Hero Visual */}
-          <div className="flex-1 w-full min-w-0">
-            <RiskObservatory activeRisk={activeRisk} onSelectRisk={handleSelectRisk} />
-          </div>
-
-          {/* Right: Portfolio Risk Profile Radar */}
-          <div className="w-full lg:w-auto flex flex-col justify-center">
-            <RiskProfile activeRisk={activeRisk} />
-          </div>
-        </div>
-
-        {/* 4. Bottom 4 Analytical Cards */}
-        <div id="risk-analytics-cards">
           <RiskMetrics activeRisk={activeRisk} onSelectRisk={handleSelectRisk} />
         </div>
 
-        {/* 5. "What If?" Scenario Stress Simulator */}
-        <StressScenarioPanel onTriggerScenario={handleTriggerScenario} />
-
-        {/* 6. Section Narrative Transition */}
-        <div className="mt-12 p-8 sm:p-10 rounded-3xl bg-white dark:bg-[#0B1528] border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        {/* 3. Section Narrative Thesis & Transition */}
+        <div className="p-8 sm:p-10 rounded-3xl bg-white dark:bg-[#0B1528] border border-slate-200/90 dark:border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="max-w-2xl">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#1769FF] dark:text-blue-400 mb-2">
               <ShieldCheck className="w-4 h-4" />

@@ -1,14 +1,12 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import StrategyBacktestHero from "./StrategyBacktestHero";
-import StageDetailPanels from "./StageDetailPanels";
+import React, { useRef } from "react";
+import StrategyBacktestShowcase from "./StrategyBacktestShowcase";
+import CapabilityStrip from "./CapabilityStrip";
 import ResearchTransition from "./ResearchTransition";
 import SectionBackground from "@/components/backgrounds/SectionBackground";
 
 export default function StrategyBacktestSection() {
-  // activeStage: 1 = BUILD, 2 = TEST, 3 = EVALUATE
-  const [activeStage, setActiveStage] = useState<number>(1);
   const sectionRef = useRef<HTMLElement>(null);
 
   return (
@@ -21,18 +19,12 @@ export default function StrategyBacktestSection() {
       {/* Component-Specific Semantic Strategy & Backtest Background */}
       <SectionBackground variant="strategy-backtest" />
 
-      <div className="relative mx-auto max-w-[1520px] px-4 sm:px-6 lg:px-8">
-        {/* 1. Hero 2-Column: Left (Headline, Copy, CTAs, 4 Capability Cards) & Right (3D Quant Engine) */}
-        <StrategyBacktestHero
-          activeStage={activeStage}
-          onSelectStage={setActiveStage}
-        />
+      <div className="relative mx-auto max-w-[1520px] px-4 sm:px-6 lg:px-8 space-y-10">
+        {/* 1. Quantiphi-Style Product Portfolio Tabbed Showcase (No 3JS Globe) */}
+        <StrategyBacktestShowcase />
 
-        {/* 2. Lower Detail Stage Panels (3 Cards: Build, Test, Evaluate) */}
-        <StageDetailPanels
-          activeStage={activeStage}
-          onSelectStage={setActiveStage}
-        />
+        {/* 2. Institutional Capabilities 4-Card Strip */}
+        <CapabilityStrip />
 
         {/* 3. Narrative Research Connection & Transition Link to Risk Analytics */}
         <ResearchTransition />
