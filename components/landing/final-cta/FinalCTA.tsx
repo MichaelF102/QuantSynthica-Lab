@@ -3,8 +3,7 @@
 import React, { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import CTAHeader from "./CTAHeader";
-import ResearchJourney from "./ResearchJourney";
-import CTAStats from "./CTAStats";
+import StoriesCarousel from "./StoriesCarousel";
 import FinalFooter from "./FinalFooter";
 import SectionBackground from "@/components/backgrounds/SectionBackground";
 
@@ -35,26 +34,17 @@ export default function FinalCTA() {
           <CTAHeader />
         </motion.div>
 
-        {/* 2. Research Journey Timeline (01 RESEARCH -> 05 DECIDE) */}
+        {/* 2. 10-Milestone Stories Card Carousel (5 Journey Phases + 5 Institutional Capabilities) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <ResearchJourney />
-        </motion.div>
-
-        {/* 3. Product Capability Figures Strip */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-        >
-          <CTAStats />
+          <StoriesCarousel />
         </motion.div>
       </div>
 
-      {/* 4. Full-Width Footer Occupying the Complete Edge-to-Edge Area */}
+      {/* 3. Full-Width Footer Occupying the Complete Edge-to-Edge Area */}
       <FinalFooter />
     </section>
   );
