@@ -1,155 +1,71 @@
 "use client";
 
-import React, { useState } from "react";
-import { formatPercent, formatRatio } from "@/lib/formatters";
-import { Play, HelpCircle } from "lucide-react";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from "recharts";
+import React, { useMemo, useState } from "react";
+import { Dices, HelpCircle, Play } from "lucide-react";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell, ReferenceLine } from "recharts";
+import { BacktestResult } from "@/types";
+import { Card, EmptyState, Kpi, signTone } from "@/components/ui/Card";
+import { AXIS_PROPS, GRID_PROPS, TOOLTIP_STYLE, UP_COLOR, DOWN_COLOR } from "@/lib/chartTheme";
+import { currencyOf, fmtMoney } from "@/lib/analyticsCalc";
+import { fmtPct, fmtInt } from "@/lib/utils";
 
-interface MonteCarloViewProps {
-  strategyName: string;
-  ticker: string;
+function rng(seed: number) {
+  let a = seed;
+  return () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
 }
 
-export default function MonteCarloView({
-  strategyName,
-  ticker,
-}: MonteCarloViewProps) {
-  const [isSimulating, setIsSimulating] = useState(false);
-  const [simCount, setSimCount] = useState<number>(5000);
+/** Resamples this run's own closed trades (with replacement) to see how much the end result depends on which trades happened. */
+export default function MonteCarloView({ bt }: { bt: BacktestResult }) {
+  const [iterations, setIterations] = useState(5000);
+  const [seed, setSeed] = useState(1);
+  const cur = currencyOf(bt);
+  const capital = bt.equity_curve[0]?.portfolio_value ?? 0;
+  const pnl = useMemo(() => bt.trades.map((t) => t.net_pnl).filter(Number.isFinite), [bt]);
 
-  // Resampled historical trade distribution (5,000 runs)
-  const distributionData = [
-    { return_range: "-15% to -10%", count: 85, fill: "#EF4444" },
-    { return_range: "-10% to -5%", count: 320, fill: "#EF4444" },
-    { return_range: "-5% to 0%", count: 1140, fill: "#EF4444" },
-    { return_range: "0% to 5%", count: 1850, fill: "#10B981" },
-    { return_range: "5% to 10%", count: 1100, fill: "#10B981" },
-    { return_range: "10% to 15%", count: 410, fill: "#10B981" },
-    { return_range: "> 15%", count: 95, fill: "#10B981" },
-  ];
+  const sim = useMemo(() => {
+    if (pnl.length < 5 || !capital) return null;
+    const rand = rng(pnl.length * 7919 + seed * 104729);
+    const out: number[] = [];
+    for (let k = 0; k < iterations; k++) {
+      let s = 0;
+      for (let i = 0; i < pnl.length; i++) s += pnl[Math.floor(rand() * pnl.length)];
+      out.push((s / capital) * 100);
+    }
+    out.sort((a, b) => a - b);
+    const q = (p: number) => out[Math.min(out.length - 1, Math.floor(p * out.length))];
+    const lo = out[0], hi = out[out.length - 1], bins = 14, w = (hi - lo) / bins || 1;
+    const hist = Array.from({ length: bins }, (_, i) => ({ from: lo + i * w, to: lo + (i + 1) * w, count: 0 }));
+    out.forEach((v) => { hist[Math.min(bins - 1, Math.floor((v - lo) / w))].count++; });
+    return { mean: out.reduce((a, b) => a + b, 0) / out.length, p5: q(0.05), p50: q(0.5), p95: q(0.95), loss: (out.filter((v) => v < 0).length / out.length) * 100, hist };
+  }, [pnl, capital, iterations, seed]);
 
-  const handleRunMonteCarlo = () => {
-    setIsSimulating(true);
-    setTimeout(() => {
-      setIsSimulating(false);
-    }, 750);
-  };
+  if (!sim) return <EmptyState icon={Dices} title="Too few trades to resample" hint={`This run closed ${pnl.length} trade${pnl.length === 1 ? "" : "s"}; at least 5 are needed for a meaningful bootstrap.`} />;
+  const realised = (pnl.reduce((a, b) => a + b, 0) / capital) * 100;
 
   return (
-    <div className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-4 font-mono text-xs select-none space-y-4">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between pb-3 border-b border-[#1e293b] gap-3">
-        <div>
-          <div className="flex items-center space-x-2">
-            <span className="font-bold text-[#cbd5e1] uppercase tracking-wider text-xs">
-              MONTE CARLO SIMULATION
-            </span>
-            <span className="px-1.5 py-0.5 rounded-[2px] bg-[#1e293b] text-[#3b82f6] text-[10px]">
-              HISTORICAL TRADE RESAMPLING
-            </span>
-          </div>
-          <span className="text-[11px] text-[#64748b] block">
-            Bootstrap resampling without replacement across sequence variations for {strategyName} ({ticker})
-          </span>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <select
-            value={simCount}
-            onChange={(e) => setSimCount(Number(e.target.value))}
-            className="bg-[#080d1a] border border-[#1e293b] rounded-[2px] px-2 py-1 text-[#cbd5e1] text-xs focus:outline-none"
-          >
-            <option value={1000}>1,000 Iterations</option>
-            <option value={5000}>5,000 Iterations</option>
-            <option value={10000}>10,000 Iterations</option>
+    <div className="space-y-4 font-sans">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
+        <Kpi label="Realised return" value={fmtPct(realised)} tone={signTone(realised)} sub="Sum of this run's trades" />
+        <Kpi label="Expected (mean)" value={fmtPct(sim.mean)} tone={signTone(sim.mean)} />
+        <Kpi label="5th percentile" value={fmtPct(sim.p5)} tone={signTone(sim.p5)} sub="Worst 5% of resamples" />
+        <Kpi label="Median" value={fmtPct(sim.p50)} tone={signTone(sim.p50)} />
+        <Kpi label="95th percentile" value={fmtPct(sim.p95)} tone={signTone(sim.p95)} sub="Best 5% of resamples" />
+        <Kpi label="Probability of loss" value={fmtPct(sim.loss, 1, false)} tone={sim.loss > 40 ? "text-rose-400" : "text-amber-400"} sub={`Ending below ${fmtMoney(capital, cur, true)}`} />
+      </div>
+      <Card title="Terminal return distribution" subtitle={`${fmtInt(iterations)} resamples of ${fmtInt(pnl.length)} trades`} info="Each simulation draws this run's trades at random with replacement and adds their P&L. The spread shows how dependent the result is on the specific trades taken. It does not forecast future prices." icon={Dices} tone="purple"
+        action={<div className="flex items-center gap-2">
+          <select value={iterations} onChange={(e) => setIterations(Number(e.target.value))} className="rounded-lg border border-slate-800 bg-[#080d1a] px-2 py-1.5 text-xs text-slate-200 focus:outline-none">
+            {[1000, 5000, 10000].map((n) => <option key={n} value={n}>{fmtInt(n)} iterations</option>)}
           </select>
-
-          <button
-            onClick={handleRunMonteCarlo}
-            disabled={isSimulating}
-            className="flex items-center space-x-1.5 px-3 py-1 rounded-[2px] bg-[#3b82f6] hover:bg-sky-500 text-[#080d1a] font-bold text-xs transition-colors disabled:opacity-50"
-          >
-            <Play className={`h-3.5 w-3.5 fill-current ${isSimulating ? "animate-spin" : ""}`} />
-            <span>{isSimulating ? "RESAMPLING PATHS..." : "RUN MONTE CARLO"}</span>
-          </button>
-        </div>
-      </div>
-
-      {/* KPI Ribbons */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 border border-[#1e293b] bg-[#080d1a] divide-x divide-y sm:divide-y-0 divide-[#1e293b] text-[11px]">
-        <div className="p-2.5">
-          <span className="text-[10px] text-[#64748b] block uppercase">EXPECTED RETURN</span>
-          <span className="font-bold text-[#cbd5e1] text-xs">+3.15%</span>
-          <span className="text-[9px] text-[#94a3b8] block">Mean outcome</span>
-        </div>
-        <div className="p-2.5">
-          <span className="text-[10px] text-[#64748b] block uppercase">5TH PERCENTILE</span>
-          <span className="font-bold text-[#EF4444] text-xs">-6.82%</span>
-          <span className="text-[9px] text-[#94a3b8] block">Worst 5% tail scenario</span>
-        </div>
-        <div className="p-2.5">
-          <span className="text-[10px] text-[#64748b] block uppercase">MEDIAN OUTCOME</span>
-          <span className="font-bold text-[#10B981] text-xs">+2.94%</span>
-          <span className="text-[9px] text-[#94a3b8] block">50th percentile</span>
-        </div>
-        <div className="p-2.5">
-          <span className="text-[10px] text-[#64748b] block uppercase">95TH PERCENTILE</span>
-          <span className="font-bold text-[#10B981] text-xs">+12.41%</span>
-          <span className="text-[9px] text-[#94a3b8] block">Top 5% favorable tail</span>
-        </div>
-        <div className="p-2.5">
-          <span className="text-[10px] text-[#64748b] block uppercase">PROBABILITY OF LOSS</span>
-          <span className="font-bold text-[#F59E0B] text-xs">28.4%</span>
-          <span className="text-[9px] text-[#94a3b8] block">Runs ending &lt; $100k</span>
-        </div>
-      </div>
-
-      {/* Distribution Chart */}
-      <div className="border border-[#1e293b] bg-[#080d1a] rounded-[2px] p-3 space-y-2">
-        <div className="flex justify-between items-center pb-1 border-b border-[#1e293b]">
-          <span className="text-[10px] text-[#64748b] uppercase tracking-wider">
-            TERMINAL WEALTH DISTRIBUTION HISTOGRAM ({simCount.toLocaleString()} SIMULATIONS)
-          </span>
-          <span className="text-[10px] text-[#94a3b8]">Zero reference line separates gains from losses</span>
-        </div>
-
-        <div className="h-[220px] w-full pt-2">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={distributionData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
-              <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="return_range" stroke="#64748b" fontSize={10} tickLine={false} />
-              <YAxis stroke="#64748b" fontSize={10} tickLine={false} />
-              <Tooltip
-                isAnimationActive={false}
-                content={({ active, payload }) => {
-                  if (!active || !payload || !payload.length) return null;
-                  const d = payload[0].payload;
-                  return (
-                    <div className="border border-[#1e293b] bg-[#0b1222] p-2 rounded-[2px] font-mono text-[11px]">
-                      <div className="text-[#94a3b8] text-[10px]">{d.return_range}</div>
-                      <div className="text-[#cbd5e1] font-bold">
-                        Simulations: {d.count} ({((d.count / simCount) * 100).toFixed(1)}%)
-                      </div>
-                    </div>
-                  );
-                }}
-              />
-              <Bar dataKey="count" fill="#3b82f6" radius={[1, 1, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Methodology notice */}
-      <div className="p-2.5 border border-[#1e293b] bg-[#080d1a] rounded-[2px] text-[10px] text-[#64748b] space-y-1">
-        <div className="flex items-center space-x-1 text-[#94a3b8] font-semibold">
-          <HelpCircle className="h-3.5 w-3.5 text-[#3b82f6]" />
-          <span>METHODOLOGY & ASSUMPTIONS</span>
-        </div>
-        <p>
-          This Monte Carlo simulation tests order sequence risk by taking the empirical trade returns from this backtest and shuffling them across {simCount.toLocaleString()} independent equity trajectory paths. It does NOT predict future stock prices; rather, it highlights the potential drawdown that could occur if trade winning and losing streaks clustered unfavorably.
-        </p>
-      </div>
+          <button onClick={() => setSeed((s) => s + 1)} className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-500"><Play className="h-3 w-3 fill-current" />Re-run</button>
+        </div>}>
+        <div className="h-72"><ResponsiveContainer width="100%" height="100%"><BarChart data={sim.hist.map((h) => ({ ...h, label: `${h.from.toFixed(1)}%` }))} margin={{ top: 8, right: 8, left: -6, bottom: 0 }}>
+          <CartesianGrid {...GRID_PROPS} /><XAxis dataKey="label" {...AXIS_PROPS} interval={1} /><YAxis {...AXIS_PROPS} />
+          <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any, _n: any, p: any) => [`${fmtInt(Number(v))} (${((Number(v) / iterations) * 100).toFixed(1)}%)`, `${p.payload.from.toFixed(1)}% to ${p.payload.to.toFixed(1)}%`]} />
+          <Bar dataKey="count" radius={[3, 3, 0, 0]} isAnimationActive={false}>{sim.hist.map((h, i) => <Cell key={i} fill={(h.from + h.to) / 2 >= 0 ? UP_COLOR : DOWN_COLOR} />)}</Bar>
+        </BarChart></ResponsiveContainer></div>
+      </Card>
+      <div className="flex items-start gap-2 rounded-xl border border-slate-800/90 bg-[#0b1222] p-3 text-xs text-slate-400"><HelpCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-400" />Return is trade P&amp;L divided by the run&apos;s starting capital. Trades are treated as independent, which ignores position overlap and market regime.</div>
     </div>
   );
 }

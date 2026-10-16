@@ -14,11 +14,16 @@ from ..models.schemas import (
 from .backtester import BacktestEngine
 from ..analytics.performance import calculate_performance_metrics
 
+def _param_key(p: OptimizationParamRange) -> str:
+    """Grid key for a parameter; the indicator id keeps two `period` params apart."""
+    return p.id if (p.target == "indicator" and p.id) else p.name
+
+
 def _apply_param_to_strategy(strategy: StrategyConfig, param: OptimizationParamRange, val: float) -> StrategyConfig:
     s = strategy.model_copy(deep=True)
     if param.target == "indicator":
         for ind in s.indicators:
-            if ind.id == param.id or ind.name.lower() == param.name.lower():
+            if (param.id and ind.id == param.id) or (not param.id and ind.name.lower() == param.name.lower()):
                 # Cast to int if period
                 if "period" in param.name.lower():
                     ind.params[param.name] = int(val)
@@ -50,7 +55,7 @@ def run_parameter_optimization(
     for p in params:
         steps = int(np.floor((p.max_val - p.min_val) / p.step)) + 1
         vals = [p.min_val + i * p.step for i in range(steps)]
-        param_values[p.name] = vals
+        param_values[_param_key(p)] = vals
 
     all_keys = list(param_values.keys())
     all_combos = list(itertools.product(*[param_values[k] for k in all_keys]))
@@ -72,7 +77,7 @@ def run_parameter_optimization(
         # Clone and mutate strategy
         strat_candidate = request.strategy.model_copy(deep=True)
         for p_spec in params:
-            val = combo_dict[p_spec.name]
+            val = combo_dict[_param_key(p_spec)]
             strat_candidate = _apply_param_to_strategy(strat_candidate, p_spec, val)
 
         # Execute backtest

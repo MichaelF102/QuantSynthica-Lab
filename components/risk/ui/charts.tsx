@@ -34,13 +34,14 @@ export function ReturnHistogram({ returns, marks, color = "#2563EB", height = 22
     return { data: h.map((b) => ({ label: b.x.toFixed(2), x: b.x, count: b.count, fit: Number((pct.length * w * pdf(b.x)).toFixed(2)) })), centers: h.map((b) => b.x) };
   }, [returns, marks, bins]);
   if (!data.length) return <div className="flex items-center justify-center text-xs text-slate-500" style={{ height }}>Not enough observations.</div>;
+  const span = data.length > 1 ? Math.abs(centers[centers.length - 1] - centers[0]) : 10;
   const nearest = (x: number) => data[centers.reduce((best, c, i) => (Math.abs(c - x) < Math.abs(centers[best] - x) ? i : best), 0)].label;
   return (
     <div style={{ height }}>
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={data} margin={{ top: 18, right: 8, left: -18, bottom: 0 }} barCategoryGap={0}>
           <CartesianGrid {...GRID_PROPS} />
-          <XAxis dataKey="label" {...AXIS_PROPS} interval={Math.max(0, Math.floor(data.length / 7))} tickFormatter={(v) => `${Number(v).toFixed(0)}`} />
+          <XAxis dataKey="label" {...AXIS_PROPS} interval={Math.max(0, Math.floor(data.length / 7))} tickFormatter={(v) => `${Number(v).toFixed(span < 5 ? 2 : 0)}`} />
           <YAxis {...AXIS_PROPS} allowDecimals={false} />
           <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any) => [v, "Days"]} labelFormatter={(l) => `Return ≈ ${l}%`} />
           <Bar dataKey="count" isAnimationActive={false}>

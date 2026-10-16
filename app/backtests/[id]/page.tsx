@@ -44,6 +44,12 @@ import CommandPalette from "@/components/backtest/CommandPalette";
 import ParameterSensitivityView from "@/components/backtest/ParameterSensitivityView";
 import MonteCarloView from "@/components/backtest/MonteCarloView";
 import ResearchNotesView from "@/components/backtest/ResearchNotesView";
+import PerformanceTab from "@/components/backtest/tabs/PerformanceTab";
+import MonthlyTab from "@/components/backtest/tabs/MonthlyTab";
+import AnalyticsRiskTab from "@/components/analytics/AnalyticsRiskTab";
+import AnalyticsAttributionTab from "@/components/analytics/AnalyticsAttributionTab";
+import AnalyticsRegimesTab from "@/components/analytics/AnalyticsRegimesTab";
+import { AnalyticsFilters, currencyOf } from "@/lib/analyticsCalc";
 
 type AnalyticalTab =
   | "overview"
@@ -134,6 +140,8 @@ export default function BacktestTerminalPage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  const runFilters: AnalyticsFilters = { start: null, end: null, frequency: "Daily", currency: backtest ? currencyOf(backtest) : "USD" };
 
   if (loading) {
     return (
@@ -691,19 +699,15 @@ export default function BacktestTerminalPage() {
             />
           )}
 
-          {activeTab === "parameters" && (
-            <ParameterSensitivityView
-              strategyName={backtest.strategy_name}
-              ticker={backtest.ticker}
-            />
-          )}
+          {activeTab === "performance" && <PerformanceTab bt={backtest} />}
+          {activeTab === "monthly" && <MonthlyTab bt={backtest} />}
+          {activeTab === "risk" && <AnalyticsRiskTab selectedBacktests={[backtest]} filters={runFilters} />}
+          {activeTab === "attribution" && <AnalyticsAttributionTab selectedBacktests={[backtest]} filters={runFilters} />}
+          {activeTab === "regime" && <AnalyticsRegimesTab selectedBacktests={[backtest]} filters={runFilters} />}
 
-          {activeTab === "monte_carlo" && (
-            <MonteCarloView
-              strategyName={backtest.strategy_name}
-              ticker={backtest.ticker}
-            />
-          )}
+          {activeTab === "parameters" && <ParameterSensitivityView bt={backtest} strategy={strategy} />}
+
+          {activeTab === "monte_carlo" && <MonteCarloView bt={backtest} />}
 
           {activeTab === "notes" && (
             <ResearchNotesView
