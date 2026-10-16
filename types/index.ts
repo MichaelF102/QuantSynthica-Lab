@@ -170,6 +170,10 @@ export interface BacktestResult {
   strategy_config?: StrategyConfig;
   logs: string[];
   created_at?: string;
+  /** Price inputs were generated, not fetched (offline simulation or sample run). */
+  is_synthetic?: boolean;
+  /** Pre-built illustrative run shown on an empty registry. */
+  is_sample?: boolean;
 }
 
 export interface MarketBar {

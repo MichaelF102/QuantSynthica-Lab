@@ -125,7 +125,7 @@ export default function StrategyDetailPage() {
         <div className="flex items-center space-x-2 font-sans">
           <Link
             href={`/strategies/builder?clone=${strategy.id}`}
-            className="flex items-center space-x-1 px-2.5 py-1 rounded-[2px] border border-[#1e293b] bg-[#0b1222] text-[#cbd5e1] hover:bg-[#0b1222] hover:border-[#3b82f6]/40 transition-colors text-xs"
+            className="flex items-center space-x-1 px-2.5 py-1 rounded-lg border border-[#1e293b] bg-[#0b1222] text-[#cbd5e1] hover:bg-[#0b1222] hover:border-[#3b82f6]/40 transition-colors text-xs"
           >
             <Edit3 className="h-3 w-3 text-[#3b82f6]" />
             <span>EDIT</span>
@@ -134,7 +134,7 @@ export default function StrategyDetailPage() {
 
           <Link
             href={`/strategies/builder?clone=${strategy.id}`}
-            className="flex items-center space-x-1 px-2.5 py-1 rounded-[2px] border border-[#1e293b] bg-[#0b1222] text-[#cbd5e1] hover:bg-[#0b1222] transition-colors text-xs"
+            className="flex items-center space-x-1 px-2.5 py-1 rounded-lg border border-[#1e293b] bg-[#0b1222] text-[#cbd5e1] hover:bg-[#0b1222] transition-colors text-xs"
           >
             <Copy className="h-3 w-3 text-[#F59E0B]" />
             <span>DUPLICATE</span>
@@ -143,7 +143,7 @@ export default function StrategyDetailPage() {
 
           <button
             onClick={() => setTestModalOpen(true)}
-            className="flex items-center space-x-1.5 px-3 py-1 rounded-[2px] bg-emerald-500 hover:bg-emerald-400 text-black font-semibold transition-colors text-xs shadow-sm"
+            className="flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold transition-colors text-xs shadow-sm"
           >
             <Play className="h-3 w-3 fill-current" />
             <span>TEST ON STOCK</span>
@@ -152,7 +152,7 @@ export default function StrategyDetailPage() {
 
           <Link
             href={`/backtests?run=${strategy.id}`}
-            className="flex items-center space-x-1.5 px-3 py-1 rounded-[2px] bg-[#3b82f6] hover:bg-[#2563eb] text-black font-semibold transition-colors text-xs"
+            className="flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-[#3b82f6] hover:bg-[#2563eb] text-black font-semibold transition-colors text-xs"
           >
             <Play className="h-3 w-3" />
             <span>RUN SIMULATION</span>
@@ -164,14 +164,14 @@ export default function StrategyDetailPage() {
       {/* 2. SPECIFICATION WORKSPACE CONTAINER */}
       <div className="app-container w-full py-6 space-y-6 flex-1">
         {/* Identity Card */}
-        <div className="border border-[#1e293b] bg-[#0b1222] p-4 rounded-[2px] space-y-3">
+        <div className="border border-[#1e293b] bg-[#0b1222] p-4 rounded-lg space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#1e293b] pb-3">
             <div>
               <div className="flex items-center space-x-2">
                 <span className="text-base md:text-lg font-bold text-[#cbd5e1]">
                   {strategy.name}
                 </span>
-                <span className="px-1.5 py-0.5 rounded-[2px] bg-[#0b1222] border border-[#1e293b] text-[10px] text-[#3b82f6]">
+                <span className="px-1.5 py-0.5 rounded-lg bg-[#0b1222] border border-[#1e293b] text-[10px] text-[#3b82f6]">
                   {sType.replace(/_/g, " ")}
                 </span>
               </div>
@@ -215,7 +215,7 @@ export default function StrategyDetailPage() {
         </div>
 
         {/* Indicator Pipeline */}
-        <div className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] overflow-hidden">
+        <div className="border border-[#1e293b] bg-[#0b1222] rounded-lg overflow-hidden">
           <div className="px-4 py-2 bg-[#080d1a] border-b border-[#1e293b] flex items-center justify-between text-xs">
             <span className="font-bold text-[#f59e0b] tracking-wider text-[11px]">
               INDICATOR PIPELINE ({strategy.indicators.length})
@@ -254,7 +254,7 @@ export default function StrategyDetailPage() {
         {/* Entry and Exit Rules Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Entry Rules */}
-          <div className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] overflow-hidden">
+          <div className="border border-[#1e293b] bg-[#0b1222] rounded-lg overflow-hidden">
             <div className="px-4 py-2 bg-[#080d1a] border-b border-[#1e293b] flex items-center justify-between text-xs">
               <span className="font-bold text-[#10B981] tracking-wider text-[11px]">
                 ENTRY SIGNAL RULES ({strategy.entry_rules.length})
@@ -265,7 +265,7 @@ export default function StrategyDetailPage() {
               {strategy.entry_rules.map((rule, idx) => (
                 <div
                   key={idx}
-                  className="p-2 border border-[#1e293b] bg-[#080d1a] rounded-[2px] flex items-center justify-between"
+                  className="p-2 border border-[#1e293b] bg-[#080d1a] rounded-lg flex items-center justify-between"
                 >
                   <span className="text-[#64748b] text-[10px]">
                     {idx === 0 ? "WHEN" : rule.logical_operator || "AND"}
@@ -279,7 +279,7 @@ export default function StrategyDetailPage() {
           </div>
 
           {/* Exit Rules */}
-          <div className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] overflow-hidden">
+          <div className="border border-[#1e293b] bg-[#0b1222] rounded-lg overflow-hidden">
             <div className="px-4 py-2 bg-[#080d1a] border-b border-[#1e293b] flex items-center justify-between text-xs">
               <span className="font-bold text-[#EF4444] tracking-wider text-[11px]">
                 EXIT SIGNAL RULES ({strategy.exit_rules.length})
@@ -295,7 +295,7 @@ export default function StrategyDetailPage() {
                 strategy.exit_rules.map((rule, idx) => (
                   <div
                     key={idx}
-                    className="p-2 border border-[#1e293b] bg-[#080d1a] rounded-[2px] flex items-center justify-between"
+                    className="p-2 border border-[#1e293b] bg-[#080d1a] rounded-lg flex items-center justify-between"
                   >
                     <span className="text-[#64748b] text-[10px]">
                       {idx === 0 ? "EXIT WHEN" : rule.logical_operator || "OR"}
@@ -311,7 +311,7 @@ export default function StrategyDetailPage() {
         </div>
 
         {/* Risk & Execution Specifications */}
-        <div className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-4 space-y-4">
+        <div className="border border-[#1e293b] bg-[#0b1222] rounded-lg p-4 space-y-4">
           <div className="border-b border-[#1e293b] pb-2 flex items-center justify-between">
             <span className="font-bold text-[#f59e0b] tracking-wider text-[11px]">
               RISK PARAMETERS & EXECUTION FRICTION
@@ -384,7 +384,7 @@ export default function StrategyDetailPage() {
         <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
           <Link
             href="/strategies"
-            className="px-3 py-1.5 border border-[#1e293b] hover:bg-[#0b1222] text-xs text-[#94a3b8] rounded-[2px]"
+            className="px-3 py-1.5 border border-[#1e293b] hover:bg-[#0b1222] text-xs text-[#94a3b8] rounded-lg"
           >
             &larr; Back to Registry [ESC]
           </Link>
@@ -392,7 +392,7 @@ export default function StrategyDetailPage() {
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setTestModalOpen(true)}
-              className="flex items-center space-x-1.5 px-4 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs rounded-[2px] transition-colors"
+              className="flex items-center space-x-1.5 px-4 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs rounded-lg transition-colors"
             >
               <Play className="h-3.5 w-3.5 fill-current" />
               <span>Test on Custom Stock (India / US)</span>
@@ -400,14 +400,14 @@ export default function StrategyDetailPage() {
 
             <Link
               href={`/strategies/builder?clone=${strategy.id}`}
-              className="px-3 py-1.5 border border-[#1e293b] hover:bg-[#0b1222] text-xs text-[#cbd5e1] rounded-[2px]"
+              className="px-3 py-1.5 border border-[#1e293b] hover:bg-[#0b1222] text-xs text-[#cbd5e1] rounded-lg"
             >
               Modify in Builder [E]
             </Link>
 
             <Link
               href={`/backtests?run=${strategy.id}`}
-              className="flex items-center space-x-1.5 px-4 py-1.5 bg-[#3b82f6] hover:bg-[#2563eb] text-black font-semibold text-xs rounded-[2px] transition-colors"
+              className="flex items-center space-x-1.5 px-4 py-1.5 bg-[#3b82f6] hover:bg-[#2563eb] text-black font-semibold text-xs rounded-lg transition-colors"
             >
               <Play className="h-3.5 w-3.5" />
               <span>Launch Backtest [B]</span>

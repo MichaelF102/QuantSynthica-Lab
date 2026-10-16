@@ -34,7 +34,8 @@ export default function AnalyticsPage() {
   useEffect(() => {
     api
       .getBacktests()
-      .then((bts) => {
+      .then((all) => {
+        const bts = (all ?? []).filter((b) => !b.is_sample); // analytics needs real runs
         setBacktests(bts ?? []);
         setSelectedIds((bts ?? []).slice(0, 3).map((b) => b.id));
       })

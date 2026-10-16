@@ -16,6 +16,7 @@ import {
   SEED_STOCK_PROFILES,
   generateSyntheticBars,
 } from "@/lib/seedData";
+import { runLocalBacktest, buildSampleBacktests } from "@/lib/localBacktest";
 import { REAL_UNIVERSE_MAP } from "@/lib/marketUniverseData";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -467,19 +468,35 @@ export const api = {
         }),
       }, 10000);
     } catch (err) {
-      // Never fabricate performance numbers: surface the failure to the caller.
-      throw err instanceof Error ? err : new Error("Backtest engine unavailable. Check the backend and retry.");
+      // Only a genuinely unreachable engine (network drop, timeout, 502/504) falls back to the
+      // in-browser simulator. Validation errors and "market data unavailable" (503) are real answers.
+      const msg = err instanceof Error ? err.message : "";
+      const unreachable = !msg.startsWith("API Error") || /API Error \((502|504)\)/.test(msg);
+      if (!unreachable) throw err;
+
+      const result = runLocalBacktest(strategy, startDate, endDate, benchmark, {
+        synthetic: true,
+        note: "backend unreachable; price series generated locally with a deterministic seed",
+      });
+      saveLocalBacktest(result);
+      return result;
     }
   },
 
   getBacktests: async (): Promise<BacktestResult[]> => {
     try {
       const remote = await request<BacktestResult[]>("/backtests", {}, 4000);
-      if (remote && remote.length > 0) return remote;
+      if (remote && remote.length > 0) {
+        // Keep runs simulated in-browser while the engine was down.
+        const ids = new Set(remote.map((b) => b.id));
+        return [...remote, ...getLocalBacktests().filter((b) => b.is_synthetic && !ids.has(b.id))];
+      }
     } catch {}
 
-    // Only real, locally saved runs; never fabricated seed results.
-    return getLocalBacktests();
+    // Offline / empty registry: locally saved runs, plus clearly-labelled sample runs so the
+    // page is never an empty void. Samples are dropped as soon as any real run exists.
+    const local = getLocalBacktests();
+    return local.length > 0 ? local : buildSampleBacktests();
   },
 
   getBacktest: async (id: string): Promise<BacktestResult> => {
@@ -489,6 +506,9 @@ export const api = {
 
     const local = getLocalBacktests().find((b) => b.id === id);
     if (local) return local;
+
+    const sample = buildSampleBacktests().find((b) => b.id === id);
+    if (sample) return sample;
 
     throw new Error(`Backtest ${id} not found.`);
   },

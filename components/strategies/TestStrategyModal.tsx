@@ -20,6 +20,7 @@ import {
 import { StrategyConfig, StockProfile } from "@/types";
 import { api } from "@/lib/api";
 import { BENCHMARKS } from "@/lib/constants";
+import { alignBenchmark, marketOfTicker } from "@/lib/market";
 import StockSearchInput from "@/components/ui/StockSearchInput";
 import { formatCurrency, formatPercent } from "@/lib/formatters";
 
@@ -125,6 +126,14 @@ export default function TestStrategyModal({
     }
   }, [isOpen, strategy, initialStock]);
 
+  // Selecting any stock keeps market + benchmark consistent (e.g. GENUSPOWER -> India / ^NSEI).
+  useEffect(() => {
+    if (!selectedStock) return;
+    const region = marketOfTicker(selectedStock);
+    setMarket(region);
+    setBenchmark((b) => alignBenchmark(selectedStock, b));
+  }, [selectedStock]);
+
   // Handle market toggle
   const handleMarketToggle = (newMarket: "India" | "US") => {
     setMarket(newMarket);
@@ -195,7 +204,7 @@ export default function TestStrategyModal({
         },
       };
 
-      const effectiveBenchmark = market === "India" && benchmark === "SPY" ? "^NSEI" : benchmark;
+      const effectiveBenchmark = alignBenchmark(ticker, benchmark);
 
       const res = await api.runBacktest(
         customStrat,
@@ -226,11 +235,11 @@ export default function TestStrategyModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 animate-in fade-in duration-150 select-none">
-      <div className="w-full max-w-xl bg-[#0E1218] border border-[#1e293b] rounded-[2px] shadow-2xl overflow-hidden font-mono text-xs flex flex-col">
+      <div className="w-full max-w-xl bg-[#0b1222] border border-[#1e293b] rounded-lg shadow-2xl overflow-hidden font-mono text-xs flex flex-col">
         {/* Header */}
-        <div className="px-4 py-3 bg-[#080B10] border-b border-[#1e293b] flex items-center justify-between">
+        <div className="px-4 py-3 bg-[#080d1a] border-b border-[#1e293b] flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
-            <div className="p-1.5 rounded-[2px] bg-[#2563eb]/20 border border-[#2563eb]/40 text-[#3b82f6]">
+            <div className="p-1.5 rounded-lg bg-[#2563eb]/20 border border-[#2563eb]/40 text-[#3b82f6]">
               <Play className="w-3.5 h-3.5 fill-current" />
             </div>
             <div>
@@ -251,7 +260,7 @@ export default function TestStrategyModal({
           <button
             type="button"
             onClick={onClose}
-            className="p-1 text-[#94a3b8] hover:text-white hover:bg-[#1e293b] rounded-[2px] cursor-pointer transition-colors"
+            className="p-1 text-[#94a3b8] hover:text-white hover:bg-[#1e293b] rounded-lg cursor-pointer transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -268,7 +277,7 @@ export default function TestStrategyModal({
               <button
                 type="button"
                 onClick={() => handleMarketToggle("India")}
-                className={`py-2 px-3 rounded-[2px] border flex items-center justify-center space-x-2 transition-all cursor-pointer ${
+                className={`py-2 px-3 rounded-lg border flex items-center justify-center space-x-2 transition-all cursor-pointer ${
                   market === "India"
                     ? "bg-[#10B981]/15 border-[#10B981] text-white font-bold shadow-xs"
                     : "bg-[#080d1a] border-[#1e293b] text-[#94a3b8] hover:text-white hover:bg-[#0b1222]"
@@ -284,7 +293,7 @@ export default function TestStrategyModal({
               <button
                 type="button"
                 onClick={() => handleMarketToggle("US")}
-                className={`py-2 px-3 rounded-[2px] border flex items-center justify-center space-x-2 transition-all cursor-pointer ${
+                className={`py-2 px-3 rounded-lg border flex items-center justify-center space-x-2 transition-all cursor-pointer ${
                   market === "US"
                     ? "bg-[#3b82f6]/15 border-[#3b82f6] text-white font-bold shadow-xs"
                     : "bg-[#080d1a] border-[#1e293b] text-[#94a3b8] hover:text-white hover:bg-[#0b1222]"
@@ -332,12 +341,12 @@ export default function TestStrategyModal({
                     key={s}
                     type="button"
                     onClick={() => setSelectedStock(s)}
-                    className={`px-1.5 py-0.5 rounded-[2px] border text-[9px] font-mono transition-colors cursor-pointer ${
+                    className={`px-1.5 py-0.5 rounded-lg border text-[9px] font-mono transition-colors cursor-pointer ${
                       selectedStock === s
                         ? isIndiaMarket
                           ? "bg-[#10B981]/20 border-[#10B981] text-[#10B981] font-bold"
                           : "bg-[#3b82f6]/20 border-[#3b82f6] text-[#3b82f6] font-bold"
-                        : "bg-[#080B10] border-[#1e293b] text-[#94a3b8] hover:text-white"
+                        : "bg-[#080d1a] border-[#1e293b] text-[#94a3b8] hover:text-white"
                     }`}
                   >
                     {s}
@@ -360,7 +369,7 @@ export default function TestStrategyModal({
                       key={p}
                       type="button"
                       onClick={() => handlePresetChange(p)}
-                      className={`px-1.5 py-0.2 rounded-[2px] transition-colors cursor-pointer ${
+                      className={`px-1.5 py-0.2 rounded-lg transition-colors cursor-pointer ${
                         datePreset === p
                           ? "bg-[#2563eb] text-white font-bold"
                           : "text-[#94a3b8] hover:text-white bg-[#080d1a]"
@@ -377,14 +386,14 @@ export default function TestStrategyModal({
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-1/2 p-1.5 rounded-[2px] bg-[#080d1a] border border-[#1e293b] text-[10px] text-white focus:outline-none focus:border-[#3b82f6]"
+                  className="w-1/2 p-1.5 rounded-lg bg-[#080d1a] border border-[#1e293b] text-[10px] text-white focus:outline-none focus:border-[#3b82f6]"
                 />
                 <span className="text-[#64748b]">&rarr;</span>
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-1/2 p-1.5 rounded-[2px] bg-[#080d1a] border border-[#1e293b] text-[10px] text-white focus:outline-none focus:border-[#3b82f6]"
+                  className="w-1/2 p-1.5 rounded-lg bg-[#080d1a] border border-[#1e293b] text-[10px] text-white focus:outline-none focus:border-[#3b82f6]"
                 />
               </div>
             </div>
@@ -396,9 +405,9 @@ export default function TestStrategyModal({
               <select
                 value={benchmark}
                 onChange={(e) => setBenchmark(e.target.value)}
-                className="w-full p-1.5 rounded-[2px] bg-[#080d1a] border border-[#1e293b] text-[11px] text-white focus:outline-none focus:border-[#3b82f6]"
+                className="w-full p-1.5 rounded-lg bg-[#080d1a] border border-[#1e293b] text-[11px] text-white focus:outline-none focus:border-[#3b82f6]"
               >
-                {BENCHMARKS.map((b) => (
+                {BENCHMARKS.filter((b) => b.region === market).map((b) => (
                   <option key={b.symbol} value={b.symbol}>
                     {b.symbol} - {b.name}
                   </option>
@@ -408,7 +417,7 @@ export default function TestStrategyModal({
           </div>
 
           {/* Capital & Position Sizing */}
-          <div className="grid grid-cols-2 gap-3 p-3 rounded-[2px] bg-[#080B10] border border-[#1e293b]">
+          <div className="grid grid-cols-2 gap-3 p-3 rounded-lg bg-[#080d1a] border border-[#1e293b]">
             <div>
               <label className="text-[10px] text-[#94a3b8] uppercase font-bold block mb-1">
                 Initial Capital ({sym})
@@ -417,7 +426,7 @@ export default function TestStrategyModal({
                 type="number"
                 value={initialCapital}
                 onChange={(e) => setInitialCapital(Number(e.target.value))}
-                className="w-full p-1 rounded-[2px] bg-[#080d1a] border border-[#1e293b] text-xs font-mono font-bold text-white focus:outline-none focus:border-[#3b82f6]"
+                className="w-full p-1 rounded-lg bg-[#080d1a] border border-[#1e293b] text-xs font-mono font-bold text-white focus:outline-none focus:border-[#3b82f6]"
               />
             </div>
             <div>
@@ -431,7 +440,7 @@ export default function TestStrategyModal({
                   min={1}
                   max={100}
                   onChange={(e) => setPositionSizePct(Number(e.target.value))}
-                  className="w-20 p-1 rounded-[2px] bg-[#080d1a] border border-[#1e293b] text-xs font-mono font-bold text-white focus:outline-none focus:border-[#3b82f6]"
+                  className="w-20 p-1 rounded-lg bg-[#080d1a] border border-[#1e293b] text-xs font-mono font-bold text-white focus:outline-none focus:border-[#3b82f6]"
                 />
                 <span className="text-[10px] text-[#94a3b8]">% per trade</span>
               </div>
@@ -440,7 +449,7 @@ export default function TestStrategyModal({
 
           {/* Execution Progress & Feedback */}
           {status !== "IDLE" && (
-            <div className="p-3 rounded-[2px] border border-[#2563eb]/30 bg-[#2563eb]/10 space-y-1.5 animate-in fade-in">
+            <div className="p-3 rounded-lg border border-[#2563eb]/30 bg-[#2563eb]/10 space-y-1.5 animate-in fade-in">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold text-white flex items-center space-x-2">
                   <span className="w-2 h-2 rounded-full bg-[#3b82f6] animate-ping" />
@@ -468,12 +477,12 @@ export default function TestStrategyModal({
         </div>
 
         {/* Footer Actions */}
-        <div className="px-4 py-3 bg-[#080B10] border-t border-[#1e293b] flex items-center justify-between">
+        <div className="px-4 py-3 bg-[#080d1a] border-t border-[#1e293b] flex items-center justify-between">
           <button
             type="button"
             onClick={() => {
               onClose();
-              router.push(`/backtests?run=${strategy.id}&ticker=${encodeURIComponent(selectedStock)}`);
+              router.push(`/backtests?strategy=${strategy.id}&ticker=${encodeURIComponent(selectedStock)}`);
             }}
             className="text-[10px] text-[#94a3b8] hover:text-[#3b82f6] flex items-center space-x-1 cursor-pointer transition-colors"
           >
@@ -486,7 +495,7 @@ export default function TestStrategyModal({
               type="button"
               onClick={onClose}
               disabled={status === "SIMULATING" || status === "CALCULATING"}
-              className="px-3 py-1.5 rounded-[2px] bg-[#0b1222] hover:bg-[#1e293b] text-[#cbd5e1] border border-[#1e293b] text-[11px] cursor-pointer transition-colors disabled:opacity-50"
+              className="px-3 py-1.5 rounded-lg bg-[#0b1222] hover:bg-[#1e293b] text-[#cbd5e1] border border-[#1e293b] text-[11px] cursor-pointer transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
@@ -495,7 +504,7 @@ export default function TestStrategyModal({
               type="button"
               onClick={handleExecuteBacktest}
               disabled={status === "SIMULATING" || status === "CALCULATING" || !selectedStock}
-              className={`px-4 py-1.5 rounded-[2px] font-bold text-xs flex items-center space-x-1.5 transition-all cursor-pointer ${
+              className={`px-4 py-1.5 rounded-lg font-bold text-xs flex items-center space-x-1.5 transition-all cursor-pointer ${
                 isIndiaMarket
                   ? "bg-[#10B981] hover:bg-[#059669] text-black shadow-sm"
                   : "bg-[#2563eb] hover:bg-[#1d4ed8] text-white shadow-sm"

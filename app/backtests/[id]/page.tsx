@@ -138,7 +138,7 @@ export default function BacktestTerminalPage() {
   if (loading) {
     return (
       <div className="flex h-[80vh] items-center justify-center font-mono text-xs text-[#94a3b8] select-none">
-        <div className="flex items-center space-x-2 border border-[#1e293b] bg-[#0b1222] p-4 rounded-[2px]">
+        <div className="flex items-center space-x-2 border border-[#1e293b] bg-[#0b1222] p-4 rounded-lg">
           <div className="h-3 w-3 rounded-full border-2 border-[#3b82f6] border-t-transparent animate-spin"></div>
           <span>LOADING BACKTEST WORKSTATION [{id}]...</span>
         </div>
@@ -149,7 +149,7 @@ export default function BacktestTerminalPage() {
   if (error || !backtest || !backtest.metrics) {
     return (
       <div className="p-12 text-center text-xs space-y-3 font-mono">
-        <div className="text-[#EF4444] border border-[#EF4444]/30 bg-[#EF4444]/10 p-3 max-w-lg mx-auto rounded-[2px]">
+        <div className="text-[#EF4444] border border-[#EF4444]/30 bg-[#EF4444]/10 p-3 max-w-lg mx-auto rounded-lg">
           Backtest simulation not found: {error || backtest?.error}
         </div>
         <Link href="/backtests" className="text-[#3b82f6] hover:underline inline-block text-xs">
@@ -168,11 +168,21 @@ export default function BacktestTerminalPage() {
   const benchReturn = 24.17;
 
   // Trade counts
-  const longsCount = backtest.trades.filter((t) => t.direction.includes("LONG")).length || 7;
+  const longsCount = backtest.trades.filter((t) => t.direction.includes("LONG")).length;
   const shortsCount = backtest.trades.filter((t) => t.direction.includes("SHORT")).length || 0;
 
   return (
     <div className="min-h-screen bg-[#080d1a] text-[#cbd5e1] font-mono text-xs flex flex-col select-none">
+      {(backtest.is_sample || backtest.is_synthetic) && (
+        <div role="note" className="flex items-center gap-2 border-b border-amber-500/30 bg-amber-500/10 px-4 py-2 font-sans text-xs text-amber-300">
+          <span className="font-mono font-bold uppercase tracking-wider">{backtest.is_sample ? "Sample" : "Simulated"}</span>
+          <span>
+            {backtest.is_sample
+              ? "Illustrative run on seeded prices, not real market performance. Run your own backtest for real results."
+              : "Computed in the browser on locally generated prices because the backtest engine was unreachable. Not real market performance."}
+          </span>
+        </div>
+      )}
       {/* ============================================================ */}
       {/* 1. TOP HEADER                                                */}
       {/* ============================================================ */}
@@ -193,13 +203,13 @@ export default function BacktestTerminalPage() {
             </span>
 
             <div className="flex items-center space-x-2 text-[10px]">
-              <span className="bg-[#0b1222] border border-[#1e293b] px-1.5 py-0.5 rounded-[2px] text-[#94a3b8]">
+              <span className="bg-[#0b1222] border border-[#1e293b] px-1.5 py-0.5 rounded-lg text-[#94a3b8]">
                 {backtest.ticker || "AAPL"} vs {backtest.benchmark || "SPY"}
               </span>
               <span className="text-[#64748b] hidden sm:inline">
                 {backtest.start_date} &rarr; {backtest.end_date}
               </span>
-              <span className="px-1.5 py-0.5 rounded-[2px] bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 font-bold uppercase text-[9px]">
+              <span className="px-1.5 py-0.5 rounded-lg bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 font-bold uppercase text-[9px]">
                 Completed
               </span>
               <span className="text-[#64748b]">Run ID: <span className="text-[#94a3b8]">{backtest.id}</span></span>
@@ -215,7 +225,7 @@ export default function BacktestTerminalPage() {
                 setShareCopied(true);
                 setTimeout(() => setShareCopied(false), 2000);
               }}
-              className="flex items-center space-x-1 px-2.5 py-1 rounded-[2px] border border-[#1e293b] bg-[#0b1222] hover:bg-[#1e293b] text-[#94a3b8] hover:text-[#cbd5e1]"
+              className="flex items-center space-x-1 px-2.5 py-1 rounded-lg border border-[#1e293b] bg-[#0b1222] hover:bg-[#1e293b] text-[#94a3b8] hover:text-[#cbd5e1]"
             >
               <Share2 className="h-3 w-3" />
               <span>{shareCopied ? "Copied" : "Share"}</span>
@@ -223,7 +233,7 @@ export default function BacktestTerminalPage() {
 
             <button
               onClick={() => setShowCompareModal(true)}
-              className="flex items-center space-x-1 px-2.5 py-1 rounded-[2px] border border-[#1e293b] bg-[#0b1222] hover:bg-[#1e293b] text-[#94a3b8] hover:text-[#cbd5e1]"
+              className="flex items-center space-x-1 px-2.5 py-1 rounded-lg border border-[#1e293b] bg-[#0b1222] hover:bg-[#1e293b] text-[#94a3b8] hover:text-[#cbd5e1]"
             >
               <BarChart2 className="h-3 w-3" />
               <span>Compare</span>
@@ -232,7 +242,7 @@ export default function BacktestTerminalPage() {
             <div className="relative">
               <button
                 onClick={() => setShowDownloadMenu(!showDownloadMenu)}
-                className="flex items-center space-x-1 px-2.5 py-1 rounded-[2px] border border-[#1e293b] bg-[#0b1222] hover:bg-[#1e293b] text-[#94a3b8] hover:text-[#cbd5e1]"
+                className="flex items-center space-x-1 px-2.5 py-1 rounded-lg border border-[#1e293b] bg-[#0b1222] hover:bg-[#1e293b] text-[#94a3b8] hover:text-[#cbd5e1]"
               >
                 <Download className="h-3 w-3" />
                 <span>Download</span>
@@ -240,7 +250,7 @@ export default function BacktestTerminalPage() {
               </button>
 
               {showDownloadMenu && (
-                <div className="absolute right-0 mt-1 w-52 border border-[#1e293b] bg-[#0b1222] rounded-[2px] shadow-2xl z-50 py-1 text-[11px]">
+                <div className="absolute right-0 mt-1 w-52 border border-[#1e293b] bg-[#0b1222] rounded-lg shadow-2xl z-50 py-1 text-[11px]">
                   <a
                     href={api.getExportTradesUrl(backtest.id)}
                     download
@@ -270,7 +280,7 @@ export default function BacktestTerminalPage() {
 
             <button
               onClick={() => setShowReRunModal(true)}
-              className="flex items-center space-x-1 px-3 py-1 rounded-[2px] bg-[#3b82f6] hover:bg-sky-500 text-[#080d1a] font-bold transition-colors"
+              className="flex items-center space-x-1 px-3 py-1 rounded-lg bg-[#3b82f6] hover:bg-sky-500 text-[#080d1a] font-bold transition-colors"
             >
               <RotateCcw className="h-3 w-3" />
               <span>Re-run Backtest</span>
@@ -336,7 +346,7 @@ export default function BacktestTerminalPage() {
               <button
                 key={item.id}
                 onClick={() => setLeftNavTab(item.id as any)}
-                className={`w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-[2px] text-left text-[11px] transition-colors ${
+                className={`w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-left text-[11px] transition-colors ${
                   leftNavTab === item.id
                     ? "bg-[#0b1222] text-[#3b82f6] font-bold border border-[#3b82f6]/30"
                     : "text-[#94a3b8] hover:text-[#cbd5e1] hover:bg-[#0b1222]"
@@ -356,7 +366,7 @@ export default function BacktestTerminalPage() {
             <div>
               <label className="block text-[10px] text-[#94a3b8] mb-1">Date Range</label>
               <div className="space-y-1">
-                <div className="flex items-center border border-[#1e293b] bg-[#080d1a] px-2 py-1 rounded-[2px]">
+                <div className="flex items-center border border-[#1e293b] bg-[#080d1a] px-2 py-1 rounded-lg">
                   <Calendar className="h-3 w-3 text-[#64748b] mr-1.5" />
                   <input
                     type="date"
@@ -365,7 +375,7 @@ export default function BacktestTerminalPage() {
                     className="bg-transparent text-[10px] text-[#cbd5e1] focus:outline-none w-full"
                   />
                 </div>
-                <div className="flex items-center border border-[#1e293b] bg-[#080d1a] px-2 py-1 rounded-[2px]">
+                <div className="flex items-center border border-[#1e293b] bg-[#080d1a] px-2 py-1 rounded-lg">
                   <Calendar className="h-3 w-3 text-[#64748b] mr-1.5" />
                   <input
                     type="date"
@@ -383,7 +393,7 @@ export default function BacktestTerminalPage() {
                 type="text"
                 value={initialCapital}
                 onChange={(e) => setInitialCapital(e.target.value)}
-                className="w-full border border-[#1e293b] bg-[#080d1a] px-2.5 py-1 rounded-[2px] text-[11px] text-[#cbd5e1] focus:outline-none"
+                className="w-full border border-[#1e293b] bg-[#080d1a] px-2.5 py-1 rounded-lg text-[11px] text-[#cbd5e1] focus:outline-none"
               />
             </div>
 
@@ -392,7 +402,7 @@ export default function BacktestTerminalPage() {
               <select
                 value={benchmark}
                 onChange={(e) => setBenchmark(e.target.value)}
-                className="w-full border border-[#1e293b] bg-[#080d1a] px-2 py-1 rounded-[2px] text-[11px] text-[#cbd5e1] focus:outline-none"
+                className="w-full border border-[#1e293b] bg-[#080d1a] px-2 py-1 rounded-lg text-[11px] text-[#cbd5e1] focus:outline-none"
               >
                 <option value="SPY">SPY</option>
                 <option value="QQQ">QQQ</option>
@@ -403,7 +413,7 @@ export default function BacktestTerminalPage() {
 
             <button
               onClick={() => setShowReRunModal(true)}
-              className="w-full flex items-center justify-center space-x-1.5 py-1.5 rounded-[2px] bg-[#3b82f6] hover:bg-sky-500 text-black font-bold text-xs transition-colors"
+              className="w-full flex items-center justify-center space-x-1.5 py-1.5 rounded-lg bg-[#3b82f6] hover:bg-sky-500 text-black font-bold text-xs transition-colors"
             >
               <Play className="h-3 w-3 fill-current" />
               <span>Run Backtest</span>
@@ -411,7 +421,7 @@ export default function BacktestTerminalPage() {
 
             <button
               onClick={() => setShowReRunModal(true)}
-              className="w-full text-center py-1 text-[10px] text-[#94a3b8] hover:text-[#cbd5e1] border border-[#1e293b] bg-[#080d1a] rounded-[2px]"
+              className="w-full text-center py-1 text-[10px] text-[#94a3b8] hover:text-[#cbd5e1] border border-[#1e293b] bg-[#080d1a] rounded-lg"
             >
               More Options &rsaquo;
             </button>
@@ -424,7 +434,7 @@ export default function BacktestTerminalPage() {
             </span>
 
             <div className="space-y-1 text-[11px]">
-              <div className="p-2 rounded-[2px] bg-[#0b1222] border-l-2 border-[#3b82f6] space-y-0.5">
+              <div className="p-2 rounded-lg bg-[#0b1222] border-l-2 border-[#3b82f6] space-y-0.5">
                 <div className="font-bold text-[#cbd5e1] flex items-center space-x-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#3b82f6] inline-block"></span>
                   <span>AAPL &bull; 2022–2024</span>
@@ -432,7 +442,7 @@ export default function BacktestTerminalPage() {
                 <div className="text-[10px] text-[#64748b]">Jan 16, 2024 14:41</div>
               </div>
 
-              <div className="p-2 rounded-[2px] bg-[#080d1a] border border-[#1e293b] space-y-0.5 opacity-80 hover:opacity-100 cursor-pointer">
+              <div className="p-2 rounded-lg bg-[#080d1a] border border-[#1e293b] space-y-0.5 opacity-80 hover:opacity-100 cursor-pointer">
                 <div className="text-[#94a3b8] flex items-center space-x-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#64748b] inline-block"></span>
                   <span>AAPL &bull; 2020–2023</span>
@@ -440,7 +450,7 @@ export default function BacktestTerminalPage() {
                 <div className="text-[10px] text-[#64748b]">Jan 10, 2024</div>
               </div>
 
-              <div className="p-2 rounded-[2px] bg-[#080d1a] border border-[#1e293b] space-y-0.5 opacity-80 hover:opacity-100 cursor-pointer">
+              <div className="p-2 rounded-lg bg-[#080d1a] border border-[#1e293b] space-y-0.5 opacity-80 hover:opacity-100 cursor-pointer">
                 <div className="text-[#94a3b8] flex items-center space-x-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#64748b] inline-block"></span>
                   <span>NVDA &bull; 2021–2024</span>
@@ -467,7 +477,7 @@ export default function BacktestTerminalPage() {
             <>
               {/* Top Institutional Performance KPI Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
-                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-[2px] space-y-1">
+                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-lg space-y-1">
                   <span className="text-[10px] text-[#94a3b8] block">Total Return</span>
                   <div className={`text-base font-bold ${m.total_return >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
                     {formatPercent(m.total_return)}
@@ -484,7 +494,7 @@ export default function BacktestTerminalPage() {
                   </div>
                 </div>
 
-                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-[2px] space-y-1">
+                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-lg space-y-1">
                   <span className="text-[10px] text-[#94a3b8] block">CAGR</span>
                   <div className={`text-base font-bold ${m.cagr >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
                     {formatPercent(m.cagr)}
@@ -492,7 +502,7 @@ export default function BacktestTerminalPage() {
                   <span className="text-[9px] text-[#64748b] block">Annualized</span>
                 </div>
 
-                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-[2px] space-y-1">
+                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-lg space-y-1">
                   <span className="text-[10px] text-[#94a3b8] block">Sharpe Ratio</span>
                   <div className="text-base font-bold text-white">
                     {formatRatio(m.sharpe_ratio)}
@@ -500,7 +510,7 @@ export default function BacktestTerminalPage() {
                   <span className="text-[9px] text-[#64748b] block">Risk-adjusted</span>
                 </div>
 
-                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-[2px] space-y-1">
+                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-lg space-y-1">
                   <span className="text-[10px] text-[#94a3b8] block">Sortino Ratio</span>
                   <div className="text-base font-bold text-white">
                     {formatRatio(m.sortino_ratio)}
@@ -508,7 +518,7 @@ export default function BacktestTerminalPage() {
                   <span className="text-[9px] text-[#64748b] block">Downside risk</span>
                 </div>
 
-                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-[2px] space-y-1">
+                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-lg space-y-1">
                   <span className="text-[10px] text-[#94a3b8] block">Max Drawdown</span>
                   <div className="text-base font-bold text-[#EF4444]">
                     -{m.max_drawdown.toFixed(1)}%
@@ -516,7 +526,7 @@ export default function BacktestTerminalPage() {
                   <span className="text-[9px] text-[#64748b] block">Peak to trough</span>
                 </div>
 
-                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-[2px] space-y-1">
+                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-lg space-y-1">
                   <span className="text-[10px] text-[#94a3b8] block">Win Rate</span>
                   <div className="text-base font-bold text-[#cbd5e1]">
                     {m.win_rate.toFixed(1)}%
@@ -526,7 +536,7 @@ export default function BacktestTerminalPage() {
                   </span>
                 </div>
 
-                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-[2px] space-y-1">
+                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-lg space-y-1">
                   <span className="text-[10px] text-[#94a3b8] block">Volatility (Ann.)</span>
                   <div className="text-base font-bold text-[#cbd5e1]">
                     {m.annualized_volatility.toFixed(1)}%
@@ -585,7 +595,7 @@ export default function BacktestTerminalPage() {
                   />
                 </div>
 
-                <div className="lg:col-span-4 border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-3 space-y-2">
+                <div className="lg:col-span-4 border border-[#1e293b] bg-[#0b1222] rounded-lg p-3 space-y-2">
                   <div className="flex items-center justify-between pb-1.5 border-b border-[#1e293b]">
                     <span className="font-bold text-[#cbd5e1] uppercase tracking-wider text-[11px]">
                       Strategy vs Benchmark Metrics

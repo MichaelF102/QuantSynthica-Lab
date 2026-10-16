@@ -35,7 +35,8 @@ export default function RiskPortfolioPage() {
   useEffect(() => {
     api
       .getBacktests()
-      .then((bts) => {
+      .then((all) => {
+        const bts = (all ?? []).filter((b) => !b.is_sample); // analytics needs real runs
         setBacktests(bts ?? []);
         if (bts?.length) setSelectedBtId(bts[0].id);
       })
