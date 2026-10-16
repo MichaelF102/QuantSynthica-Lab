@@ -61,10 +61,10 @@ export function addHolding<T extends { ticker: string; weight: number }>(items: 
 }
 
 // ---------- data ----------
-interface Series { dates: string[]; close: number[]; synthetic: boolean }
+export interface Series { dates: string[]; close: number[]; synthetic: boolean }
 const cache = new Map<string, Promise<Series>>();
 
-function loadSeries(ticker: string, start: string, end: string, benchmark: string): Promise<Series> {
+export function loadSeries(ticker: string, start: string, end: string, benchmark: string): Promise<Series> {
   const key = `${ticker}|${start}|${end}`;
   let p = cache.get(key);
   if (!p) {
@@ -82,6 +82,29 @@ function loadSeries(ticker: string, start: string, end: string, benchmark: strin
     cache.set(key, p);
   }
   return p;
+}
+
+/** Aligns several tickers on their common trading days; the optional benchmark is forward-filled onto them. */
+export async function loadAligned(tickers: string[], start: string, end: string, benchmark?: string) {
+  const [series, bench] = await Promise.all([
+    Promise.all(tickers.map((t) => loadSeries(t, start, end, benchmark ?? "SPY"))),
+    benchmark ? loadSeries(benchmark, start, end, benchmark) : Promise.resolve(null),
+  ]);
+  const common = series.map((s) => new Set(s.dates)).reduce((a, b) => new Set([...a].filter((d) => b.has(d))));
+  const dates = [...common].sort();
+  if (dates.length < 20) throw new Error(`Only ${dates.length} common trading days across ${tickers.join(", ")}; widen the date range.`);
+  const prices: Record<string, number[]> = {};
+  tickers.forEach((t, i) => {
+    const m = new Map(series[i].dates.map((d, k) => [d, series[i].close[k]]));
+    prices[t] = dates.map((d) => m.get(d)!);
+  });
+  let benchPrices: number[] | null = null;
+  if (bench) {
+    const bm = new Map(bench.dates.map((d, k) => [d, bench.close[k]]));
+    let last = bench.close[0];
+    benchPrices = dates.map((d) => { last = bm.get(d) ?? last; return last; });
+  }
+  return { dates, prices, benchPrices, synthetic: [...tickers.filter((_, i) => series[i].synthetic), ...(bench?.synthetic && benchmark ? [benchmark] : [])] };
 }
 
 // ---------- rebalancing ----------
