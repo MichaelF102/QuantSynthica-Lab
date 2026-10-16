@@ -259,7 +259,7 @@ export default function NavbarSecuritySearch() {
   return (
     <div ref={containerRef} className="flex items-center gap-2">
       {/* Security Searchbar (Moved to the left) */}
-      <div className="relative w-44 sm:w-56 md:w-64 lg:w-72 xl:w-80">
+      <div className="relative w-44 sm:w-56 md:w-64 lg:w-72 xl:w-52 min-[1440px]:w-60 min-[1700px]:w-72 min-[1840px]:w-80">
         <div className="relative flex items-center">
           <Search className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 text-slate-500" />
           <input
