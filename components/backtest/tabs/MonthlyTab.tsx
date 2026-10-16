@@ -18,6 +18,22 @@ const heat = (v?: number) => {
   return "bg-rose-500/45 font-semibold text-white";
 };
 
+export function MonthlyMatrixCard({ matrix }: { matrix: ReturnType<typeof monthlyMatrix> }) {
+  return (
+      <Card title="Monthly returns" subtitle="Calendar-month return of the portfolio" info="Percent change in portfolio value over each calendar month, compounded from the equity curve. YTD compounds the months shown for that year." icon={CalendarDays} tone="blue">
+        <div className="w-full overflow-x-auto"><table className="w-full text-center font-mono text-xs">
+          <thead><tr className="border-b border-slate-800 font-sans text-[10px] uppercase tracking-wider text-slate-400"><th className="py-1.5 pl-2 text-left">Year</th>{MONTH_NAMES.map((m) => <th key={m} className="py-1.5">{m}</th>)}<th className="py-1.5 pr-2 text-right">YTD</th></tr></thead>
+          <tbody className="divide-y divide-slate-800/50">{matrix.map((row) => (
+            <tr key={row.year} className="transition-colors hover:bg-slate-800/30">
+              <td className="py-2 pl-2 text-left font-bold text-white">{row.year}</td>
+              {MONTH_NAMES.map((m) => { const v = row[m] as number | undefined; return <td key={m} className={cn("rounded-sm px-1 py-2", heat(v))}>{typeof v === "number" ? v.toFixed(1) : "—"}</td>; })}
+              <td className={cn("py-2 pr-2 text-right font-bold", signTone(row.YTD))}>{fmtPct(row.YTD, 1)}</td>
+            </tr>))}</tbody>
+        </table></div>
+      </Card>
+  );
+}
+
 export default function MonthlyTab({ bt }: { bt: BacktestResult }) {
   const matrix = useMemo(() => monthlyMatrix(toPts(bt.equity_curve)), [bt]);
   const cells = useMemo(() => matrix.flatMap((r) => MONTH_NAMES.filter((m) => typeof r[m] === "number").map((m) => ({ year: r.year, month: m, v: r[m] as number }))), [matrix]);
@@ -36,17 +52,7 @@ export default function MonthlyTab({ bt }: { bt: BacktestResult }) {
         <Kpi label="Positive months" value={fmtPct((pos / cells.length) * 100, 0, false)} sub={`${pos} of ${cells.length}`} />
         <Kpi label="Months analysed" value={String(cells.length)} />
       </div>
-      <Card title="Monthly returns" subtitle="Calendar-month return of the portfolio" info="Percent change in portfolio value over each calendar month, compounded from the equity curve. YTD compounds the months shown for that year." icon={CalendarDays} tone="blue">
-        <div className="w-full overflow-x-auto"><table className="w-full text-center font-mono text-xs">
-          <thead><tr className="border-b border-slate-800 font-sans text-[10px] uppercase tracking-wider text-slate-400"><th className="py-1.5 pl-2 text-left">Year</th>{MONTH_NAMES.map((m) => <th key={m} className="py-1.5">{m}</th>)}<th className="py-1.5 pr-2 text-right">YTD</th></tr></thead>
-          <tbody className="divide-y divide-slate-800/50">{matrix.map((row) => (
-            <tr key={row.year} className="transition-colors hover:bg-slate-800/30">
-              <td className="py-2 pl-2 text-left font-bold text-white">{row.year}</td>
-              {MONTH_NAMES.map((m) => { const v = row[m] as number | undefined; return <td key={m} className={cn("rounded-sm px-1 py-2", heat(v))}>{typeof v === "number" ? v.toFixed(1) : "—"}</td>; })}
-              <td className={cn("py-2 pr-2 text-right font-bold", signTone(row.YTD))}>{fmtPct(row.YTD, 1)}</td>
-            </tr>))}</tbody>
-        </table></div>
-      </Card>
+      <MonthlyMatrixCard matrix={matrix} />
       <Card title="Seasonality" subtitle="Average return by calendar month" info="Mean return for each calendar month across the years in this run. With only a few years the averages are noisy; the count of observations is in the tooltip." icon={BarChart3} tone="purple">
         <div className="h-56"><ResponsiveContainer width="100%" height="100%"><BarChart data={seasonal} margin={{ top: 8, right: 8, left: -10, bottom: 0 }}>
           <CartesianGrid {...GRID_PROPS} /><XAxis dataKey="month" {...AXIS_PROPS} /><YAxis {...AXIS_PROPS} tickFormatter={(v) => `${v}%`} /><ReferenceLine y={0} stroke="#475569" />

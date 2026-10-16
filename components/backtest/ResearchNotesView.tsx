@@ -1,154 +1,58 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Plus, Trash2, Clock, Check } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { NotebookPen, Plus, Trash2, Clock } from "lucide-react";
+import { Card, EmptyState } from "@/components/ui/Card";
 
-interface Note {
-  id: string;
-  timestamp: string;
-  author: string;
-  content: string;
-}
+interface Note { id: string; timestamp: string; content: string }
 
-interface ResearchNotesViewProps {
-  backtestId: string;
-  strategyName: string;
-}
-
-export default function ResearchNotesView({
-  backtestId,
-  strategyName,
-}: ResearchNotesViewProps) {
+/** Research journal for one run. Notes are yours and stay in this browser (localStorage). */
+export default function ResearchNotesView({ backtestId, strategyName }: { backtestId: string; strategyName: string }) {
+  const key = `algolab_notes_${backtestId}`;
   const [notes, setNotes] = useState<Note[]>([]);
-  const [newNoteContent, setNewNoteContent] = useState("");
-  const [isSaved, setIsSaved] = useState(false);
+  const [draft, setDraft] = useState("");
 
-  // Load from localStorage keyed by backtestId
   useEffect(() => {
-    const key = `algolab_notes_${backtestId}`;
-    const stored = localStorage.getItem(key);
-    if (stored) {
-      try {
-        setNotes(JSON.parse(stored));
-      } catch {}
-    } else {
-      // default initial note
-      const initial: Note[] = [
-        {
-          id: "note_1",
-          timestamp: new Date().toISOString().replace("T", " ").slice(0, 19) + " UTC",
-          author: "Quantitative Analyst",
-          content: `Initial experiment run for ${strategyName}. Strategy executed strictly with zero lookahead bias on daily bars. Drawdown profile remained within risk thresholds, but entry conditions yielded limited trade opportunity. Testing RSI threshold filter next.`,
-        },
-      ];
-      setNotes(initial);
-      localStorage.setItem(key, JSON.stringify(initial));
-    }
-  }, [backtestId, strategyName]);
+    try {
+      const raw: Note[] = JSON.parse(localStorage.getItem(key) || "[]");
+      // Earlier versions seeded a placeholder note; drop it.
+      setNotes(raw.filter((n) => n.id !== "note_1"));
+    } catch { setNotes([]); }
+  }, [key]);
 
-  const saveNotes = (updated: Note[]) => {
-    setNotes(updated);
-    localStorage.setItem(`algolab_notes_${backtestId}`, JSON.stringify(updated));
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 2000);
+  const save = (next: Note[]) => {
+    setNotes(next);
+    try { localStorage.setItem(key, JSON.stringify(next)); } catch { /* storage unavailable */ }
   };
-
-  const handleAddNote = () => {
-    if (!newNoteContent.trim()) return;
-    const item: Note = {
-      id: `note_${Date.now()}`,
-      timestamp: new Date().toISOString().replace("T", " ").slice(0, 19) + " UTC",
-      author: "Quantitative Analyst",
-      content: newNoteContent.trim(),
-    };
-    saveNotes([item, ...notes]);
-    setNewNoteContent("");
-  };
-
-  const handleDelete = (id: string) => {
-    saveNotes(notes.filter((n) => n.id !== id));
+  const add = () => {
+    const content = draft.trim();
+    if (!content) return;
+    save([{ id: `note_${Date.now()}`, timestamp: new Date().toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }), content }, ...notes]);
+    setDraft("");
   };
 
   return (
-    <div className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-4 font-mono text-xs select-none space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-[#1e293b]">
-        <div>
-          <span className="font-bold text-[#cbd5e1] uppercase tracking-wider text-xs">
-            QUANTITATIVE RESEARCH JOURNAL & OBSERVATIONS
-          </span>
-          <span className="text-[11px] text-[#64748b] block">
-            Record hypothesis, parameter iterations, and empirical findings for Run #{backtestId}
-          </span>
+    <div className="space-y-4 font-sans">
+      <Card title="Research journal" subtitle={`${strategyName} · run ${backtestId}`} info="Record hypotheses, parameter changes and findings for this run. Notes are saved in this browser only." icon={NotebookPen} tone="purple">
+        <textarea value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") add(); }} rows={4} placeholder="Document a hypothesis, a change, or a conclusion…"
+          className="w-full resize-y rounded-lg border border-slate-800 bg-[#080d1a] p-3 text-sm text-slate-200 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none" />
+        <div className="mt-2 flex items-center justify-between">
+          <span className="text-[11px] text-slate-500">Ctrl + Enter to save</span>
+          <button onClick={add} disabled={!draft.trim()} className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-500 disabled:opacity-40"><Plus className="h-3.5 w-3.5" />Add note</button>
         </div>
-        {isSaved && (
-          <div className="flex items-center space-x-1 text-[10px] text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 rounded-[2px] border border-[#10B981]/30">
-            <Check className="h-3 w-3" />
-            <span>AUTOSAVED TO LAB REGISTRY</span>
-          </div>
-        )}
-      </div>
-
-      {/* Input box */}
-      <div className="border border-[#1e293b] bg-[#080d1a] p-3 rounded-[2px] space-y-2">
-        <textarea
-          rows={3}
-          placeholder="Document hypothesis, changes, trade attribution anomalies, or conclusion..."
-          value={newNoteContent}
-          onChange={(e) => setNewNoteContent(e.target.value)}
-          className="w-full bg-transparent text-[#cbd5e1] placeholder-[#64748b] text-xs focus:outline-none resize-none"
-        />
-        <div className="flex justify-between items-center pt-2 border-t border-[#1e293b]">
-          <span className="text-[10px] text-[#64748b]">Supports markdown and research observations</span>
-          <button
-            onClick={handleAddNote}
-            disabled={!newNoteContent.trim()}
-            className="flex items-center space-x-1.5 px-3 py-1 bg-[#3b82f6] hover:bg-sky-500 text-[#080d1a] font-bold rounded-[2px] disabled:opacity-40 transition-colors"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            <span>RECORD NOTE</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Note entries list */}
-      <div className="space-y-3">
-        {notes.length === 0 ? (
-          <div className="p-8 border border-[#1e293b] bg-[#080d1a] text-center text-[#64748b]">
-            No research notes recorded for this backtest yet.
-          </div>
-        ) : (
-          notes.map((n) => (
-            <div
-              key={n.id}
-              className="border border-[#1e293b] bg-[#080d1a] p-3 rounded-[2px] space-y-2 group"
-            >
-              <div className="flex items-center justify-between text-[10px] border-b border-[#1e293b] pb-1.5">
-                <div className="flex items-center space-x-2">
-                  <span className="font-bold text-[#3b82f6] uppercase">{n.author}</span>
-                  <span className="text-[#64748b]">&bull;</span>
-                  <div className="flex items-center space-x-1 text-[#94a3b8]">
-                    <Clock className="h-3 w-3" />
-                    <span>{n.timestamp}</span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => handleDelete(n.id)}
-                  className="opacity-0 group-hover:opacity-100 text-[#64748b] hover:text-[#EF4444] transition-opacity"
-                  title="Delete note"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
-
-              <p className="text-[#cbd5e1] leading-relaxed text-[11px] whitespace-pre-wrap">
-                {n.content}
-              </p>
+      </Card>
+      {notes.length === 0 ? (
+        <EmptyState icon={NotebookPen} title="No notes yet" hint="Add the first observation for this run above." />
+      ) : (
+        <div className="space-y-3">{notes.map((n) => (
+          <div key={n.id} className="rounded-xl border border-slate-800/90 bg-[#0b1222]/95 p-4">
+            <div className="mb-2 flex items-center justify-between text-[11px] text-slate-400">
+              <span className="flex items-center gap-1.5"><Clock className="h-3 w-3" />{n.timestamp}</span>
+              <button onClick={() => save(notes.filter((x) => x.id !== n.id))} aria-label="Delete note" className="text-slate-500 transition-colors hover:text-rose-400"><Trash2 className="h-3.5 w-3.5" /></button>
             </div>
-          ))
-        )}
-      </div>
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-200">{n.content}</p>
+          </div>))}</div>
+      )}
     </div>
   );
 }
