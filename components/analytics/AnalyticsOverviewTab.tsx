@@ -13,7 +13,7 @@ import { Card, EmptyState, Kpi, signTone } from "@/components/ui/Card";
 import { fmtPct, fmtInt, isNum, cn } from "@/lib/utils";
 import { formatRatio } from "@/lib/formatters";
 import {
-  AnalyticsFilters, CURRENCY_SYMBOL, Pt, benchmarkLabel, btPoints, fmtMoney, mergeByDate, riskStats, seriesStats, windowPts,
+  AnalyticsFilters, CURRENCY_SYMBOL, Pt, benchmarkLabel, btPoints, runName, fmtMoney, mergeByDate, riskStats, seriesStats, windowPts,
 } from "@/lib/analyticsCalc";
 import { AXIS_PROPS, GRID_PROPS, TOOLTIP_STYLE, seriesColor } from "@/lib/chartTheme";
 import MoreMetricsModal from "./MoreMetricsModal";
@@ -65,6 +65,7 @@ export default function AnalyticsOverviewTab({
 
   const selected = useMemo(() => allBacktests.filter((b) => selectedIds.includes(b.id)), [allBacktests, selectedIds]);
   const lead = selected[0] ?? null;
+  const nameOf = (b: BacktestResult) => runName(b, allBacktests);
   const sym = CURRENCY_SYMBOL[filters.currency];
 
   // Global date window + frequency, further narrowed by the chart's own range chips.
@@ -106,7 +107,7 @@ export default function AnalyticsOverviewTab({
     };
     const series = selected.filter((b) => (ptsById.get(b.id) ?? []).length > 1).map((b) => {
       const pts = ptsById.get(b.id)!;
-      return { key: b.strategy_name, pts, pick: chartMode === "Drawdown" ? (p: Pt) => -p.dd : rebase(pts, (p) => p.value) };
+      return { key: nameOf(b), pts, pick: chartMode === "Drawdown" ? (p: Pt) => -p.dd : rebase(pts, (p) => p.value) };
     });
     const leadPts = lead ? ptsById.get(lead.id) ?? [] : [];
     if (leadPts.length > 1) {
@@ -164,7 +165,7 @@ export default function AnalyticsOverviewTab({
   const cell = (id: string, b: BacktestResult, s: ReturnType<typeof seriesStats>) => {
     const mono = "px-2 py-2.5 font-mono";
     switch (id) {
-      case "strategy": return <td className="px-2 py-2.5 font-medium text-slate-200">{b.strategy_name}</td>;
+      case "strategy": return <td className="px-2 py-2.5 font-medium text-slate-200">{nameOf(b)}</td>;
       case "asset": return <td className={cn(mono, "text-slate-300")}>{b.ticker}</td>;
       case "total_return": return <td className={cn(mono, "font-semibold", signTone(s?.totalReturn))}>{fmtPct(s?.totalReturn)}</td>;
       case "cagr": return <td className={cn(mono, signTone(s?.cagr))}>{fmtPct(s?.cagr)}</td>;
@@ -205,7 +206,7 @@ export default function AnalyticsOverviewTab({
               <div className="absolute left-0 top-full z-50 mt-1 max-h-48 w-64 overflow-y-auto rounded-xl border border-slate-800 bg-[#0B101C] p-1.5 shadow-[0_18px_48px_-12px_rgba(0,0,0,0.65)]">
                 {availableToSelect.map((item) => (
                   <button key={item.id} type="button" onClick={() => { onToggleStrategy(item.id); setSearchQuery(""); }} className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-xs text-slate-200 hover:bg-slate-800/70">
-                    <span className="truncate">{item.strategy_name}</span>
+                    <span className="truncate">{nameOf(item)}</span>
                     <span className="font-mono text-[10px] text-slate-500">({item.ticker})</span>
                   </button>
                 ))}
@@ -223,9 +224,9 @@ export default function AnalyticsOverviewTab({
             {selected.map((b, i) => (
               <div key={b.id} className="flex items-center gap-1.5 rounded-full border border-slate-800 bg-[#080d1a] px-2.5 py-1 font-medium text-slate-200">
                 <span className="h-2 w-2 rounded-full" style={{ backgroundColor: seriesColor(i) }} />
-                <span className="max-w-[200px] truncate">{b.strategy_name} <span className="font-mono text-[10px] text-slate-400">({b.ticker})</span></span>
+                <span className="max-w-[260px] truncate">{nameOf(b)} <span className="font-mono text-[10px] text-slate-400">({b.ticker})</span></span>
                 {b.is_sample && <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-1 font-mono text-[8px] font-bold text-blue-400">SAMPLE</span>}
-                <button type="button" onClick={() => onToggleStrategy(b.id)} aria-label={`Remove ${b.strategy_name}`} className="rounded-full p-0.5 text-slate-400 hover:bg-slate-800 hover:text-white"><X className="h-3 w-3" /></button>
+                <button type="button" onClick={() => onToggleStrategy(b.id)} aria-label={`Remove ${nameOf(b)}`} className="rounded-full p-0.5 text-slate-400 hover:bg-slate-800 hover:text-white"><X className="h-3 w-3" /></button>
               </div>
             ))}
           </div>
@@ -255,7 +256,7 @@ export default function AnalyticsOverviewTab({
       {/* KPI strip: lead strategy, benchmark-relative */}
       {lead && (
         <div className="space-y-1.5">
-          <p className="text-[11px] text-slate-400">KPIs for <span className="font-medium text-slate-200">{lead.strategy_name}</span> <span className="font-mono">({lead.ticker})</span> · {windowLabel}</p>
+          <p className="text-[11px] text-slate-400">KPIs for <span className="font-medium text-slate-200">{nameOf(lead)}</span> <span className="font-mono">({lead.ticker})</span> · {windowLabel}</p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9">
             <Kpi label="Total return" value={fmtPct(leadStats?.totalReturn)} tone={signTone(leadStats?.totalReturn)} sub={<span className={signTone(rel(leadStats?.totalReturn, leadStats?.benchReturn))}>{fmtPct(rel(leadStats?.totalReturn, leadStats?.benchReturn))} vs bench</span>} />
             <Kpi label="CAGR" value={fmtPct(leadStats?.cagr)} tone={signTone(leadStats?.cagr)} sub={<span className={signTone(rel(leadStats?.cagr, leadStats?.benchCagr))}>{fmtPct(rel(leadStats?.cagr, leadStats?.benchCagr))} vs bench</span>} />
@@ -307,7 +308,7 @@ export default function AnalyticsOverviewTab({
                     <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(val: any, name: any) => [chartMode === "Equity Curve" || chartMode === "Log Scale" ? fmtMoney(Number(val), filters.currency) : fmtPct(Number(val)), name === BENCH_KEY ? benchName : name]} />
                     <Line type="monotone" dataKey={BENCH_KEY} stroke="#64748B" strokeWidth={1.5} strokeDasharray="4 4" dot={false} connectNulls isAnimationActive={false} />
                     {selected.map((b, i) => (
-                      <Line key={b.id} type="monotone" dataKey={b.strategy_name} stroke={seriesColor(i)} strokeWidth={2} dot={false} connectNulls isAnimationActive={false} />
+                      <Line key={b.id} type="monotone" dataKey={nameOf(b)} stroke={seriesColor(i)} strokeWidth={2} dot={false} connectNulls isAnimationActive={false} />
                     ))}
                   </LineChart>
                 </ResponsiveContainer>
@@ -321,7 +322,7 @@ export default function AnalyticsOverviewTab({
                 return (
                   <span key={b.id} className="flex items-center gap-1.5">
                     <span className="h-2 w-2 rounded-full" style={{ backgroundColor: seriesColor(i) }} />
-                    <span className="font-medium text-slate-300">{b.strategy_name}</span>
+                    <span className="font-medium text-slate-300">{nameOf(b)}</span>
                     <span className={cn("font-mono text-[10px]", signTone(s?.totalReturn))}>{fmtPct(s?.totalReturn)}</span>
                   </span>
                 );
@@ -340,11 +341,11 @@ export default function AnalyticsOverviewTab({
             <div className="flex items-center gap-2 text-[11px] text-slate-400">
               Distribution &amp; drawdown for
               <select value={ddStrategy?.id ?? ""} onChange={(e) => setDdId(e.target.value)} className={cn(INPUT, "px-2 py-1")}>
-                {selected.map((b) => <option key={b.id} value={b.id}>{b.strategy_name} ({b.ticker})</option>)}
+                {selected.map((b) => <option key={b.id} value={b.id}>{nameOf(b)} ({b.ticker})</option>)}
               </select>
             </div>
           )}
-          <Card title="Return distribution" subtitle={`${filters.frequency} returns of ${ddStrategy?.strategy_name ?? "—"}`} info="Histogram of period returns inside the selected window." icon={BarChart2} tone="purple">
+          <Card title="Return distribution" subtitle={`${filters.frequency} returns of ${ddStrategy ? nameOf(ddStrategy) : "—"}`} info="Histogram of period returns inside the selected window." icon={BarChart2} tone="purple">
             <div className="h-40">
               {returnDist.length ? (
                 <ResponsiveContainer width="100%" height="100%">
@@ -436,7 +437,7 @@ export default function AnalyticsOverviewTab({
         </div>
       </div>
 
-      <MoreMetricsModal isOpen={showMore} onClose={() => setShowMore(false)} strategyName={lead ? `${lead.strategy_name} (${lead.ticker}) · ${windowLabel}` : "—"} stats={leadStats} risk={lead ? riskStats(ptsById.get(lead.id) ?? []) : null} />
+      <MoreMetricsModal isOpen={showMore} onClose={() => setShowMore(false)} strategyName={lead ? `${nameOf(lead)} (${lead.ticker}) · ${windowLabel}` : "—"} stats={leadStats} risk={lead ? riskStats(ptsById.get(lead.id) ?? []) : null} />
       <DetailedReportModal isOpen={showReport} onClose={() => setShowReport(false)} items={selected.map((bt) => ({ bt, stats: statsById.get(bt.id) ?? null }))} windowLabel={windowLabel} />
       <ColumnsModal isOpen={showCols} onClose={() => setShowCols(false)} allColumns={COLUMNS} visibleColumns={visibleCols} onToggleColumn={(id) => setVisibleCols((v) => (v.includes(id) ? (v.length > 2 ? v.filter((c) => c !== id) : v) : [...v, id]))} />
     </div>

@@ -10,11 +10,12 @@ async function launch(url) {
   const page = tabs.find((t) => t.type === "page");
   const ws = new WebSocket(page.webSocketDebuggerUrl);
   await new Promise((r) => (ws.onopen = r));
-  let id = 0; const pending = new Map();
-  ws.onmessage = (m) => { const d = JSON.parse(m.data); if (d.id && pending.has(d.id)) { pending.get(d.id)(d); pending.delete(d.id); } };
+  let id = 0; const pending = new Map(); const errors = [];
+  ws.onmessage = (m) => { const d = JSON.parse(m.data); if (d.method === "Runtime.exceptionThrown") errors.push(d.params.exceptionDetails.exception?.description || d.params.exceptionDetails.text); if (d.method === "Runtime.consoleAPICalled" && d.params.type === "error") errors.push("console.error: " + d.params.args.map((a) => a.value ?? a.description ?? "").join(" ")); if (d.id && pending.has(d.id)) { pending.get(d.id)(d); pending.delete(d.id); } };
   const send = (method, params = {}) => new Promise((r) => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
   const ev = async (expr) => { const r = await send("Runtime.evaluate", { expression: expr, awaitPromise: true, returnByValue: true }); if (r.result.exceptionDetails) throw new Error(r.result.exceptionDetails.exception?.description || "eval error"); return r.result.result.value; };
   const waitFor = async (expr, ms = 30000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { try { if (await ev(expr)) return true; } catch {} await sleep(300); } return false; };
-  return { ev, waitFor, send, sleep, close: () => { try { ws.close(); } catch {} chrome.kill("SIGKILL"); } };
+  send("Runtime.enable");
+  return { errors, ev, waitFor, send, sleep, close: () => { try { ws.close(); } catch {} chrome.kill("SIGKILL"); } };
 }
 module.exports = { launch };

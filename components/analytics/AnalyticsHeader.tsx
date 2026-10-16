@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { CURRENCY_SYMBOL } from "@/lib/analyticsCalc";
 import {
   Calendar,
   ChevronDown,
@@ -132,20 +133,13 @@ export default function AnalyticsHeader({
           <ChevronDown className="w-3 h-3 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
 
-        {/* Currency Dropdown */}
-        <div className="relative">
-          <select
-            value={currency}
-            onChange={(e) => onCurrencyChange(e.target.value as any)}
-            className="cursor-pointer appearance-none rounded-lg border border-slate-700/50 bg-[#0F172A]/70 py-1.5 pl-3 pr-7 text-xs text-slate-100 outline-none transition-colors hover:border-slate-600 focus:border-blue-500"
-          >
-            <option value="USD">USD ($)</option>
-            <option value="INR">INR (₹)</option>
-            <option value="EUR">EUR (€)</option>
-            <option value="GBP">GBP (£)</option>
-          </select>
-          <ChevronDown className="w-3 h-3 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-        </div>
+        {/* Currency: the run's own currency. There is no FX conversion, so this is a label, not a switch. */}
+        <span
+          title="Values are shown in the lead strategy's own currency. No FX conversion is applied."
+          className="inline-flex items-center rounded-lg border border-slate-700/50 bg-[#0F172A]/70 px-3 py-1.5 font-mono text-xs text-slate-200"
+        >
+          {currency} ({CURRENCY_SYMBOL[currency]})
+        </span>
 
         {/* Run Analysis Action Button */}
         <button

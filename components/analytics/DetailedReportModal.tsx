@@ -1,11 +1,12 @@
 "use client";
 
 import React from "react";
+import { useEscape } from "@/lib/useEscape";
 import { X } from "lucide-react";
 import { BacktestResult } from "@/types";
 import { fmtPct, cn } from "@/lib/utils";
 import { formatRatio } from "@/lib/formatters";
-import { SeriesStats, benchmarkLabel } from "@/lib/analyticsCalc";
+import { SeriesStats, benchmarkLabel, runName } from "@/lib/analyticsCalc";
 import { signTone } from "@/components/ui/Card";
 
 interface Props {
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export default function DetailedReportModal({ isOpen, onClose, items, windowLabel }: Props) {
+  useEscape(isOpen, onClose);
   if (!isOpen) return null;
   const valid = items.filter((i) => i.stats);
 
@@ -38,7 +40,7 @@ export default function DetailedReportModal({ isOpen, onClose, items, windowLabe
           valid.map(({ bt, stats: s }) => s && (
             <div key={bt.id} className="space-y-3 rounded-xl border border-slate-800/90 bg-[#080d1a]/60 p-4">
               <div className="flex items-center justify-between">
-                <div className="text-sm font-bold text-white">{bt.strategy_name} <span className="font-mono text-[11px] font-normal text-slate-400">({bt.ticker})</span></div>
+                <div className="text-sm font-bold text-white">{runName(bt, items.map((i) => i.bt))} <span className="font-mono text-[11px] font-normal text-slate-400">({bt.ticker})</span></div>
                 <div className="text-[11px] text-slate-400">vs {benchmarkLabel(bt.benchmark)}</div>
               </div>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">

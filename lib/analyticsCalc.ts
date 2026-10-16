@@ -38,6 +38,15 @@ export function fmtMoney(v: number | null | undefined, c: CurrencyCode, compact 
   return `${v < 0 ? "-" : ""}${sym}${Math.abs(v).toLocaleString(c === "INR" ? "en-IN" : "en-US", { maximumFractionDigits: 0 })}`;
 }
 
+/** Display name that stays unique when several runs share a strategy and ticker (adds the date window, then the run id). */
+export function runName(bt: Pick<BacktestResult, "id" | "strategy_name" | "ticker" | "start_date" | "end_date">, all: Pick<BacktestResult, "id" | "strategy_name" | "ticker" | "start_date" | "end_date">[]): string {
+  const same = all.filter((o) => o.strategy_name === bt.strategy_name && o.ticker === bt.ticker);
+  if (same.length < 2) return bt.strategy_name;
+  const win = `${bt.start_date} → ${bt.end_date}`;
+  const twin = same.some((o) => o.id !== bt.id && o.start_date === bt.start_date && o.end_date === bt.end_date);
+  return `${bt.strategy_name} · ${win}${twin ? ` · #${bt.id.slice(-4)}` : ""}`;
+}
+
 export const toPts = (curve: EquityPoint[]): Pt[] =>
   curve.map((p) => ({ date: p.date, value: p.portfolio_value, bench: p.benchmark_value, dd: p.drawdown }));
 

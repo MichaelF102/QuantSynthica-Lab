@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useEscape } from "@/lib/useEscape";
 import { X, Check } from "lucide-react";
 
 interface ColumnsModalProps {
@@ -18,6 +19,7 @@ export default function ColumnsModal({
   visibleColumns,
   onToggleColumn,
 }: ColumnsModalProps) {
+  useEscape(isOpen, onClose);
   if (!isOpen) return null;
 
   return (

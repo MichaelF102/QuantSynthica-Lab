@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { BacktestResult } from "@/types";
 import { cn } from "@/lib/utils";
 import { seriesColor } from "@/lib/chartTheme";
+import { runName } from "@/lib/analyticsCalc";
 
 /** Per-strategy tabs analyse one run at a time; this switches between the selected runs. */
 export function usePrimaryBacktest(selected: BacktestResult[]) {
@@ -25,7 +26,7 @@ export function usePrimaryBacktest(selected: BacktestResult[]) {
               )}
             >
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: seriesColor(i) }} />
-              {b.strategy_name} <span className="font-mono text-[10px] opacity-70">({b.ticker})</span>
+              {runName(b, selected)} <span className="font-mono text-[10px] opacity-70">({b.ticker})</span>
             </button>
           ))}
         </div>

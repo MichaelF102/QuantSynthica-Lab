@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useEscape } from "@/lib/useEscape";
 import { X } from "lucide-react";
 import { fmtPct, cn } from "@/lib/utils";
 import { formatRatio } from "@/lib/formatters";
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export default function MoreMetricsModal({ isOpen, onClose, strategyName, stats, risk }: Props) {
+  useEscape(isOpen, onClose);
   if (!isOpen) return null;
   const s = stats;
   const groups: { title: string; rows: [string, string, number | null][] }[] = [

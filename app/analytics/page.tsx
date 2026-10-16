@@ -91,7 +91,7 @@ function AnalyticsContent() {
   };
 
   const selectedBacktests = useMemo(() => backtests.filter((b) => selectedIds.includes(b.id)), [backtests, selectedIds]);
-  const filters: AnalyticsFilters = applied;
+  const filters: AnalyticsFilters = { ...applied, currency: selectedBacktests[0] ? currencyOf(selectedBacktests[0]) : applied.currency };
 
   if (loading) {
     return (
@@ -126,8 +126,8 @@ function AnalyticsContent() {
         onDateChange={(s, e) => setDraft((d) => ({ ...d, start: s || null, end: e || null }))}
         frequency={draft.frequency}
         onFrequencyChange={(frequency) => setDraft((d) => ({ ...d, frequency }))}
-        currency={draft.currency}
-        onCurrencyChange={(currency) => setDraft((d) => ({ ...d, currency: currency as CurrencyCode }))}
+        currency={filters.currency}
+        onCurrencyChange={() => {}}
         onRunAnalysis={handleRunAnalysis}
         isRunning={isRunning}
       />
