@@ -95,6 +95,12 @@ npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+### Run both with one command
+```bash
+npm run dev:all   # FastAPI on :8000 + Next.js on :3000, prefixed logs, Ctrl+C stops both
+# custom ports: WEB_PORT=3100 API_PORT=8100 NEXT_PUBLIC_API_URL=http://localhost:8100 npm run dev:all
+```
+
 ---
 
 ## 🧪 Automated Verification & Testing
