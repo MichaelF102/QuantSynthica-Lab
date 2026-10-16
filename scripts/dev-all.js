@@ -58,4 +58,5 @@ for (const svc of services) {
 
 process.on("SIGINT", () => shutdown(0));
 process.on("SIGTERM", () => shutdown(0));
+process.on("SIGHUP", () => shutdown(0)); // terminal closed
 console.log(`\x1b[1m[dev:all]\x1b[0m starting api (http://localhost:${apiPort}) and web (http://localhost:${webPort}). Ctrl+C stops both.`);
