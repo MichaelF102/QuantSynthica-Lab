@@ -1,101 +1,66 @@
 "use client";
 
-import React from "react";
-import { Info, Sparkles, ShieldCheck } from "lucide-react";
+import React, { useMemo } from "react";
+import { Sparkles, Dices, Info } from "lucide-react";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { BacktestResult } from "@/types";
+import { Card, EmptyState, Kpi } from "@/components/ui/Card";
+import { fmtPct, fmtInt } from "@/lib/utils";
+import { AnalyticsFilters, btPoints, currencyOf, fmtMoney, monteCarlo } from "@/lib/analyticsCalc";
+import { AXIS_PROPS, GRID_PROPS, TOOLTIP_STYLE } from "@/lib/chartTheme";
+import { usePrimaryBacktest } from "./StrategyPicker";
 
-import { TOOLTIP_STYLE } from "@/lib/chartTheme";
-interface AnalyticsRobustnessTabProps {
-  selectedBacktests: BacktestResult[];
-}
+interface Props { selectedBacktests: BacktestResult[]; filters: AnalyticsFilters }
 
-export default function AnalyticsRobustnessTab({
-  selectedBacktests,
-}: AnalyticsRobustnessTabProps) {
-  // Monte Carlo confidence intervals (5th, 25th, 50th, 75th, 95th percentiles)
-  const monteCarloCones = [
-    { period: "M0", p5: 100000, p25: 100000, p50: 100000, p75: 100000, p95: 100000 },
-    { period: "M2", p5: 96400, p25: 99800, p50: 102400, p75: 104800, p95: 108200 },
-    { period: "M4", p5: 94200, p25: 101200, p50: 105800, p75: 109800, p95: 115400 },
-    { period: "M6", p5: 92800, p25: 103400, p50: 109200, p75: 115200, p95: 122800 },
-    { period: "M8", p5: 91400, p25: 105600, p50: 113400, p75: 121400, p95: 131200 },
-    { period: "M10", p5: 89800, p25: 107800, p50: 117800, p75: 127800, p95: 140400 },
-    { period: "M12", p5: 88500, p25: 110200, p50: 122400, p75: 134800, p95: 151200 },
-  ];
+export default function AnalyticsRobustnessTab({ selectedBacktests, filters }: Props) {
+  const { bt, picker } = usePrimaryBacktest(selectedBacktests);
+  const pts = useMemo(() => (bt ? btPoints(bt, { ...filters, frequency: "Daily" }) : []), [bt, filters]);
+  const mc = useMemo(() => monteCarlo(pts, 252, 1000, 20), [pts]);
+  if (!bt || !mc) return <EmptyState icon={Sparkles} title="Not enough history to resample" hint="At least ~30 daily returns are needed for a bootstrap." />;
+
+  const cur = currencyOf(bt);
+  const base = pts[0].value;
+  const cone = mc.cone.map((c) => ({ ...c, p5: c.p5 * base, p25: c.p25 * base, p50: c.p50 * base, p75: c.p75 * base, p95: c.p95 * base }));
+  const end = cone[cone.length - 1];
 
   return (
     <div className="space-y-4">
-      {/* Robustness Indicators */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
-          <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Deflated Sharpe Ratio</span>
-          <div className="text-xl font-bold text-[#10B981] font-mono">0.894</div>
-          <p className="text-[10px] text-slate-400">Probability &gt; 95% that strategy is not overfit.</p>
-        </div>
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
-          <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">White's Reality Check</span>
-          <div className="text-xl font-bold text-white font-mono">p = 0.012</div>
-          <p className="text-[10px] text-slate-400">Data snooping bias rejected with 98.8% confidence.</p>
-        </div>
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
-          <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Monte Carlo Survival Rate</span>
-          <div className="text-xl font-bold text-[#3b82f6] font-mono">98.4%</div>
-          <p className="text-[10px] text-slate-400">16 of 1,000 paths triggered max 20% drawdown.</p>
-        </div>
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
-          <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Parameter Stability</span>
-          <div className="text-xl font-bold text-[#10B981] font-mono">87.5%</div>
-          <p className="text-[10px] text-slate-400">Neighboring parameter sets produce positive Sharpe.</p>
-        </div>
+      {picker}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Kpi label={`Paths breaching ${mc.ddLimit}% drawdown`} value={fmtPct(mc.breachedPct, 1, false)} tone={mc.breachedPct > 20 ? "text-rose-400" : "text-emerald-400"} sub={`${fmtInt(Math.round((mc.breachedPct / 100) * mc.paths))} of ${fmtInt(mc.paths)} paths`} />
+        <Kpi label="Probability of loss (1Y)" value={fmtPct(mc.lossPct, 1, false)} tone={mc.lossPct > 40 ? "text-rose-400" : "text-blue-400"} sub="Paths ending below start" />
+        <Kpi label="Median 1Y outcome" value={fmtPct((end.p50 / base - 1) * 100)} tone={end.p50 >= base ? "text-emerald-400" : "text-rose-400"} sub={fmtMoney(end.p50, cur, true)} />
+        <Kpi label="5th–95th pct outcome" value={`${fmtPct((end.p5 / base - 1) * 100, 0)} / ${fmtPct((end.p95 / base - 1) * 100, 0)}`} sub="Range of simulated 1Y returns" />
       </div>
 
-      {/* Monte Carlo Fan Chart */}
-      <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-4 space-y-3">
-        <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
-          <div>
-            <span className="font-semibold text-white text-xs tracking-tight">
-              Monte Carlo 1,000-Iteration Confidence Cone Simulation
-            </span>
-            <p className="text-[11px] text-[#94a3b8]">
-              Forward 12-month paths sampled via stationary bootstrap with replacement
-            </p>
-          </div>
-          <div className="flex items-center space-x-3 text-[10px] font-mono text-slate-400">
-            <span className="flex items-center space-x-1">
-              <span className="w-2 h-2 rounded-full bg-[#3b82f6]" />
-              <span>50th Median</span>
-            </span>
-            <span className="flex items-center space-x-1">
-              <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-              <span>95th Top</span>
-            </span>
-            <span className="flex items-center space-x-1">
-              <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
-              <span>5th Worst</span>
-            </span>
-          </div>
-        </div>
-
-        <div className="h-56">
+      <Card
+        title="Monte Carlo confidence cone"
+        subtitle={`${fmtInt(mc.paths)} bootstrap paths, ${mc.horizon} trading days, from ${fmtInt(pts.length - 1)} realised daily returns`}
+        info="Daily returns are resampled with replacement from this backtest's own history and compounded forward. It shows how sensitive outcomes are to the order of returns; it is not a forecast."
+        icon={Dices}
+        tone="purple"
+      >
+        <div className="h-60">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={monteCarloCones} margin={{ top: 15, right: 15, left: 10, bottom: 0 }}>
-              <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="period" stroke="#485362" fontSize={10} />
-              <YAxis stroke="#485362" fontSize={10} domain={[80000, 160000]} tickFormatter={(v) => `$${v/1000}k`} />
-              <Tooltip
-                contentStyle={TOOLTIP_STYLE}
-                formatter={(val: any) => [`$${Number(val).toLocaleString()}`, ""]}
-              />
-              <Area type="monotone" dataKey="p95" stroke="#10B981" fill="#10B981" fillOpacity={0.1} />
-              <Area type="monotone" dataKey="p75" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.15} />
-              <Area type="monotone" dataKey="p50" stroke="#3b82f6" strokeWidth={2} fill="#3b82f6" fillOpacity={0.2} />
-              <Area type="monotone" dataKey="p25" stroke="#F59E0B" fill="#F59E0B" fillOpacity={0.15} />
-              <Area type="monotone" dataKey="p5" stroke="#EF4444" fill="#EF4444" fillOpacity={0.1} />
+            <AreaChart data={cone} margin={{ top: 15, right: 15, left: 10, bottom: 0 }}>
+              <CartesianGrid {...GRID_PROPS} />
+              <XAxis dataKey="period" {...AXIS_PROPS} />
+              <YAxis {...AXIS_PROPS} domain={["auto", "auto"]} tickFormatter={(v) => `${Math.round((v / base - 1) * 100)}%`} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any, n: any) => [fmtPct((Number(v) / base - 1) * 100), String(n)]} />
+              <Area type="monotone" dataKey="p95" name="95th" stroke="#16A34A" fill="#16A34A" fillOpacity={0.08} isAnimationActive={false} />
+              <Area type="monotone" dataKey="p75" name="75th" stroke="#2563EB" fill="#2563EB" fillOpacity={0.12} isAnimationActive={false} />
+              <Area type="monotone" dataKey="p50" name="Median" stroke="#2563EB" strokeWidth={2} fill="#2563EB" fillOpacity={0.18} isAnimationActive={false} />
+              <Area type="monotone" dataKey="p25" name="25th" stroke="#D97706" fill="#D97706" fillOpacity={0.12} isAnimationActive={false} />
+              <Area type="monotone" dataKey="p5" name="5th" stroke="#DC2626" fill="#DC2626" fillOpacity={0.08} isAnimationActive={false} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      </Card>
+
+      <p className="flex items-start gap-2 rounded-lg border border-slate-800 bg-[#0b1222]/60 p-3 text-[11px] text-slate-400">
+        <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-500" />
+        Overfitting tests such as the Deflated Sharpe Ratio or parameter-stability sweeps need the number of trials and a parameter grid. Run an optimisation first; they are not estimated here.
+      </p>
     </div>
   );
 }

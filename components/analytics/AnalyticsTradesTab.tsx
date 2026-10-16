@@ -1,116 +1,73 @@
 "use client";
 
 import React from "react";
-import { Info, ArrowLeftRight, CheckCircle2, XCircle } from "lucide-react";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from "recharts";
+import { ArrowLeftRight, BarChart3, ListChecks } from "lucide-react";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell } from "recharts";
 import { BacktestResult } from "@/types";
+import { Card, EmptyState, Kpi, signTone } from "@/components/ui/Card";
+import { fmtPct, fmtInt, cn } from "@/lib/utils";
+import { AnalyticsFilters, btTrades, currencyOf, fmtMoney, tradeStats } from "@/lib/analyticsCalc";
+import { AXIS_PROPS, GRID_PROPS, TOOLTIP_STYLE, UP_COLOR, DOWN_COLOR } from "@/lib/chartTheme";
+import { usePrimaryBacktest } from "./StrategyPicker";
 
-import { TOOLTIP_STYLE } from "@/lib/chartTheme";
-interface AnalyticsTradesTabProps {
-  selectedBacktests: BacktestResult[];
-}
+interface Props { selectedBacktests: BacktestResult[]; filters: AnalyticsFilters }
 
-export default function AnalyticsTradesTab({
-  selectedBacktests,
-}: AnalyticsTradesTabProps) {
-  const tradePnlBins = [
-    { bin: "<-6%", count: 4 },
-    { bin: "-6% to -4%", count: 9 },
-    { bin: "-4% to -2%", count: 18 },
-    { bin: "-2% to 0%", count: 32 },
-    { bin: "0% to 2%", count: 48 },
-    { bin: "2% to 4%", count: 36 },
-    { bin: "4% to 6%", count: 21 },
-    { bin: ">6%", count: 11 },
-  ];
-
-  const exitReasons = [
-    { reason: "Take Profit Target", count: 72, pct: "40.2%", pnl: "+$18,420" },
-    { reason: "Opposite Signal Cross", count: 54, pct: "30.1%", pnl: "+$6,890" },
-    { reason: "Trailing Stop Activated", count: 33, pct: "18.4%", pnl: "+$4,120" },
-    { reason: "Stop Loss Hit", count: 20, pct: "11.3%", pnl: "-$7,410" },
-  ];
+export default function AnalyticsTradesTab({ selectedBacktests, filters }: Props) {
+  const { bt, picker } = usePrimaryBacktest(selectedBacktests);
+  const stats = bt ? tradeStats(btTrades(bt, filters)) : null;
+  if (!bt || !stats) return <EmptyState icon={ArrowLeftRight} title="No closed trades in this window" hint="Widen the date window, or pick a run that produced trades." />;
+  const cur = currencyOf(bt);
 
   return (
     <div className="space-y-4">
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
-          <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Total Trades Executed</span>
-          <div className="text-xl font-bold text-white font-mono">179</div>
-          <p className="text-[10px] text-slate-400">Average holding period: 8.4 days.</p>
-        </div>
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
-          <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Win / Loss Ratio</span>
-          <div className="text-xl font-bold text-[#10B981] font-mono">1.31</div>
-          <p className="text-[10px] text-slate-400">101 winning vs 78 losing trades.</p>
-        </div>
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
-          <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Avg Win / Avg Loss</span>
-          <div className="text-xl font-bold text-[#3b82f6] font-mono">1.74x</div>
-          <p className="text-[10px] text-slate-400">+$342 avg win vs -$196 avg loss.</p>
-        </div>
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
-          <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Max Win / Loss Streak</span>
-          <div className="text-xl font-bold text-white font-mono">7 / 4</div>
-          <p className="text-[10px] text-slate-400">7 consecutive wins, max 4 consecutive losses.</p>
-        </div>
+      {picker}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Kpi label="Closed trades" value={fmtInt(stats.count)} sub={`Avg hold ${stats.avgHold.toFixed(1)} bars`} />
+        <Kpi label="Win rate" value={fmtPct(stats.winRate, 1, false)} tone={stats.winRate >= 50 ? "text-emerald-400" : "text-rose-400"} sub={`${fmtInt(stats.wins)} wins / ${fmtInt(stats.losses)} losses`} />
+        <Kpi label="Avg win / avg loss" value={stats.payoff === null ? "—" : `${stats.payoff.toFixed(2)}x`} tone="text-blue-400" sub={`${fmtMoney(stats.avgWin, cur)} / ${fmtMoney(stats.avgLoss, cur)}`} />
+        <Kpi label="Max win / loss streak" value={`${stats.maxWinStreak} / ${stats.maxLossStreak}`} sub={`Profit factor ${stats.profitFactor === null ? "—" : stats.profitFactor.toFixed(2)}`} />
       </div>
 
-      {/* Trade PnL Distribution */}
-      <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-4 space-y-3">
-        <div className="pb-2 border-b border-[#1e293b]">
-          <span className="font-semibold text-white text-xs tracking-tight">
-            Trade PnL Distribution (Return % per Closed Trade)
-          </span>
-        </div>
+      <Card title="Trade return distribution" subtitle="Net return per closed trade" info="Histogram of per-trade return % after costs." icon={BarChart3} tone="blue">
         <div className="h-48">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={tradePnlBins} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="bin" stroke="#485362" fontSize={10} />
-              <YAxis stroke="#485362" fontSize={10} />
-              <Tooltip
-                contentStyle={TOOLTIP_STYLE}
-              />
-              <Bar dataKey="count" fill="#2563eb" isAnimationActive={false} />
+            <BarChart data={stats.bins} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <CartesianGrid {...GRID_PROPS} />
+              <XAxis dataKey="bin" {...AXIS_PROPS} />
+              <YAxis {...AXIS_PROPS} allowDecimals={false} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} />
+              <Bar dataKey="count" radius={[3, 3, 0, 0]} isAnimationActive={false}>
+                {stats.bins.map((b, i) => <Cell key={b.bin} fill={i < 4 ? DOWN_COLOR : UP_COLOR} />)}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      </Card>
 
-      {/* Exit Reason Breakdown Table */}
-      <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-4 space-y-3">
-        <div className="pb-2 border-b border-[#1e293b]">
-          <span className="font-semibold text-white text-xs tracking-tight">
-            Trade Exit Reason Breakdown
-          </span>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs font-mono">
+      <Card title="Exit reasons" subtitle="How trades were closed and what each cost or earned" info="Net realised P&L by the rule that closed the trade." icon={ListChecks} tone="amber">
+        <div className="w-full overflow-x-auto">
+          <table className="w-full border-collapse text-left text-xs">
             <thead>
-              <tr className="border-b border-[#1e293b] text-[10px] text-slate-400 uppercase font-sans">
-                <th className="py-2">Exit Trigger Mechanism</th>
-                <th className="py-2 text-right">Trades Count</th>
-                <th className="py-2 text-right">% of Total</th>
-                <th className="py-2 text-right">Net Realized PnL</th>
+              <tr className="border-b border-slate-800 text-[10px] uppercase tracking-wider text-slate-400">
+                <th className="py-1.5">Exit trigger</th>
+                <th className="py-1.5 text-right">Trades</th>
+                <th className="py-1.5 text-right">% of total</th>
+                <th className="py-1.5 text-right">Net P&amp;L</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1e293b]/50">
-              {exitReasons.map((r) => (
-                <tr key={r.reason} className="hover:bg-[#0b1222]/50">
-                  <td className="py-2.5 font-bold text-white font-sans">{r.reason}</td>
-                  <td className="py-2.5 text-right text-slate-200">{r.count}</td>
-                  <td className="py-2.5 text-right text-slate-400">{r.pct}</td>
-                  <td className={`py-2.5 text-right font-semibold ${r.pnl.startsWith("+") ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                    {r.pnl}
-                  </td>
+            <tbody className="divide-y divide-slate-800/50">
+              {stats.reasons.map((r) => (
+                <tr key={r.reason} className="transition-colors hover:bg-slate-800/30">
+                  <td className="py-2 font-medium capitalize text-slate-200">{r.reason.replace(/_/g, " ").toLowerCase()}</td>
+                  <td className="py-2 text-right font-mono text-slate-200">{fmtInt(r.count)}</td>
+                  <td className="py-2 text-right font-mono text-slate-400">{fmtPct((r.count / stats.count) * 100, 1, false)}</td>
+                  <td className={cn("py-2 text-right font-mono font-semibold", signTone(r.pnl))}>{(r.pnl > 0 ? "+" : "") + fmtMoney(r.pnl, cur)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

@@ -1,167 +1,94 @@
 "use client";
 
 import React from "react";
-import { X, TrendingUp, ShieldAlert, BarChart3, Activity } from "lucide-react";
-import { formatPercent, formatRatio } from "@/lib/formatters";
+import { X } from "lucide-react";
+import { fmtPct, cn } from "@/lib/utils";
+import { formatRatio } from "@/lib/formatters";
+import { SeriesStats, riskStats } from "@/lib/analyticsCalc";
+import { signTone } from "@/components/ui/Card";
 
-interface MoreMetricsModalProps {
+interface Props {
   isOpen: boolean;
   onClose: () => void;
-  metrics?: any;
-  strategyName?: string;
+  strategyName: string;
+  stats: SeriesStats | null;
+  risk: ReturnType<typeof riskStats>;
 }
 
-export default function MoreMetricsModal({
-  isOpen,
-  onClose,
-  metrics,
-  strategyName = "Selected Portfolio",
-}: MoreMetricsModalProps) {
+export default function MoreMetricsModal({ isOpen, onClose, strategyName, stats, risk }: Props) {
   if (!isOpen) return null;
-
-  const m = metrics || {};
-
-  const returnMetrics = [
-    { label: "Total Cumulative Return", value: "+22.34%" },
-    { label: "CAGR (Compound Annual Growth)", value: "10.67%" },
-    { label: "Annualized Return", value: "11.20%" },
-    { label: "Monthly Mean Return", value: "0.89%" },
-    { label: "Best Month", value: "+7.42%" },
-    { label: "Worst Month", value: "-4.18%" },
-    { label: "Positive Months", value: "68.2%" },
-  ];
-
-  const riskAdjustedMetrics = [
-    { label: "Sharpe Ratio (Rf=2%)", value: "1.32" },
-    { label: "Sortino Ratio", value: "1.87" },
-    { label: "Calmar Ratio", value: "0.71" },
-    { label: "Omega Ratio", value: "1.45" },
-    { label: "Information Ratio", value: "0.64" },
-    { label: "Treynor Ratio", value: "11.84%" },
-    { label: "Gain-to-Pain Ratio", value: "1.62" },
-  ];
-
-  const riskVolMetrics = [
-    { label: "Annualized Volatility", value: "14.28%" },
-    { label: "Downside Deviation", value: "9.84%" },
-    { label: "Daily VaR (95% CI)", value: "1.42%" },
-    { label: "Daily VaR (99% CI)", value: "2.18%" },
-    { label: "CVaR / Expected Shortfall (95%)", value: "1.96%" },
-    { label: "CVaR / Expected Shortfall (99%)", value: "2.84%" },
-    { label: "Tail Ratio (95 / 5)", value: "1.18" },
-  ];
-
-  const drawdownMetrics = [
-    { label: "Maximum Peak-to-Trough Drawdown", value: "-14.93%" },
-    { label: "Average Drawdown", value: "-4.56%" },
-    { label: "Longest Drawdown Duration", value: "62 days" },
-    { label: "Average Recovery Time", value: "37 days" },
-    { label: "Ulcer Index", value: "3.42" },
-    { label: "Pain Index", value: "2.81" },
+  const s = stats;
+  const groups: { title: string; rows: [string, string, number | null][] }[] = [
+    {
+      title: "Returns",
+      rows: [
+        ["Total return", fmtPct(s?.totalReturn), s?.totalReturn ?? null],
+        ["CAGR", fmtPct(s?.cagr), s?.cagr ?? null],
+        ["Benchmark return", fmtPct(s?.benchReturn), s?.benchReturn ?? null],
+        ["Best period", fmtPct(s?.bestPeriod), s?.bestPeriod ?? null],
+        ["Worst period", fmtPct(s?.worstPeriod), s?.worstPeriod ?? null],
+        ["Positive periods", fmtPct(s?.positivePct, 1, false), null],
+      ],
+    },
+    {
+      title: "Risk-adjusted",
+      rows: [
+        ["Sharpe (Rf = 0)", s ? formatRatio(s.sharpe) : "—", s?.sharpe ?? null],
+        ["Sortino", s ? formatRatio(s.sortino) : "—", s?.sortino ?? null],
+        ["Calmar", s ? formatRatio(s.calmar) : "—", s?.calmar ?? null],
+        ["Benchmark Sharpe", s ? formatRatio(s.benchSharpe) : "—", null],
+        ["Alpha (ann.)", fmtPct(s?.alpha), s?.alpha ?? null],
+        ["Beta", s?.beta == null ? "—" : s.beta.toFixed(2), null],
+      ],
+    },
+    {
+      title: "Volatility & tail risk",
+      rows: [
+        ["Annualised volatility", fmtPct(s?.vol, 2, false), null],
+        ["Downside deviation", fmtPct(risk?.downsideDev, 2, false), null],
+        ["VaR 95% (daily)", fmtPct(risk ? -risk.var95 : null), null],
+        ["VaR 99% (daily)", fmtPct(risk ? -risk.var99 : null), null],
+        ["CVaR 95% (daily)", fmtPct(risk ? -risk.cvar95 : null), null],
+        ["Benchmark volatility", fmtPct(s?.benchVol, 2, false), null],
+      ],
+    },
+    {
+      title: "Drawdown",
+      rows: [
+        ["Max drawdown", fmtPct(s ? -s.maxDD : null), s ? -s.maxDD : null],
+        ["Benchmark max drawdown", fmtPct(s ? -s.benchMaxDD : null), null],
+        ["Longest drawdown", s ? `${s.ddDuration} periods` : "—", null],
+        ["Average drawdown", fmtPct(risk ? -risk.pain : null), null],
+        ["Ulcer index", risk ? risk.ulcer.toFixed(2) : "—", null],
+        ["Skew (daily)", risk ? risk.skew.toFixed(2) : "—", null],
+      ],
+    },
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="bg-[#080d1a] border border-[#1e293b] rounded-xl shadow-2xl max-w-4xl w-full p-6 space-y-6 max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#1e293b]">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm" role="dialog" aria-modal="true">
+      <div className="max-h-[90vh] w-full max-w-3xl space-y-4 overflow-y-auto rounded-xl border border-slate-800/90 bg-[#0b1222] p-5 shadow-2xl shadow-black/40">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <div>
-            <div className="flex items-center space-x-2">
-              <Activity className="w-5 h-5 text-[#3b82f6]" />
-              <h2 className="text-base font-bold text-white tracking-tight">
-                Comprehensive Quantitative Metric Suite
-              </h2>
-            </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Extended statistical performance, downside tail risk, and factor characteristics for{" "}
-              <span className="text-[#3b82f6] font-semibold">{strategyName}</span>
-            </p>
+            <h3 className="text-sm font-bold tracking-wide text-white">More metrics</h3>
+            <p className="text-[11px] text-slate-400">{strategyName}</p>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded hover:bg-[#0b1222]"
-          >
-            <X className="w-5 h-5" />
+          <button type="button" onClick={onClose} aria-label="Close" className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800/60 hover:text-white">
+            <X className="h-4 w-4" />
           </button>
         </div>
-
-        {/* 4 Category Grids */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-          {/* Return Metrics */}
-          <div className="bg-[#0b1222] border border-[#1e293b] rounded-lg p-4 space-y-3">
-            <div className="flex items-center space-x-2 text-white font-semibold pb-1 border-b border-[#1e293b]">
-              <TrendingUp className="w-4 h-4 text-[#10B981]" />
-              <span>Return Performance Profile</span>
-            </div>
-            <div className="space-y-2 font-mono">
-              {returnMetrics.map((item) => (
-                <div key={item.label} className="flex justify-between items-center py-0.5">
-                  <span className="text-slate-400 text-[11px] font-sans">{item.label}</span>
-                  <span className="text-white font-semibold">{item.value}</span>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {groups.map((g) => (
+            <div key={g.title} className="rounded-xl border border-slate-800/90 bg-[#080d1a]/60 p-3">
+              <div className="mb-2 font-mono text-[10px] font-bold uppercase tracking-wider text-slate-400">{g.title}</div>
+              {g.rows.map(([label, value, tone]) => (
+                <div key={label} className="flex items-center justify-between border-b border-slate-800/50 py-1.5 text-xs last:border-0">
+                  <span className="text-slate-400">{label}</span>
+                  <span className={cn("font-mono font-semibold", value === "—" ? "text-slate-500" : tone === null ? "text-slate-100" : signTone(tone))}>{value}</span>
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Risk-Adjusted Ratios */}
-          <div className="bg-[#0b1222] border border-[#1e293b] rounded-lg p-4 space-y-3">
-            <div className="flex items-center space-x-2 text-white font-semibold pb-1 border-b border-[#1e293b]">
-              <BarChart3 className="w-4 h-4 text-[#3b82f6]" />
-              <span>Risk-Adjusted Efficiency</span>
-            </div>
-            <div className="space-y-2 font-mono">
-              {riskAdjustedMetrics.map((item) => (
-                <div key={item.label} className="flex justify-between items-center py-0.5">
-                  <span className="text-slate-400 text-[11px] font-sans">{item.label}</span>
-                  <span className="text-white font-semibold">{item.value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Volatility & Downside Risk */}
-          <div className="bg-[#0b1222] border border-[#1e293b] rounded-lg p-4 space-y-3">
-            <div className="flex items-center space-x-2 text-white font-semibold pb-1 border-b border-[#1e293b]">
-              <ShieldAlert className="w-4 h-4 text-[#F59E0B]" />
-              <span>Tail Risk & Volatility Metrics</span>
-            </div>
-            <div className="space-y-2 font-mono">
-              {riskVolMetrics.map((item) => (
-                <div key={item.label} className="flex justify-between items-center py-0.5">
-                  <span className="text-slate-400 text-[11px] font-sans">{item.label}</span>
-                  <span className="text-white font-semibold">{item.value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Drawdown Profile */}
-          <div className="bg-[#0b1222] border border-[#1e293b] rounded-lg p-4 space-y-3">
-            <div className="flex items-center space-x-2 text-white font-semibold pb-1 border-b border-[#1e293b]">
-              <Activity className="w-4 h-4 text-[#EF4444]" />
-              <span>Drawdown & Recovery Profile</span>
-            </div>
-            <div className="space-y-2 font-mono">
-              {drawdownMetrics.map((item) => (
-                <div key={item.label} className="flex justify-between items-center py-0.5">
-                  <span className="text-slate-400 text-[11px] font-sans">{item.label}</span>
-                  <span className="text-white font-semibold">{item.value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="flex justify-end pt-3 border-t border-[#1e293b]">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-1.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-semibold rounded"
-          >
-            Close
-          </button>
+          ))}
         </div>
       </div>
     </div>

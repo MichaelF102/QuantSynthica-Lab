@@ -102,3 +102,34 @@ export function EmptyState({
     </div>
   );
 }
+
+/** Text colour for a signed value: emerald up, rose down, slate for missing. */
+export const signTone = (v: number | null | undefined) =>
+  typeof v !== "number" || !Number.isFinite(v) ? "text-slate-500" : v > 0 ? "text-emerald-400" : v < 0 ? "text-rose-400" : "text-slate-200";
+
+/** DESIGN.md §7.8 KPI tile. A value of "—" is always muted. */
+export function Kpi({
+  label,
+  value,
+  sub,
+  tone = "text-white",
+  icon: Icon,
+  title,
+}: {
+  label: string;
+  value: string;
+  sub?: React.ReactNode;
+  tone?: string;
+  icon?: LucideIcon;
+  title?: string;
+}) {
+  return (
+    <div className="rounded-xl border border-slate-800/90 bg-[#0b1222]/95 p-3.5" title={title}>
+      <div className="mb-0.5 flex items-center gap-1 text-[10px] text-slate-400">
+        {Icon && <Icon className="h-3 w-3" />} {label}
+      </div>
+      <div className={cn("font-mono text-lg font-bold", value === "—" ? "text-slate-500" : tone)}>{value}</div>
+      {sub && <div className="font-mono text-[11px] text-slate-400">{sub}</div>}
+    </div>
+  );
+}

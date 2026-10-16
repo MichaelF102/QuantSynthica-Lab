@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/ui/Card";
 
 interface AnalyticsFactorsTabProps {
   selectedBacktests: BacktestResult[];
+  filters?: unknown;
 }
 
 // Factor regression (Fama-French / momentum loadings) is not computed by the backend yet.

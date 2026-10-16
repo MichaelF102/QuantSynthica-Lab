@@ -1,116 +1,91 @@
 "use client";
 
 import React from "react";
-import { Info, ShieldAlert, AlertTriangle, Activity } from "lucide-react";
+import { ShieldAlert, TrendingDown, BarChart3, AlertTriangle, Activity } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { BacktestResult } from "@/types";
+import { Card, EmptyState, Kpi, signTone } from "@/components/ui/Card";
+import { fmtPct, fmtInt, cn } from "@/lib/utils";
+import { AnalyticsFilters, btPoints, riskStats, worstWindows } from "@/lib/analyticsCalc";
+import { AXIS_PROPS, GRID_PROPS, TOOLTIP_STYLE } from "@/lib/chartTheme";
+import { usePrimaryBacktest } from "./StrategyPicker";
 
-import { TOOLTIP_STYLE } from "@/lib/chartTheme";
-interface AnalyticsRiskTabProps {
-  selectedBacktests: BacktestResult[];
-}
+interface Props { selectedBacktests: BacktestResult[]; filters: AnalyticsFilters }
 
-export default function AnalyticsRiskTab({
-  selectedBacktests,
-}: AnalyticsRiskTabProps) {
-  const stressScenarios = [
-    { name: "2008 Global Financial Crisis", duration: "Sep 2008 - Mar 2009", marketReturn: "-46.2%", strategyReturn: "-16.4%", alpha: "+29.8%" },
-    { name: "2011 US Sovereign Debt Downgrade", duration: "Jul 2011 - Oct 2011", marketReturn: "-18.6%", strategyReturn: "-5.2%", alpha: "+13.4%" },
-    { name: "2015 China Yuan Devaluation", duration: "Aug 2015 - Sep 2015", marketReturn: "-11.8%", strategyReturn: "-3.1%", alpha: "+8.7%" },
-    { name: "2020 COVID Flash Crash", duration: "Feb 2020 - Mar 2020", marketReturn: "-33.9%", strategyReturn: "-12.8%", alpha: "+21.1%" },
-    { name: "2022 Fed Inflation Shock", duration: "Jan 2022 - Oct 2022", marketReturn: "-24.8%", strategyReturn: "-6.9%", alpha: "+17.9%" },
-  ];
-
-  const drawdownBins = [
-    { range: "0% - 2%", days: 165 },
-    { range: "2% - 4%", days: 82 },
-    { range: "4% - 6%", days: 48 },
-    { range: "6% - 8%", days: 28 },
-    { range: "8% - 10%", days: 14 },
-    { range: "10% - 15%", days: 8 },
-  ];
+export default function AnalyticsRiskTab({ selectedBacktests, filters }: Props) {
+  const { bt, picker } = usePrimaryBacktest(selectedBacktests);
+  const pts = bt ? btPoints(bt, { ...filters, frequency: "Daily" }) : [];
+  const risk = riskStats(pts);
+  if (!bt || !risk) return <EmptyState icon={ShieldAlert} title="Not enough history for risk analytics" hint="At least ~20 daily observations are needed in the selected window." />;
+  const windows = worstWindows(pts, 21, 5);
 
   return (
     <div className="space-y-4">
-      {/* 4 Risk KPI Gauges */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
-          <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Value at Risk (95% Daily)</span>
-          <div className="text-xl font-bold text-[#EF4444] font-mono">1.42%</div>
-          <p className="text-[10px] text-slate-400">95% confidence max expected single-day loss.</p>
-        </div>
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
-          <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Conditional VaR (95% ES)</span>
-          <div className="text-xl font-bold text-[#EF4444] font-mono">1.96%</div>
-          <p className="text-[10px] text-slate-400">Average expected loss in worst 5% tail events.</p>
-        </div>
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
-          <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Downside Deviation</span>
-          <div className="text-xl font-bold text-amber-400 font-mono">9.84%</div>
-          <p className="text-[10px] text-slate-400">Annualized downside volatility under zero return.</p>
-        </div>
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
-          <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Ulcer Performance Index</span>
-          <div className="text-xl font-bold text-[#3b82f6] font-mono">3.42</div>
-          <p className="text-[10px] text-slate-400">Measures depth and duration of underwater stress.</p>
-        </div>
+      {picker}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Kpi label="Value at Risk (95%, daily)" value={fmtPct(-risk.var95)} tone="text-rose-400" sub="Historical 1-day loss threshold" />
+        <Kpi label="Expected shortfall (95%)" value={fmtPct(-risk.cvar95)} tone="text-rose-400" sub="Mean loss beyond VaR" />
+        <Kpi label="Downside deviation" value={fmtPct(risk.downsideDev, 2, false)} tone="text-amber-400" sub="Annualised, below 0%" />
+        <Kpi label="Ulcer index" value={risk.ulcer.toFixed(2)} tone="text-blue-400" sub="Depth × duration of drawdowns" />
       </div>
 
-      {/* Historical Stress Test Simulation Table */}
-      <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-4 space-y-3">
-        <div className="pb-2 border-b border-[#1e293b]">
-          <span className="font-semibold text-white text-xs tracking-tight">
-            Historical Stress-Testing Simulations
-          </span>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs font-mono">
-            <thead>
-              <tr className="border-b border-[#1e293b] text-[10px] text-slate-400 uppercase font-sans">
-                <th className="py-2">Macro Crisis Event</th>
-                <th className="py-2">Historical Window</th>
-                <th className="py-2">Market Drawdown</th>
-                <th className="py-2">Simulated Strategy</th>
-                <th className="py-2">Capital Preservation Alpha</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#1e293b]/50">
-              {stressScenarios.map((sc) => (
-                <tr key={sc.name} className="hover:bg-[#0b1222]/50">
-                  <td className="py-2.5 font-bold text-white">{sc.name}</td>
-                  <td className="py-2.5 text-slate-400">{sc.duration}</td>
-                  <td className="py-2.5 text-[#EF4444] font-semibold">{sc.marketReturn}</td>
-                  <td className="py-2.5 text-[#EF4444] font-semibold">{sc.strategyReturn}</td>
-                  <td className="py-2.5 text-[#10B981] font-semibold">{sc.alpha}</td>
+      <Card
+        title="Worst 21-day windows"
+        subtitle="Strategy vs benchmark over the same dates"
+        info="Rolling 21-trading-day returns, ranked worst-first and non-overlapping. This replaces fixed crisis scenarios, which a backtest may not cover."
+        icon={AlertTriangle}
+        tone="rose"
+      >
+        {windows.length === 0 ? (
+          <p className="py-6 text-center text-xs text-slate-500">Window shorter than 21 trading days.</p>
+        ) : (
+          <div className="w-full overflow-x-auto">
+            <table className="w-full border-collapse text-left text-xs">
+              <thead>
+                <tr className="border-b border-slate-800 text-[10px] uppercase tracking-wider text-slate-400">
+                  <th className="py-1.5">Window</th>
+                  <th className="py-1.5 text-right">Benchmark</th>
+                  <th className="py-1.5 text-right">Strategy</th>
+                  <th className="py-1.5 text-right">Relative</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+              </thead>
+              <tbody className="divide-y divide-slate-800/50">
+                {windows.map((w) => (
+                  <tr key={w.start} className="transition-colors hover:bg-slate-800/30">
+                    <td className="py-2 font-mono text-slate-300">{w.start} → {w.end}</td>
+                    <td className={cn("py-2 text-right font-mono", signTone(w.bench))}>{fmtPct(w.bench)}</td>
+                    <td className={cn("py-2 text-right font-mono font-semibold", signTone(w.strat))}>{fmtPct(w.strat)}</td>
+                    <td className={cn("py-2 text-right font-mono font-semibold", signTone(w.strat - w.bench))}>{fmtPct(w.strat - w.bench)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
 
-      {/* Drawdown Duration Distribution Histogram */}
-      <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-4 space-y-3">
-        <div className="pb-2 border-b border-[#1e293b]">
-          <span className="font-semibold text-white text-xs tracking-tight">
-            Drawdown Severity Distribution (Days Spent in Drawdown Tier)
-          </span>
-        </div>
+      <Card
+        title="Drawdown severity"
+        subtitle="Trading days spent in each drawdown tier"
+        info="Counts days where the portfolio sat below its running peak by the given depth."
+        icon={TrendingDown}
+        tone="amber"
+      >
         <div className="h-44">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={drawdownBins} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="range" stroke="#485362" fontSize={10} />
-              <YAxis stroke="#485362" fontSize={10} />
-              <Tooltip
-                contentStyle={TOOLTIP_STYLE}
-              />
-              <Bar dataKey="days" fill="#2563eb" isAnimationActive={false} />
+            <BarChart data={risk.binCounts} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <CartesianGrid {...GRID_PROPS} />
+              <XAxis dataKey="range" {...AXIS_PROPS} />
+              <YAxis {...AXIS_PROPS} allowDecimals={false} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any) => [fmtInt(Number(v)), "Days"]} />
+              <Bar dataKey="days" fill="#D97706" radius={[3, 3, 0, 0]} isAnimationActive={false} />
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </div>
+        <p className="mt-2 flex items-center gap-1.5 text-[11px] text-slate-400">
+          <Activity className="h-3 w-3" /> Skew of daily returns: <span className="font-mono text-slate-200">{risk.skew.toFixed(2)}</span> · average drawdown <span className="font-mono text-slate-200">{fmtPct(-risk.pain, 2)}</span>
+        </p>
+      </Card>
     </div>
   );
 }

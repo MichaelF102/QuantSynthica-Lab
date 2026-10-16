@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Calendar,
   ChevronDown,
@@ -35,19 +35,28 @@ export default function AnalyticsHeader({
   const [tempStart, setTempStart] = useState(startDate);
   const [tempEnd, setTempEnd] = useState(endDate);
 
+  useEffect(() => {
+    setTempStart(startDate);
+    setTempEnd(endDate);
+  }, [startDate, endDate]);
+
   const handleApplyDate = () => {
+    if (tempStart && tempEnd && tempStart > tempEnd) return;
     onDateChange(tempStart, tempEnd);
     setShowDatePicker(false);
   };
 
   return (
-    <div className="flex flex-col justify-between gap-4 border-b border-border/80 pb-4 lg:flex-row lg:items-center">
+    <header className="relative flex flex-col justify-between gap-4 border-b border-slate-800/60 pb-5 lg:flex-row lg:items-center">
+      <div className="pointer-events-none absolute left-1/4 top-0 -z-10 h-24 w-96 rounded-full bg-blue-600/10 blur-3xl" />
+      <div className="pointer-events-none absolute right-1/4 top-0 -z-10 h-24 w-96 rounded-full bg-indigo-600/10 blur-3xl" />
       <div>
-        <div className="flex items-center gap-3">
-          <h1 className="qs-title text-[1.4rem]">Analytics</h1>
-        </div>
-        <p className="mt-1 text-sm text-slate-500">
-          Performance, risk, and how the book behaved in different markets.
+        <h1 className="text-2xl font-extrabold tracking-tight text-primary sm:text-3xl">
+          Strategy{" "}
+          <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400 bg-clip-text text-transparent">Analytics</span>
+        </h1>
+        <p className="mt-1 text-xs leading-relaxed text-secondary">
+          Performance, risk and market-regime behaviour, recomputed from each run&apos;s equity curve and trades.
         </p>
       </div>
 
@@ -58,16 +67,16 @@ export default function AnalyticsHeader({
           <button
             type="button"
             onClick={() => setShowDatePicker(!showDatePicker)}
-            className="qs-btn-ghost font-mono"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-900/70 px-3 py-1.5 font-mono text-xs text-slate-200 transition-colors hover:border-slate-600 hover:bg-slate-800 hover:text-white"
           >
             <span>{startDate}</span>
             <span className="text-slate-500">→</span>
             <span>{endDate}</span>
-            <Calendar className="w-3.5 h-3.5 text-[#3b82f6] ml-1" />
+            <Calendar className="w-3.5 h-3.5 text-blue-400 ml-1" />
           </button>
 
           {showDatePicker && (
-            <div className="absolute right-0 top-full mt-1.5 bg-[#0C1017] border border-[#1e293b] rounded-lg p-3 shadow-2xl z-50 w-72 space-y-3">
+            <div className="absolute right-0 top-full mt-1.5 bg-[#0B101C] border border-slate-800 rounded-xl p-3 shadow-[0_18px_48px_-12px_rgba(0,0,0,0.65)] z-[60] w-72 space-y-3">
               <div className="text-[11px] font-semibold text-white">Select Date Window</div>
               <div className="space-y-2">
                 <div>
@@ -76,7 +85,7 @@ export default function AnalyticsHeader({
                     type="date"
                     value={tempStart}
                     onChange={(e) => setTempStart(e.target.value)}
-                    className="w-full bg-[#0b1222] border border-[#1e293b] text-white text-xs px-2 py-1 rounded focus:outline-none focus:border-[#3b82f6]"
+                    className="w-full bg-[#0F172A]/70 border border-slate-700/50 text-white text-xs px-2 py-1.5 rounded-lg focus:outline-none focus:border-blue-500"
                   />
                 </div>
                 <div>
@@ -85,7 +94,7 @@ export default function AnalyticsHeader({
                     type="date"
                     value={tempEnd}
                     onChange={(e) => setTempEnd(e.target.value)}
-                    className="w-full bg-[#0b1222] border border-[#1e293b] text-white text-xs px-2 py-1 rounded focus:outline-none focus:border-[#3b82f6]"
+                    className="w-full bg-[#0F172A]/70 border border-slate-700/50 text-white text-xs px-2 py-1.5 rounded-lg focus:outline-none focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -100,7 +109,7 @@ export default function AnalyticsHeader({
                 <button
                   type="button"
                   onClick={handleApplyDate}
-                  className="px-3 py-1 text-[11px] bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium rounded"
+                  className="px-3 py-1 text-[11px] bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg"
                 >
                   Apply
                 </button>
@@ -114,7 +123,7 @@ export default function AnalyticsHeader({
           <select
             value={frequency}
             onChange={(e) => onFrequencyChange(e.target.value as any)}
-            className="appearance-none bg-[#0b1222] hover:bg-[#0b1222] border border-[#1e293b] text-slate-200 pl-3 pr-7 py-1.5 rounded text-xs focus:outline-none focus:border-[#3b82f6] cursor-pointer"
+            className="cursor-pointer appearance-none rounded-lg border border-slate-700/50 bg-[#0F172A]/70 py-1.5 pl-3 pr-7 text-xs text-slate-100 outline-none transition-colors hover:border-slate-600 focus:border-blue-500"
           >
             <option value="Daily">Daily</option>
             <option value="Weekly">Weekly</option>
@@ -128,7 +137,7 @@ export default function AnalyticsHeader({
           <select
             value={currency}
             onChange={(e) => onCurrencyChange(e.target.value as any)}
-            className="appearance-none bg-[#0b1222] hover:bg-[#0b1222] border border-[#1e293b] text-slate-200 pl-3 pr-7 py-1.5 rounded text-xs focus:outline-none focus:border-[#3b82f6] cursor-pointer"
+            className="cursor-pointer appearance-none rounded-lg border border-slate-700/50 bg-[#0F172A]/70 py-1.5 pl-3 pr-7 text-xs text-slate-100 outline-none transition-colors hover:border-slate-600 focus:border-blue-500"
           >
             <option value="USD">USD ($)</option>
             <option value="INR">INR (₹)</option>
@@ -143,16 +152,16 @@ export default function AnalyticsHeader({
           type="button"
           onClick={onRunAnalysis}
           disabled={isRunning}
-          className="qs-btn-primary disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-semibold text-white shadow-md shadow-blue-600/20 transition-colors hover:bg-blue-500 disabled:opacity-50"
         >
           {isRunning ? (
             <RotateCw className="h-3.5 w-3.5 animate-spin" />
           ) : (
             <Play className="h-3.5 w-3.5 fill-current" />
           )}
-          <span>{isRunning ? "Simulating..." : "Run Analysis"}</span>
+          <span>{isRunning ? "Applying…" : "Run Analysis"}</span>
         </button>
       </div>
-    </div>
+    </header>
   );
 }

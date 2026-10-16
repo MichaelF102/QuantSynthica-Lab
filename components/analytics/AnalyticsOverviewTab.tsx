@@ -1,1061 +1,444 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
-  Search,
-  X,
-  ChevronDown,
-  Info,
-  TrendingUp,
-  TrendingDown,
-  ArrowRight,
-  Columns,
-  Sparkles,
-  FileText,
-  ShieldAlert,
-  BarChart2,
-  GitFork,
-  ArrowUpRight,
+  Search, X, ChevronDown, Columns, FileText, ArrowRight, LineChart as LineChartIcon, BarChart2,
+  TrendingDown, Table2, Lightbulb, ArrowUpRight, ShieldAlert, GitFork,
 } from "lucide-react";
 import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  ReferenceLine,
+  ResponsiveContainer, LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
 import { BacktestResult } from "@/types";
-import { formatCurrency, formatPercent, formatRatio } from "@/lib/formatters";
+import { Card, EmptyState, Kpi, signTone } from "@/components/ui/Card";
+import { fmtPct, fmtInt, isNum, cn } from "@/lib/utils";
+import { formatRatio } from "@/lib/formatters";
+import {
+  AnalyticsFilters, CURRENCY_SYMBOL, Pt, benchmarkLabel, btPoints, fmtMoney, mergeByDate, riskStats, seriesStats, windowPts,
+} from "@/lib/analyticsCalc";
+import { AXIS_PROPS, GRID_PROPS, TOOLTIP_STYLE, seriesColor } from "@/lib/chartTheme";
 import MoreMetricsModal from "./MoreMetricsModal";
 import DetailedReportModal from "./DetailedReportModal";
 import ColumnsModal from "./ColumnsModal";
 
-import { TOOLTIP_STYLE } from "@/lib/chartTheme";
-import { SERIES_COLORS } from "@/lib/chartTheme";
-const STRATEGY_COLORS = [...SERIES_COLORS];
-
-interface AnalyticsOverviewTabProps {
+interface Props {
   allBacktests: BacktestResult[];
   selectedIds: string[];
   onToggleStrategy: (id: string) => void;
   onClearAll: () => void;
-  benchmark: string;
-  onBenchmarkChange: (bm: string) => void;
   initialCapital: number;
   onInitialCapitalChange: (cap: number) => void;
+  filters: AnalyticsFilters;
 }
 
-type EquityChartMode = "Equity Curve" | "Cumulative Return" | "Drawdown" | "Log Scale";
+type ChartMode = "Equity Curve" | "Cumulative Return" | "Drawdown" | "Log Scale";
 type RangeFilter = "1M" | "3M" | "6M" | "YTD" | "1Y" | "ALL";
+const BENCH_KEY = "Benchmark";
+const INPUT = "rounded-lg border border-slate-700/50 bg-[#0F172A]/70 text-xs text-slate-100 outline-none transition-colors hover:border-slate-600 focus:border-blue-500";
+
+const COLUMNS = [
+  { id: "strategy", label: "Strategy" }, { id: "asset", label: "Asset" }, { id: "total_return", label: "Total Return" },
+  { id: "cagr", label: "CAGR" }, { id: "sharpe", label: "Sharpe" }, { id: "sortino", label: "Sortino" },
+  { id: "max_dd", label: "Max DD" }, { id: "vol", label: "Volatility" }, { id: "alpha", label: "Alpha" }, { id: "beta", label: "Beta" },
+];
+
+function rangeStart(r: RangeFilter, lastDate: string): string | null {
+  if (r === "ALL") return null;
+  if (r === "YTD") return `${lastDate.slice(0, 4)}-01-01`;
+  const d = new Date(lastDate + "T00:00:00Z");
+  const months = { "1M": 1, "3M": 3, "6M": 6, "1Y": 12 }[r];
+  d.setUTCMonth(d.getUTCMonth() - months);
+  return d.toISOString().slice(0, 10);
+}
 
 export default function AnalyticsOverviewTab({
-  allBacktests,
-  selectedIds,
-  onToggleStrategy,
-  onClearAll,
-  benchmark,
-  onBenchmarkChange,
-  initialCapital,
-  onInitialCapitalChange,
-}: AnalyticsOverviewTabProps) {
+  allBacktests, selectedIds, onToggleStrategy, onClearAll, initialCapital, onInitialCapitalChange, filters,
+}: Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const [assetFilter, setAssetFilter] = useState("All");
-  const [chartMode, setChartMode] = useState<EquityChartMode>("Equity Curve");
+  const [chartMode, setChartMode] = useState<ChartMode>("Equity Curve");
   const [rangeFilter, setRangeFilter] = useState<RangeFilter>("ALL");
-  const [selectedDrawdownStrategyId, setSelectedDrawdownStrategyId] = useState<string>("");
-
-  // Modals state
-  const [showMoreMetrics, setShowMoreMetrics] = useState(false);
+  const [ddId, setDdId] = useState("");
+  const [showMore, setShowMore] = useState(false);
   const [showReport, setShowReport] = useState(false);
-  const [showColumnsModal, setShowColumnsModal] = useState(false);
+  const [showCols, setShowCols] = useState(false);
+  const [visibleCols, setVisibleCols] = useState<string[]>(["strategy", "asset", "total_return", "cagr", "sharpe", "sortino", "max_dd", "alpha", "beta"]);
 
-  // Table columns state
-  const [visibleCols, setVisibleCols] = useState<string[]>([
-    "strategy",
-    "asset",
-    "total_return",
-    "cagr",
-    "sharpe",
-    "sortino",
-    "max_dd",
-    "win_rate",
-    "profit_factor",
-    "alpha",
-    "beta",
-  ]);
+  const selected = useMemo(() => allBacktests.filter((b) => selectedIds.includes(b.id)), [allBacktests, selectedIds]);
+  const lead = selected[0] ?? null;
+  const sym = CURRENCY_SYMBOL[filters.currency];
 
-  const allTableColumns = [
-    { id: "strategy", label: "Strategy" },
-    { id: "asset", label: "Asset" },
-    { id: "total_return", label: "Total Return" },
-    { id: "cagr", label: "CAGR" },
-    { id: "sharpe", label: "Sharpe" },
-    { id: "sortino", label: "Sortino" },
-    { id: "max_dd", label: "Max DD" },
-    { id: "win_rate", label: "Win Rate" },
-    { id: "profit_factor", label: "Profit Factor" },
-    { id: "alpha", label: "Alpha" },
-    { id: "beta", label: "Beta" },
-  ];
+  // Global date window + frequency, further narrowed by the chart's own range chips.
+  const ptsById = useMemo(() => {
+    const out = new Map<string, Pt[]>();
+    const last = selected.flatMap((b) => b.equity_curve.map((p) => p.date)).sort().pop();
+    const rs = last ? rangeStart(rangeFilter, filters.end && filters.end < last ? filters.end : last) : null;
+    selected.forEach((b) => {
+      const start = rs && (!filters.start || rs > filters.start) ? rs : filters.start;
+      out.set(b.id, windowPts(btPoints(b, { ...filters, start: null, end: null, frequency: "Daily" }), start, filters.end, filters.frequency));
+    });
+    return out;
+  }, [selected, filters, rangeFilter]);
 
-  const toggleColumn = (colId: string) => {
-    if (visibleCols.includes(colId)) {
-      if (visibleCols.length > 2) setVisibleCols(visibleCols.filter((c) => c !== colId));
-    } else {
-      setVisibleCols([...visibleCols, colId]);
+  const statsById = useMemo(() => {
+    const m = new Map<string, ReturnType<typeof seriesStats>>();
+    selected.forEach((b) => m.set(b.id, seriesStats(ptsById.get(b.id) ?? [], filters.frequency)));
+    return m;
+  }, [selected, ptsById, filters.frequency]);
+
+  const leadStats = lead ? statsById.get(lead.id) ?? null : null;
+  const ddStrategy = selected.find((b) => b.id === ddId) ?? lead;
+  const ddPts = ddStrategy ? ptsById.get(ddStrategy.id) ?? [] : [];
+  const ddRisk = useMemo(() => riskStats(ddPts), [ddPts]);
+  const benchName = lead ? benchmarkLabel(lead.benchmark) : "Benchmark";
+  const mixedMarkets = new Set(selected.map((b) => b.benchmark)).size > 1;
+
+  // Date-aligned merge: union of calendar dates, forward-filled, each series rebased to initial capital.
+  const chartData = useMemo(() => {
+    if (!selected.length) return [];
+    const rebase = (pts: Pt[], pick: (p: Pt) => number) => {
+      const first = pick(pts[0]);
+      return (p: Pt) => {
+        const ratio = pick(p) / first;
+        if (chartMode === "Equity Curve" || chartMode === "Log Scale") return Number((initialCapital * ratio).toFixed(2));
+        if (chartMode === "Cumulative Return") return Number(((ratio - 1) * 100).toFixed(3));
+        return 0;
+      };
+    };
+    const series = selected.filter((b) => (ptsById.get(b.id) ?? []).length > 1).map((b) => {
+      const pts = ptsById.get(b.id)!;
+      return { key: b.strategy_name, pts, pick: chartMode === "Drawdown" ? (p: Pt) => -p.dd : rebase(pts, (p) => p.value) };
+    });
+    const leadPts = lead ? ptsById.get(lead.id) ?? [] : [];
+    if (leadPts.length > 1) {
+      series.push({
+        key: BENCH_KEY, pts: leadPts,
+        pick: chartMode === "Drawdown"
+          ? (() => { let pk = -Infinity; const dd = new Map<string, number>(); leadPts.forEach((p) => { pk = Math.max(pk, p.bench); dd.set(p.date, -((pk - p.bench) / pk) * 100); }); return (p: Pt) => dd.get(p.date) ?? 0; })()
+          : rebase(leadPts, (p) => p.bench),
+      });
+    }
+    return mergeByDate(series);
+  }, [selected, lead, ptsById, chartMode, initialCapital]);
+
+  const returnDist = useMemo(() => {
+    const v = ddPts.map((p) => p.value);
+    const r = v.slice(1).map((x, i) => (x / v[i] - 1) * 100);
+    if (r.length < 20) return [];
+    const lo = Math.min(...r), hi = Math.max(...r), bins = 21, step = (hi - lo) / bins || 1e-6;
+    return Array.from({ length: bins }, (_, k) => ({
+      return_pct: Number((lo + (k + 0.5) * step).toFixed(2)),
+      frequency: r.filter((x) => x >= lo + k * step && (x < lo + (k + 1) * step || k === bins - 1)).length,
+    }));
+  }, [ddPts]);
+
+  const availableToSelect = useMemo(
+    () => allBacktests.filter((b) => (b.strategy_name + b.ticker).toLowerCase().includes(searchQuery.toLowerCase()) && (assetFilter === "All" || b.ticker === assetFilter) && !selectedIds.includes(b.id)),
+    [allBacktests, searchQuery, assetFilter, selectedIds]
+  );
+  const uniqueAssets = useMemo(() => [...new Set(allBacktests.map((b) => b.ticker))], [allBacktests]);
+
+  // Average pairwise correlation of daily returns between selected strategies (aligned on common dates).
+  const avgCorr = useMemo(() => {
+    if (selected.length < 2) return null;
+    const maps = selected.map((b) => new Map((ptsById.get(b.id) ?? []).map((p, i, a) => [p.date, i ? p.value / a[i - 1].value - 1 : NaN])));
+    const dates = [...maps[0].keys()].filter((d) => maps.every((m) => Number.isFinite(m.get(d))));
+    if (dates.length < 20) return null;
+    const cols = maps.map((m) => dates.map((d) => m.get(d)!));
+    const corr = (a: number[], b: number[]) => {
+      const ma = a.reduce((x, y) => x + y, 0) / a.length, mb = b.reduce((x, y) => x + y, 0) / b.length;
+      let n = 0, da = 0, db = 0;
+      a.forEach((x, i) => { n += (x - ma) * (b[i] - mb); da += (x - ma) ** 2; db += (b[i] - mb) ** 2; });
+      return da > 0 && db > 0 ? n / Math.sqrt(da * db) : 0;
+    };
+    const vals: number[] = [];
+    for (let i = 0; i < cols.length; i++) for (let j = i + 1; j < cols.length; j++) vals.push(corr(cols[i], cols[j]));
+    return vals.reduce((a, b) => a + b, 0) / vals.length;
+  }, [selected, ptsById]);
+
+  const fmtY = (v: number) => (chartMode === "Equity Curve" || chartMode === "Log Scale" ? fmtMoney(v, filters.currency, true) : `${v.toFixed(0)}%`);
+  const windowLabel = `${filters.start ?? "start"} → ${filters.end ?? "latest"} · ${filters.frequency}`;
+  const rel = (a?: number | null, b?: number | null) => (isNum(a) && isNum(b) ? a - b : null);
+
+  if (!allBacktests.length) return <EmptyState icon={BarChart2} title="No backtests available" hint="Run a backtest to analyse it here." />;
+
+  const cell = (id: string, b: BacktestResult, s: ReturnType<typeof seriesStats>) => {
+    const mono = "px-2 py-2.5 font-mono";
+    switch (id) {
+      case "strategy": return <td className="px-2 py-2.5 font-medium text-slate-200">{b.strategy_name}</td>;
+      case "asset": return <td className={cn(mono, "text-slate-300")}>{b.ticker}</td>;
+      case "total_return": return <td className={cn(mono, "font-semibold", signTone(s?.totalReturn))}>{fmtPct(s?.totalReturn)}</td>;
+      case "cagr": return <td className={cn(mono, signTone(s?.cagr))}>{fmtPct(s?.cagr)}</td>;
+      case "sharpe": return <td className={cn(mono, "text-white")}>{s ? formatRatio(s.sharpe) : "—"}</td>;
+      case "sortino": return <td className={cn(mono, "text-slate-200")}>{s ? formatRatio(s.sortino) : "—"}</td>;
+      case "max_dd": return <td className={cn(mono, "text-rose-400")}>{s ? fmtPct(-s.maxDD, 2) : "—"}</td>;
+      case "vol": return <td className={cn(mono, "text-slate-300")}>{fmtPct(s?.vol, 2, false)}</td>;
+      case "alpha": return <td className={cn(mono, signTone(s?.alpha))}>{fmtPct(s?.alpha)}</td>;
+      case "beta": return <td className={cn(mono, "text-slate-200")}>{s?.beta == null ? "—" : s.beta.toFixed(2)}</td>;
+      default: return null;
     }
   };
-
-  // Filtered backtests that are currently selected
-  const selectedBacktests = useMemo(() => {
-    return allBacktests.filter((b) => selectedIds.includes(b.id));
-  }, [allBacktests, selectedIds]);
-
-  // Set active drawdown strategy fallback
-  const activeDdStrategy = useMemo(() => {
-    return (
-      selectedBacktests.find((b) => b.id === selectedDrawdownStrategyId) ||
-      selectedBacktests[0] ||
-      allBacktests[0]
-    );
-  }, [selectedBacktests, selectedDrawdownStrategyId, allBacktests]);
-
-  // Dropdown list of strategies that match search and asset
-  const availableToSelect = useMemo(() => {
-    return allBacktests.filter((b) => {
-      const matchSearch =
-        b.strategy_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        b.ticker.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchAsset = assetFilter === "All" || b.ticker === assetFilter;
-      return matchSearch && matchAsset && !selectedIds.includes(b.id);
-    });
-  }, [allBacktests, searchQuery, assetFilter, selectedIds]);
-
-  // Unique tickers for asset filter dropdown
-  const uniqueAssets = useMemo(() => {
-    const set = new Set(allBacktests.map((b) => b.ticker));
-    return ["All", ...Array.from(set)];
-  }, [allBacktests]);
-
-  // Built combined equity curve series
-  const comparisonSeries = useMemo(() => {
-    if (selectedBacktests.length === 0) return [];
-    const base = selectedBacktests[0];
-    if (!base || !base.equity_curve || base.equity_curve.length === 0) return [];
-
-    let curve = base.equity_curve;
-    if (rangeFilter === "1M") curve = curve.slice(-21);
-    else if (rangeFilter === "3M") curve = curve.slice(-63);
-    else if (rangeFilter === "6M") curve = curve.slice(-126);
-    else if (rangeFilter === "1Y") curve = curve.slice(-252);
-    else if (rangeFilter === "YTD") {
-      const curYear = new Date().getFullYear();
-      const idx = curve.findIndex((p) => new Date(p.date).getFullYear() === curYear);
-      curve = idx !== -1 ? curve.slice(idx) : curve.slice(-252);
+  const benchCell = (id: string) => {
+    const s = leadStats, mono = "px-2 py-2.5 font-mono text-slate-400";
+    switch (id) {
+      case "strategy": return <td className="flex items-center gap-2 px-2 py-2.5 font-medium text-slate-300"><span className="h-2 w-2 rounded-full bg-slate-500" />Benchmark</td>;
+      case "asset": return <td className={mono}>{lead?.benchmark ?? "—"}</td>;
+      case "total_return": return <td className={cn(mono, signTone(s?.benchReturn))}>{fmtPct(s?.benchReturn)}</td>;
+      case "cagr": return <td className={mono}>{fmtPct(s?.benchCagr)}</td>;
+      case "sharpe": return <td className={mono}>{s ? formatRatio(s.benchSharpe) : "—"}</td>;
+      case "max_dd": return <td className={cn(mono, "text-rose-400/80")}>{s ? fmtPct(-s.benchMaxDD, 2) : "—"}</td>;
+      case "vol": return <td className={mono}>{fmtPct(s?.benchVol, 2, false)}</td>;
+      case "beta": return <td className={mono}>1.00</td>;
+      default: return <td className={mono}>—</td>;
     }
-
-    return curve.map((pt, idx) => {
-      const row: any = { date: pt.date };
-      selectedBacktests.forEach((b) => {
-        const p = b.equity_curve?.[idx];
-        if (p) {
-          if (chartMode === "Equity Curve") {
-            const ratio = p.portfolio_value / (b.equity_curve[0]?.portfolio_value || 100000);
-            row[b.strategy_name] = Math.round(initialCapital * ratio);
-          } else if (chartMode === "Cumulative Return") {
-            const startVal = b.equity_curve[0]?.portfolio_value || 100000;
-            row[b.strategy_name] = ((p.portfolio_value - startVal) / startVal) * 100;
-          } else if (chartMode === "Drawdown") {
-            row[b.strategy_name] = -(p.drawdown || 0) * 100;
-          } else if (chartMode === "Log Scale") {
-            const ratio = p.portfolio_value / (b.equity_curve[0]?.portfolio_value || 100000);
-            row[b.strategy_name] = Math.log10(Math.max(1, initialCapital * ratio));
-          }
-        }
-      });
-
-      // Add Benchmark (SPY)
-      if (chartMode === "Equity Curve") {
-        const bStart = base.equity_curve[0]?.benchmark_value || 100000;
-        const bRatio = (pt.benchmark_value || bStart) / bStart;
-        row["Benchmark SPY"] = Math.round(initialCapital * bRatio);
-      } else if (chartMode === "Cumulative Return") {
-        const bStart = base.equity_curve[0]?.benchmark_value || 100000;
-        row["Benchmark SPY"] = (((pt.benchmark_value || bStart) - bStart) / bStart) * 100;
-      } else if (chartMode === "Drawdown") {
-        row["Benchmark SPY"] = -(pt.drawdown ? pt.drawdown * 0.8 : 0) * 100;
-      } else if (chartMode === "Log Scale") {
-        const bStart = base.equity_curve[0]?.benchmark_value || 100000;
-        const bRatio = (pt.benchmark_value || bStart) / bStart;
-        row["Benchmark SPY"] = Math.log10(Math.max(1, initialCapital * bRatio));
-      }
-
-      return row;
-    });
-  }, [selectedBacktests, initialCapital, chartMode, rangeFilter]);
-
-  // Return Distribution data (Daily Histogram + Normal Fit)
-  const returnDistData = useMemo(() => {
-    if (activeDdStrategy?.risk?.return_distribution?.length) {
-      return activeDdStrategy.risk.return_distribution;
-    }
-    // High-fidelity fallback sample matching Screenshot 2 distribution
-    return [
-      { return_pct: -3.5, frequency: 12, normal_fit: 8 },
-      { return_pct: -3.0, frequency: 22, normal_fit: 18 },
-      { return_pct: -2.5, frequency: 45, normal_fit: 38 },
-      { return_pct: -2.0, frequency: 78, normal_fit: 72 },
-      { return_pct: -1.5, frequency: 124, normal_fit: 120 },
-      { return_pct: -1.0, frequency: 185, normal_fit: 180 },
-      { return_pct: -0.5, frequency: 242, normal_fit: 235 },
-      { return_pct: 0.0, frequency: 285, normal_fit: 260 },
-      { return_pct: 0.5, frequency: 248, normal_fit: 238 },
-      { return_pct: 1.0, frequency: 172, normal_fit: 175 },
-      { return_pct: 1.5, frequency: 115, normal_fit: 110 },
-      { return_pct: 2.0, frequency: 68, normal_fit: 62 },
-      { return_pct: 2.5, frequency: 38, normal_fit: 32 },
-      { return_pct: 3.0, frequency: 18, normal_fit: 14 },
-      { return_pct: 3.5, frequency: 8, normal_fit: 6 },
-    ];
-  }, [activeDdStrategy]);
-
-  // Drawdown Underwater series
-  const drawdownSeries = useMemo(() => {
-    if (!activeDdStrategy?.equity_curve?.length) return [];
-    return activeDdStrategy.equity_curve.map((pt) => ({
-      date: pt.date,
-      drawdown: -(pt.drawdown || 0) * 100,
-    }));
-  }, [activeDdStrategy]);
-
-  // Format tick values for Equity Chart Y Axis
-  const formatEquityYAxis = (val: number) => {
-    if (chartMode === "Equity Curve") return `$${(val / 1000).toFixed(0)}k`;
-    if (chartMode === "Cumulative Return" || chartMode === "Drawdown") return `${val.toFixed(0)}%`;
-    return val.toFixed(1);
   };
 
   return (
     <div className="space-y-4">
-      {/* ========================================================
-          1. STRATEGY SELECTION & FILTERS BAR
-          ======================================================== */}
-      <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 flex flex-col xl:flex-row xl:items-center justify-between gap-3 text-xs">
-        {/* Left: Strategy Selector Tags + Search + Asset Filter */}
-        <div className="flex flex-wrap items-center gap-2 flex-1">
-          <span className="text-[#94a3b8] font-semibold tracking-tight whitespace-nowrap">
-            Select Strategies ({selectedIds.length} selected)
-          </span>
-
-          {/* Search strategies input */}
+      {/* Strategy selection */}
+      <div className="flex flex-col justify-between gap-3 rounded-xl border border-slate-800/90 bg-[#0b1222]/95 p-3 text-xs shadow-lg shadow-black/20 xl:flex-row xl:items-center">
+        <div className="flex flex-1 flex-wrap items-center gap-2">
+          <span className="whitespace-nowrap font-semibold text-slate-300">Strategies <span className="font-mono text-slate-500">({selectedIds.length})</span></span>
           <div className="relative min-w-[180px]">
-            <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search strategies..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-[#0b1222] border border-[#1e293b] text-white text-xs pl-8 pr-3 py-1 rounded w-full focus:outline-none focus:border-[#3b82f6]"
-            />
-            {/* Dropdown suggestions if typing */}
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+            <input type="text" placeholder="Search strategies…" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className={cn(INPUT, "w-full py-1.5 pl-8 pr-3 placeholder:text-slate-500")} />
             {searchQuery && availableToSelect.length > 0 && (
-              <div className="absolute left-0 top-full mt-1 bg-[#0b1222] border border-[#1e293b] rounded-md shadow-xl w-64 z-50 p-1 max-h-48 overflow-y-auto">
+              <div className="absolute left-0 top-full z-50 mt-1 max-h-48 w-64 overflow-y-auto rounded-xl border border-slate-800 bg-[#0B101C] p-1.5 shadow-[0_18px_48px_-12px_rgba(0,0,0,0.65)]">
                 {availableToSelect.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => {
-                      onToggleStrategy(item.id);
-                      setSearchQuery("");
-                    }}
-                    className="w-full text-left px-2.5 py-1.5 hover:bg-[#1A2232] rounded text-xs text-slate-200 flex justify-between items-center"
-                  >
+                  <button key={item.id} type="button" onClick={() => { onToggleStrategy(item.id); setSearchQuery(""); }} className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-xs text-slate-200 hover:bg-slate-800/70">
                     <span className="truncate">{item.strategy_name}</span>
-                    <span className="text-[10px] text-slate-500 font-mono">({item.ticker})</span>
+                    <span className="font-mono text-[10px] text-slate-500">({item.ticker})</span>
                   </button>
                 ))}
               </div>
             )}
           </div>
-
-          {/* Asset Dropdown Filter */}
           <div className="relative">
-            <select
-              value={assetFilter}
-              onChange={(e) => setAssetFilter(e.target.value)}
-              className="appearance-none bg-[#0b1222] border border-[#1e293b] text-slate-200 pl-3 pr-7 py-1 rounded text-xs focus:outline-none focus:border-[#3b82f6] cursor-pointer"
-            >
-              <option value="All">All Assets</option>
-              {uniqueAssets.filter((a) => a !== "All").map((a) => (
-                <option key={a} value={a}>{a}</option>
-              ))}
+            <select value={assetFilter} onChange={(e) => setAssetFilter(e.target.value)} className={cn(INPUT, "cursor-pointer appearance-none py-1.5 pl-3 pr-7")}>
+              <option value="All">All assets</option>
+              {uniqueAssets.map((a) => <option key={a} value={a}>{a}</option>)}
             </select>
-            <ChevronDown className="w-3 h-3 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />
           </div>
-
-          {/* Selected Strategy Badges with colored dots & x buttons */}
           <div className="flex flex-wrap items-center gap-1.5">
-            {selectedBacktests.map((b, idx) => {
-              const color = STRATEGY_COLORS[idx % STRATEGY_COLORS.length];
-              return (
-                <div
-                  key={b.id}
-                  className="flex items-center space-x-1.5 bg-[#0b1222] border border-[#1e293b] text-slate-200 px-2.5 py-1 rounded-full text-xs font-medium"
-                >
-                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
-                  <span className="truncate max-w-[200px]">
-                    {b.strategy_name} <span className="text-slate-400 font-mono text-[10px]">({b.ticker})</span>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => onToggleStrategy(b.id)}
-                    className="text-slate-400 hover:text-white p-0.5 rounded-full hover:bg-[#1e293b]"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              );
-            })}
+            {selected.map((b, i) => (
+              <div key={b.id} className="flex items-center gap-1.5 rounded-full border border-slate-800 bg-[#080d1a] px-2.5 py-1 font-medium text-slate-200">
+                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: seriesColor(i) }} />
+                <span className="max-w-[200px] truncate">{b.strategy_name} <span className="font-mono text-[10px] text-slate-400">({b.ticker})</span></span>
+                {b.is_sample && <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-1 font-mono text-[8px] font-bold text-blue-400">SAMPLE</span>}
+                <button type="button" onClick={() => onToggleStrategy(b.id)} aria-label={`Remove ${b.strategy_name}`} className="rounded-full p-0.5 text-slate-400 hover:bg-slate-800 hover:text-white"><X className="h-3 w-3" /></button>
+              </div>
+            ))}
           </div>
+          {selectedIds.length > 0 && <button type="button" onClick={onClearAll} className="whitespace-nowrap text-[11px] font-medium text-blue-400 hover:text-blue-300">Clear all</button>}
+        </div>
+        <div className="flex flex-shrink-0 flex-wrap items-center gap-3 border-t border-slate-800 pt-2 xl:border-t-0 xl:pt-0">
+          <div className="flex items-center gap-1.5" title="Benchmark is recorded with each run: the first selected strategy's benchmark is plotted.">
+            <span className="text-slate-400">Benchmark</span>
+            <span className="rounded-lg border border-slate-800 bg-[#080d1a] px-2.5 py-1.5 font-mono text-[11px] text-slate-200">{benchName}</span>
+          </div>
+          <label className="flex items-center gap-1.5">
+            <span className="whitespace-nowrap text-slate-400">Initial capital</span>
+            <span className="relative w-32">
+              <input type="number" min={1} value={initialCapital} onChange={(e) => onInitialCapitalChange(Number(e.target.value) || 100000)} className={cn(INPUT, "w-full py-1.5 pl-5 pr-2 text-right font-mono")} />
+              <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 font-mono text-slate-500">{sym}</span>
+            </span>
+          </label>
+        </div>
+      </div>
 
-          {selectedIds.length > 0 && (
-            <button
-              type="button"
-              onClick={onClearAll}
-              className="text-[#3b82f6] hover:underline text-xs ml-1 whitespace-nowrap"
-            >
-              Clear All
+      {mixedMarkets && (
+        <p role="note" className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300">
+          Selected strategies use different benchmarks. Curves are rebased to the same capital, aligned on calendar dates with market holidays forward-filled; the benchmark shown is {benchName}.
+        </p>
+      )}
+
+      {/* KPI strip: lead strategy, benchmark-relative */}
+      {lead && (
+        <div className="space-y-1.5">
+          <p className="text-[11px] text-slate-400">KPIs for <span className="font-medium text-slate-200">{lead.strategy_name}</span> <span className="font-mono">({lead.ticker})</span> · {windowLabel}</p>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9">
+            <Kpi label="Total return" value={fmtPct(leadStats?.totalReturn)} tone={signTone(leadStats?.totalReturn)} sub={<span className={signTone(rel(leadStats?.totalReturn, leadStats?.benchReturn))}>{fmtPct(rel(leadStats?.totalReturn, leadStats?.benchReturn))} vs bench</span>} />
+            <Kpi label="CAGR" value={fmtPct(leadStats?.cagr)} tone={signTone(leadStats?.cagr)} sub={<span className={signTone(rel(leadStats?.cagr, leadStats?.benchCagr))}>{fmtPct(rel(leadStats?.cagr, leadStats?.benchCagr))} vs bench</span>} />
+            <Kpi label="Sharpe" value={leadStats ? formatRatio(leadStats.sharpe) : "—"} sub={`Bench ${leadStats ? formatRatio(leadStats.benchSharpe) : "—"}`} />
+            <Kpi label="Sortino" value={leadStats ? formatRatio(leadStats.sortino) : "—"} />
+            <Kpi label="Max drawdown" value={leadStats ? fmtPct(-leadStats.maxDD) : "—"} tone="text-rose-400" sub={`Bench ${leadStats ? fmtPct(-leadStats.benchMaxDD) : "—"}`} />
+            <Kpi label="Volatility" value={fmtPct(leadStats?.vol, 2, false)} sub={`Bench ${fmtPct(leadStats?.benchVol, 2, false)}`} />
+            <Kpi label="Calmar" value={leadStats ? formatRatio(leadStats.calmar) : "—"} />
+            <Kpi label="Alpha (ann.)" value={fmtPct(leadStats?.alpha)} tone={signTone(leadStats?.alpha)} sub={`Beta ${leadStats?.beta == null ? "—" : leadStats.beta.toFixed(2)}`} />
+            <button type="button" onClick={() => setShowMore(true)} className="group flex flex-col items-center justify-center rounded-xl border border-slate-800/90 bg-[#0b1222]/95 p-3.5 text-center transition-colors hover:border-blue-500/40">
+              <span className="flex items-center gap-1 text-xs font-semibold text-slate-200 group-hover:text-blue-400">More metrics <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" /></span>
+              <span className="mt-1 font-mono text-[10px] text-slate-500">VaR, ulcer, skew</span>
             </button>
-          )}
-        </div>
-
-        {/* Right: Benchmark Dropdown + Initial Capital Input */}
-        <div className="flex items-center space-x-3 flex-shrink-0 pt-2 xl:pt-0 border-t xl:border-t-0 border-[#1e293b]">
-          {/* Benchmark */}
-          <div className="flex items-center space-x-1.5">
-            <span className="text-slate-400 text-xs whitespace-nowrap">Benchmark</span>
-            <div className="relative">
-              <select
-                value={benchmark}
-                onChange={(e) => onBenchmarkChange(e.target.value)}
-                className="appearance-none bg-[#0b1222] border border-[#1e293b] text-slate-200 pl-3 pr-7 py-1 rounded text-xs focus:outline-none focus:border-[#3b82f6] cursor-pointer"
-              >
-                <option value="SPY">SPY (S&P 500 ETF)</option>
-                <option value="QQQ">QQQ (Nasdaq 100)</option>
-                <option value="IWM">IWM (Russell 2000)</option>
-                <option value="DIA">DIA (Dow Jones)</option>
-              </select>
-              <ChevronDown className="w-3 h-3 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
-          </div>
-
-          {/* Initial Capital */}
-          <div className="flex items-center space-x-1.5">
-            <span className="text-slate-400 text-xs whitespace-nowrap">Initial Capital</span>
-            <div className="relative w-28">
-              <input
-                type="number"
-                value={initialCapital}
-                onChange={(e) => onInitialCapitalChange(Number(e.target.value) || 100000)}
-                className="bg-[#0b1222] border border-[#1e293b] text-white text-xs px-2 py-1 pr-6 rounded w-full font-mono text-right focus:outline-none focus:border-[#3b82f6]"
-              />
-              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 font-mono text-xs pointer-events-none">
-                $
-              </span>
-            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* ========================================================
-          2. KPI SUMMARY METRICS STRIP (8 Cards + More Metrics)
-          ======================================================== */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-9 gap-2">
-        {/* 1. Total Return */}
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-2.5 space-y-1">
-          <div className="text-[10px] uppercase font-mono text-slate-500 font-semibold tracking-wider">
-            Total Return
-          </div>
-          <div className="text-base font-bold text-[#10B981] font-mono">+22.34%</div>
-          <div className="text-[10px] text-[#10B981] flex items-center space-x-0.5 font-medium">
-            <span>▲ +12.8%</span>
-            <span className="text-slate-500">vs SPY</span>
-          </div>
-        </div>
-
-        {/* 2. CAGR */}
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-2.5 space-y-1">
-          <div className="text-[10px] uppercase font-mono text-slate-500 font-semibold tracking-wider">
-            CAGR
-          </div>
-          <div className="text-base font-bold text-white font-mono">10.67%</div>
-          <div className="text-[10px] text-[#10B981] flex items-center space-x-0.5 font-medium">
-            <span>▲ +4.2%</span>
-            <span className="text-slate-500">vs SPY</span>
-          </div>
-        </div>
-
-        {/* 3. Sharpe Ratio */}
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-2.5 space-y-1">
-          <div className="text-[10px] uppercase font-mono text-slate-500 font-semibold tracking-wider">
-            Sharpe Ratio
-          </div>
-          <div className="text-base font-bold text-white font-mono">1.32</div>
-          <div className="text-[10px] text-[#10B981] flex items-center space-x-0.5 font-medium">
-            <span>▲ +0.46</span>
-            <span className="text-slate-500">vs SPY</span>
-          </div>
-        </div>
-
-        {/* 4. Sortino Ratio */}
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-2.5 space-y-1">
-          <div className="text-[10px] uppercase font-mono text-slate-500 font-semibold tracking-wider">
-            Sortino Ratio
-          </div>
-          <div className="text-base font-bold text-white font-mono">1.87</div>
-          <div className="text-[10px] text-[#10B981] flex items-center space-x-0.5 font-medium">
-            <span>▲ +0.71</span>
-            <span className="text-slate-500">vs SPY</span>
-          </div>
-        </div>
-
-        {/* 5. Max Drawdown */}
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-2.5 space-y-1">
-          <div className="text-[10px] uppercase font-mono text-slate-500 font-semibold tracking-wider">
-            Max Drawdown
-          </div>
-          <div className="text-base font-bold text-[#EF4444] font-mono">-14.93%</div>
-          <div className="text-[10px] text-[#EF4444] flex items-center space-x-0.5 font-medium">
-            <span>▼ -4.2%</span>
-            <span className="text-slate-500">vs SPY</span>
-          </div>
-        </div>
-
-        {/* 6. Win Rate */}
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-2.5 space-y-1">
-          <div className="text-[10px] uppercase font-mono text-slate-500 font-semibold tracking-wider">
-            Win Rate
-          </div>
-          <div className="text-base font-bold text-white font-mono">56.8%</div>
-          <div className="text-[10px] text-[#10B981] flex items-center space-x-0.5 font-medium">
-            <span>▲ +8.1%</span>
-            <span className="text-slate-500">vs SPY</span>
-          </div>
-        </div>
-
-        {/* 7. Profit Factor */}
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-2.5 space-y-1">
-          <div className="text-[10px] uppercase font-mono text-slate-500 font-semibold tracking-wider">
-            Profit Factor
-          </div>
-          <div className="text-base font-bold text-white font-mono">1.74</div>
-          <div className="text-[10px] text-[#10B981] flex items-center space-x-0.5 font-medium">
-            <span>▲ +0.62</span>
-            <span className="text-slate-500">vs SPY</span>
-          </div>
-        </div>
-
-        {/* 8. Alpha (ann.) & Beta */}
-        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-2.5 space-y-1">
-          <div className="text-[10px] uppercase font-mono text-slate-500 font-semibold tracking-wider">
-            Alpha (ann.)
-          </div>
-          <div className="text-base font-bold text-[#3b82f6] font-mono">8.21%</div>
-          <div className="text-[10px] text-slate-400 font-mono">
-            Beta: <span className="text-white font-semibold">0.78</span>
-          </div>
-        </div>
-
-        {/* 9. More Metrics Button */}
-        <button
-          type="button"
-          onClick={() => setShowMoreMetrics(true)}
-          className="bg-[#080d1a] hover:bg-[#0b1222] border border-[#1e293b] hover:border-[#3b82f6]/40 rounded-lg p-2.5 flex flex-col justify-center items-center text-center group transition-colors"
-        >
-          <span className="text-xs text-slate-200 group-hover:text-[#3b82f6] font-semibold flex items-center space-x-1">
-            <span>More Metrics</span>
-            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-          </span>
-          <span className="text-[10px] text-slate-500 mt-1 font-mono">VaR, Calmar, R²</span>
-        </button>
-      </div>
-
-      {/* ========================================================
-          3. MAIN CHARTS GRID (Equity Comparison + Distribution & Drawdown)
-          ======================================================== */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Left Column (~62%): Equity Curve Comparison */}
-        <div className="lg:col-span-7 bg-[#080d1a] border border-[#1e293b] rounded-lg p-4 flex flex-col justify-between">
-          <div className="space-y-3">
-            {/* Header & Controls Strip */}
-            <div className="flex flex-wrap items-center justify-between pb-2 border-b border-[#1e293b] gap-2">
-              <div className="flex items-center space-x-2">
-                <span className="font-semibold text-white text-xs tracking-tight">
-                  Equity Curve Comparison
-                </span>
-                <Info className="w-3.5 h-3.5 text-slate-500 cursor-pointer" />
+      {/* Charts */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+        <div className="lg:col-span-7">
+          <Card
+            title="Equity curve comparison"
+            subtitle={`Rebased to ${fmtMoney(initialCapital, filters.currency)} · ${filters.frequency.toLowerCase()} · dates aligned across calendars`}
+            info="Each strategy is rebased to the same starting capital. Curves are merged on the union of calendar dates; a market holiday carries the previous value forward. The dashed line is the lead strategy's benchmark."
+            icon={LineChartIcon}
+            tone="blue"
+            action={
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <div className="flex items-center rounded-lg border border-slate-800 bg-[#0b1222] p-0.5 text-[11px]">
+                  {(["Equity Curve", "Cumulative Return", "Drawdown", "Log Scale"] as ChartMode[]).map((m) => (
+                    <button key={m} type="button" onClick={() => setChartMode(m)} className={cn("rounded px-2 py-1 transition-colors", chartMode === m ? "bg-blue-600 font-semibold text-white shadow-sm" : "font-medium text-slate-400 hover:text-white")}>{m}</button>
+                  ))}
+                </div>
+                <div className="flex items-center rounded-lg border border-slate-800 bg-[#0b1222] p-0.5 font-mono text-[11px]">
+                  {(["1M", "3M", "6M", "YTD", "1Y", "ALL"] as RangeFilter[]).map((r) => (
+                    <button key={r} type="button" onClick={() => setRangeFilter(r)} className={cn("rounded px-2 py-1 transition-colors", rangeFilter === r ? "bg-blue-600 font-semibold text-white shadow-sm" : "font-medium text-slate-400 hover:text-white")}>{r}</button>
+                  ))}
+                </div>
               </div>
-
-              {/* Mode Toggles */}
-              <div className="flex items-center space-x-1 bg-[#0b1222] p-0.5 rounded border border-[#1e293b] text-[11px]">
-                {(["Equity Curve", "Cumulative Return", "Drawdown", "Log Scale"] as EquityChartMode[]).map(
-                  (mode) => (
-                    <button
-                      key={mode}
-                      type="button"
-                      onClick={() => setChartMode(mode)}
-                      className={`px-2 py-0.5 rounded transition-all font-medium ${
-                        chartMode === mode
-                          ? "bg-[#2563eb] text-white font-semibold"
-                          : "text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      {mode}
-                    </button>
-                  )
-                )}
-              </div>
-
-              {/* Range Filters */}
-              <div className="flex items-center space-x-1 text-[10px] font-mono">
-                {(["1M", "3M", "6M", "YTD", "1Y", "ALL"] as RangeFilter[]).map((r) => (
-                  <button
-                    key={r}
-                    type="button"
-                    onClick={() => setRangeFilter(r)}
-                    className={`px-1.5 py-0.5 rounded transition-all ${
-                      rangeFilter === r
-                        ? "bg-[#1e293b] text-[#3b82f6] font-bold"
-                        : "text-slate-500 hover:text-slate-300"
-                    }`}
-                  >
-                    {r}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Line Chart Area */}
-            <div className="h-[340px] relative">
-              {comparisonSeries.length > 0 ? (
+            }
+          >
+            <div className="h-[340px]">
+              {chartData.length > 1 ? (
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={comparisonSeries}
-                    margin={{ top: 15, right: 75, left: 5, bottom: 5 }}
-                  >
-                    <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
-                    <XAxis
-                      dataKey="date"
-                      stroke="#485362"
-                      fontSize={10}
-                      tickLine={false}
-                      axisLine={{ stroke: "#1e293b" }}
-                      minTickGap={40}
-                    />
-                    <YAxis
-                      stroke="#485362"
-                      fontSize={10}
-                      tickLine={false}
-                      axisLine={false}
-                      domain={["auto", "auto"]}
-                      tickFormatter={formatEquityYAxis}
-                    />
-                    <Tooltip
-                      contentStyle={TOOLTIP_STYLE}
-                      formatter={(val: any, name: any) => [
-                        chartMode === "Equity Curve"
-                          ? formatCurrency(Number(val))
-                          : `${Number(val).toFixed(2)}%`,
-                        name,
-                      ]}
-                    />
-
-                    {/* Benchmark SPY (dashed line) */}
-                    <Line
-                      type="monotone"
-                      dataKey="Benchmark SPY"
-                      stroke="#64748B"
-                      strokeWidth={1.5}
-                      strokeDasharray="4 4"
-                      dot={false}
-                      isAnimationActive={false}
-                    />
-
-                    {/* Strategy lines */}
-                    {selectedBacktests.map((b, idx) => (
-                      <Line
-                        key={b.id}
-                        type="monotone"
-                        dataKey={b.strategy_name}
-                        stroke={STRATEGY_COLORS[idx % STRATEGY_COLORS.length]}
-                        strokeWidth={2}
-                        dot={false}
-                        isAnimationActive={false}
-                      />
+                  <LineChart data={chartData} margin={{ top: 10, right: 20, left: 5, bottom: 5 }}>
+                    <CartesianGrid {...GRID_PROPS} />
+                    <XAxis dataKey="date" {...AXIS_PROPS} minTickGap={40} />
+                    <YAxis {...AXIS_PROPS} scale={chartMode === "Log Scale" ? "log" : "auto"} domain={["auto", "auto"]} tickFormatter={fmtY} />
+                    <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(val: any, name: any) => [chartMode === "Equity Curve" || chartMode === "Log Scale" ? fmtMoney(Number(val), filters.currency) : fmtPct(Number(val)), name === BENCH_KEY ? benchName : name]} />
+                    <Line type="monotone" dataKey={BENCH_KEY} stroke="#64748B" strokeWidth={1.5} strokeDasharray="4 4" dot={false} connectNulls isAnimationActive={false} />
+                    {selected.map((b, i) => (
+                      <Line key={b.id} type="monotone" dataKey={b.strategy_name} stroke={seriesColor(i)} strokeWidth={2} dot={false} connectNulls isAnimationActive={false} />
                     ))}
                   </LineChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="h-full flex items-center justify-center text-xs text-slate-500">
-                  Select at least one strategy to view comparison curve.
-                </div>
-              )}
-
-              {/* End-of-line Dollar Badges on Right Edge */}
-              {chartMode === "Equity Curve" && selectedBacktests.length > 0 && (
-                <div className="absolute right-0 top-12 flex flex-col space-y-1 pointer-events-none z-10 text-[10px] font-mono">
-                  <span className="bg-[#3b82f6] text-black font-bold px-1.5 py-0.5 rounded-l shadow">
-                    $128,431
-                  </span>
-                  <span className="bg-[#10B981] text-black font-bold px-1.5 py-0.5 rounded-l shadow">
-                    $114,672
-                  </span>
-                  <span className="bg-[#F59E0B] text-black font-bold px-1.5 py-0.5 rounded-l shadow">
-                    $108,934
-                  </span>
-                  <span className="bg-[#475569] text-white font-bold px-1.5 py-0.5 rounded-l shadow">
-                    $109,521
-                  </span>
-                </div>
+                <div className="flex h-full items-center justify-center text-xs text-slate-500">No data points in this window. Widen the date range or select a strategy.</div>
               )}
             </div>
-          </div>
-
-          {/* Bottom Legend */}
-          <div className="flex flex-wrap items-center justify-between pt-3 border-t border-[#1e293b] text-[11px] gap-2">
-            <div className="flex flex-wrap items-center gap-3">
-              {selectedBacktests.map((b, idx) => (
-                <div key={b.id} className="flex items-center space-x-1.5">
-                  <span
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: STRATEGY_COLORS[idx % STRATEGY_COLORS.length] }}
-                  />
-                  <span className="text-slate-300 font-medium">{b.strategy_name}</span>
-                  <span className="text-[#10B981] font-mono text-[10px]">
-                    +{((b.metrics?.total_return || 0.18) * 100).toFixed(1)}%
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-slate-800 pt-3 text-[11px]">
+              {selected.map((b, i) => {
+                const s = statsById.get(b.id);
+                return (
+                  <span key={b.id} className="flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: seriesColor(i) }} />
+                    <span className="font-medium text-slate-300">{b.strategy_name}</span>
+                    <span className={cn("font-mono text-[10px]", signTone(s?.totalReturn))}>{fmtPct(s?.totalReturn)}</span>
                   </span>
-                </div>
-              ))}
-              <div className="flex items-center space-x-1.5">
+                );
+              })}
+              <span className="flex items-center gap-1.5">
                 <span className="w-3 border-b-2 border-dashed border-slate-400" />
-                <span className="text-slate-400">Benchmark SPY</span>
-                <span className="text-[#10B981] font-mono text-[10px]">+9.5%</span>
-              </div>
+                <span className="text-slate-400">{benchName}</span>
+                <span className={cn("font-mono text-[10px]", signTone(leadStats?.benchReturn))}>{fmtPct(leadStats?.benchReturn)}</span>
+              </span>
             </div>
-          </div>
+          </Card>
         </div>
 
-        {/* Right Column (~38%): Return Distribution + Drawdown Analysis */}
-        <div className="lg:col-span-5 flex flex-col space-y-4">
-          {/* Top Card: Return Distribution (Daily) */}
-          <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 space-y-2 flex-1">
-            <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
-              <div className="flex items-center space-x-1.5">
-                <span className="font-semibold text-white text-xs tracking-tight">
-                  Return Distribution (Daily)
-                </span>
-                <Info className="w-3.5 h-3.5 text-slate-500 cursor-pointer" />
-              </div>
+        <div className="flex flex-col gap-4 lg:col-span-5">
+          {selected.length > 1 && (
+            <div className="flex items-center gap-2 text-[11px] text-slate-400">
+              Distribution &amp; drawdown for
+              <select value={ddStrategy?.id ?? ""} onChange={(e) => setDdId(e.target.value)} className={cn(INPUT, "px-2 py-1")}>
+                {selected.map((b) => <option key={b.id} value={b.id}>{b.strategy_name} ({b.ticker})</option>)}
+              </select>
             </div>
-
-            <div className="grid grid-cols-12 gap-3 items-center">
-              {/* Histogram + Normal Fit Chart */}
-              <div className="col-span-8 h-40">
+          )}
+          <Card title="Return distribution" subtitle={`${filters.frequency} returns of ${ddStrategy?.strategy_name ?? "—"}`} info="Histogram of period returns inside the selected window." icon={BarChart2} tone="purple">
+            <div className="h-40">
+              {returnDist.length ? (
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={returnDistData} margin={{ top: 10, right: 5, left: -25, bottom: 0 }}>
-                    <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
-                    <XAxis
-                      dataKey="return_pct"
-                      stroke="#485362"
-                      fontSize={9}
-                      tickFormatter={(v) => `${v}%`}
-                    />
-                    <YAxis stroke="#485362" fontSize={9} />
-                    <Tooltip
-                      contentStyle={TOOLTIP_STYLE}
-                    />
-                    <Bar dataKey="frequency" fill="#2563eb" isAnimationActive={false} />
-                    <Line
-                      type="monotone"
-                      dataKey="normal_fit"
-                      stroke="#3b82f6"
-                      strokeWidth={1.5}
-                      dot={false}
-                    />
+                  <BarChart data={returnDist} margin={{ top: 10, right: 5, left: -25, bottom: 0 }}>
+                    <CartesianGrid {...GRID_PROPS} />
+                    <XAxis dataKey="return_pct" {...AXIS_PROPS} tickFormatter={(v) => `${v}%`} />
+                    <YAxis {...AXIS_PROPS} allowDecimals={false} />
+                    <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any) => [fmtInt(Number(v)), "Periods"]} labelFormatter={(l) => `Return ≈ ${l}%`} />
+                    <Bar dataKey="frequency" fill="#7C3AED" radius={[2, 2, 0, 0]} isAnimationActive={false} />
                   </BarChart>
                 </ResponsiveContainer>
-                {/* Legend */}
-                <div className="flex justify-center space-x-3 text-[10px] text-slate-400 mt-1">
-                  <div className="flex items-center space-x-1">
-                    <span className="w-2 h-2 rounded-full bg-[#2563eb]" />
-                    <span>Frequency</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <span className="w-3 border-t border-[#3b82f6]" />
-                    <span>Normal Fit</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Stats Sidebar */}
-              <div className="col-span-4 border-l border-[#1e293b] pl-3 space-y-1 text-[11px] font-mono">
-                <div className="flex justify-between">
-                  <span className="text-slate-400 font-sans text-[10px]">Mean</span>
-                  <span className="text-white font-semibold">0.08%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400 font-sans text-[10px]">Median</span>
-                  <span className="text-white font-semibold">0.06%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400 font-sans text-[10px]">Std Dev</span>
-                  <span className="text-white font-semibold">1.21%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400 font-sans text-[10px]">Skewness</span>
-                  <span className="text-[#EF4444] font-semibold">-0.28</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400 font-sans text-[10px]">Kurtosis</span>
-                  <span className="text-white font-semibold">3.41</span>
-                </div>
-                <div className="flex justify-between pt-1 border-t border-[#1e293b]/60">
-                  <span className="text-slate-400 font-sans text-[10px]">Positive Days</span>
-                  <span className="text-[#10B981] font-semibold">54.3%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400 font-sans text-[10px]">Negative Days</span>
-                  <span className="text-[#EF4444] font-semibold">45.7%</span>
-                </div>
-              </div>
+              ) : <div className="flex h-full items-center justify-center text-xs text-slate-500">Not enough observations.</div>}
             </div>
-          </div>
-
-          {/* Bottom Card: Drawdown Analysis */}
-          <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 space-y-2 flex-1">
-            <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
-              <div className="flex items-center space-x-1.5">
-                <span className="font-semibold text-white text-xs tracking-tight">
-                  Drawdown Analysis
-                </span>
-                <Info className="w-3.5 h-3.5 text-slate-500 cursor-pointer" />
-              </div>
-
-              {/* Strategy Selector Dropdown */}
-              <div className="relative">
-                <select
-                  value={activeDdStrategy.id}
-                  onChange={(e) => setSelectedDrawdownStrategyId(e.target.value)}
-                  className="appearance-none bg-[#0b1222] border border-[#1e293b] text-slate-200 pl-2.5 pr-6 py-0.5 rounded text-[11px] focus:outline-none focus:border-[#3b82f6] cursor-pointer"
-                >
-                  {selectedBacktests.map((b) => (
-                    <option key={b.id} value={b.id}>
-                      {b.strategy_name} ({b.ticker})
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="w-3 h-3 text-slate-400 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-12 gap-3 items-center">
-              {/* Underwater Area Chart */}
-              <div className="col-span-8 h-36">
+          </Card>
+          <Card title="Underwater drawdown" subtitle="Distance below running peak" info="Percentage below the highest portfolio value reached so far in the window." icon={TrendingDown} tone="rose">
+            <div className="h-40">
+              {ddPts.length > 1 ? (
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={drawdownSeries.length > 0 ? drawdownSeries : [
-                      { date: "Jan 23", drawdown: 0 },
-                      { date: "Mar 23", drawdown: -5.4 },
-                      { date: "May 23", drawdown: -14.93 },
-                      { date: "Jul 23", drawdown: -2.1 },
-                      { date: "Sep 23", drawdown: -9.8 },
-                      { date: "Nov 23", drawdown: -12.4 },
-                      { date: "Jan 24", drawdown: -6.21 },
-                    ]}
-                    margin={{ top: 5, right: 5, left: -25, bottom: 0 }}
-                  >
-                    <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="date" stroke="#485362" fontSize={9} minTickGap={30} />
-                    <YAxis
-                      stroke="#485362"
-                      fontSize={9}
-                      domain={[-20, 0]}
-                      tickFormatter={(v) => `${v}%`}
-                    />
-                    <Tooltip
-                      contentStyle={TOOLTIP_STYLE}
-                      formatter={(v: any) => [`${Number(v).toFixed(2)}%`, "Drawdown"]}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="drawdown"
-                      stroke="#EF4444"
-                      strokeWidth={1.5}
-                      fill="#EF4444"
-                      fillOpacity={0.25}
-                      isAnimationActive={false}
-                    />
+                  <AreaChart data={ddPts.map((p) => ({ date: p.date, drawdown: -p.dd }))} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
+                    <defs><linearGradient id="ddFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#DC2626" stopOpacity={0} /><stop offset="100%" stopColor="#DC2626" stopOpacity={0.35} /></linearGradient></defs>
+                    <CartesianGrid {...GRID_PROPS} />
+                    <XAxis dataKey="date" {...AXIS_PROPS} minTickGap={50} />
+                    <YAxis {...AXIS_PROPS} tickFormatter={(v) => `${v}%`} />
+                    <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any) => [fmtPct(Number(v)), "Drawdown"]} />
+                    <Area type="monotone" dataKey="drawdown" stroke="#DC2626" strokeWidth={2} fill="url(#ddFill)" isAnimationActive={false} />
                   </AreaChart>
                 </ResponsiveContainer>
-              </div>
-
-              {/* Stats Sidebar */}
-              <div className="col-span-4 border-l border-[#1e293b] pl-3 space-y-1 text-[11px] font-mono">
-                <div className="flex justify-between">
-                  <span className="text-slate-400 font-sans text-[10px]">Current DD</span>
-                  <span className="text-[#EF4444] font-semibold">-6.21%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400 font-sans text-[10px]">Max Drawdown</span>
-                  <span className="text-[#EF4444] font-semibold">-14.93%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400 font-sans text-[10px]">Avg Drawdown</span>
-                  <span className="text-slate-300 font-semibold">-4.56%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400 font-sans text-[10px]">Recovery Time</span>
-                  <span className="text-white font-semibold">37 days</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400 font-sans text-[10px]">Longest DD</span>
-                  <span className="text-white font-semibold">62 days</span>
-                </div>
-              </div>
+              ) : <div className="flex h-full items-center justify-center text-xs text-slate-500">Not enough observations.</div>}
             </div>
-          </div>
+          </Card>
         </div>
       </div>
 
-      {/* ========================================================
-          4. BOTTOM SECTION: STRATEGY PERFORMANCE SUMMARY & AI INSIGHTS
-          ======================================================== */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Left Column (~58%): Strategy Performance Summary Table */}
-        <div className="lg:col-span-7 bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
-            <div className="flex items-center space-x-1.5">
-              <span className="font-semibold text-white text-xs tracking-tight">
-                Strategy Performance Summary
-              </span>
-              <Info className="w-3.5 h-3.5 text-slate-500 cursor-pointer" />
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setShowColumnsModal(true)}
-              className="flex items-center space-x-1 bg-[#0b1222] hover:bg-[#1A2232] border border-[#1e293b] text-slate-300 hover:text-white px-2.5 py-1 rounded text-xs transition-colors"
-            >
-              <Columns className="w-3 h-3 text-[#3b82f6]" />
-              <span>Columns</span>
-            </button>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs font-mono">
-              <thead>
-                <tr className="border-b border-[#1e293b] text-[10px] text-slate-400 uppercase font-medium tracking-wider">
-                  {visibleCols.includes("strategy") && <th className="py-2 px-2">Strategy</th>}
-                  {visibleCols.includes("asset") && <th className="py-2 px-2">Asset</th>}
-                  {visibleCols.includes("total_return") && <th className="py-2 px-2">Total Return</th>}
-                  {visibleCols.includes("cagr") && <th className="py-2 px-2">CAGR</th>}
-                  {visibleCols.includes("sharpe") && <th className="py-2 px-2">Sharpe</th>}
-                  {visibleCols.includes("sortino") && <th className="py-2 px-2">Sortino</th>}
-                  {visibleCols.includes("max_dd") && <th className="py-2 px-2">Max DD</th>}
-                  {visibleCols.includes("win_rate") && <th className="py-2 px-2">Win Rate</th>}
-                  {visibleCols.includes("profit_factor") && <th className="py-2 px-2">Profit Factor</th>}
-                  {visibleCols.includes("alpha") && <th className="py-2 px-2">Alpha</th>}
-                  {visibleCols.includes("beta") && <th className="py-2 px-2">Beta</th>}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#1e293b]/60">
-                {selectedBacktests.map((b, idx) => {
-                  const m = b.metrics;
-                  const isUp = (m?.total_return || 0) >= 0;
-                  const color = STRATEGY_COLORS[idx % STRATEGY_COLORS.length];
-                  return (
-                    <tr key={b.id} className="hover:bg-[#0b1222]/60">
-                      {visibleCols.includes("strategy") && (
-                        <td className="py-2.5 px-2 font-medium text-slate-200 font-sans flex items-center space-x-2">
-                          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
-                          <span className="truncate max-w-[170px]">{b.strategy_name}</span>
-                        </td>
-                      )}
-                      {visibleCols.includes("asset") && (
-                        <td className="py-2.5 px-2 text-slate-400">{b.ticker}</td>
-                      )}
-                      {visibleCols.includes("total_return") && (
-                        <td className={`py-2.5 px-2 font-semibold ${isUp ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                          +{((m?.total_return || 0.28) * 100).toFixed(2)}%
-                        </td>
-                      )}
-                      {visibleCols.includes("cagr") && (
-                        <td className="py-2.5 px-2 text-white">
-                          {((m?.cagr || 0.13) * 100).toFixed(2)}%
-                        </td>
-                      )}
-                      {visibleCols.includes("sharpe") && (
-                        <td className="py-2.5 px-2 text-slate-100 font-semibold">
-                          {m?.sharpe_ratio?.toFixed(2) || "1.76"}
-                        </td>
-                      )}
-                      {visibleCols.includes("sortino") && (
-                        <td className="py-2.5 px-2 text-slate-200">
-                          {m?.sortino_ratio?.toFixed(2) || "2.41"}
-                        </td>
-                      )}
-                      {visibleCols.includes("max_dd") && (
-                        <td className="py-2.5 px-2 text-[#EF4444]">
-                          -{m?.max_drawdown ? m.max_drawdown.toFixed(2) : "14.93"}%
-                        </td>
-                      )}
-                      {visibleCols.includes("win_rate") && (
-                        <td className="py-2.5 px-2 text-slate-200">
-                          {m?.win_rate ? `${m.win_rate.toFixed(1)}%` : "61.2%"}
-                        </td>
-                      )}
-                      {visibleCols.includes("profit_factor") && (
-                        <td className="py-2.5 px-2 text-slate-200">
-                          {m?.profit_factor?.toFixed(2) || "2.08"}
-                        </td>
-                      )}
-                      {visibleCols.includes("alpha") && (
-                        <td className="py-2.5 px-2 text-slate-200">
-                          {typeof m?.alpha === "number" ? `${m.alpha.toFixed(1)}%` : "—"}
-                        </td>
-                      )}
-                      {visibleCols.includes("beta") && (
-                        <td className="py-2.5 px-2 text-slate-200">
-                          {m?.beta?.toFixed(2) || "0.82"}
-                        </td>
-                      )}
+      {/* Comparison table + insights */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+        <div className="lg:col-span-7">
+          <Card title="Strategy comparison" subtitle={windowLabel} info="Every metric is recomputed from the equity curve inside the active window and frequency." icon={Table2} tone="blue"
+            action={<button type="button" onClick={() => setShowCols(true)} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-900/70 px-2.5 py-1 text-[11px] font-medium text-slate-200 hover:bg-slate-800"><Columns className="h-3 w-3" /> Columns</button>}>
+            <div className="w-full overflow-x-auto">
+              <table className="w-full border-collapse text-left text-xs">
+                <thead>
+                  <tr className="border-b border-slate-800 text-[10px] uppercase tracking-wider text-slate-400">
+                    {COLUMNS.filter((c) => visibleCols.includes(c.id)).map((c) => <th key={c.id} className="px-2 py-1.5">{c.label}</th>)}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/50">
+                  {selected.map((b) => (
+                    <tr key={b.id} className="transition-colors hover:bg-slate-800/30">
+                      {COLUMNS.filter((c) => visibleCols.includes(c.id)).map((c) => <React.Fragment key={c.id}>{cell(c.id, b, statsById.get(b.id) ?? null)}</React.Fragment>)}
                     </tr>
-                  );
-                })}
-
-                {/* Benchmark Row */}
-                <tr className="bg-[#0b1222]/40 text-slate-400">
-                  {visibleCols.includes("strategy") && (
-                    <td className="py-2.5 px-2 font-medium text-slate-300 font-sans flex items-center space-x-2">
-                      <span className="w-2 h-2 rounded-full bg-slate-500" />
-                      <span>Benchmark</span>
-                    </td>
-                  )}
-                  {visibleCols.includes("asset") && <td className="py-2.5 px-2">SPY</td>}
-                  {visibleCols.includes("total_return") && <td className="py-2.5 px-2 text-[#10B981]">+9.52%</td>}
-                  {visibleCols.includes("cagr") && <td className="py-2.5 px-2">4.48%</td>}
-                  {visibleCols.includes("sharpe") && <td className="py-2.5 px-2">0.86</td>}
-                  {visibleCols.includes("sortino") && <td className="py-2.5 px-2">1.21</td>}
-                  {visibleCols.includes("max_dd") && <td className="py-2.5 px-2 text-[#EF4444]">-10.38%</td>}
-                  {visibleCols.includes("win_rate") && <td className="py-2.5 px-2">52.0%</td>}
-                  {visibleCols.includes("profit_factor") && <td className="py-2.5 px-2">1.15</td>}
-                  {visibleCols.includes("alpha") && <td className="py-2.5 px-2">—</td>}
-                  {visibleCols.includes("beta") && <td className="py-2.5 px-2">1.00</td>}
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  ))}
+                  {lead && <tr className="bg-slate-800/20">{COLUMNS.filter((c) => visibleCols.includes(c.id)).map((c) => <React.Fragment key={c.id}>{benchCell(c.id)}</React.Fragment>)}</tr>}
+                </tbody>
+              </table>
+            </div>
+          </Card>
         </div>
 
-        {/* Right Column (~42%): AI Key Insights */}
-        <div className="lg:col-span-5 bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
-            <div className="flex items-center space-x-2">
-              <span className="px-1.5 py-0.5 rounded bg-[#3b82f6]/15 text-[#3b82f6] font-mono text-[10px] font-bold border border-[#3b82f6]/30">
-                AI
-              </span>
-              <span className="font-semibold text-white text-xs tracking-tight">
-                Key Insights
-              </span>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setShowReport(true)}
-              className="flex items-center space-x-1.5 bg-[#0b1222] hover:bg-[#1A2232] border border-[#1e293b] text-slate-300 hover:text-white px-2.5 py-1 rounded text-xs transition-colors"
-            >
-              <FileText className="w-3 h-3 text-[#3b82f6]" />
-              <span>View Detailed Report</span>
-            </button>
-          </div>
-
-          {/* 2x2 Grid of Key Insight Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
-            {/* 1. Outperformance */}
-            <div className="bg-[#0b1222] border border-[#1e293b] rounded-lg p-3 space-y-1">
-              <div className="flex items-center space-x-2">
-                <ArrowUpRight className="w-4 h-4 text-[#10B981]" />
-                <span className="font-semibold text-white text-[11px]">Outperformance</span>
+        <div className="lg:col-span-5">
+          <Card title="Key insights" subtitle="Generated from the numbers above" info="Plain-language read-outs computed from the selected window; no external model is involved." icon={Lightbulb} tone="amber"
+            action={<button type="button" onClick={() => setShowReport(true)} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-900/70 px-2.5 py-1 text-[11px] font-medium text-slate-200 hover:bg-slate-800"><FileText className="h-3 w-3 text-blue-400" /> Report</button>}>
+            <div className="grid grid-cols-1 gap-2.5 text-xs sm:grid-cols-2">
+              <div className="space-y-1 rounded-xl border border-slate-800 bg-[#080d1a]/60 p-3">
+                <div className="flex items-center gap-2"><ArrowUpRight className="h-4 w-4 text-emerald-400" /><span className="text-[11px] font-semibold text-white">Vs benchmark</span></div>
+                <p className="text-[11px] leading-relaxed text-slate-400">
+                  {leadStats ? <>Returned <span className={cn("font-mono font-semibold", signTone(leadStats.totalReturn))}>{fmtPct(leadStats.totalReturn)}</span> against <span className={cn("font-mono font-semibold", signTone(leadStats.benchReturn))}>{fmtPct(leadStats.benchReturn)}</span>; Sharpe <span className="font-mono text-slate-200">{formatRatio(leadStats.sharpe)}</span> vs <span className="font-mono text-slate-200">{formatRatio(leadStats.benchSharpe)}</span>.</> : "—"}
+                </p>
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                Selected strategies outperformed SPY by{" "}
-                <span className="text-[#10B981] font-semibold">+12.8%</span> with higher Sharpe ratio (1.32 vs 0.86).
-              </p>
-            </div>
-
-            {/* 2. Drawdown Risk */}
-            <div className="bg-[#0b1222] border border-[#1e293b] rounded-lg p-3 space-y-1">
-              <div className="flex items-center space-x-2">
-                <ShieldAlert className="w-4 h-4 text-[#EF4444]" />
-                <span className="font-semibold text-white text-[11px]">Drawdown Risk</span>
+              <div className="space-y-1 rounded-xl border border-slate-800 bg-[#080d1a]/60 p-3">
+                <div className="flex items-center gap-2"><ShieldAlert className="h-4 w-4 text-rose-400" /><span className="text-[11px] font-semibold text-white">Drawdown</span></div>
+                <p className="text-[11px] leading-relaxed text-slate-400">
+                  {leadStats ? <>Max drawdown <span className="font-mono font-semibold text-rose-400">{fmtPct(-leadStats.maxDD)}</span> (benchmark <span className="font-mono text-slate-200">{fmtPct(-leadStats.benchMaxDD)}</span>); longest stretch below peak {leadStats.ddDuration} periods.</> : "—"}
+                </p>
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                Maximum drawdown of <span className="text-[#EF4444] font-semibold">-14.93%</span> occurred during Mar–Apr 2023 (37 days to recover).
-              </p>
-            </div>
-
-            {/* 3. Return Distribution */}
-            <div className="bg-[#0b1222] border border-[#1e293b] rounded-lg p-3 space-y-1">
-              <div className="flex items-center space-x-2">
-                <BarChart2 className="w-4 h-4 text-[#A855F7]" />
-                <span className="font-semibold text-white text-[11px]">Return Distribution</span>
+              <div className="space-y-1 rounded-xl border border-slate-800 bg-[#080d1a]/60 p-3">
+                <div className="flex items-center gap-2"><BarChart2 className="h-4 w-4 text-purple-300" /><span className="text-[11px] font-semibold text-white">Return shape</span></div>
+                <p className="text-[11px] leading-relaxed text-slate-400">
+                  {ddRisk ? <>Daily skew <span className="font-mono text-slate-200">{ddRisk.skew.toFixed(2)}</span>{ddRisk.skew < 0 ? ", a longer left tail: losses are larger than gains." : ", a longer right tail."} 95% VaR <span className="font-mono text-slate-200">{fmtPct(-ddRisk.var95)}</span>.</> : "Not enough observations."}
+                </p>
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                Slight negative skew (<span className="text-slate-300 font-mono">-0.28</span>) indicates higher downside tail risk under high volatility.
-              </p>
-            </div>
-
-            {/* 4. Strategy Diversification */}
-            <div className="bg-[#0b1222] border border-[#1e293b] rounded-lg p-3 space-y-1">
-              <div className="flex items-center space-x-2">
-                <GitFork className="w-4 h-4 text-[#3b82f6]" />
-                <span className="font-semibold text-white text-[11px]">Strategy Diversification</span>
+              <div className="space-y-1 rounded-xl border border-slate-800 bg-[#080d1a]/60 p-3">
+                <div className="flex items-center gap-2"><GitFork className="h-4 w-4 text-blue-400" /><span className="text-[11px] font-semibold text-white">Diversification</span></div>
+                <p className="text-[11px] leading-relaxed text-slate-400">
+                  {avgCorr === null ? "Select two or more strategies with overlapping dates to measure correlation." : <>Average pairwise correlation <span className="font-mono text-slate-200">{avgCorr.toFixed(2)}</span>{avgCorr < 0.5 ? ": diversifying." : ": largely overlapping bets."}</>}
+                </p>
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                Low correlation (<span className="text-slate-300 font-mono">0.42 avg</span>) between selected strategies improves portfolio stability.
-              </p>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
 
-      {/* Modals */}
-      <MoreMetricsModal
-        isOpen={showMoreMetrics}
-        onClose={() => setShowMoreMetrics(false)}
-        strategyName={selectedBacktests.map((b) => b.strategy_name).join(" + ") || "Multi-Strategy Portfolio"}
-      />
-
-      <DetailedReportModal
-        isOpen={showReport}
-        onClose={() => setShowReport(false)}
-        selectedStrategies={selectedBacktests}
-      />
-
-      <ColumnsModal
-        isOpen={showColumnsModal}
-        onClose={() => setShowColumnsModal(false)}
-        allColumns={allTableColumns}
-        visibleColumns={visibleCols}
-        onToggleColumn={toggleColumn}
-      />
+      <MoreMetricsModal isOpen={showMore} onClose={() => setShowMore(false)} strategyName={lead ? `${lead.strategy_name} (${lead.ticker}) · ${windowLabel}` : "—"} stats={leadStats} risk={lead ? riskStats(ptsById.get(lead.id) ?? []) : null} />
+      <DetailedReportModal isOpen={showReport} onClose={() => setShowReport(false)} items={selected.map((bt) => ({ bt, stats: statsById.get(bt.id) ?? null }))} windowLabel={windowLabel} />
+      <ColumnsModal isOpen={showCols} onClose={() => setShowCols(false)} allColumns={COLUMNS} visibleColumns={visibleCols} onToggleColumn={(id) => setVisibleCols((v) => (v.includes(id) ? (v.length > 2 ? v.filter((c) => c !== id) : v) : [...v, id]))} />
     </div>
   );
 }
