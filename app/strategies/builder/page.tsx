@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { StrategyConfig, IndicatorConfig, ConditionRule } from "@/types";
-import { AVAILABLE_INDICATORS, BENCHMARKS, DEFAULT_STRATEGY } from "@/lib/constants";
+import { AVAILABLE_INDICATORS, DEFAULT_STRATEGY } from "@/lib/constants";
 import { SEED_STRATEGIES } from "@/lib/seedData";
 import { loadSystemSettings } from "@/lib/settings";
 import { alignBenchmark, marketOfTicker } from "@/lib/market";
@@ -17,6 +17,7 @@ import { formatRuleSet } from "@/lib/formatRule";
 import { useEscape } from "@/lib/useEscape";
 import { cn } from "@/lib/utils";
 import { Card, CardSkeleton } from "@/components/ui/Card";
+import BenchmarkSelect from "@/components/ui/BenchmarkSelect";
 import EasyStockPicker from "@/components/strategies/EasyStockPicker";
 import TestStrategyModal from "@/components/strategies/TestStrategyModal";
 import RuleEditor, { leftOf, rightOf } from "@/components/builder/RuleEditor";
@@ -258,7 +259,6 @@ function BuilderContent() {
     identity: null, universe: strategy.asset, indicators: strategy.indicators.length, entry: strategy.entry_rules.length, exit: strategy.exit_rules.length,
     risk: strategy.risk.stop_loss_pct != null ? `SL ${strategy.risk.stop_loss_pct}%` : "No SL", execution: `${start.slice(0, 4)}–${end.slice(0, 4)}`,
   };
-  const benchOptions = BENCHMARKS.filter((b) => b.region === market);
   const why = validation.errors[0];
 
   if (!ready) {
@@ -391,7 +391,7 @@ function BuilderContent() {
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
                 <Field label="Start date"><input type="date" value={start} max={end || undefined} onChange={(e) => setStart(e.target.value)} className={cn(INPUT, "font-mono")} /></Field>
                 <Field label="End date"><input type="date" value={end} min={start || undefined} max={iso(new Date())} onChange={(e) => setEnd(e.target.value)} className={cn(INPUT, "font-mono")} /></Field>
-                <Field label={`Benchmark (${market})`} className="sm:col-span-2"><select value={benchOptions.some((b) => b.symbol === benchmark) ? benchmark : ""} onChange={(e) => setBenchmark(e.target.value)} className={SELECT}>{benchOptions.map((b) => <option key={b.symbol} value={b.symbol}>{b.name} ({b.symbol})</option>)}</select></Field>
+                <Field label={`Benchmark (${market})`} className="sm:col-span-2"><BenchmarkSelect market={market} value={benchmark} onChange={setBenchmark} /></Field>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
                 <Clock className="h-3.5 w-3.5" />Quick window

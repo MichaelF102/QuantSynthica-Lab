@@ -18,7 +18,7 @@ import { BacktestResult, StrategyConfig } from "@/types";
 import { SEED_STRATEGIES } from "@/lib/seedData";
 import { fmtPct, fmtInt, isNum, cn } from "@/lib/utils";
 import { formatRatio } from "@/lib/formatters";
-import { BENCHMARKS } from "@/lib/constants";
+import BenchmarkSelect from "@/components/ui/BenchmarkSelect";
 import { loadSystemSettings } from "@/lib/settings";
 import { alignBenchmark, isIndianTicker, marketOfTicker } from "@/lib/market";
 import { Card, CardSkeleton, EmptyState } from "@/components/ui/Card";
@@ -289,13 +289,7 @@ function BacktestsContent() {
 
           <div>
             <label className={LABEL}>Benchmark</label>
-            <select value={benchmark} onChange={(e) => setBenchmark(e.target.value)} className={INPUT}>
-              {BENCHMARKS.filter((b) => b.region === marketOfTicker(targetAsset)).map((b) => (
-                <option key={b.symbol} value={b.symbol}>
-                  {b.symbol} ({b.name})
-                </option>
-              ))}
-            </select>
+            <BenchmarkSelect market={marketOfTicker(targetAsset)} value={benchmark} onChange={setBenchmark} />
           </div>
 
           <div>

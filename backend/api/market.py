@@ -7,6 +7,7 @@ from fastapi import APIRouter, Query, HTTPException
 from ..engine.data import MarketDataEngine, MarketDataUnavailable
 from ..engine.signals import compute_indicators
 from ..engine.stocks_universe import universe_manager
+from ..engine.indices_universe import indices_universe
 from ..engine.fundamentals import fundamental_engine
 from ..models.schemas import IndicatorConfig
 
@@ -42,6 +43,18 @@ def search_tickers(
             "sector": "Custom",
         }]
     return results
+
+@router.get("/indices")
+def list_indices(
+    exchange: Optional[str] = Query(None, description="NSE, BSE or ALL"),
+    category: Optional[str] = Query(None, description="Broad Market, Sectoral, Thematic, Strategy / Factor"),
+    query: Optional[str] = Query(None, description="Match name, symbol or sector"),
+    available_only: bool = Query(False, description="Hide indices the data provider has no price history for"),
+):
+    """Indian indices usable as benchmarks (data/indian_indices.csv), with data availability."""
+    items = indices_universe.list(exchange=exchange, category=category, query=query, available_only=available_only)
+    return {"indices": items, "probing": indices_universe.probing, "checked_at": indices_universe.checked_at or None}
+
 
 @router.get("/stock/{symbol}")
 def get_stock_profile(symbol: str):

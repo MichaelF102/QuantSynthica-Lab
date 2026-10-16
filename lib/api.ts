@@ -10,6 +10,7 @@ import {
   PairsTradingResult,
   StockProfile,
   StockFundamentals,
+  IndicesResponse,
 } from "@/types";
 import {
   SEED_STRATEGIES,
@@ -17,6 +18,7 @@ import {
   generateSyntheticBars,
 } from "@/lib/seedData";
 import { runLocalBacktest, buildSampleBacktests } from "@/lib/localBacktest";
+import { INDIA_FALLBACK } from "@/lib/indices";
 import { REAL_UNIVERSE_MAP } from "@/lib/marketUniverseData";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -266,6 +268,15 @@ export const api = {
       ],
       last_updated: new Date().toISOString(),
     };
+  },
+
+  getIndices: async (): Promise<IndicesResponse> => {
+    try {
+      return await request<IndicesResponse>("/market/indices", {}, 5000);
+    } catch {
+      // Backend unreachable: fall back to the handful of benchmarks that always exist.
+      return { indices: INDIA_FALLBACK, probing: false, checked_at: null };
+    }
   },
 
   getSectors: async (market?: string): Promise<string[]> => {

@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import { BacktestResult, StrategyConfig } from "@/types";
 import { api } from "@/lib/api";
-import { BENCHMARKS } from "@/lib/constants";
+import BenchmarkSelect from "@/components/ui/BenchmarkSelect";
+import { marketOfTicker } from "@/lib/market";
 import { X, Play, RefreshCw, AlertCircle } from "lucide-react";
 
 interface ReRunModalProps {
@@ -119,17 +120,7 @@ export default function BacktestReRunModal({
 
             <div>
               <label className="block text-[10px] text-[#64748b] uppercase mb-1">Benchmark</label>
-              <select
-                value={benchmark}
-                onChange={(e) => setBenchmark(e.target.value)}
-                className="w-full bg-[#080d1a] border border-[#1e293b] rounded-[2px] px-2 py-1.5 text-[#cbd5e1] focus:outline-none focus:border-[#3b82f6]"
-              >
-                {BENCHMARKS.map((b) => (
-                  <option key={b.symbol} value={b.symbol}>
-                    {b.symbol} ({b.name})
-                  </option>
-                ))}
-              </select>
+              <BenchmarkSelect market={marketOfTicker(backtest.ticker)} value={benchmark} onChange={setBenchmark} />
             </div>
 
             <div>

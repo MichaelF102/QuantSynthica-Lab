@@ -1,4 +1,5 @@
 import { BENCHMARKS } from "@/lib/constants";
+import { isIndianIndex } from "@/lib/indices";
 
 // Known NSE/BSE names that are commonly typed without an exchange suffix.
 export const INDIA_STOCKS = new Set([
@@ -39,7 +40,7 @@ export const marketOfTicker = (ticker: string | null | undefined): MarketRegion 
   isIndianTicker(ticker) ? "India" : "US";
 
 export const marketOfBenchmark = (symbol: string): MarketRegion =>
-  BENCHMARKS.find((b) => b.symbol === symbol)?.region === "India" ? "India" : "US";
+  (BENCHMARKS.find((b) => b.symbol === symbol)?.region ?? (isIndianIndex(symbol) ? "India" : "US")) === "India" ? "India" : "US";
 
 /** Default benchmark for a market: NIFTY 50 for India, S&P 500 ETF for US. */
 export const defaultBenchmarkFor = (region: MarketRegion): string => (region === "India" ? "^NSEI" : "SPY");

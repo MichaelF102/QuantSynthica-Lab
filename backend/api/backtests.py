@@ -13,6 +13,7 @@ from ..models.schemas import (
 from ..engine.data import MarketDataEngine, MarketDataUnavailable
 from ..engine.backtester import BacktestEngine
 from ..engine.stocks_universe import universe_manager
+from ..engine.indices_universe import indices_universe
 from ..analytics.performance import calculate_performance_metrics
 from ..analytics.risk import calculate_risk_analytics
 from .storage import storage
@@ -93,6 +94,14 @@ def execute_backtest_task(bt_id: str, request: BacktestRequest):
 @router.post("", response_model=BacktestResult)
 def run_backtest(request: BacktestRequest, background_tasks: BackgroundTasks, async_mode: bool = False):
     bt_id = f"bt_{uuid.uuid4().hex[:8]}"
+
+    if indices_universe.available(request.benchmark) is False:
+        idx = indices_universe.by_symbol.get(request.benchmark)
+        raise HTTPException(
+            status_code=422,
+            detail=f"The data provider has no price history for the benchmark {idx['name'] if idx else request.benchmark} "
+                   f"({request.benchmark}). Choose another benchmark, e.g. Nifty 50 (^NSEI).",
+        )
 
     if async_mode:
         # Create queued record

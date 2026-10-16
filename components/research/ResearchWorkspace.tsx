@@ -9,7 +9,9 @@ import { MarketBar, MarketDataResponse, StockFundamentals } from "@/types";
 import { CardSkeleton } from "@/components/ui/Card";
 import { SelectField } from "@/components/risk/ui/controls";
 import { BENCHMARK_OPTIONS, MARKET_DEFAULTS } from "@/lib/risk/presets";
-import { isIndianTicker } from "@/lib/market";
+import { isIndianTicker, marketOfBenchmark } from "@/lib/market";
+import { indexName } from "@/lib/indices";
+import BenchmarkSelect from "@/components/ui/BenchmarkSelect";
 import { keyStats } from "@/lib/research/derive";
 import { Region } from "@/lib/research/format";
 import { ResearchProvider } from "./context";
@@ -42,7 +44,7 @@ export default function ResearchWorkspace() {
 
   const [benchmark, setBenchmark] = useState<string>(MARKET_DEFAULTS[region].benchmark);
   const [compareRequest, setCompareRequest] = useState(0);
-  useEffect(() => setBenchmark((b) => (BENCHMARK_OPTIONS[region].some((o) => o.symbol === b) ? b : MARKET_DEFAULTS[region].benchmark)), [region]);
+  useEffect(() => setBenchmark((b) => (marketOfBenchmark(b) === region ? b : MARKET_DEFAULTS[region].benchmark)), [region]);
 
   const [data, setData] = useState<MarketDataResponse | null>(null);
   const [benchData, setBenchData] = useState<MarketDataResponse | null>(null);
@@ -108,7 +110,7 @@ export default function ResearchWorkspace() {
 
   const bars: MarketBar[] = data?.bars ?? [];
   const stats = useMemo(() => keyStats(bars), [bars]);
-  const benchLabel = BENCHMARK_OPTIONS[region].find((o) => o.symbol === benchmark)?.label ?? benchmark;
+  const benchLabel = BENCHMARK_OPTIONS[region].find((o) => o.symbol === benchmark)?.label ?? indexName(benchmark) ?? benchmark;
   // The fundamentals fallback in the client can fabricate a profile when the service is down; only trust a real one.
   const realFundamentals = fundamentals && !fundamentals.data_sources?.some((d) => /simulated/i.test(d)) ? fundamentals : null;
 
@@ -164,7 +166,7 @@ export default function ResearchWorkspace() {
           onChart={() => setTab("technicals")} onCompare={() => { setCompareRequest((n) => n + 1); setTab("technicals"); }} />
         <div className="flex flex-col justify-between gap-2 lg:flex-row lg:items-center">
           <ResearchTabs active={tab} onChange={(t) => setTab(t)} />
-          <SelectField label="Benchmark" value={benchmark} options={BENCHMARK_OPTIONS[region].map((o) => ({ value: o.symbol, label: o.label }))} onChange={setBenchmark} className="min-w-[170px] shrink-0" />
+          <div className="min-w-[200px] shrink-0"><span className="mb-1 block text-[10px] uppercase tracking-wider text-slate-400">Benchmark</span><BenchmarkSelect market={region} value={benchmark} onChange={setBenchmark} /></div>
         </div>
         <div key={tab} className="animate-fade-up">{body}</div>
       </main>

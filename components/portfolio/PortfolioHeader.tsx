@@ -14,31 +14,8 @@ import {
   Sliders,
   Zap,
 } from "lucide-react";
+import BenchmarkSelect from "@/components/ui/BenchmarkSelect";
 import { AssetAllocation } from "@/components/portfolio/PortfolioAllocationWidget";
-
-const INDIA_BENCHMARKS = [
-  { value: "^NSEI", label: "NIFTY 50 (^NSEI)" },
-  { value: "^BSESN", label: "BSE SENSEX (^BSESN)" },
-  { value: "^NSEBANK", label: "NIFTY Bank (^NSEBANK)" },
-  { value: "^CNXIT", label: "NIFTY IT (^CNXIT)" },
-  { value: "^CNXAUTO", label: "NIFTY AUTO (^CNXAUTO)" },
-  { value: "^CNXPHARMA", label: "NIFTY PHARMA (^CNXPHARMA)" },
-  { value: "^CNXFMCG", label: "NIFTY FMCG (^CNXFMCG)" },
-  { value: "^CNXMETAL", label: "NIFTY METAL (^CNXMETAL)" },
-  { value: "NIFTY_MIDCAP", label: "NIFTY Midcap 100" },
-];
-
-const US_BENCHMARKS = [
-  { value: "SPY", label: "SPY (S&P 500 ETF)" },
-  { value: "^GSPC", label: "S&P 500 (^GSPC)" },
-  { value: "QQQ", label: "QQQ (Nasdaq 100 ETF)" },
-  { value: "^NDX", label: "NASDAQ-100 (^NDX)" },
-  { value: "^IXIC", label: "Nasdaq Composite (^IXIC)" },
-  { value: "DIA", label: "DIA (Dow Jones 30)" },
-  { value: "IWM", label: "IWM (Russell 2000)" },
-  { value: "^NYA", label: "NYSE Composite (^NYA)" },
-  { value: "^MID", label: "S&P MidCap 400 (^MID)" },
-];
 
 interface PortfolioHeaderProps {
   portfolioName: string;
@@ -127,7 +104,6 @@ export default function PortfolioHeader({
     onExport?.();
   };
 
-  const benchmarks = market === "India" ? INDIA_BENCHMARKS : US_BENCHMARKS;
   const currSymbol = currency === "INR" ? "₹" : currency === "EUR" ? "€" : currency === "GBP" ? "£" : "$";
 
   const capitalPresets =
@@ -256,20 +232,7 @@ export default function PortfolioHeader({
               {market === "India" ? "IN" : "US"}
             </span>
           </div>
-          <div className="relative">
-            <select
-              value={benchmark}
-              onChange={(e) => onBenchmarkChange(e.target.value)}
-              className="appearance-none bg-[#0b1222] border border-[#1e293b] text-slate-200 pl-2.5 pr-6 py-1 rounded text-xs focus:outline-none focus:border-[#3b82f6] cursor-pointer font-sans"
-            >
-              {benchmarks.map((b) => (
-                <option key={b.value} value={b.value}>
-                  {b.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="w-3 h-3 text-slate-400 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
+          <BenchmarkSelect market={market === "India" ? "India" : "US"} value={benchmark} onChange={onBenchmarkChange} className="min-w-[200px]" controlClassName="py-1" />
         </div>
 
         {/* Date Range Selector */}

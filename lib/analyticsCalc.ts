@@ -5,6 +5,7 @@
  */
 import { BacktestResult, EquityPoint, TradeRecord } from "@/types";
 import { BENCHMARKS } from "@/lib/constants";
+import { indexName } from "@/lib/indices";
 import { isIndianTicker } from "@/lib/market";
 
 export type Frequency = "Daily" | "Weekly" | "Monthly";
@@ -20,7 +21,8 @@ export const currencyOf = (bt: Pick<BacktestResult, "ticker">): CurrencyCode => 
 export function benchmarkLabel(symbol: string | undefined): string {
   if (!symbol) return "Benchmark";
   const b = BENCHMARKS.find((x) => x.symbol === symbol);
-  return b ? `${b.name} (${b.symbol})` : symbol;
+  const n = b?.name ?? indexName(symbol);
+  return n ? `${n} (${symbol})` : symbol;
 }
 
 /** Compact currency: ₹1.2L-style is avoided; en-IN grouping for INR, en-US otherwise. */

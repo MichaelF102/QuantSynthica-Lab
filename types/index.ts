@@ -450,3 +450,20 @@ export interface PairsTradingResult {
   metrics: PerformanceMetrics;
   equity_curve: EquityPoint[];
 }
+
+/** An Indian index usable as a benchmark (data/indian_indices.csv). */
+export interface IndexProfile {
+  symbol: string;
+  name: string;
+  exchange: string;
+  category: string;
+  sector: string;
+  industry: string;
+  segment: string;
+  style: string;
+  family: string;
+  /** false = the data provider has no price history for it; null = not checked yet. */
+  available: boolean | null;
+}
+
+export interface IndicesResponse { indices: IndexProfile[]; probing: boolean; checked_at: number | null }

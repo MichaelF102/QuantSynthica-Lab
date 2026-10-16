@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { StrategyConfig, StockProfile } from "@/types";
 import { api } from "@/lib/api";
-import { BENCHMARKS } from "@/lib/constants";
+import BenchmarkSelect from "@/components/ui/BenchmarkSelect";
 import { alignBenchmark, marketOfTicker } from "@/lib/market";
 import StockSearchInput from "@/components/ui/StockSearchInput";
 import { formatCurrency, formatPercent } from "@/lib/formatters";
@@ -402,17 +402,7 @@ export default function TestStrategyModal({
               <label className="text-xs text-[#94a3b8] uppercase font-bold block mb-2">
                 4. Benchmark for Alpha
               </label>
-              <select
-                value={benchmark}
-                onChange={(e) => setBenchmark(e.target.value)}
-                className="w-full p-2.5 rounded-lg bg-[#080d1a] border border-[#1e293b] text-[13px] text-white focus:outline-none focus:border-[#3b82f6]"
-              >
-                {BENCHMARKS.filter((b) => b.region === market).map((b) => (
-                  <option key={b.symbol} value={b.symbol}>
-                    {b.symbol} - {b.name}
-                  </option>
-                ))}
-              </select>
+              <BenchmarkSelect market={market} value={benchmark} onChange={setBenchmark} />
             </div>
           </div>
 

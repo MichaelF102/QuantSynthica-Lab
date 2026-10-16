@@ -187,3 +187,49 @@ def test_research_peers_have_no_duplicate_symbols():
         if body.get("available"):
             symbols = [p["symbol"] for p in body["peers"]]
             assert len(symbols) == len(set(symbols)), f"duplicate peers for {sym}: {symbols}"
+
+
+def test_indices_endpoint_lists_csv_universe():
+    from fastapi.testclient import TestClient
+    from backend.main import app
+    from backend.engine.indices_universe import indices_universe
+
+    indices_universe.probing = True  # keep the background network probe out of the test
+    client = TestClient(app)
+    body = client.get("/market/indices").json()
+    syms = {i["symbol"] for i in body["indices"]}
+    assert {"^NSEI", "^NSEBANK", "^CNXIT", "^BSESN"} <= syms
+    assert len(syms) >= 150 and len(syms) == len(body["indices"])  # de-duplicated
+    nifty = next(i for i in body["indices"] if i["symbol"] == "^NSEI")
+    assert nifty["name"] == "Nifty 50" and nifty["exchange"] == "NSE" and nifty["category"]
+
+    sect = client.get("/market/indices", params={"category": "Sectoral", "exchange": "NSE"}).json()["indices"]
+    assert sect and all(i["category"] == "Sectoral" and i["exchange"] == "NSE" for i in sect)
+    found = client.get("/market/indices", params={"query": "bank"}).json()["indices"]
+    assert found and all("bank" in (i["name"] + i["symbol"] + i["sector"]).lower() for i in found)
+
+
+def test_indices_availability_flag():
+    from backend.engine.indices_universe import IndicesUniverse, MIN_BARS
+    u = IndicesUniverse()
+    u.bars = {"^NSEI": 120, "BSE-IT.BO": 1}
+    assert u.available("^NSEI") is True and u.available("BSE-IT.BO") is False and u.available("^CNXIT") is None
+    u.probing = True
+    only = {i["symbol"] for i in u.list(available_only=True)}
+    assert "^NSEI" in only and "BSE-IT.BO" not in only and "^CNXIT" in only  # unknown stays selectable
+    assert u.list()[-1]["available"] is False  # unusable sort last
+
+
+def test_backtest_rejects_benchmark_without_price_data():
+    from fastapi.testclient import TestClient
+    from backend.main import app
+    from backend.engine.indices_universe import indices_universe
+
+    indices_universe.bars["BSE-IT.BO"] = 1
+    indices_universe.probing = True
+    client = TestClient(app)
+    strat = client.get("/strategies").json()[0]
+    r = client.post("/backtests", json={"strategy": strat, "start_date": "2024-01-01", "end_date": "2024-06-01", "benchmark": "BSE-IT.BO"})
+    assert r.status_code == 422
+    detail = r.json()["detail"]
+    assert "no price history" in detail and "BSE-IT.BO" in detail

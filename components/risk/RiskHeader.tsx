@@ -5,6 +5,7 @@ import { ShieldCheck } from "lucide-react";
 import { useRisk } from "@/lib/risk/context";
 import { BENCHMARK_OPTIONS, HORIZONS, LOOKBACKS, CONFIDENCE_LABEL, Lookback } from "@/lib/risk/presets";
 import { DateRangeField, Field, SelectField } from "./ui/controls";
+import BenchmarkSelect from "@/components/ui/BenchmarkSelect";
 import { CORR_TYPES } from "@/lib/risk/correlation";
 import { RISK_TABS, RiskField, RiskTabKey } from "./tabs";
 import PortfolioStockBasketModal from "@/components/portfolio/PortfolioStockBasketModal";
@@ -79,7 +80,7 @@ export default function RiskHeader({ tab }: { tab: RiskTabKey }) {
           </div>
         )}
         {has("benchmark") && (
-          <SelectField label="Benchmark" value={settings.benchmark} options={BENCHMARK_OPTIONS[market].map((b) => ({ value: b.symbol, label: b.label }))} onChange={(v) => update({ benchmark: v })} />
+          <div className="min-w-[200px]"><span className="mb-1 block text-[10px] uppercase tracking-wider text-slate-400">Benchmark</span><BenchmarkSelect market={market} value={settings.benchmark} onChange={(v) => update({ benchmark: v })} /></div>
         )}
         {has("dates") && <DateRangeField start={settings.start} end={settings.end} onApply={(s, e) => update({ start: s, end: e, lookback: "Custom" })} />}
         {has("confidence") && <SelectField label="Confidence level" value={settings.confidence} options={CONF_OPTIONS} onChange={(v) => update({ confidence: v })} className="min-w-[110px]" />}
