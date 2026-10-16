@@ -15,6 +15,7 @@ import {
   Info,
   Target,
   Rocket,
+  FlaskConical,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { StrategyConfig, BacktestResult } from "@/types";
@@ -268,6 +269,14 @@ export default function StrategiesPage() {
             <p className="mt-1 text-sm text-slate-500">
               Models you can backtest. Nothing here is routed live.
             </p>
+            <Link
+              href="/strategies/builder"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-purple-500/40 bg-[#161028]/80 px-3 py-1.5 text-xs font-medium text-white shadow-[0_0_14px_rgba(168,85,247,0.15)] transition-colors hover:border-purple-400/70 hover:bg-[#1E1538] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-purple-400/70"
+            >
+              <FlaskConical className="h-3.5 w-3.5 text-purple-300" />
+              Strategy Lab
+              <span className="font-normal text-purple-200/70">· build a new strategy</span>
+            </Link>
           </div>
 
           {/* Top KPI Metrics Strip */}
@@ -888,7 +897,7 @@ export default function StrategiesPage() {
                   Quick run in registry
                 </Link>
                 <div className="grid grid-cols-2 gap-2">
-                  <Link href={`/strategies/builder?clone=${currentStrategy.id}`} className="inline-flex items-center justify-center rounded-lg border border-slate-700/80 bg-slate-900/70 px-3 py-1.5 text-[11px] font-medium text-slate-200 hover:bg-slate-800">Edit</Link>
+                  <Link href={`/strategies/builder?edit=${currentStrategy.id}`} className="inline-flex items-center justify-center rounded-lg border border-slate-700/80 bg-slate-900/70 px-3 py-1.5 text-[11px] font-medium text-slate-200 hover:bg-slate-800">Edit</Link>
                   <Link href={`/strategies/builder?clone=${currentStrategy.id}`} className="inline-flex items-center justify-center rounded-lg border border-slate-700/80 bg-slate-900/70 px-3 py-1.5 text-[11px] font-medium text-slate-200 hover:bg-slate-800">Duplicate</Link>
                 </div>
               </div>

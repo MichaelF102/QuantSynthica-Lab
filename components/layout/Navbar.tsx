@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FlaskConical, Menu, Moon, Sun, X } from "lucide-react";
+import { Menu, Moon, Sun, X } from "lucide-react";
 import NavbarSecuritySearch from "@/components/layout/NavbarSecuritySearch";
 import QSLogoMark from "@/components/brand/QSLogoMark";
 import { useTheme } from "@/components/providers/ThemeProvider";
@@ -77,14 +77,6 @@ export default function Navbar({ variant = "app" }: { variant?: "app" | "public"
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          <Link
-            href="/strategies/builder"
-            className="hidden items-center gap-1.5 rounded-lg border border-purple-500/40 bg-[#161028]/80 px-3 py-1.5 text-xs font-medium text-white shadow-[0_0_14px_rgba(168,85,247,0.15)] transition-colors hover:border-purple-400/70 hover:bg-[#1E1538] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-purple-400/70 lg:inline-flex"
-          >
-            <FlaskConical className="h-3.5 w-3.5 text-purple-300" />
-            <span className="hidden min-[1760px]:inline">Strategy Lab</span>
-            <span className="min-[1760px]:hidden">Lab</span>
-          </Link>
           <NavbarSecuritySearch />
           {variant === "public" && (
             <button
@@ -112,7 +104,7 @@ export default function Navbar({ variant = "app" }: { variant?: "app" | "public"
       {drawerOpen && (
         <nav className="border-t border-slate-800/80 bg-[#0C101A] px-4 py-3 xl:hidden" aria-label="Mobile">
           <div className="grid grid-cols-2 gap-1 sm:grid-cols-3">
-            {[...PRIMARY_NAV, { href: "/strategies/builder", label: "Strategy Lab" }].map((item) => {
+            {PRIMARY_NAV.map((item) => {
               const isActive = pathname.startsWith(item.href);
               return (
                 <Link

@@ -9,9 +9,30 @@ export const INDIA_STOCKS = new Set([
 
 export type MarketRegion = "India" | "US";
 
+const REGISTRY_KEY = "algolab_india_tickers";
+let learned: Set<string> | null = null;
+
+/** Indian tickers learned from search results (the static list above only covers a few names). */
+function learnedIndia(): Set<string> {
+  if (learned) return learned;
+  learned = new Set();
+  if (typeof window !== "undefined") {
+    try { (JSON.parse(localStorage.getItem(REGISTRY_KEY) || "[]") as string[]).forEach((t) => learned!.add(t)); } catch { /* storage unavailable */ }
+  }
+  return learned;
+}
+
+/** Remember which market a ticker belongs to, as reported by the security search. */
+export function registerTicker(ticker: string, region: MarketRegion): void {
+  const t = ticker.trim().toUpperCase();
+  const set = learnedIndia();
+  if (region === "India") set.add(t); else set.delete(t);
+  try { localStorage.setItem(REGISTRY_KEY, JSON.stringify([...set].slice(-500))); } catch { /* storage unavailable */ }
+}
+
 export function isIndianTicker(ticker: string | null | undefined): boolean {
   const t = (ticker || "").trim().toUpperCase();
-  return t.endsWith(".NS") || t.endsWith(".BO") || INDIA_STOCKS.has(t);
+  return t.endsWith(".NS") || t.endsWith(".BO") || INDIA_STOCKS.has(t) || learnedIndia().has(t);
 }
 
 export const marketOfTicker = (ticker: string | null | undefined): MarketRegion =>

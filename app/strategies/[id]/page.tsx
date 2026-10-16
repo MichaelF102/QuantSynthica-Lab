@@ -54,7 +54,7 @@ export default function StrategyDetailPage() {
 
       if (e.key === "e" || e.key === "E") {
         e.preventDefault();
-        router.push(`/strategies/builder?clone=${strategy.id}`);
+        router.push(`/strategies/builder?edit=${strategy.id}`);
       } else if (e.key === "t" || e.key === "T") {
         e.preventDefault();
         setTestModalOpen(true);
@@ -124,7 +124,7 @@ export default function StrategyDetailPage() {
         {/* Action Controls */}
         <div className="flex items-center space-x-2 font-sans">
           <Link
-            href={`/strategies/builder?clone=${strategy.id}`}
+            href={`/strategies/builder?edit=${strategy.id}`}
             className="flex items-center space-x-1 px-2.5 py-1 rounded-lg border border-[#1e293b] bg-[#0b1222] text-[#cbd5e1] hover:bg-[#0b1222] hover:border-[#3b82f6]/40 transition-colors text-xs"
           >
             <Edit3 className="h-3 w-3 text-[#3b82f6]" />
@@ -399,7 +399,7 @@ export default function StrategyDetailPage() {
             </button>
 
             <Link
-              href={`/strategies/builder?clone=${strategy.id}`}
+              href={`/strategies/builder?edit=${strategy.id}`}
               className="px-3 py-1.5 border border-[#1e293b] hover:bg-[#0b1222] text-xs text-[#cbd5e1] rounded-lg"
             >
               Modify in Builder [E]

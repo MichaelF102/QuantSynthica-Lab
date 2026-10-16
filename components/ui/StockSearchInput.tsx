@@ -110,15 +110,15 @@ export default function StockSearchInput({
             }
           }}
           placeholder={placeholder}
-          className="w-full pl-7 pr-12 py-1 rounded-[2px] border border-[#1e293b] bg-[#0b1222] text-xs font-mono text-[#cbd5e1] placeholder-[#64748b] focus:outline-none focus:border-[#3b82f6]"
+          className="w-full pl-7 pr-12 py-1 rounded-lg border border-[#1e293b] bg-[#0b1222] text-xs font-mono text-[#cbd5e1] placeholder-[#64748b] focus:outline-none focus:border-[#3b82f6]"
         />
         <div className="absolute right-1.5 flex items-center space-x-1">
           {value && (
-            <span className="text-[10px] font-mono text-[#94a3b8] bg-[#0b1222] px-1 py-0.2 rounded-[2px] border border-[#1e293b]">
+            <span className="text-[10px] font-mono text-[#94a3b8] bg-[#0b1222] px-1 py-0.2 rounded-lg border border-[#1e293b]">
               {value}
             </span>
           )}
-          <span className="text-[9px] font-mono text-[#64748b] border border-[#1e293b] px-1 py-0.2 rounded-[2px]">
+          <span className="text-[9px] font-mono text-[#64748b] border border-[#1e293b] px-1 py-0.2 rounded-lg">
             /
           </span>
         </div>
@@ -126,7 +126,7 @@ export default function StockSearchInput({
 
       {/* Autocomplete dropdown - flat terminal style */}
       {isOpen && (
-        <div className="absolute left-0 right-0 top-full mt-1 z-50 rounded-[2px] border border-[#1e293b] bg-[#0b1222] overflow-hidden max-h-96 flex flex-col font-mono text-xs">
+        <div className="absolute left-0 right-0 top-full mt-1 z-50 rounded-lg border border-[#1e293b] bg-[#0b1222] overflow-hidden max-h-96 flex flex-col font-mono text-xs">
           {/* Market filter tabs */}
           <div className="flex border-b border-[#1e293b] bg-[#0b1222] text-[10px]">
             <button
@@ -182,7 +182,7 @@ export default function StockSearchInput({
 
                 return (
                   <div
-                    key={`${stock.market}-${stock.symbol}`}
+                    key={`${stock.market}-${stock.exchange}-${stock.yf_symbol || stock.symbol}`}
                     onClick={() => handleSelect(stock)}
                     className={`flex items-center justify-between px-3 py-1.5 cursor-pointer hover:bg-[#0b1222] transition-colors text-xs ${
                       isSelected ? "bg-[#0b1222] border-l-2 border-[#3b82f6]" : ""

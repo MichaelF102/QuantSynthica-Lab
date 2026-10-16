@@ -39,6 +39,9 @@ function BacktestsContent() {
   const runStrategyId = searchParams.get("strategy") || searchParams.get("run");
   const tickerParam = searchParams.get("ticker")?.toUpperCase() || null;
   const autolaunch = searchParams.get("autolaunch") === "true";
+  const benchmarkParam = searchParams.get("benchmark");
+  const startParam = searchParams.get("startDate");
+  const endParam = searchParams.get("endDate");
 
   const [backtests, setBacktests] = useState<BacktestResult[]>([]);
   const [strategies, setStrategies] = useState<StrategyConfig[]>(() => SEED_STRATEGIES);
@@ -52,12 +55,12 @@ function BacktestsContent() {
   const initialStrat = runStrategyId ? SEED_STRATEGIES.find((s) => s.id === runStrategyId) : undefined;
   const [selectedStratId, setSelectedStratId] = useState<string>(runStrategyId || SEED_STRATEGIES[0]?.id || "");
   const [targetAsset, setTargetAsset] = useState<string>(tickerParam || initialStrat?.asset || SEED_STRATEGIES[0]?.asset || "AAPL");
-  const [startDate, setStartDate] = useState("2023-01-01");
-  const [endDate, setEndDate] = useState("2024-01-01");
+  const [startDate, setStartDate] = useState(startParam || "2023-01-01");
+  const [endDate, setEndDate] = useState(endParam || "2024-01-01");
   // Benchmark is derived from the asset's market on first render, so a stale/foreign default never flashes.
   const [benchmark, setBenchmark] = useState(() => {
     const settingsBench = typeof window !== "undefined" ? loadSystemSettings().research.defaultBenchmark : null;
-    return alignBenchmark(tickerParam || initialStrat?.asset || "AAPL", settingsBench);
+    return alignBenchmark(tickerParam || initialStrat?.asset || "AAPL", benchmarkParam || settingsBench);
   });
   const [isExecuting, setIsExecuting] = useState(false);
   const [runStep, setRunStep] = useState(0);

@@ -1,34 +1,19 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
-import {
-  Search,
-  Check,
-  Globe2,
-  Sparkles,
-  SlidersHorizontal,
-  Layers,
-  TrendingUp,
-  X,
-  ExternalLink,
-  ChevronRight,
-  Zap,
-} from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Search, Globe2, Layers, Zap, X, Check } from "lucide-react";
 import { api } from "@/lib/api";
 import { StockProfile } from "@/types";
 import StockSearchInput from "@/components/ui/StockSearchInput";
+import { MarketRegion, marketOfTicker, registerTicker } from "@/lib/market";
+import { useEscape } from "@/lib/useEscape";
+import { cn } from "@/lib/utils";
 
 export interface EasyStockPickerProps {
   selectedAsset: string;
   onSelectAsset: (
     symbol: string,
-    details?: {
-      name?: string;
-      market: "India" | "US";
-      exchange?: string;
-      benchmark: string;
-      currency: "INR" | "USD";
-    }
+    details?: { name?: string; market: MarketRegion; exchange?: string; benchmark: string; currency: "INR" | "USD" }
   ) => void;
   selectedBenchmark?: string;
   onBenchmarkChange?: (benchmark: string) => void;
@@ -155,6 +140,8 @@ const US_CATEGORIES: { id: string; label: string; stocks: { symbol: string; name
   },
 ];
 
+const field = "rounded-lg border border-slate-800 bg-[#080d1a] text-xs text-slate-200 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none";
+
 export default function EasyStockPicker({
   selectedAsset,
   onSelectAsset,
@@ -163,453 +150,174 @@ export default function EasyStockPicker({
   className = "",
   showUniverseModalButton = true,
 }: EasyStockPickerProps) {
-  // Determine market based on symbol or localStorage
-  const isIndianSymbol = useMemo(() => {
-    const sym = (selectedAsset || "").toUpperCase();
-    return (
-      sym.endsWith(".NS") ||
-      sym.endsWith(".BO") ||
-      INDIA_CATEGORIES.some((c) => c.stocks.some((s) => s.symbol === sym))
-    );
-  }, [selectedAsset]);
+  // The market of the chosen stock drives everything; the tab only decides which baskets are listed.
+  const assetMarket = marketOfTicker(selectedAsset);
+  const [activeMarket, setActiveMarket] = useState<MarketRegion>(assetMarket);
+  useEffect(() => setActiveMarket(assetMarket), [assetMarket]);
 
-  const [activeMarket, setActiveMarket] = useState<"India" | "US">(() => {
-    if (isIndianSymbol) return "India";
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("algolab_active_country");
-      if (saved === "India" || saved === "US") return saved;
-    }
-    return "India";
-  });
-
-  // Track terminal active security from localStorage / navbar
-  const [terminalActiveTicker, setTerminalActiveTicker] = useState<string | null>(null);
-  const [terminalCountry, setTerminalCountry] = useState<"India" | "US">("India");
-
+  // Active security from the navbar search (read after mount so server and client HTML match).
+  const [terminal, setTerminal] = useState<{ ticker: string; country: MarketRegion } | null>(null);
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedTicker = localStorage.getItem("algolab_active_ticker");
-      const savedCountry = localStorage.getItem("algolab_active_country") as "India" | "US";
-      if (savedTicker) setTerminalActiveTicker(savedTicker.toUpperCase());
-      if (savedCountry) setTerminalCountry(savedCountry);
-    }
-
-    const handleExternalChange = (e: any) => {
-      if (e.detail?.symbol) {
-        setTerminalActiveTicker(e.detail.symbol.toUpperCase());
-      }
-      if (e.detail?.country) {
-        setTerminalCountry(e.detail.country);
-      }
+    const read = () => {
+      try {
+        const t = localStorage.getItem("algolab_active_ticker");
+        const c = localStorage.getItem("algolab_active_country");
+        if (t) setTerminal({ ticker: t.toUpperCase(), country: c === "India" || c === "US" ? c : marketOfTicker(t) });
+      } catch { /* storage unavailable */ }
     };
-
-    window.addEventListener("algolab:security-change", handleExternalChange);
-    return () => window.removeEventListener("algolab:security-change", handleExternalChange);
+    read();
+    const onChange = (e: any) => {
+      const d = e.detail ?? {};
+      if (d.symbol) setTerminal({ ticker: String(d.symbol).toUpperCase(), country: d.country === "India" || d.country === "US" ? d.country : marketOfTicker(d.symbol) });
+    };
+    window.addEventListener("algolab:security-change", onChange);
+    return () => window.removeEventListener("algolab:security-change", onChange);
   }, []);
 
-  // Category tab state
-  const [selectedCategory, setSelectedCategory] = useState<string>("top");
+  const [category, setCategory] = useState("top");
+  useEffect(() => setCategory("top"), [activeMarket]);
 
-  // Browse modal state
-  const [isBrowseModalOpen, setIsBrowseModalOpen] = useState(false);
+  const [browseOpen, setBrowseOpen] = useState(false);
+  useEscape(browseOpen, () => setBrowseOpen(false));
   const [browseQuery, setBrowseQuery] = useState("");
   const [browseSector, setBrowseSector] = useState("ALL");
   const [browseResults, setBrowseResults] = useState<StockProfile[]>([]);
   const [browseLoading, setBrowseLoading] = useState(false);
-  const [sectorsList, setSectorsList] = useState<string[]>([]);
+  const [browseError, setBrowseError] = useState(false);
+  const [sectors, setSectors] = useState<string[]>([]);
 
-  // Load sectors
   useEffect(() => {
-    api.getSectors(activeMarket).then(setSectorsList).catch(console.error);
+    setBrowseSector("ALL");
+    api.getSectors(activeMarket).then(setSectors).catch(() => setSectors([]));
   }, [activeMarket]);
 
-  // Load browse modal results
   useEffect(() => {
-    if (!isBrowseModalOpen) return;
-    setBrowseLoading(true);
+    if (!browseOpen) return;
+    setBrowseLoading(true); setBrowseError(false);
+    let live = true;
     const timer = setTimeout(() => {
-      api
-        .searchTickers({
-          query: browseQuery.trim(),
-          market: activeMarket,
-          sector: browseSector !== "ALL" ? browseSector : undefined,
-          limit: 50,
-        })
-        .then(setBrowseResults)
-        .catch(console.error)
-        .finally(() => setBrowseLoading(false));
+      api.searchTickers({ query: browseQuery.trim(), market: activeMarket, sector: browseSector !== "ALL" ? browseSector : undefined, limit: 50 })
+        .then((r) => live && setBrowseResults(r))
+        .catch(() => live && (setBrowseResults([]), setBrowseError(true)))
+        .finally(() => live && setBrowseLoading(false));
     }, 150);
+    return () => { live = false; clearTimeout(timer); };
+  }, [browseOpen, browseQuery, browseSector, activeMarket]);
 
-    return () => clearTimeout(timer);
-  }, [isBrowseModalOpen, browseQuery, browseSector, activeMarket]);
-
-  // Handle stock selection
-  const handlePickStock = (symbol: string, name?: string, sector?: string) => {
-    const isIndia = activeMarket === "India";
-    const benchmark = isIndia ? "^NSEI" : "SPY";
-    const currency = isIndia ? "INR" : "USD";
-
-    onSelectAsset(symbol, {
-      name,
-      market: activeMarket,
-      exchange: isIndia ? "NSE" : "NASDAQ",
-      benchmark,
-      currency,
-    });
-
-    if (onBenchmarkChange) {
-      onBenchmarkChange(benchmark);
-    }
-
-    // Update terminal session
-    if (typeof window !== "undefined") {
-      localStorage.setItem("algolab_active_ticker", symbol);
-      localStorage.setItem("algolab_active_country", activeMarket);
-      window.dispatchEvent(
-        new CustomEvent("algolab:security-change", {
-          detail: { symbol, country: activeMarket },
-        })
-      );
-    }
+  const pick = (symbol: string, market: MarketRegion, name?: string) => {
+    const sym = symbol.trim().toUpperCase();
+    registerTicker(sym, market);
+    const benchmark = market === "India" ? "^NSEI" : "SPY";
+    onSelectAsset(sym, { name, market, exchange: market === "India" ? "NSE" : "NASDAQ", benchmark, currency: market === "India" ? "INR" : "USD" });
+    onBenchmarkChange?.(benchmark);
+    try {
+      localStorage.setItem("algolab_active_ticker", sym);
+      localStorage.setItem("algolab_active_country", market);
+      window.dispatchEvent(new CustomEvent("algolab:security-change", { detail: { symbol: sym, country: market } }));
+    } catch { /* storage unavailable */ }
   };
+  const marketOfProfile = (p?: StockProfile, fallback?: string): MarketRegion =>
+    p?.market === "India" || p?.market === "US" ? p.market : marketOfTicker(fallback ?? p?.symbol);
 
   const categories = activeMarket === "India" ? INDIA_CATEGORIES : US_CATEGORIES;
-  const currentCategoryObj = categories.find((c) => c.id === selectedCategory) || categories[0];
+  const current = categories.find((c) => c.id === category) ?? categories[0];
+  const sel = (selectedAsset || "").toUpperCase();
+  const tab = (m: MarketRegion, label: string) => (
+    <button type="button" onClick={() => setActiveMarket(m)} aria-pressed={activeMarket === m}
+      className={cn("flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors", activeMarket === m ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30" : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200")}>
+      {label}
+    </button>
+  );
 
   return (
-    <div className={`space-y-3.5 font-mono text-xs ${className}`}>
-      {/* 1. MARKET SWITCHER & CONTROLS HEADER */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 pb-2.5 border-b border-[#1e293b]">
-        {/* Market Switcher Tabs */}
-        <div className="inline-flex rounded-[2px] p-0.5 bg-[#080d1a] border border-[#1e293b]">
-          <button
-            type="button"
-            onClick={() => {
-              setActiveMarket("India");
-              setSelectedCategory("top");
-            }}
-            className={`flex items-center space-x-1.5 px-3 py-1 text-xs font-bold rounded-[2px] transition-all cursor-pointer ${
-              activeMarket === "India"
-                ? "bg-[#10B981] text-black shadow-sm"
-                : "text-[#94a3b8] hover:text-[#cbd5e1] hover:bg-[#0b1222]"
-            }`}
-          >
-            <span>🇮🇳</span>
-            <span>INDIA (NSE / BSE & ₹)</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setActiveMarket("US");
-              setSelectedCategory("top");
-            }}
-            className={`flex items-center space-x-1.5 px-3 py-1 text-xs font-bold rounded-[2px] transition-all cursor-pointer ${
-              activeMarket === "US"
-                ? "bg-[#3b82f6] text-black shadow-sm"
-                : "text-[#94a3b8] hover:text-[#cbd5e1] hover:bg-[#0b1222]"
-            }`}
-          >
-            <span>🇺🇸</span>
-            <span>UNITED STATES (NYSE/NASDAQ & $)</span>
-          </button>
+    <div className={cn("space-y-4 font-sans text-xs", className)}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="inline-flex gap-1 rounded-lg border border-slate-800/80 bg-[#0b1120]/80 p-1">
+          {tab("India", "🇮🇳 India · NSE / BSE · ₹")}
+          {tab("US", "🇺🇸 United States · NYSE / NASDAQ · $")}
         </div>
-
-        {/* Action button: Full Universe Browser */}
         {showUniverseModalButton && (
-          <button
-            type="button"
-            onClick={() => setIsBrowseModalOpen(true)}
-            className="flex items-center space-x-1.5 px-2.5 py-1 rounded-[2px] border border-[#1e293b] bg-[#0b1222] text-[#cbd5e1] hover:border-[#3b82f6]/60 hover:text-white transition-colors cursor-pointer text-xs"
-          >
-            <Layers className="h-3 w-3 text-[#3b82f6]" />
-            <span>Browse 18,500+ Stocks Universe</span>
+          <button type="button" onClick={() => setBrowseOpen(true)} className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-[#0b1222] px-3 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:border-slate-700 hover:text-white">
+            <Layers className="h-3.5 w-3.5 text-blue-400" />Browse the full universe
           </button>
         )}
       </div>
 
-      {/* 2. ACTIVE TERMINAL STOCK QUICK SHORTCUT BANNER */}
-      {terminalActiveTicker && terminalActiveTicker !== selectedAsset && (
-        <div className="flex items-center justify-between p-2 rounded-[2px] bg-[#0b1222] border border-[#3b82f6]/30 text-xs">
-          <div className="flex items-center space-x-2">
-            <Zap className="h-3.5 w-3.5 text-[#F59E0B] animate-pulse" />
-            <span className="text-[#94a3b8]">
-              Active in Terminal Search:{" "}
-              <strong className="text-white font-mono">{terminalActiveTicker}</strong>{" "}
-              ({terminalCountry === "India" ? "🇮🇳 India NSE/BSE" : "🇺🇸 US"})
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              setActiveMarket(terminalCountry);
-              handlePickStock(terminalActiveTicker);
-            }}
-            className="px-2 py-0.5 rounded-[2px] bg-[#3b82f6] hover:bg-sky-400 text-black font-bold text-[11px] transition-colors cursor-pointer"
-          >
-            Use {terminalActiveTicker} for Backtest →
-          </button>
+      {terminal && terminal.ticker !== sel && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-blue-500/30 bg-blue-500/10 p-2.5">
+          <span className="flex items-center gap-2 text-slate-300"><Zap className="h-3.5 w-3.5 text-amber-400" />Active in the navbar search: <b className="font-mono text-white">{terminal.ticker}</b> ({terminal.country})</span>
+          <button type="button" onClick={() => pick(terminal.ticker, terminal.country)} className="rounded-lg bg-blue-600 px-3 py-1 text-[11px] font-semibold text-white hover:bg-blue-500">Use {terminal.ticker}</button>
         </div>
       )}
 
-      {/* 3. CURRENT SELECTED ASSET STATUS STRIP */}
-      <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-[2px] bg-[#080d1a] border border-[#1e293b]">
-        <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-1.5">
-            <span className="text-[10px] text-[#64748b] uppercase">Selected Stock:</span>
-            <span className="px-2 py-0.5 rounded-[2px] bg-[#3b82f6]/20 border border-[#3b82f6] text-[#3b82f6] font-bold text-xs font-mono">
-              {selectedAsset || "NONE"}
-            </span>
-          </div>
-          <span className="text-[#64748b]">│</span>
-          <div className="flex items-center space-x-1 text-[11px]">
-            <span className="text-[#94a3b8]">Market:</span>
-            <span className="font-semibold text-[#cbd5e1]">
-              {isIndianSymbol ? "🇮🇳 India (NSE)" : "🇺🇸 US (NYSE/NASDAQ)"}
-            </span>
-          </div>
-          <span className="text-[#64748b]">│</span>
-          <div className="flex items-center space-x-1 text-[11px]">
-            <span className="text-[#94a3b8]">Currency:</span>
-            <span className="font-semibold text-[#10B981]">
-              {isIndianSymbol ? "₹ INR" : "$ USD"}
-            </span>
-          </div>
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-800 bg-[#080d1a] p-3">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <span className="text-slate-400">Selected <span className="ml-1 rounded-md border border-blue-500/40 bg-blue-500/10 px-2 py-0.5 font-mono font-bold text-blue-300">{selectedAsset || "None"}</span></span>
+          <span className="text-slate-400">Market <b className="font-semibold text-slate-200">{assetMarket === "India" ? "🇮🇳 India (NSE/BSE)" : "🇺🇸 US (NYSE/NASDAQ)"}</b></span>
+          <span className="text-slate-400">Currency <b className="font-semibold text-emerald-400">{assetMarket === "India" ? "₹ INR" : "$ USD"}</b></span>
         </div>
-
-        {/* Benchmark Auto-Alignment Notification */}
-        <div className="flex items-center space-x-1.5 text-[11px] font-mono">
-          <span className="text-[#64748b]">Benchmark:</span>
-          <span className="px-1.5 py-0.5 rounded-[2px] bg-[#0b1222] border border-[#1e293b] text-[#3b82f6] font-bold">
-            {selectedBenchmark || (isIndianSymbol ? "^NSEI (NIFTY 50)" : "SPY (S&P 500)")}
-          </span>
-          <span className="text-[10px] text-[#10B981]">✓ Aligned</span>
-        </div>
+        <span className="text-slate-400">Benchmark <b className="ml-1 rounded-md border border-slate-800 bg-[#0b1222] px-2 py-0.5 font-mono text-blue-300">{selectedBenchmark || (assetMarket === "India" ? "^NSEI" : "SPY")}</b></span>
       </div>
 
-      {/* 4. SEARCH BOX & AUTOCOMPLETE */}
       <div>
-        <label className="block text-[10px] text-[#94a3b8] uppercase font-bold mb-1 tracking-wider">
-          Search Any Stock (18,500+ Listed Equities in India & US):
-        </label>
+        <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-slate-400">Search any listed stock</label>
         <StockSearchInput
+          id="builder-stock-search"
           value={selectedAsset}
-          placeholder={
-            activeMarket === "India"
-              ? "Type Indian symbol or name (e.g. GENUSPOWER, BHARTIARTL, RELIANCE, TCS)..."
-              : "Type US symbol or name (e.g. AAPL, NVDA, TSLA, MSFT, SPY)..."
-          }
-          onChange={(sym, profile) => {
-            handlePickStock(
-              sym,
-              profile?.name,
-              profile?.sector || undefined
-            );
-          }}
+          placeholder={activeMarket === "India" ? "Symbol or name, e.g. GENUSPOWER, RELIANCE, TCS" : "Symbol or name, e.g. AAPL, NVDA, SPY"}
+          onChange={(sym, profile) => pick(sym, marketOfProfile(profile, sym), profile?.name)}
         />
       </div>
 
-      {/* 5. SECTOR / THEME CATEGORY TABS */}
-      <div className="space-y-2 pt-1">
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] text-[#94a3b8] uppercase font-bold tracking-wider">
-            Quick-Select Institutional Baskets ({activeMarket}):
-          </span>
-          <span className="text-[10px] text-[#64748b]">1-Click to Test</span>
-        </div>
-
+      <div className="space-y-2">
+        <div className="flex items-center justify-between"><span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Quick-select baskets ({activeMarket})</span><span className="text-[10px] text-slate-500">Click a stock to select it</span></div>
         <div className="flex flex-wrap gap-1.5">
-          {categories.map((cat) => {
-            const isActive = cat.id === selectedCategory;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-2.5 py-1 rounded-[2px] text-xs font-semibold transition-colors cursor-pointer ${
-                  isActive
-                    ? activeMarket === "India"
-                      ? "bg-[#10B981] text-black font-bold"
-                      : "bg-[#3b82f6] text-black font-bold"
-                    : "bg-[#080d1a] border border-[#1e293b] text-[#94a3b8] hover:text-white hover:bg-[#0b1222]"
-                }`}
-              >
-                {cat.label}
-              </button>
-            );
-          })}
+          {categories.map((c) => (
+            <button key={c.id} type="button" onClick={() => setCategory(c.id)} className={cn("rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors", c.id === current.id ? "border-blue-500/40 bg-blue-500/15 text-blue-300" : "border-slate-800 bg-[#080d1a] text-slate-400 hover:text-white")}>{c.label}</button>
+          ))}
         </div>
-
-        {/* 6. QUICK PICK STOCKS GRID */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 pt-1">
-          {currentCategoryObj.stocks.map((stock) => {
-            const isSelected = stock.symbol.toUpperCase() === selectedAsset.toUpperCase();
+        <div className="grid grid-cols-2 gap-2 pt-1 sm:grid-cols-3 xl:grid-cols-5">
+          {current.stocks.map((st) => {
+            const on = st.symbol.toUpperCase() === sel;
             return (
-              <button
-                key={stock.symbol}
-                type="button"
-                onClick={() => handlePickStock(stock.symbol, stock.name, stock.sector)}
-                className={`p-2 rounded-[2px] border text-left flex flex-col justify-between transition-all cursor-pointer group ${
-                  isSelected
-                    ? "bg-[#0b1222] border-[#3b82f6] shadow-[0_0_12px_rgba(56,189,248,0.25)] ring-1 ring-[#3b82f6]"
-                    : "bg-[#0E1116] border-[#1e293b] hover:border-[#3b82f6]/60 hover:bg-[#12161E]"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span
-                    className={`font-mono font-bold text-xs ${
-                      isSelected ? "text-[#3b82f6]" : "text-white group-hover:text-[#3b82f6]"
-                    }`}
-                  >
-                    {stock.symbol}
-                  </span>
-                  {isSelected && (
-                    <span className="h-3.5 w-3.5 rounded-full bg-[#3b82f6] text-black flex items-center justify-center text-[9px] font-bold">
-                      ✓
-                    </span>
-                  )}
-                </div>
-                <div className="text-[10px] text-[#94a3b8] truncate mt-0.5" title={stock.name}>
-                  {stock.name}
-                </div>
-                <div className="text-[9px] text-[#64748b] truncate mt-1">
-                  {stock.sector}
-                </div>
+              <button key={st.symbol} type="button" onClick={() => pick(st.symbol, activeMarket, st.name)} aria-pressed={on}
+                className={cn("group rounded-xl border p-2.5 text-left transition-colors", on ? "border-blue-500/60 bg-blue-500/10 ring-1 ring-blue-500/40" : "border-slate-800 bg-[#080d1a] hover:border-slate-700 hover:bg-[#0b1222]")}>
+                <div className="flex items-center justify-between"><span className={cn("font-mono text-xs font-bold", on ? "text-blue-300" : "text-white")}>{st.symbol}</span>{on && <Check className="h-3.5 w-3.5 text-blue-400" />}</div>
+                <div className="mt-0.5 truncate text-[11px] text-slate-300" title={st.name}>{st.name}</div>
+                <div className="mt-0.5 truncate text-[10px] text-slate-500">{st.sector}</div>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* ========================================================================= */}
-      {/* 7. FULL UNIVERSE BROWSER MODAL (18,500+ STOCKS)                            */}
-      {/* ========================================================================= */}
-      {isBrowseModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0E1116] border border-[#1e293b] rounded-[2px] w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
-            {/* Modal Header */}
-            <div className="p-4 border-b border-[#1e293b] flex items-center justify-between bg-[#080d1a]">
-              <div className="flex items-center space-x-2">
-                <Globe2 className="h-4 w-4 text-[#3b82f6]" />
-                <span className="font-bold text-sm text-white tracking-wide uppercase">
-                  Institutional Security Universe (18,500+ Equities)
-                </span>
-                <span className="text-[10px] px-2 py-0.5 bg-[#0b1222] text-[#3b82f6] rounded border border-[#1e293b]">
-                  {activeMarket === "India" ? "🇮🇳 National & Bombay Stock Exchanges" : "🇺🇸 NYSE & NASDAQ"}
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsBrowseModalOpen(false)}
-                className="text-[#94a3b8] hover:text-white p-1"
-              >
-                <X className="h-4 w-4" />
-              </button>
+      {browseOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" onClick={(e) => e.target === e.currentTarget && setBrowseOpen(false)}>
+          <div className="flex max-h-[85vh] w-full max-w-4xl flex-col overflow-hidden rounded-xl border border-slate-800/90 bg-[#0b1222] shadow-2xl shadow-black/40">
+            <div className="flex items-center justify-between border-b border-slate-800 p-4">
+              <div className="flex items-center gap-2"><Globe2 className="h-4 w-4 text-blue-400" /><h3 className="text-sm font-bold text-white">Security universe</h3><span className="rounded-md border border-slate-800 bg-[#080d1a] px-2 py-0.5 text-[10px] text-blue-300">{activeMarket === "India" ? "NSE & BSE" : "NYSE & NASDAQ"}</span></div>
+              <button type="button" aria-label="Close" onClick={() => setBrowseOpen(false)} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800/60 hover:text-white"><X className="h-4 w-4" /></button>
             </div>
-
-            {/* Filter controls */}
-            <div className="p-3 border-b border-[#1e293b] bg-[#12161E] grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <div className="relative">
-                <Search className="h-3.5 w-3.5 absolute left-2.5 top-2 text-[#64748b]" />
-                <input
-                  type="text"
-                  placeholder="Filter by symbol, company name..."
-                  value={browseQuery}
-                  onChange={(e) => setBrowseQuery(e.target.value)}
-                  className="w-full pl-8 pr-2 py-1 bg-[#080d1a] border border-[#1e293b] rounded-[2px] text-xs text-white placeholder-[#64748b] focus:outline-none focus:border-[#3b82f6]"
-                />
-              </div>
-
-              <div>
-                <select
-                  value={browseSector}
-                  onChange={(e) => setBrowseSector(e.target.value)}
-                  className="w-full px-2 py-1 bg-[#080d1a] border border-[#1e293b] rounded-[2px] text-xs text-[#cbd5e1] focus:outline-none focus:border-[#3b82f6]"
-                >
-                  <option value="ALL">All Sectors ({sectorsList.length})</option>
-                  {sectorsList.map((sec) => (
-                    <option key={sec} value={sec}>
-                      {sec}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex items-center space-x-1">
-                <button
-                  type="button"
-                  onClick={() => setActiveMarket("India")}
-                  className={`flex-1 py-1 rounded-[2px] text-xs font-bold text-center ${
-                    activeMarket === "India" ? "bg-[#10B981] text-black" : "bg-[#080d1a] text-[#94a3b8]"
-                  }`}
-                >
-                  🇮🇳 India
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveMarket("US")}
-                  className={`flex-1 py-1 rounded-[2px] text-xs font-bold text-center ${
-                    activeMarket === "US" ? "bg-[#3b82f6] text-black" : "bg-[#080d1a] text-[#94a3b8]"
-                  }`}
-                >
-                  🇺🇸 US
-                </button>
-              </div>
+            <div className="grid grid-cols-1 gap-2 border-b border-slate-800 p-3 sm:grid-cols-3">
+              <div className="relative"><Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" /><input autoFocus value={browseQuery} onChange={(e) => setBrowseQuery(e.target.value)} placeholder="Filter by symbol or company" className={cn(field, "w-full py-1.5 pl-8 pr-2")} /></div>
+              <select value={browseSector} onChange={(e) => setBrowseSector(e.target.value)} className={cn(field, "px-2 py-1.5")}><option value="ALL">All sectors ({sectors.length})</option>{sectors.map((x) => <option key={x} value={x}>{x}</option>)}</select>
+              <div className="flex gap-1">{(["India", "US"] as MarketRegion[]).map((m) => <button key={m} type="button" onClick={() => setActiveMarket(m)} className={cn("flex-1 rounded-lg py-1.5 text-xs font-semibold", activeMarket === m ? "bg-blue-600 text-white" : "border border-slate-800 bg-[#080d1a] text-slate-400 hover:text-white")}>{m === "India" ? "🇮🇳 India" : "🇺🇸 US"}</button>)}</div>
             </div>
-
-            {/* Results Table */}
             <div className="flex-1 overflow-y-auto p-2">
-              {browseLoading ? (
-                <div className="p-8 text-center text-[#94a3b8]">Searching 18,500+ listed equities...</div>
-              ) : browseResults.length === 0 ? (
-                <div className="p-8 text-center text-[#94a3b8]">No securities matched your criteria.</div>
-              ) : (
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-[#1e293b] text-[10px] text-[#64748b] uppercase">
-                      <th className="py-2 px-3">Symbol</th>
-                      <th className="py-2 px-3">Company Name</th>
-                      <th className="py-2 px-3">Sector</th>
-                      <th className="py-2 px-3">Exchange</th>
-                      <th className="py-2 px-3 text-right">Price</th>
-                      <th className="py-2 px-3 text-center">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#1e293b]/50 text-xs">
-                    {browseResults.map((s) => {
-                      const isSelected = s.symbol === selectedAsset;
-                      const isInd = s.market === "India" || s.currency === "INR";
+              {browseLoading ? <div className="p-8 text-center text-slate-400">Searching…</div>
+                : browseError ? <div className="p-8 text-center text-rose-300">The security search is unavailable. Check that the backend is running.</div>
+                : browseResults.length === 0 ? <div className="p-8 text-center text-slate-400">No securities matched.</div> : (
+                <table className="w-full border-collapse text-left">
+                  <thead><tr className="border-b border-slate-800 text-[10px] uppercase tracking-wider text-slate-400"><th className="px-3 py-2">Symbol</th><th className="px-3 py-2">Company</th><th className="px-3 py-2">Sector</th><th className="px-3 py-2">Exchange</th><th className="px-3 py-2 text-right">Price</th><th className="px-3 py-2" /></tr></thead>
+                  <tbody className="divide-y divide-slate-800/50">
+                    {browseResults.map((r) => {
+                      const on = r.symbol.toUpperCase() === sel, ind = r.market === "India" || r.currency === "INR";
                       return (
-                        <tr
-                          key={`${s.market}-${s.symbol}`}
-                          className={`hover:bg-[#0b1222] transition-colors ${
-                            isSelected ? "bg-[#0b1222] font-bold" : ""
-                          }`}
-                        >
-                          <td className="py-2 px-3 font-mono text-[#3b82f6]">{s.symbol}</td>
-                          <td className="py-2 px-3 text-[#cbd5e1]">{s.name}</td>
-                          <td className="py-2 px-3 text-[#94a3b8] text-[11px]">{s.sector || "—"}</td>
-                          <td className="py-2 px-3 text-[#64748b] text-[11px]">{s.exchange}</td>
-                          <td className="py-2 px-3 text-right font-mono text-[#cbd5e1]">
-                            {s.price !== undefined && s.price !== null
-                              ? `${isInd ? "₹" : "$"}${Number(s.price).toFixed(2)}`
-                              : "—"}
-                          </td>
-                          <td className="py-2 px-3 text-center">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                handlePickStock(s.symbol, s.name, s.sector);
-                                setIsBrowseModalOpen(false);
-                              }}
-                              className={`px-2.5 py-1 rounded-[2px] text-xs font-bold transition-colors ${
-                                isSelected
-                                  ? "bg-[#10B981] text-black"
-                                  : "bg-[#3b82f6] hover:bg-sky-400 text-black cursor-pointer"
-                              }`}
-                            >
-                              {isSelected ? "Selected" : "Select Stock"}
-                            </button>
-                          </td>
+                        <tr key={`${r.market}-${r.exchange}-${r.yf_symbol || r.symbol}`} className={cn("transition-colors hover:bg-slate-800/30", on && "bg-blue-500/10")}>
+                          <td className="px-3 py-2 font-mono font-semibold text-blue-300">{r.symbol}</td><td className="px-3 py-2 text-slate-200">{r.name}</td>
+                          <td className="px-3 py-2 text-[11px] text-slate-400">{r.sector || "—"}</td><td className="px-3 py-2 text-[11px] text-slate-500">{r.exchange}</td>
+                          <td className="px-3 py-2 text-right font-mono text-slate-200">{typeof r.price === "number" ? `${ind ? "₹" : "$"}${r.price.toFixed(2)}` : "—"}</td>
+                          <td className="px-3 py-2 text-right"><button type="button" onClick={() => { pick(r.symbol, marketOfProfile(r), r.name); setBrowseOpen(false); }} className={cn("rounded-lg px-3 py-1 text-xs font-semibold", on ? "bg-emerald-600 text-white" : "bg-blue-600 text-white hover:bg-blue-500")}>{on ? "Selected" : "Select"}</button></td>
                         </tr>
                       );
                     })}
@@ -617,18 +325,7 @@ export default function EasyStockPicker({
                 </table>
               )}
             </div>
-
-            {/* Footer */}
-            <div className="p-3 border-t border-[#1e293b] bg-[#080d1a] flex items-center justify-between text-[11px] text-[#64748b]">
-              <span>Showing up to 50 results matching filter</span>
-              <button
-                type="button"
-                onClick={() => setIsBrowseModalOpen(false)}
-                className="px-3 py-1 bg-[#0b1222] hover:bg-[#1C222C] text-[#cbd5e1] rounded-[2px]"
-              >
-                Close
-              </button>
-            </div>
+            <div className="flex items-center justify-between border-t border-slate-800 p-3 text-[11px] text-slate-500"><span>Up to 50 results</span><button type="button" onClick={() => setBrowseOpen(false)} className="rounded-lg border border-slate-800 bg-[#080d1a] px-3 py-1 text-slate-300 hover:text-white">Close</button></div>
           </div>
         </div>
       )}
