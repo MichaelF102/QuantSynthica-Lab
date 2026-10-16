@@ -10,6 +10,8 @@ import { RISK_TABS, RiskTabKey } from "@/components/risk/tabs";
 import { CardSkeleton, EmptyState } from "@/components/ui/Card";
 import OverviewTab from "@/components/risk/tabs/OverviewTab";
 import PortfolioRiskTab from "@/components/risk/tabs/PortfolioRiskTab";
+import VarTab from "@/components/risk/tabs/VarTab";
+import DrawdownTab from "@/components/risk/tabs/DrawdownTab";
 
 function TabBody({ tab }: { tab: RiskTabKey }) {
   const { status, error, reload, result } = useRisk();
@@ -37,6 +39,8 @@ function TabBody({ tab }: { tab: RiskTabKey }) {
     switch (tab) {
       case "overview": return <OverviewTab />;
       case "portfolio": return <PortfolioRiskTab />;
+      case "var": return <VarTab />;
+      case "drawdown": return <DrawdownTab />;
       default: return <EmptyState icon={ShieldAlert} title="Coming in a later phase" hint="This section is built in the next phases." />;
     }
   })();

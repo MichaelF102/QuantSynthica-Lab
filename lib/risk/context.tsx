@@ -2,6 +2,7 @@
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Holding, PortfolioResult, runPortfolio } from "@/lib/portfolio/engine";
+import type { Frequency } from "@/lib/analyticsCalc";
 import {
   BENCHMARK_OPTIONS, HORIZONS, Lookback, MARKET_DEFAULTS, Market, PRESETS, RiskSource, startFromLookback, todayISO,
 } from "./presets";
@@ -21,6 +22,7 @@ export interface RiskSettings {
   confidence: number;
   horizon: number;
   positionValue: number;
+  frequency: Frequency;
 }
 
 interface RiskCtx {
@@ -49,7 +51,7 @@ function defaultSettings(market: Market): RiskSettings {
   const end = todayISO();
   return {
     market, sourceKey: d.presetKey, customHoldings: [], assetTicker: "", benchmark: d.benchmark, lookback: "3Y",
-    start: startFromLookback(end, "3Y"), end, confidence: 0.95, horizon: 1, positionValue: d.value,
+    start: startFromLookback(end, "3Y"), end, confidence: 0.95, horizon: 1, positionValue: d.value, frequency: "Daily",
   };
 }
 
@@ -127,7 +129,7 @@ export function RiskProvider({ children }: { children: React.ReactNode }) {
   const setLookback = useCallback((lb: Exclude<Lookback, "Custom">) => setSettings((s) => ({ ...s, lookback: lb, end: todayISO(), start: startFromLookback(todayISO(), lb) })), []);
   const setMarket = useCallback((m: Market) => {
     try { localStorage.setItem("algolab_active_country", m); window.dispatchEvent(new CustomEvent("algolab:security-change", { detail: { country: m } })); } catch { /* ignore */ }
-    setSettings((s) => ({ ...defaultSettings(m), lookback: s.lookback, start: s.start, end: s.end, confidence: s.confidence, horizon: s.horizon }));
+    setSettings((s) => ({ ...defaultSettings(m), lookback: s.lookback, start: s.start, end: s.end, confidence: s.confidence, horizon: s.horizon, frequency: s.frequency }));
   }, []);
 
   const value: RiskCtx = {

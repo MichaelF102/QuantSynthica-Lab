@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine, Cell } from "recharts";
+import { ResponsiveContainer, BarChart, Bar, ComposedChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine, Cell } from "recharts";
 import { AXIS_PROPS, GRID_PROPS, TOOLTIP_STYLE } from "@/lib/chartTheme";
 import { histogram } from "@/lib/risk/var";
 import { fmtPct } from "@/lib/utils";
@@ -21,20 +21,24 @@ export function Spark({ data, color = "#EF4444", width = 96, height = 34 }: { da
 export interface Mark { x: number; label: string; color: string }
 
 /** Histogram of returns (in %) with vertical markers at VaR / ES. Marker x values are returns in % (negative). */
-export function ReturnHistogram({ returns, marks, color = "#2563EB", height = 220, bins = 40 }: { returns: number[]; marks?: Mark[]; color?: string; height?: number; bins?: number }) {
+export function ReturnHistogram({ returns, marks, color = "#2563EB", height = 220, bins = 40, fit = false }: { returns: number[]; marks?: Mark[]; color?: string; height?: number; bins?: number; fit?: boolean }) {
   const { data, centers } = useMemo(() => {
     const pct = returns.map((r) => r * 100);
     if (pct.length < 10) return { data: [], centers: [] as number[] };
     const lo = Math.min(...pct, ...(marks?.map((m) => m.x) ?? [])), hi = Math.max(...pct);
     const h = histogram(pct, bins, lo, hi);
-    return { data: h.map((b) => ({ label: b.x.toFixed(2), x: b.x, count: b.count })), centers: h.map((b) => b.x) };
+    const m = pct.reduce((a, b) => a + b, 0) / pct.length;
+    const sd = Math.sqrt(pct.reduce((a, b) => a + (b - m) ** 2, 0) / Math.max(1, pct.length - 1));
+    const w = (hi - lo) / bins;
+    const pdf = (x: number) => (sd > 0 ? Math.exp(-0.5 * ((x - m) / sd) ** 2) / (sd * Math.sqrt(2 * Math.PI)) : 0);
+    return { data: h.map((b) => ({ label: b.x.toFixed(2), x: b.x, count: b.count, fit: Number((pct.length * w * pdf(b.x)).toFixed(2)) })), centers: h.map((b) => b.x) };
   }, [returns, marks, bins]);
   if (!data.length) return <div className="flex items-center justify-center text-xs text-slate-500" style={{ height }}>Not enough observations.</div>;
   const nearest = (x: number) => data[centers.reduce((best, c, i) => (Math.abs(c - x) < Math.abs(centers[best] - x) ? i : best), 0)].label;
   return (
     <div style={{ height }}>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 18, right: 8, left: -18, bottom: 0 }} barCategoryGap={0}>
+        <ComposedChart data={data} margin={{ top: 18, right: 8, left: -18, bottom: 0 }} barCategoryGap={0}>
           <CartesianGrid {...GRID_PROPS} />
           <XAxis dataKey="label" {...AXIS_PROPS} interval={Math.max(0, Math.floor(data.length / 7))} tickFormatter={(v) => `${Number(v).toFixed(0)}`} />
           <YAxis {...AXIS_PROPS} allowDecimals={false} />
@@ -42,10 +46,11 @@ export function ReturnHistogram({ returns, marks, color = "#2563EB", height = 22
           <Bar dataKey="count" isAnimationActive={false}>
             {data.map((d, i) => <Cell key={i} fill={marks?.some((m) => d.x <= m.x) ? "#DC2626" : color} />)}
           </Bar>
+          {fit && <Line dataKey="fit" name="Normal fit" stroke="#EC4899" strokeWidth={2} dot={false} isAnimationActive={false} />}
           {marks?.map((m) => (
             <ReferenceLine key={m.label} x={nearest(m.x)} stroke={m.color} strokeDasharray="4 3" label={{ value: `${m.label}: ${fmtPct(m.x, 2)}`, position: "top", fill: m.color, fontSize: 10 }} />
           ))}
-        </BarChart>
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   );

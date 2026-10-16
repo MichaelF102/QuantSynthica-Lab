@@ -86,6 +86,7 @@ export default function RiskHeader({ tab }: { tab: RiskTabKey }) {
             onChange={(v) => v !== "Custom" && setLookback(v as Exclude<Lookback, "Custom">)} className="min-w-[120px]" />
         )}
         {has("horizon") && <SelectField label="Time horizon" value={settings.horizon} options={HORIZONS.map((h) => ({ value: h, label: h === 1 ? "1 Day" : `${h} Days` }))} onChange={(v) => update({ horizon: v })} className="min-w-[110px]" />}
+        {has("frequency") && <SelectField label="Time horizon" value={settings.frequency} options={(["Daily", "Weekly", "Monthly"] as const).map((f) => ({ value: f, label: f }))} onChange={(v) => update({ frequency: v })} className="min-w-[110px]" />}
         {has("value") && (
           <Field label={`Portfolio value (${sym})`} className="min-w-[130px]">
             <input type="number" min={1} value={settings.positionValue} onChange={(e) => update({ positionValue: Math.max(1, Number(e.target.value) || 1) })} aria-label="Portfolio value"
