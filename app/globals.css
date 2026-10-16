@@ -227,3 +227,12 @@ textarea,
 button {
   font-family: inherit;
 }
+
+/* DESIGN.md §10: print / "Save as PDF" — white, high-contrast, only the report area, cards never split. */
+@media print {
+  html, body { background: #fff !important; color: #000 !important; }
+  body * { visibility: hidden !important; }
+  .qs-print-area, .qs-print-area * { visibility: visible !important; }
+  .qs-print-area { position: absolute; left: 0; top: 0; width: 100%; }
+  .break-inside-avoid, section, tr { break-inside: avoid; }
+}

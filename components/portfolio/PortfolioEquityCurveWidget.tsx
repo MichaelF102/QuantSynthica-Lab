@@ -1,358 +1,84 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from "recharts";
-import { Info } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { LineChart as LineIcon } from "lucide-react";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import { Card } from "@/components/ui/Card";
+import { fmtPct, cn } from "@/lib/utils";
+import { PortfolioResult } from "@/lib/portfolio/engine";
+import { CurrencyCode, fmtMoney, windowPts, seriesStats } from "@/lib/analyticsCalc";
+import { AXIS_PROPS, GRID_PROPS, TOOLTIP_STYLE } from "@/lib/chartTheme";
 
-import { TOOLTIP_STYLE } from "@/lib/chartTheme";
-interface PortfolioEquityCurveWidgetProps {
-  portfolioName?: string;
-  benchmarkSymbol?: string;
-  initialCapital?: number;
-  currency?: "USD" | "INR" | "EUR" | "GBP";
+type Range = "1M" | "3M" | "6M" | "YTD" | "1Y" | "ALL";
+interface Props { result: PortfolioResult; portfolioName: string; benchmarkSymbol: string; benchmarkName: string; currency: CurrencyCode }
+
+function startFor(r: Range, last: string): string | null {
+  if (r === "ALL") return null;
+  if (r === "YTD") return `${last.slice(0, 4)}-01-01`;
+  const d = new Date(last + "T00:00:00Z");
+  d.setUTCMonth(d.getUTCMonth() - { "1M": 1, "3M": 3, "6M": 6, "1Y": 12 }[r]);
+  return d.toISOString().slice(0, 10);
 }
 
-// Generate realistic daily-like equity data matching the screenshot trajectory
-function generateEquityData(initial: number = 100000) {
-  const points: { date: string; displayDate: string; portfolio: number; benchmark: number; drawdown: number }[] = [];
-  
-  // Date range Jan 1 2023 to Jan 1 2024 (approx 52 weekly data points)
-  const start = new Date(2023, 0, 1);
-  const end = new Date(2024, 0, 1);
-  const totalSteps = 53;
-  
-  let pVal = initial;
-  let bVal = initial;
-  let peak = pVal;
-
-  for (let i = 0; i < totalSteps; i++) {
-    const curDate = new Date(start.getTime() + (end.getTime() - start.getTime()) * (i / (totalSteps - 1)));
-    const month = curDate.toLocaleString("default", { month: "short" });
-    const year = curDate.getFullYear();
-    const day = curDate.getDate();
-
-    const t = i / (totalSteps - 1);
-
-    // Shape synthetic path proportional to initial capital
-    const seasonal = Math.sin(t * Math.PI * 4) * (initial * 0.06);
-    const trend = t * (initial * 0.2234);
-    const noise = ((i * 17) % 19 - 9) * (initial * 0.0045);
-    
-    // October dip around t ~ 0.8
-    let dip = 0;
-    if (t > 0.7 && t < 0.88) {
-      dip = -Math.sin(((t - 0.7) / 0.18) * Math.PI) * (initial * 0.125);
-    }
-
-    if (i === totalSteps - 1) {
-      pVal = Math.round(initial * 1.2234);
-      bVal = Math.round(initial * 1.0952);
-    } else {
-      pVal = Math.round(initial + trend + seasonal + noise + dip);
-      const bTrend = t * (initial * 0.0952);
-      const bSeasonal = Math.sin(t * Math.PI * 3) * (initial * 0.032);
-      bVal = Math.round(initial + bTrend + bSeasonal + noise * 0.4);
-    }
-
-    if (pVal > peak) peak = pVal;
-    const dd = ((pVal - peak) / peak) * 100;
-
-    const displayDate =
-      day <= 7 || i === 0 || i === totalSteps - 1
-        ? `${month} ${year}`
-        : `${month} ${day}`;
-
-    points.push({
-      date: curDate.toISOString().split("T")[0],
-      displayDate,
-      portfolio: pVal,
-      benchmark: bVal,
-      drawdown: Number(dd.toFixed(2)),
-    });
-  }
-
-  return points;
-}
-
-export default function PortfolioEquityCurveWidget({
-  portfolioName = "Dual MA Crossover",
-  benchmarkSymbol = "SPY",
-  initialCapital = 100000,
-  currency = "USD",
-}: PortfolioEquityCurveWidgetProps) {
-  const [timeframe, setTimeframe] = useState<"1M" | "3M" | "6M" | "YTD" | "1Y" | "ALL">("ALL");
-  const [logScale, setLogScale] = useState(false);
-  const [showDrawdownRightAxis, setShowDrawdownRightAxis] = useState(false);
-
-  const currSymbol = currency === "INR" ? "₹" : currency === "EUR" ? "€" : currency === "GBP" ? "£" : "$";
-  const rawData = useMemo(() => generateEquityData(initialCapital), [initialCapital]);
-
-  const filteredData = useMemo(() => {
-    if (timeframe === "ALL" || timeframe === "1Y") return rawData;
-    if (timeframe === "6M") return rawData.slice(Math.floor(rawData.length / 2));
-    if (timeframe === "3M") return rawData.slice(Math.floor(rawData.length * 0.75));
-    if (timeframe === "1M") return rawData.slice(Math.floor(rawData.length * 0.9));
-    if (timeframe === "YTD") return rawData.slice(Math.floor(rawData.length * 0.5));
-    return rawData;
-  }, [rawData, timeframe]);
-
-  const lastPoint = filteredData[filteredData.length - 1] || {
-    portfolio: 122340,
-    benchmark: 109520,
-  };
+export default function PortfolioEquityCurveWidget({ result, portfolioName, benchmarkSymbol, benchmarkName, currency }: Props) {
+  const [range, setRange] = useState<Range>("ALL");
+  const [log, setLog] = useState(false);
+  const pts = useMemo(() => windowPts(result.pts, startFor(range, result.dates[result.dates.length - 1]), null, "Daily"), [result, range]);
+  const stats = useMemo(() => seriesStats(pts), [pts]);
+  const base = pts[0]?.value ?? 1;
+  const bbase = pts[0]?.bench ?? 1;
+  // Both lines are rebased to the portfolio's value at the start of the visible range.
+  const data = pts.map((p) => ({ date: p.date, Portfolio: p.value, Benchmark: (p.bench / bbase) * base }));
+  const last = data[data.length - 1];
 
   return (
-    <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 flex flex-col justify-between">
-      {/* 1. Header & Inline Stats & Controls */}
-      <div className="space-y-2.5 pb-2 border-b border-[#1e293b]">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          {/* Title & Info icon */}
-          <div className="flex items-center space-x-2">
-            <h2 className="text-sm font-bold text-white tracking-tight font-sans">
-              Portfolio Equity Curve
-            </h2>
-            <button
-              type="button"
-              className="text-slate-500 hover:text-slate-300 transition-colors"
-              title="Interactive compounded equity trajectory vs benchmark"
-            >
-              <Info className="w-3.5 h-3.5" />
-            </button>
+    <Card
+      title="Portfolio equity curve"
+      subtitle={`${portfolioName} vs ${benchmarkName}`}
+      info="Value of the basket from real constituent prices, starting at your initial capital and rebalanced on your chosen schedule. The benchmark is rebased to the same start."
+      icon={LineIcon}
+      tone="blue"
+      action={
+        <div className="flex items-center gap-2">
+          <div className="flex items-center rounded-lg border border-slate-800 bg-[#0b1222] p-0.5 font-mono text-[11px]">
+            {(["1M", "3M", "6M", "YTD", "1Y", "ALL"] as Range[]).map((r) => (
+              <button key={r} type="button" onClick={() => setRange(r)} className={cn("rounded px-2 py-1 transition-colors", range === r ? "bg-blue-600 font-semibold text-white shadow-sm" : "font-medium text-slate-400 hover:text-white")}>{r}</button>
+            ))}
           </div>
-
-          {/* Right Controls: Timeframe Pills & Log Scale Switch */}
-          <div className="flex items-center space-x-3">
-            {/* Timeframe Pills */}
-            <div className="flex items-center bg-[#0b1222] border border-[#1e293b] rounded p-0.5 text-[11px] font-mono">
-              {(["1M", "3M", "6M", "YTD", "1Y", "ALL"] as const).map((tf) => (
-                <button
-                  key={tf}
-                  type="button"
-                  onClick={() => setTimeframe(tf)}
-                  className={`px-2 py-0.5 rounded transition-all ${
-                    timeframe === tf
-                      ? "bg-[#2563eb] text-white font-bold shadow-sm"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  {tf}
-                </button>
-              ))}
-            </div>
-
-            {/* Log Scale Toggle */}
-            <div className="flex items-center space-x-1.5 text-xs text-slate-400">
-              <span className="text-[11px]">Log Scale</span>
-              <button
-                type="button"
-                onClick={() => setLogScale(!logScale)}
-                className={`w-7 h-4 rounded-full transition-colors relative p-0.5 ${
-                  logScale ? "bg-[#2563eb]" : "bg-[#1E293B]"
-                }`}
-              >
-                <div
-                  className={`w-3 h-3 rounded-full bg-white transition-transform ${
-                    logScale ? "translate-x-3" : "translate-x-0"
-                  }`}
-                />
-              </button>
-            </div>
-          </div>
+          <label className="flex cursor-pointer items-center gap-1.5 text-[11px] text-slate-400">
+            Log
+            <input type="checkbox" checked={log} onChange={(e) => setLog(e.target.checked)} className="accent-blue-500" />
+          </label>
         </div>
-
-        {/* Inline KPI stats ribbon matching screenshot */}
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-xs">
-          <div>
-            <span className="text-slate-400 text-[10px] block">Final Value</span>
-            <span className="text-white font-bold font-mono text-sm sm:text-base">
-              {currSymbol}{lastPoint.portfolio.toLocaleString()}
-            </span>
-          </div>
-
-          <div>
-            <span className="text-slate-400 text-[10px] block">Total Return</span>
-            <span className="text-[#10B981] font-bold font-mono text-sm sm:text-base">
-              +22.34%
-            </span>
-          </div>
-
-          <div>
-            <span className="text-slate-400 text-[10px] block">CAGR</span>
-            <span className="text-[#10B981] font-bold font-mono text-sm sm:text-base">
-              20.12%
-            </span>
-          </div>
-
-          <div>
-            <span className="text-slate-400 text-[10px] block">Volatility</span>
-            <span className="text-white font-bold font-mono text-sm sm:text-base">
-              18.43%
-            </span>
-          </div>
-
-          <div>
-            <span className="text-slate-400 text-[10px] block">Max Drawdown</span>
-            <span className="text-[#F43F5E] font-bold font-mono text-sm sm:text-base">
-              -14.93%
-            </span>
-          </div>
-        </div>
+      }
+    >
+      <div className="mb-3 grid grid-cols-2 gap-3 border-b border-slate-800 pb-3 sm:grid-cols-5">
+        {([
+          ["Final value", fmtMoney(last?.Portfolio, currency), "text-white"],
+          ["Total return", fmtPct(stats?.totalReturn), stats && stats.totalReturn < 0 ? "text-rose-400" : "text-emerald-400"],
+          ["CAGR", fmtPct(stats?.cagr), stats && stats.cagr < 0 ? "text-rose-400" : "text-emerald-400"],
+          ["Volatility", fmtPct(stats?.vol, 2, false), "text-white"],
+          ["Max drawdown", stats ? fmtPct(-stats.maxDD) : "—", "text-rose-400"],
+        ] as [string, string, string][]).map(([k, v, t]) => (
+          <div key={k}><div className="text-[10px] text-slate-400">{k}</div><div className={cn("font-mono text-sm font-bold", v === "—" ? "text-slate-500" : t)}>{v}</div></div>
+        ))}
       </div>
-
-      {/* 2. Chart Area with Floating Endpoint Badges */}
-      <div className="relative h-64 w-full pt-3">
+      <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart
-            data={filteredData}
-            margin={{ top: 12, right: 90, left: 0, bottom: 4 }}
-          >
-            <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
-            <XAxis
-              dataKey="date"
-              stroke="#475569"
-              tickLine={false}
-              tick={{ fontSize: 10, fill: "#64748b" }}
-              tickFormatter={(val: string) => {
-                // e.g. "2023-01-01" -> "Jan 2023"
-                const parts = val.split("-");
-                const mIdx = parseInt(parts[1], 10) - 1;
-                const mNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                // Only show every other month
-                if (mIdx % 2 === 0) {
-                  return `${mNames[mIdx]} ${parts[0]}`;
-                }
-                return "";
-              }}
-            />
-            <YAxis
-              scale={logScale ? "log" : "auto"}
-              domain={["auto", "auto"]}
-              stroke="#475569"
-              tickLine={false}
-              orientation="left"
-              tick={{ fontSize: 10, fill: "#64748b" }}
-              tickFormatter={(v: number) => {
-                if (currency === "INR") {
-                  if (v >= 10000000) return `₹${(v / 10000000).toFixed(1)}Cr`;
-                  if (v >= 100000) return `₹${(v / 100000).toFixed(1)}L`;
-                  return `₹${Math.round(v / 1000)}k`;
-                }
-                if (v >= 1000000) return `$${(v / 1000000).toFixed(1)}M`;
-                return `$${Math.round(v / 1000)}K`;
-              }}
-            />
-            {showDrawdownRightAxis && (
-              <YAxis
-                yAxisId="dd"
-                orientation="right"
-                domain={[-30, 0]}
-                stroke="#F43F5E"
-                tickLine={false}
-                tick={{ fontSize: 10, fill: "#64748b" }}
-                tickFormatter={(v: number) => `${v}%`}
-              />
-            )}
-            <Tooltip
-              contentStyle={TOOLTIP_STYLE}
-              formatter={(val: any, name: string) => {
-                if (name === "drawdown") return [`${val}%`, "Drawdown"];
-                return [`${currSymbol}${Number(val).toLocaleString()}`, name === "portfolio" ? "Portfolio" : benchmarkSymbol];
-              }}
-              labelFormatter={(label: any) => `Date: ${label}`}
-            />
-            {/* Portfolio Line */}
-            <Line
-              type="monotone"
-              dataKey="portfolio"
-              name="portfolio"
-              stroke="#3b82f6"
-              strokeWidth={2.4}
-              dot={false}
-              activeDot={{ r: 4, fill: "#3b82f6", stroke: "#0C1017", strokeWidth: 2 }}
-            />
-            {/* Benchmark Line */}
-            <Line
-              type="monotone"
-              dataKey="benchmark"
-              name="benchmark"
-              stroke="#64748B"
-              strokeWidth={1.8}
-              strokeDasharray="3 3"
-              dot={false}
-              activeDot={{ r: 3, fill: "#94A3B8" }}
-            />
-            {/* Optional Drawdown right-axis line */}
-            {showDrawdownRightAxis && (
-              <Line
-                yAxisId="dd"
-                type="monotone"
-                dataKey="drawdown"
-                name="drawdown"
-                stroke="#F43F5E"
-                strokeWidth={1.2}
-                dot={false}
-              />
-            )}
+          <LineChart data={data} margin={{ top: 10, right: 20, left: 5, bottom: 0 }}>
+            <CartesianGrid {...GRID_PROPS} />
+            <XAxis dataKey="date" {...AXIS_PROPS} minTickGap={50} />
+            <YAxis {...AXIS_PROPS} scale={log ? "log" : "auto"} domain={["auto", "auto"]} tickFormatter={(v) => fmtMoney(v, currency, true)} />
+            <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any, n: any) => [fmtMoney(Number(v), currency), n === "Benchmark" ? benchmarkSymbol : "Portfolio"]} />
+            <Line type="monotone" dataKey="Benchmark" stroke="#64748B" strokeWidth={1.5} strokeDasharray="4 4" dot={false} isAnimationActive={false} />
+            <Line type="monotone" dataKey="Portfolio" stroke="#2563EB" strokeWidth={2} dot={false} isAnimationActive={false} />
           </LineChart>
         </ResponsiveContainer>
-
-        {/* Floating Endpoint Badges matching screenshot */}
-        <div className="absolute right-1.5 top-14 flex flex-col items-end space-y-3 pointer-events-none">
-          {/* Top Badge: Portfolio */}
-          <div className="bg-[#2563eb] text-white px-2.5 py-1 rounded shadow-lg border border-[#3b82f6]/40 text-right">
-            <div className="text-[11px] font-bold font-mono leading-none">
-              {currSymbol}{lastPoint.portfolio.toLocaleString()}
-            </div>
-            <div className="text-[9px] font-mono text-[#E0F2FE] leading-none mt-0.5">
-              (+22.34%)
-            </div>
-          </div>
-
-          {/* Bottom Badge: Benchmark */}
-          <div className="bg-[#182232] text-slate-200 px-2.5 py-1 rounded shadow-lg border border-[#2B3B52] text-right">
-            <div className="text-[11px] font-bold font-mono leading-none text-slate-100">
-              {currSymbol}{lastPoint.benchmark.toLocaleString()}
-            </div>
-            <div className="text-[9px] font-mono text-slate-400 leading-none mt-0.5">
-              (+9.52%)
-            </div>
-          </div>
-        </div>
       </div>
-
-      {/* 3. Bottom Legend Strip */}
-      <div className="flex flex-wrap items-center justify-start gap-4 pt-2 border-t border-[#0b1222] text-xs">
-        <div className="flex items-center space-x-2 text-slate-300">
-          <span className="w-4 h-0.5 bg-[#3b82f6] inline-block rounded" />
-          <span className="text-[11px] font-medium">Portfolio ({portfolioName})</span>
-        </div>
-
-        <div className="flex items-center space-x-2 text-slate-400">
-          <span className="w-4 h-0.5 border-t border-dashed border-[#64748B] inline-block" />
-          <span className="text-[11px] font-medium">{benchmarkSymbol} (Benchmark)</span>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setShowDrawdownRightAxis(!showDrawdownRightAxis)}
-          className={`flex items-center space-x-1.5 text-[11px] px-2 py-0.5 rounded border transition-colors ${
-            showDrawdownRightAxis
-              ? "bg-[#F43F5E]/10 border-[#F43F5E]/40 text-[#F43F5E]"
-              : "border-transparent text-slate-500 hover:text-slate-300"
-          }`}
-        >
-          <span className="w-2.5 h-2.5 rounded-sm bg-[#F43F5E]/30 inline-block border border-[#F43F5E]" />
-          <span>Drawdown (Right Axis)</span>
-        </button>
+      <div className="mt-2 flex items-center gap-4 text-[11px] text-slate-400">
+        <span className="flex items-center gap-1.5"><span className="h-0.5 w-4 bg-[#2563EB]" />{portfolioName}</span>
+        <span className="flex items-center gap-1.5"><span className="w-4 border-b-2 border-dashed border-slate-500" />{benchmarkSymbol} <span className="font-mono">{fmtPct(stats?.benchReturn)}</span></span>
       </div>
-    </div>
+    </Card>
   );
 }

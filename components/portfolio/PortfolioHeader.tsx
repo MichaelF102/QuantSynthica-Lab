@@ -67,6 +67,9 @@ interface PortfolioHeaderProps {
   onOpenStockBasketModal?: () => void;
   terminalActiveTicker?: string | null;
   onAddStockQuick?: (ticker: string) => void;
+  /** Persists the portfolio configuration; returns false when it could not be saved. */
+  onSaveLayout?: () => boolean;
+  onExport?: () => void;
 }
 
 export default function PortfolioHeader({
@@ -99,6 +102,8 @@ export default function PortfolioHeader({
   onOpenStockBasketModal,
   terminalActiveTicker,
   onAddStockQuick,
+  onSaveLayout,
+  onExport,
 }: PortfolioHeaderProps) {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [tempStart, setTempStart] = useState(startDate);
@@ -113,12 +118,13 @@ export default function PortfolioHeader({
   };
 
   const handleSaveLayout = () => {
+    if (onSaveLayout && onSaveLayout() === false) return;
     setSavedLayoutToast(true);
     setTimeout(() => setSavedLayoutToast(false), 2000);
   };
 
   const handleExport = () => {
-    window.print();
+    onExport?.();
   };
 
   const benchmarks = market === "India" ? INDIA_BENCHMARKS : US_BENCHMARKS;
@@ -140,14 +146,17 @@ export default function PortfolioHeader({
         ];
 
   return (
-    <div className="space-y-2.5 border-b border-border/80 pb-3">
+    <div className="relative space-y-2.5 border-b border-slate-800/60 pb-3 print:hidden"><div className="pointer-events-none absolute left-1/4 top-0 -z-10 h-24 w-96 rounded-full bg-blue-600/10 blur-3xl" /><div className="pointer-events-none absolute right-1/4 top-0 -z-10 h-24 w-96 rounded-full bg-indigo-600/10 blur-3xl" />
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="qs-title text-[1.4rem]">Portfolio</h1>
+            <h1 className="text-2xl font-extrabold tracking-tight text-primary sm:text-3xl">
+              Portfolio{" "}
+              <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400 bg-clip-text text-transparent">Workstation</span>
+            </h1>
           </div>
           <p className="mt-1 text-sm text-slate-500">
-            Allocation, tail risk, and how the book is mixed.
+            Real constituent prices, rebalanced weights, and covariance-based risk.
           </p>
         </div>
 
@@ -171,7 +180,7 @@ export default function PortfolioHeader({
             ) : (
               <Save className="w-3.5 h-3.5 text-slate-400" />
             )}
-            <span>{savedLayoutToast ? "Layout Saved!" : "Save Layout"}</span>
+            <span>{savedLayoutToast ? "Portfolio saved" : "Save portfolio"}</span>
           </button>
 
           <button

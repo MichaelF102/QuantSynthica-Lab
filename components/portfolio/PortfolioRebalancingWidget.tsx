@@ -1,110 +1,50 @@
 "use client";
 
-import React from "react";
-import { Info } from "lucide-react";
+import React, { useMemo } from "react";
+import { RefreshCw } from "lucide-react";
+import { Card, signTone } from "@/components/ui/Card";
+import { fmtPct, fmtInt, cn } from "@/lib/utils";
+import { formatRatio } from "@/lib/formatters";
+import { PortfolioResult, Rebalance, simulate } from "@/lib/portfolio/engine";
+import { Pt, seriesStats } from "@/lib/analyticsCalc";
 
-interface RebalanceRow {
-  frequency: "No Rebalance" | "Monthly" | "Quarterly" | "Weekly";
-  ret: number;
-  vol: number;
-  sharpe: number;
-  maxDd: number;
-  turnover: number;
-}
+const MODES: Rebalance[] = ["Weekly", "Monthly", "Quarterly", "Never"];
 
-const REBALANCE_DATA: RebalanceRow[] = [
-  { frequency: "No Rebalance", ret: 11.8, vol: 19.4, sharpe: 0.91, maxDd: -15.2, turnover: 0 },
-  { frequency: "Monthly", ret: 12.6, vol: 17.8, sharpe: 1.08, maxDd: -12.7, turnover: 31.4 },
-  { frequency: "Quarterly", ret: 12.2, vol: 18.2, sharpe: 1.01, maxDd: -13.4, turnover: 18.7 },
-  { frequency: "Weekly", ret: 11.9, vol: 18.0, sharpe: 0.99, maxDd: -13.1, turnover: 62.3 },
-];
-
-interface PortfolioRebalancingWidgetProps {
-  currentRebalance?: "Monthly" | "Quarterly" | "Weekly" | "Never";
-  onRebalanceSelect?: (reb: "Monthly" | "Quarterly" | "Weekly" | "Never") => void;
-}
-
-export default function PortfolioRebalancingWidget({
-  currentRebalance = "Monthly",
-  onRebalanceSelect,
-}: PortfolioRebalancingWidgetProps) {
-  const isSelected = (freq: RebalanceRow["frequency"]) => {
-    if (freq === "No Rebalance" && currentRebalance === "Never") return true;
-    return freq === currentRebalance;
-  };
-
-  const handleSelect = (freq: RebalanceRow["frequency"]) => {
-    if (!onRebalanceSelect) return;
-    if (freq === "No Rebalance") onRebalanceSelect("Never");
-    else onRebalanceSelect(freq);
-  };
+/** Re-runs the same price data under each rebalance schedule so the trade-off is visible, not assumed. */
+export default function PortfolioRebalancingWidget({ result, current, onSelect }: { result: PortfolioResult; current: Rebalance; onSelect: (r: Rebalance) => void }) {
+  const rows = useMemo(() => {
+    const holdings = result.tickers.map((t) => ({ ticker: t, weight: result.targetWeights[t] * 100 }));
+    const cap = result.value[0];
+    return MODES.map((mode) => {
+      const sim = simulate(result.dates, result.prices, result.benchPrices, holdings, cap, mode);
+      let pk = -Infinity;
+      const pts: Pt[] = result.dates.map((date, i) => { pk = Math.max(pk, sim.value[i]); return { date, value: sim.value[i], bench: sim.bench[i], dd: ((pk - sim.value[i]) / pk) * 100 }; });
+      const s = seriesStats(pts);
+      return { mode, ret: s?.totalReturn ?? null, vol: s?.vol ?? null, sharpe: s && s.vol > 0 ? s.cagr / s.vol : null, dd: s?.maxDD ?? null, n: sim.rebalanceCount, turnover: sim.turnover * 100 };
+    });
+  }, [result]);
 
   return (
-    <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 flex flex-col justify-between h-full">
-      {/* Header */}
-      <div className="flex items-center space-x-2 pb-2 border-b border-[#1e293b]">
-        <h2 className="text-sm font-bold text-white tracking-tight font-sans">
-          Rebalancing Analysis
-        </h2>
-        <button
-          type="button"
-          className="text-slate-500 hover:text-slate-300 transition-colors"
-          title="Comparative performance and transaction drag across periodic rebalance frequencies"
-        >
-          <Info className="w-3.5 h-3.5" />
-        </button>
-      </div>
-
-      {/* Table */}
-      <div className="pt-2 overflow-x-auto">
-        <table className="w-full text-left border-collapse text-xs font-mono">
-          <thead>
-            <tr className="border-b border-[#182232] text-[11px] text-[#717E90]">
-              <th className="py-1 px-1 font-sans font-medium">Frequency</th>
-              <th className="py-1 px-1 font-sans font-medium">Return</th>
-              <th className="py-1 px-1 font-sans font-medium">Volatility</th>
-              <th className="py-1 px-1 font-sans font-medium">Sharpe</th>
-              <th className="py-1 px-1 font-sans font-medium">Max DD</th>
-              <th className="py-1 px-1 font-sans font-medium text-right">Turnover</th>
+    <Card title="Rebalancing" subtitle="Same prices, different schedules" info="Each row re-simulates the basket with that rebalance frequency (no trading costs). Click a row to use it for the next analysis run." icon={RefreshCw} tone="blue">
+      <table className="w-full border-collapse text-[11px]">
+        <thead>
+          <tr className="border-b border-slate-800 text-[10px] uppercase tracking-wider text-slate-400">
+            <th className="py-1 text-left">Schedule</th><th className="py-1 text-right">Return</th><th className="py-1 text-right">Vol</th><th className="py-1 text-right">Sharpe</th><th className="py-1 text-right">Trades</th><th className="py-1 text-right">Turnover</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-800/50">
+          {rows.map((r) => (
+            <tr key={r.mode} onClick={() => onSelect(r.mode)} className={cn("cursor-pointer transition-colors hover:bg-slate-800/30", current === r.mode && "bg-blue-500/10")}>
+              <td className={cn("py-1.5 font-medium", current === r.mode ? "text-blue-400" : "text-slate-200")}>{r.mode}{result.rebalance === r.mode && <span className="ml-1 font-mono text-[9px] text-slate-500">(run)</span>}</td>
+              <td className={cn("py-1.5 text-right font-mono", signTone(r.ret))}>{fmtPct(r.ret)}</td>
+              <td className="py-1.5 text-right font-mono text-slate-300">{fmtPct(r.vol, 1, false)}</td>
+              <td className="py-1.5 text-right font-mono text-white">{r.sharpe === null ? "—" : formatRatio(r.sharpe)}</td>
+              <td className="py-1.5 text-right font-mono text-slate-300">{fmtInt(r.n)}</td>
+              <td className="py-1.5 text-right font-mono text-slate-400">{fmtPct(r.turnover, 0, false)}</td>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-[#131B27]">
-            {REBALANCE_DATA.map((r) => {
-              const active = isSelected(r.frequency);
-              return (
-                <tr
-                  key={r.frequency}
-                  onClick={() => handleSelect(r.frequency)}
-                  className={`cursor-pointer transition-colors ${
-                    active
-                      ? "bg-[#111C2B] border-l-2 border-l-[#3b82f6]"
-                      : "hover:bg-[#0E1522]"
-                  }`}
-                >
-                  <td className="py-2 px-1 font-sans font-semibold text-slate-200">
-                    {r.frequency}
-                  </td>
-                  <td className="py-2 px-1 font-bold text-[#10B981]">
-                    +{r.ret.toFixed(1)}%
-                  </td>
-                  <td className="py-2 px-1 text-slate-300">
-                    {r.vol.toFixed(1)}%
-                  </td>
-                  <td className="py-2 px-1 text-white font-bold">
-                    {r.sharpe.toFixed(2)}
-                  </td>
-                  <td className="py-2 px-1 text-[#F43F5E]">
-                    {r.maxDd.toFixed(1)}%
-                  </td>
-                  <td className="py-2 px-1 text-right text-slate-300">
-                    {r.turnover.toFixed(1)}%
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
+          ))}
+        </tbody>
+      </table>
+    </Card>
   );
 }

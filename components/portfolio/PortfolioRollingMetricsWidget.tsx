@@ -1,299 +1,66 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from "recharts";
-import { Info } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { Activity } from "lucide-react";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import { Card, EmptyState } from "@/components/ui/Card";
+import { cn } from "@/lib/utils";
+import { PortfolioResult } from "@/lib/portfolio/engine";
+import { AXIS_PROPS, GRID_PROPS, TOOLTIP_STYLE } from "@/lib/chartTheme";
 
-import { TOOLTIP_STYLE } from "@/lib/chartTheme";
-type RollingMetric = "Rolling Return" | "Rolling Sharpe" | "Rolling Volatility" | "Rolling Beta";
-type RollingTimeframe = "3M" | "6M" | "1Y" | "ALL";
+type Metric = "Volatility" | "Sharpe" | "Beta";
+const mean = (a: number[]) => a.reduce((x, y) => x + y, 0) / a.length;
 
-interface RollingDataPoint {
-  date: string;
-  portfolio: number;
-  benchmark: number;
-}
-
-// Generate realistic rolling metrics time series data matching the screenshot trajectory
-function generateRollingData(metric: RollingMetric): RollingDataPoint[] {
-  const points: RollingDataPoint[] = [];
-  const start = new Date(2023, 0, 1);
-  const end = new Date(2024, 0, 1);
-  const totalSteps = 45;
-
-  for (let i = 0; i < totalSteps; i++) {
-    const curDate = new Date(start.getTime() + (end.getTime() - start.getTime()) * (i / (totalSteps - 1)));
-    const dateStr = curDate.toISOString().split("T")[0];
-    const t = i / (totalSteps - 1);
-
-    let p = 0;
-    let b = 0;
-
-    if (metric === "Rolling Return") {
-      // Portfolio moves from ~ -5% in early 2023 up to ~+35% by year-end, finishing around 22.34%
-      p = -8 + t * 34 + Math.sin(t * Math.PI * 3.5) * 8 + ((i * 7) % 5 - 2) * 1.5;
-      b = -4 + t * 14 + Math.sin(t * Math.PI * 2.8) * 4 + ((i * 5) % 4 - 2) * 0.8;
-      if (i === totalSteps - 1) {
-        p = 22.34;
-        b = 9.52;
-      }
-    } else if (metric === "Rolling Sharpe") {
-      p = 0.6 + t * 0.7 + Math.sin(t * Math.PI * 3) * 0.25;
-      b = 0.5 + t * 0.3 + Math.sin(t * Math.PI * 2) * 0.15;
-      if (i === totalSteps - 1) {
-        p = 1.21;
-        b = 0.75;
-      }
-    } else if (metric === "Rolling Volatility") {
-      p = 22 - t * 4 + Math.sin(t * Math.PI * 3.2) * 2;
-      b = 24 - t * 2 + Math.sin(t * Math.PI * 2.5) * 1.5;
-      if (i === totalSteps - 1) {
-        p = 18.43;
-        b = 22.63;
-      }
-    } else {
-      // Rolling Beta
-      p = 0.95 - t * 0.2 + Math.sin(t * Math.PI * 2.8) * 0.08;
-      b = 1.0;
-      if (i === totalSteps - 1) {
-        p = 0.78;
-        b = 1.0;
-      }
-    }
-
-    points.push({
-      date: dateStr,
-      portfolio: Number(p.toFixed(2)),
-      benchmark: Number(b.toFixed(2)),
-    });
-  }
-
-  return points;
-}
-
-export default function PortfolioRollingMetricsWidget({
-  benchmarkSymbol = "SPY",
-}: {
-  benchmarkSymbol?: string;
-}) {
-  const [activeMetric, setActiveMetric] = useState<RollingMetric>("Rolling Return");
-  const [timeframe, setTimeframe] = useState<RollingTimeframe>("1Y");
-
-  const data = useMemo(() => generateRollingData(activeMetric), [activeMetric]);
-
-  const stats = useMemo(() => {
-    switch (activeMetric) {
-      case "Rolling Return":
-        return {
-          portfolio: "22.34%",
-          benchmark: "9.52%",
-          diff: "+12.82%",
-          label: "Outperformance",
-          unit: "%",
-        };
-      case "Rolling Sharpe":
-        return {
-          portfolio: "1.21",
-          benchmark: "0.75",
-          diff: "+0.46",
-          label: "Sharpe Spread",
-          unit: "",
-        };
-      case "Rolling Volatility":
-        return {
-          portfolio: "18.43%",
-          benchmark: "22.63%",
-          diff: "-4.20%",
-          label: "Vol Reduction",
-          unit: "%",
-        };
-      case "Rolling Beta":
-        return {
-          portfolio: "0.78",
-          benchmark: "1.00",
-          diff: "-0.22",
-          label: "Beta Delta",
-          unit: "",
-        };
-    }
-  }, [activeMetric]);
+export default function PortfolioRollingMetricsWidget({ result, benchmarkSymbol }: { result: PortfolioResult; benchmarkSymbol: string }) {
+  const [metric, setMetric] = useState<Metric>("Volatility");
+  const [win, setWin] = useState(60);
+  const data = useMemo(() => {
+    const r = result.returns, b = result.benchReturns;
+    return r.map((_, i) => {
+      if (i < win - 1) return null;
+      const x = r.slice(i - win + 1, i + 1), y = b.slice(i - win + 1, i + 1);
+      const mx = mean(x), my = mean(y);
+      const sx = Math.sqrt(x.reduce((s, v) => s + (v - mx) ** 2, 0) / (win - 1));
+      const sy2 = y.reduce((s, v) => s + (v - my) ** 2, 0) / (win - 1);
+      const cov = x.reduce((s, v, k) => s + (v - mx) * (y[k] - my), 0) / (win - 1);
+      const value = metric === "Volatility" ? sx * Math.sqrt(252) * 100 : metric === "Sharpe" ? (sx > 0 ? (mx / sx) * Math.sqrt(252) : 0) : sy2 > 0 ? cov / sy2 : 0;
+      return { date: result.dates[i + 1], value: Number(value.toFixed(3)) };
+    }).filter(Boolean) as { date: string; value: number }[];
+  }, [result, metric, win]);
 
   return (
-    <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 flex flex-col justify-between">
-      {/* 1. Header & Controls */}
-      <div className="space-y-2.5 pb-2 border-b border-[#1e293b]">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          {/* Title */}
-          <div className="flex items-center space-x-2">
-            <h2 className="text-sm font-bold text-white tracking-tight font-sans">
-              Rolling Performance Metrics
-            </h2>
-            <button
-              type="button"
-              className="text-slate-500 hover:text-slate-300 transition-colors"
-              title="Rolling risk-adjusted metrics calculated across shifting windows"
-            >
-              <Info className="w-3.5 h-3.5" />
-            </button>
+    <Card
+      title="Rolling metrics"
+      subtitle={`${win}-day window${metric === "Beta" ? ` vs ${benchmarkSymbol}` : ""}`}
+      info="Volatility and Sharpe are annualised on 252 days (Rf = 0); beta is the rolling regression slope against the benchmark."
+      icon={Activity}
+      tone="purple"
+      action={
+        <div className="flex items-center gap-2">
+          <div className="flex items-center rounded-lg border border-slate-800 bg-[#0b1222] p-0.5 text-[11px]">
+            {(["Volatility", "Sharpe", "Beta"] as Metric[]).map((m) => <button key={m} type="button" onClick={() => setMetric(m)} className={cn("rounded px-2 py-1", metric === m ? "bg-blue-600 font-semibold text-white" : "font-medium text-slate-400 hover:text-white")}>{m}</button>)}
           </div>
-
-          {/* Timeframe pills */}
-          <div className="flex items-center bg-[#0b1222] border border-[#1e293b] rounded p-0.5 text-[11px] font-mono">
-            {(["3M", "6M", "1Y", "ALL"] as const).map((tf) => (
-              <button
-                key={tf}
-                type="button"
-                onClick={() => setTimeframe(tf)}
-                className={`px-2 py-0.5 rounded transition-all ${
-                  timeframe === tf
-                    ? "bg-[#2563eb] text-white font-bold shadow-sm"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                {tf}
-              </button>
-            ))}
+          <div className="flex items-center rounded-lg border border-slate-800 bg-[#0b1222] p-0.5 font-mono text-[11px]">
+            {[30, 60, 90].map((w) => <button key={w} type="button" onClick={() => setWin(w)} className={cn("rounded px-2 py-1", win === w ? "bg-blue-600 font-semibold text-white" : "font-medium text-slate-400 hover:text-white")}>{w}d</button>)}
           </div>
         </div>
-
-        {/* Metric Selector Pills */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-          {(["Rolling Return", "Rolling Sharpe", "Rolling Volatility", "Rolling Beta"] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => setActiveMetric(m)}
-              className={`px-3 py-1 rounded text-xs font-medium transition-all ${
-                activeMetric === m
-                  ? "bg-[#2563eb] text-white font-semibold shadow-sm"
-                  : "bg-[#0b1222] text-slate-400 hover:text-slate-200 border border-[#1C2636]"
-              }`}
-            >
-              {m}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 2. Chart Area + Right Stats Panel */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 pt-3">
-        {/* Left 3 cols: Line Chart */}
-        <div className="lg:col-span-3 h-52 w-full">
+      }
+    >
+      {data.length < 2 ? (
+        <EmptyState icon={Activity} title="Window too short" hint={`Need more than ${win} trading days.`} />
+      ) : (
+        <div className="h-60">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={data}
-              margin={{ top: 8, right: 10, left: -10, bottom: 2 }}
-            >
-              <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
-              <XAxis
-                dataKey="date"
-                stroke="#475569"
-                tickLine={false}
-                tick={{ fontSize: 10, fill: "#64748b" }}
-                tickFormatter={(val: string) => {
-                  const parts = val.split("-");
-                  const mIdx = parseInt(parts[1], 10) - 1;
-                  const mNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                  if (mIdx % 2 === 0) {
-                    return `${mNames[mIdx]} ${parts[0]}`;
-                  }
-                  return "";
-                }}
-              />
-              <YAxis
-                domain={activeMetric === "Rolling Return" ? [-20, 60] : ["auto", "auto"]}
-                stroke="#475569"
-                tickLine={false}
-                tick={{ fontSize: 10, fill: "#64748b" }}
-                tickFormatter={(v: number) =>
-                  activeMetric === "Rolling Return" || activeMetric === "Rolling Volatility"
-                    ? `${v}%`
-                    : `${v}`
-                }
-              />
-              <Tooltip
-                contentStyle={TOOLTIP_STYLE}
-                formatter={(val: any, name: string) => [
-                  `${val}${stats.unit}`,
-                  name === "portfolio" ? "Portfolio" : benchmarkSymbol,
-                ]}
-                labelFormatter={(label: any) => `Date: ${label}`}
-              />
-              <Line
-                type="monotone"
-                dataKey="portfolio"
-                name="portfolio"
-                stroke="#3b82f6"
-                strokeWidth={2.2}
-                dot={false}
-                activeDot={{ r: 4, fill: "#3b82f6", stroke: "#0C1017", strokeWidth: 2 }}
-              />
-              <Line
-                type="monotone"
-                dataKey="benchmark"
-                name="benchmark"
-                stroke="#64748B"
-                strokeWidth={1.8}
-                strokeDasharray="3 3"
-                dot={false}
-                activeDot={{ r: 3, fill: "#94A3B8" }}
-              />
+            <LineChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+              <CartesianGrid {...GRID_PROPS} />
+              <XAxis dataKey="date" {...AXIS_PROPS} minTickGap={50} />
+              <YAxis {...AXIS_PROPS} tickFormatter={(v) => (metric === "Volatility" ? `${v}%` : String(v))} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any) => [metric === "Volatility" ? `${Number(v).toFixed(2)}%` : Number(v).toFixed(2), metric]} />
+              <Line type="monotone" dataKey="value" stroke="#7C3AED" strokeWidth={2} dot={false} isAnimationActive={false} />
             </LineChart>
           </ResponsiveContainer>
-
-          {/* Bottom Chart Legend */}
-          <div className="flex items-center space-x-4 pt-1 text-[11px]">
-            <div className="flex items-center space-x-1.5 text-slate-300">
-              <span className="w-3.5 h-0.5 bg-[#3b82f6] inline-block rounded" />
-              <span>Portfolio</span>
-            </div>
-            <div className="flex items-center space-x-1.5 text-slate-400">
-              <span className="w-3.5 h-0.5 border-t border-dashed border-[#64748B] inline-block" />
-              <span>{benchmarkSymbol}</span>
-            </div>
-          </div>
         </div>
-
-        {/* Right 1 col: Current (1Y) Stat Panel */}
-        <div className="bg-[#0D131D] border border-[#1e293b] rounded-lg p-3 flex flex-col justify-between self-center h-44 w-full">
-          <div>
-            <div className="text-xs font-semibold text-slate-300 mb-2">
-              Current ({timeframe})
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">Portfolio</span>
-                <span className="font-mono font-bold text-[#10B981]">
-                  {stats.portfolio}
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">{benchmarkSymbol}</span>
-                <span className="font-mono font-semibold text-slate-200">
-                  {stats.benchmark}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-2 border-t border-[#1C2636]">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400 text-[11px]">{stats.label}</span>
-              <span className="font-mono font-bold text-[#10B981]">
-                {stats.diff}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+      )}
+    </Card>
   );
 }

@@ -29,7 +29,10 @@ export function fmtMoney(v: number | null | undefined, c: CurrencyCode, compact 
   const sym = CURRENCY_SYMBOL[c];
   if (compact) {
     const a = Math.abs(v);
-    const s = a >= 1e7 && c === "INR" ? `${(a / 1e7).toFixed(2)}Cr` : a >= 1e6 ? `${(a / 1e6).toFixed(2)}M` : a >= 1e3 ? `${(a / 1e3).toFixed(0)}k` : a.toFixed(0);
+    const s =
+      c === "INR"
+        ? a >= 1e7 ? `${(a / 1e7).toFixed(2)}Cr` : a >= 1e5 ? `${(a / 1e5).toFixed(1)}L` : a >= 1e3 ? `${(a / 1e3).toFixed(0)}k` : a.toFixed(0)
+        : a >= 1e6 ? `${(a / 1e6).toFixed(2)}M` : a >= 1e3 ? `${(a / 1e3).toFixed(0)}k` : a.toFixed(0);
     return `${v < 0 ? "-" : ""}${sym}${s}`;
   }
   return `${v < 0 ? "-" : ""}${sym}${Math.abs(v).toLocaleString(c === "INR" ? "en-IN" : "en-US", { maximumFractionDigits: 0 })}`;

@@ -111,3 +111,28 @@ def test_api_report_export_handles_missing_risk():
     response = client.get(f"/backtests/{bt['id']}/export/report")
     assert response.status_code == 200
     assert "—" in response.text
+
+
+def test_fetch_ohlcv_tries_sibling_exchange_listing(monkeypatch):
+    """Universe maps some names to an exchange with no history (HDFCBANK.BO); .NS must be tried next."""
+    import pandas as pd
+    import backend.engine.data as data_mod
+    from backend.engine.data import MarketDataEngine
+
+    seen = []
+    idx = pd.bdate_range("2023-01-02", periods=40)
+    frame = pd.DataFrame({"Open": 1.0, "High": 2.0, "Low": 0.5, "Close": 1.5, "Volume": 10}, index=idx)
+
+    class FakeTicker:
+        def __init__(self, sym):
+            self.sym = sym
+
+        def history(self, **_kw):
+            seen.append(self.sym)
+            return frame if self.sym.endswith(".NS") else pd.DataFrame()
+
+    monkeypatch.setattr(data_mod.yf, "Ticker", FakeTicker)
+    monkeypatch.setattr(data_mod.universe_manager, "get_stock", lambda _t: {"yf_symbol": "ZZTEST.BO"})
+    df, synthetic = MarketDataEngine(use_cache=False).fetch_ohlcv("ZZTEST", "2023-01-02", "2023-02-27")
+    assert seen[:2] == ["ZZTEST.BO", "ZZTEST.NS"]
+    assert not synthetic and len(df) >= 5

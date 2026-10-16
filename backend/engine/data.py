@@ -121,7 +121,10 @@ class MarketDataEngine:
                 logger.warning(f"Cache read failed for {ticker}: {e}")
 
         # 2. Fetch from yfinance using resolved symbol
-        for candidate_sym in [yf_sym, ticker]:
+        # The universe sometimes maps a name to an exchange with no history (e.g. HDFCBANK.BO);
+        # try the sibling NSE/BSE listing before giving up.
+        swapped = (yf_sym[:-3] + (".NS" if yf_sym.endswith(".BO") else ".BO")) if yf_sym.endswith((".NS", ".BO")) else None
+        for candidate_sym in dict.fromkeys(c for c in [yf_sym, swapped, ticker] if c):
             try:
                 s_dt = (pd.to_datetime(start_date) - pd.Timedelta(days=5)).strftime("%Y-%m-%d")
                 e_dt = (pd.to_datetime(end_date) + pd.Timedelta(days=2)).strftime("%Y-%m-%d")

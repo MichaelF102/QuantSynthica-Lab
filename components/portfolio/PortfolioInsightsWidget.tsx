@@ -1,152 +1,33 @@
 "use client";
 
 import React from "react";
-import {
-  TrendingUp,
-  ShieldAlert,
-  AlertTriangle,
-  RotateCw,
-  Compass,
-} from "lucide-react";
+import { Lightbulb, ShieldAlert, TrendingUp, Network, Target } from "lucide-react";
+import { Card } from "@/components/ui/Card";
+import { fmtPct } from "@/lib/utils";
+import { PortfolioResult, riskModel } from "@/lib/portfolio/engine";
 
-export default function PortfolioInsightsWidget() {
-  const insights = [
-    {
-      title: "Well Diversified",
-      desc: "Portfolio correlation is 0.41, indicating good diversification.",
-      icon: TrendingUp,
-      iconColor: "text-[#10B981]",
-      bgColor: "bg-[#064E3B]/20",
-      borderColor: "border-[#065F46]/40",
-    },
-    {
-      title: "High NVDA Risk Contribution",
-      desc: "NVDA contributes 34.7% of total portfolio risk.",
-      icon: ShieldAlert,
-      iconColor: "text-[#F43F5E]",
-      bgColor: "bg-[#7F1D1D]/20",
-      borderColor: "border-[#991B1B]/40",
-    },
-    {
-      title: "Tail Risk Elevated",
-      desc: "5% 1Y Monte Carlo loss is -33.2%. Consider protective strategies.",
-      icon: AlertTriangle,
-      iconColor: "text-[#F59E0B]",
-      bgColor: "bg-[#78350F]/20",
-      borderColor: "border-[#92400E]/40",
-    },
-    {
-      title: "Rebalancing Improves Stability",
-      desc: "Monthly rebalancing improves Sharpe by 18.7% vs no rebalancing.",
-      icon: RotateCw,
-      iconColor: "text-[#3b82f6]",
-      bgColor: "bg-[#075985]/20",
-      borderColor: "border-[#2563eb]/40",
-    },
+export default function PortfolioInsightsWidget({ result, benchmarkName }: { result: PortfolioResult; benchmarkName: string }) {
+  const s = result.stats;
+  const m = riskModel(result);
+  const topRisk = m.assets.map((a, i) => ({ ...a, rc: m.rc[i] })).sort((a, b) => b.rc - a.rc)[0];
+  const off = m.corr.flatMap((r, i) => r.filter((_, j) => j > i));
+  const avg = off.length ? off.reduce((a, b) => a + b, 0) / off.length : null;
+  const items = [
+    { icon: TrendingUp, tone: "text-emerald-400", title: "Versus benchmark", text: s ? `Returned ${fmtPct(s.totalReturn)} against ${fmtPct(s.benchReturn)} for ${benchmarkName}; annualised alpha ${fmtPct(s.alpha)}.` : "—" },
+    { icon: ShieldAlert, tone: "text-rose-400", title: "Drawdown", text: s ? `Max drawdown ${fmtPct(-s.maxDD)} (benchmark ${fmtPct(-s.benchMaxDD)}); longest stretch below peak ${s.ddDuration} trading days.` : "—" },
+    { icon: Target, tone: "text-amber-400", title: "Risk concentration", text: topRisk ? `${topRisk.ticker} carries ${fmtPct(topRisk.rc, 1, false)} of portfolio variance on a ${fmtPct(topRisk.weight, 1, false)} weight.` : "—" },
+    { icon: Network, tone: "text-blue-400", title: "Diversification", text: avg === null ? "A single holding has no diversification." : `Average pairwise correlation ${avg.toFixed(2)}${avg > 0.6 ? ": holdings largely move together." : avg < 0.3 ? ": well diversified." : "."}` },
   ];
-
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch">
-      {/* 1. Left: Key Risk Insights 4-Card Strip (8 cols) */}
-      <div className="lg:col-span-8 bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 flex flex-col justify-between">
-        <div className="flex items-center space-x-2 pb-2 border-b border-[#1e293b]">
-          <Compass className="w-4 h-4 text-[#3b82f6]" />
-          <h2 className="text-sm font-bold text-white tracking-tight font-sans">
-            Key Risk Insights
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2.5 pt-2.5">
-          {insights.map((card) => {
-            const Icon = card.icon;
-            return (
-              <div
-                key={card.title}
-                className={`p-2.5 rounded-lg border flex flex-col justify-between space-y-2 hover:border-[#3b82f6]/40 transition-colors ${card.bgColor} ${card.borderColor}`}
-              >
-                <div className="flex items-center space-x-2">
-                  <div className="p-1 rounded bg-[#080d1a]/80 shrink-0">
-                    <Icon className={`w-3.5 h-3.5 ${card.iconColor}`} />
-                  </div>
-                  <span className="text-[11px] font-bold text-slate-100 font-sans leading-tight">
-                    {card.title}
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed font-sans">
-                  {card.desc}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 2. Right: Portfolio Risk Summary (4 cols) */}
-      <div className="lg:col-span-4 bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 flex flex-col justify-between">
-        <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
-          <h2 className="text-sm font-bold text-white tracking-tight font-sans">
-            Portfolio Risk Summary
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 pt-2 text-xs">
-          {/* Col 1 */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400 text-[11px]">Overall Risk Level</span>
-              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#F59E0B]/20 text-[#F59E0B] border border-[#F59E0B]/40">
-                MODERATE
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400 text-[11px]">Diversification Score</span>
-              <span className="font-mono font-bold text-slate-200">3.7 / 5</span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400 text-[11px]">Tail Risk (CVaR 95%)</span>
-              <span className="font-mono font-bold text-[#F43F5E]">-41.7%</span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400 text-[11px]">Risk of Ruin (1Y)</span>
-              <span className="font-mono font-bold text-[#F43F5E]">8.1%</span>
-            </div>
+    <Card title="Key insights" subtitle="Generated from the computed numbers" info="Plain-language read-outs of the portfolio statistics above; no external model is used." icon={Lightbulb} tone="amber">
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+        {items.map(({ icon: Icon, tone, title, text }) => (
+          <div key={title} className="space-y-1 rounded-xl border border-slate-800 bg-[#080d1a]/60 p-3">
+            <div className="flex items-center gap-2"><Icon className={`h-4 w-4 ${tone}`} /><span className="text-[11px] font-semibold text-white">{title}</span></div>
+            <p className="text-[11px] leading-relaxed text-slate-400">{text}</p>
           </div>
-
-          {/* Col 2 */}
-          <div className="space-y-1.5 border-l border-[#1e293b] pl-3">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400 text-[11px]">Largest Risk Contributor</span>
-              <span className="font-mono font-bold text-slate-200 truncate ml-1 text-right">
-                NVDA (34.7%)
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400 text-[11px]">Highest Correlation</span>
-              <span className="font-mono font-bold text-slate-200 truncate ml-1 text-right">
-                AAPL ↔ SPY (0.84)
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400 text-[11px]">Best Performing Asset</span>
-              <span className="font-mono font-bold text-[#10B981] truncate ml-1 text-right">
-                NVDA (+34.2%)
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400 text-[11px]">Worst Performing Asset</span>
-              <span className="font-mono font-bold text-[#F43F5E] truncate ml-1 text-right">
-                TLT (-6.8%)
-              </span>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
-    </div>
+    </Card>
   );
 }

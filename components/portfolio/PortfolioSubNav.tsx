@@ -1,15 +1,8 @@
 "use client";
 
 import React from "react";
-import {
-  BarChart3,
-  TrendingUp,
-  ShieldAlert,
-  PieChart,
-  Network,
-  Flame,
-  Layers,
-} from "lucide-react";
+import { BarChart3, TrendingUp, ShieldAlert, PieChart, Network, Flame, Layers } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export type PortfolioTab =
   | "Overview"
@@ -25,45 +18,40 @@ interface PortfolioSubNavProps {
   onTabChange: (tab: PortfolioTab) => void;
 }
 
-const TABS: { id: PortfolioTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { id: "Overview", label: "Overview", icon: BarChart3 },
-  { id: "Performance", label: "Performance", icon: TrendingUp },
-  { id: "Risk Metrics", label: "Risk Metrics", icon: ShieldAlert },
-  { id: "Allocation", label: "Allocation", icon: PieChart },
-  { id: "Correlation", label: "Correlation", icon: Network },
-  { id: "Stress Test", label: "Stress Test", icon: Flame },
-  { id: "Scenario Analysis", label: "Scenario Analysis", icon: Layers },
+export const PORTFOLIO_TABS: { key: PortfolioTab; icon: React.ComponentType<{ className?: string }> }[] = [
+  { key: "Overview", icon: BarChart3 },
+  { key: "Performance", icon: TrendingUp },
+  { key: "Risk Metrics", icon: ShieldAlert },
+  { key: "Allocation", icon: PieChart },
+  { key: "Correlation", icon: Network },
+  { key: "Stress Test", icon: Flame },
+  { key: "Scenario Analysis", icon: Layers },
 ];
 
-export default function PortfolioSubNav({
-  activeTab,
-  onTabChange,
-}: PortfolioSubNavProps) {
+/** DESIGN.md 7.3 pill tab track; the active tab is mirrored in `?tab=` by the page. */
+export default function PortfolioSubNav({ activeTab, onTabChange }: PortfolioSubNavProps) {
   return (
-    <div className="flex items-center space-x-1 border-b border-[#1e293b] pb-2 overflow-x-auto scrollbar-none">
-      {TABS.map((tab) => {
-        const Icon = tab.icon;
-        const isActive = activeTab === tab.id;
-        return (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => onTabChange(tab.id)}
-            className={`flex items-center space-x-2 px-3.5 py-1.5 rounded text-xs font-medium transition-all whitespace-nowrap ${
-              isActive
-                ? "bg-[#141E2C] text-white border border-[#23354E] shadow-sm font-semibold"
-                : "text-slate-400 hover:text-slate-200 hover:bg-[#0E1520] border border-transparent"
-            }`}
-          >
-            <Icon
-              className={`w-3.5 h-3.5 ${
-                isActive ? "text-[#3b82f6]" : "text-slate-500"
-              }`}
-            />
-            <span>{tab.label}</span>
-          </button>
-        );
-      })}
+    <div className="no-scrollbar w-full overflow-x-auto py-2">
+      <nav className="flex min-w-max items-center gap-1.5 rounded-xl border border-slate-800/80 bg-[#0b1120]/80 p-1 backdrop-blur-md" aria-label="Portfolio sections">
+        {PORTFOLIO_TABS.map(({ key, icon: Icon }) => {
+          const active = activeTab === key;
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => onTabChange(key)}
+              aria-current={active ? "page" : undefined}
+              className={cn(
+                "flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500/70",
+                active ? "bg-blue-600 font-semibold text-white shadow-lg shadow-blue-600/30" : "font-medium text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+              )}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {key}
+            </button>
+          );
+        })}
+      </nav>
     </div>
   );
 }
