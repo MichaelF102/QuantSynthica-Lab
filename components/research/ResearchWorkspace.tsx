@@ -472,7 +472,7 @@ export default function ResearchWorkspace() {
     const rsi = latestBar.rsi_14 ?? 50;
 
     let trend = "CONSOLIDATION / NEUTRAL";
-    let trendColor = "text-[#D8DCE2]";
+    let trendColor = "text-[#cbd5e1]";
     const distSma50 = sma50 ? ((close - sma50) / sma50) * 100 : 0;
 
     if (sma50 && close > sma50) {
@@ -484,10 +484,10 @@ export default function ResearchWorkspace() {
     }
 
     let volRegime = "MODERATE";
-    let volColor = "text-[#D8DCE2]";
+    let volColor = "text-[#cbd5e1]";
     if (vol < 16) {
       volRegime = "LOW VOLATILITY";
-      volColor = "text-[#38BDF8]";
+      volColor = "text-[#3b82f6]";
     } else if (vol > 28) {
       volRegime = "HIGH VOLATILITY";
       volColor = "text-[#F59E0B]";
@@ -517,7 +517,7 @@ export default function ResearchWorkspace() {
     <div className="flex min-h-[calc(100vh-6.5rem)] flex-col text-slate-200">
       {/* Toast Notification */}
       {watchlistToast && (
-        <div className="fixed top-2 right-4 z-50 bg-[#101318] border border-[#FF9900] px-3 py-1 text-xs text-[#FF9900]">
+        <div className="fixed top-2 right-4 z-50 bg-[#0b1222] border border-[#f59e0b] px-3 py-1 text-xs text-[#f59e0b]">
           {watchlistToast}
         </div>
       )}
@@ -562,9 +562,9 @@ export default function ResearchWorkspace() {
       {/* ========================================================
           MAIN WORKSTATION BODY
           ======================================================== */}
-      <div className="flex-1 max-w-[1720px] w-full mx-auto p-3 space-y-3">
+      <div className="app-container flex-1 py-6 space-y-4">
         {loading ? (
-          <div className="py-24 text-center text-xs text-[#89919C]">
+          <div className="py-24 text-center text-xs text-[#94a3b8]">
             Loading Data For {ticker}...
           </div>
         ) : error ? (
@@ -625,34 +625,34 @@ export default function ResearchWorkspace() {
                 {/* Analytical Spread: Trailing Returns & Benchmark Relative */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   {/* [9] Trailing Returns */}
-                  <div className="border border-[#252A31] bg-[#0B0D10]">
-                    <div className="px-3 py-1 border-b border-[#252A31] bg-[#0E1117] flex items-center justify-between text-[11px]">
-                      <span className="font-bold text-[#FF9900]">
+                  <div className="border border-[#1e293b] bg-[#080d1a]">
+                    <div className="px-3 py-1 border-b border-[#1e293b] bg-[#0E1117] flex items-center justify-between text-[11px]">
+                      <span className="font-bold text-[#f59e0b]">
                         [9] Trailing Returns vs {benchmark} | COMP ▾
                       </span>
-                      <span className="text-[#59616B]">Compounded Windows</span>
+                      <span className="text-[#64748b]">Compounded Windows</span>
                     </div>
 
                     <table className="w-full text-left text-xs">
                       <thead>
-                        <tr className="border-b border-[#252A31] text-[10px] text-[#59616B] bg-[#07090C]">
+                        <tr className="border-b border-[#1e293b] text-[10px] text-[#64748b] bg-[#080d1a]">
                           <th className="py-1 px-3 font-semibold">WINDOW</th>
                           <th className="py-1 px-3 text-right font-semibold">{ticker}</th>
                           <th className="py-1 px-3 text-right font-semibold">{benchmark}</th>
                           <th className="py-1 px-3 text-right font-semibold">EXCESS</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#252A31]/50">
+                      <tbody className="divide-y divide-[#1e293b]/50">
                         {performanceRows.map((row) => (
-                          <tr key={row.period} className="hover:bg-[#10141C]">
-                            <td className="py-1 px-3 text-[#D8DCE2] font-bold">{row.period}</td>
+                          <tr key={row.period} className="hover:bg-[#0b1222]">
+                            <td className="py-1 px-3 text-[#cbd5e1] font-bold">{row.period}</td>
                             <td
                               className={`py-1 px-3 text-right font-bold tabular-nums ${row.securityReturn >= 0 ? "text-[#10B981]" : "text-[#EF4444]"
                                 }`}
                             >
                               {row.securityReturn >= 0 ? "+" : ""}{row.securityReturn.toFixed(2)}%
                             </td>
-                            <td className="py-1 px-3 text-right text-[#89919C] tabular-nums">
+                            <td className="py-1 px-3 text-right text-[#94a3b8] tabular-nums">
                               {row.benchmarkReturn >= 0 ? "+" : ""}{row.benchmarkReturn.toFixed(2)}%
                             </td>
                             <td
@@ -668,21 +668,21 @@ export default function ResearchWorkspace() {
                   </div>
 
                   {/* Relative Benchmark Metrics */}
-                  <div className="border border-[#252A31] bg-[#0B0D10]">
-                    <div className="px-3 py-1 border-b border-[#252A31] bg-[#0E1117] flex items-center justify-between text-[11px]">
-                      <span className="font-bold text-[#FF9900]">
+                  <div className="border border-[#1e293b] bg-[#080d1a]">
+                    <div className="px-3 py-1 border-b border-[#1e293b] bg-[#0E1117] flex items-center justify-between text-[11px]">
+                      <span className="font-bold text-[#f59e0b]">
                         Security vs Benchmark Metrics
                       </span>
-                      <span className="text-[#59616B]">{startDate} to {endDate}</span>
+                      <span className="text-[#64748b]">{startDate} to {endDate}</span>
                     </div>
 
                     <div className="p-3 space-y-2 text-xs">
-                      <div className="flex items-center justify-between pb-1 border-b border-[#252A31]/60">
-                        <span className="text-[#89919C]">Total Return Spread</span>
+                      <div className="flex items-center justify-between pb-1 border-b border-[#1e293b]/60">
+                        <span className="text-[#94a3b8]">Total Return Spread</span>
                         <div>
                           <span className="text-white font-bold">{ticker}: {summary.total_return.toFixed(2)}%</span>
-                          <span className="text-[#59616B] mx-2">vs</span>
-                          <span className="text-[#D8DCE2]">
+                          <span className="text-[#64748b] mx-2">vs</span>
+                          <span className="text-[#cbd5e1]">
                             {benchmarkData?.summary?.total_return
                               ? `${benchmarkData.summary.total_return.toFixed(2)}%`
                               : "N/A"}
@@ -690,12 +690,12 @@ export default function ResearchWorkspace() {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between pb-1 border-b border-[#252A31]/60">
-                        <span className="text-[#89919C]">Annualized Volatility</span>
+                      <div className="flex items-center justify-between pb-1 border-b border-[#1e293b]/60">
+                        <span className="text-[#94a3b8]">Annualized Volatility</span>
                         <div>
                           <span className="text-white font-bold">{summary.annualized_volatility.toFixed(1)}%</span>
-                          <span className="text-[#59616B] mx-2">vs</span>
-                          <span className="text-[#D8DCE2]">
+                          <span className="text-[#64748b] mx-2">vs</span>
+                          <span className="text-[#cbd5e1]">
                             {benchmarkData?.summary?.annualized_volatility
                               ? `${benchmarkData.summary.annualized_volatility.toFixed(1)}%`
                               : "N/A"}
@@ -703,18 +703,18 @@ export default function ResearchWorkspace() {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between pb-1 border-b border-[#252A31]/60">
-                        <span className="text-[#89919C]">Beta to {benchmark}</span>
-                        <span className="text-white font-bold">{summary.beta.toFixed(2)}</span>
+                      <div className="flex items-center justify-between pb-1 border-b border-[#1e293b]/60">
+                        <span className="text-[#94a3b8]">Beta to {benchmark}</span>
+                        <span className="text-white font-bold">{summary.beta?.toFixed(2) ?? "—"}</span>
                       </div>
 
-                      <div className="flex items-center justify-between pb-1 border-b border-[#252A31]/60">
-                        <span className="text-[#89919C]">Correlation (Pearson r)</span>
-                        <span className="text-white font-bold">{summary.correlation.toFixed(2)}</span>
+                      <div className="flex items-center justify-between pb-1 border-b border-[#1e293b]/60">
+                        <span className="text-[#94a3b8]">Correlation (Pearson r)</span>
+                        <span className="text-white font-bold">{summary.correlation?.toFixed(2) ?? "—"}</span>
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <span className="text-[#89919C]">Excess Return (Alpha Proxy)</span>
+                        <span className="text-[#94a3b8]">Excess Return (Alpha Proxy)</span>
                         <span
                           className={`font-bold ${summary.total_return - (benchmarkData?.summary?.total_return || 0) >= 0
                               ? "text-[#10B981]"
@@ -772,51 +772,51 @@ export default function ResearchWorkspace() {
                 />
 
                 {/* Technical Matrix */}
-                <div className="border border-[#252A31] bg-[#0B0D10]">
-                  <div className="px-3 py-1 border-b border-[#252A31] bg-[#0E1117] flex items-center justify-between text-[11px]">
-                    <span className="font-bold text-[#FF9900]">
+                <div className="border border-[#1e293b] bg-[#080d1a]">
+                  <div className="px-3 py-1 border-b border-[#1e293b] bg-[#0E1117] flex items-center justify-between text-[11px]">
+                    <span className="font-bold text-[#f59e0b]">
                       Technical Indicator Signal Matrix
                     </span>
-                    <span className="text-[#59616B]">Latest Bar Readout</span>
+                    <span className="text-[#64748b]">Latest Bar Readout</span>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-[#252A31] text-xs">
+                  <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-[#1e293b] text-xs">
                     <div className="p-3">
-                      <span className="text-[10px] text-[#59616B] block">SMA 20</span>
+                      <span className="text-[10px] text-[#64748b] block">SMA 20</span>
                       <span className="text-sm font-bold text-[#F59E0B]">
                         {latestBar?.sma_20 ? latestBar.sma_20.toFixed(2) : "--"}
                       </span>
-                      <span className="text-[10px] text-[#89919C] block mt-0.5">
+                      <span className="text-[10px] text-[#94a3b8] block mt-0.5">
                         {latestBar?.sma_20 ? `${(((lastPrice - latestBar.sma_20) / latestBar.sma_20) * 100).toFixed(2)}% vs Price` : "--"}
                       </span>
                     </div>
 
                     <div className="p-3">
-                      <span className="text-[10px] text-[#59616B] block">SMA 50</span>
+                      <span className="text-[10px] text-[#64748b] block">SMA 50</span>
                       <span className="text-sm font-bold text-[#3B82F6]">
                         {latestBar?.sma_50 ? latestBar.sma_50.toFixed(2) : "--"}
                       </span>
-                      <span className="text-[10px] text-[#89919C] block mt-0.5">
+                      <span className="text-[10px] text-[#94a3b8] block mt-0.5">
                         {latestBar?.sma_50 ? `${(((lastPrice - latestBar.sma_50) / latestBar.sma_50) * 100).toFixed(2)}% vs Price` : "--"}
                       </span>
                     </div>
 
                     <div className="p-3">
-                      <span className="text-[10px] text-[#59616B] block">EMA 20</span>
+                      <span className="text-[10px] text-[#64748b] block">EMA 20</span>
                       <span className="text-sm font-bold text-[#A855F7]">
                         {latestBar?.ema_20 ? latestBar.ema_20.toFixed(2) : "--"}
                       </span>
-                      <span className="text-[10px] text-[#89919C] block mt-0.5">
+                      <span className="text-[10px] text-[#94a3b8] block mt-0.5">
                         {latestBar?.ema_20 ? `${(((lastPrice - latestBar.ema_20) / latestBar.ema_20) * 100).toFixed(2)}% vs Price` : "--"}
                       </span>
                     </div>
 
                     <div className="p-3">
-                      <span className="text-[10px] text-[#59616B] block">VWAP</span>
+                      <span className="text-[10px] text-[#64748b] block">VWAP</span>
                       <span className="text-sm font-bold text-[#06B6D4]">
                         {latestBar?.vwap ? latestBar.vwap.toFixed(2) : "--"}
                       </span>
-                      <span className="text-[10px] text-[#89919C] block mt-0.5">
+                      <span className="text-[10px] text-[#94a3b8] block mt-0.5">
                         {latestBar?.vwap ? `${(((lastPrice - latestBar.vwap) / latestBar.vwap) * 100).toFixed(2)}% vs Price` : "--"}
                       </span>
                     </div>
@@ -830,52 +830,52 @@ export default function ResearchWorkspace() {
                 -------------------------------------------------------- */}
             {activeTab === "risk" && (
               <div className="space-y-3">
-                <div className="grid grid-cols-2 sm:grid-cols-5 border border-[#252A31] divide-x divide-[#252A31] bg-[#0B0D10] text-xs">
+                <div className="grid grid-cols-2 sm:grid-cols-5 border border-[#1e293b] divide-x divide-[#1e293b] bg-[#080d1a] text-xs">
                   <div className="p-3">
-                    <span className="text-[10px] text-[#59616B] block">ANN. VOL</span>
+                    <span className="text-[10px] text-[#64748b] block">ANN. VOL</span>
                     <span className="text-base font-bold text-white tabular-nums mt-0.5 block">
                       {summary.annualized_volatility.toFixed(2)}%
                     </span>
-                    <span className="text-[9px] text-[#59616B]">Daily std &times; &radic;252</span>
+                    <span className="text-[9px] text-[#64748b]">Daily std &times; &radic;252</span>
                   </div>
 
                   <div className="p-3">
-                    <span className="text-[10px] text-[#59616B] block">MAX DRAWDOWN</span>
+                    <span className="text-[10px] text-[#64748b] block">MAX DRAWDOWN</span>
                     <span className="text-base font-bold text-[#EF4444] tabular-nums mt-0.5 block">
                       -{summary.max_drawdown.toFixed(2)}%
                     </span>
-                    <span className="text-[9px] text-[#59616B]">Peak-to-trough</span>
+                    <span className="text-[9px] text-[#64748b]">Peak-to-trough</span>
                   </div>
 
                   <div className="p-3">
-                    <span className="text-[10px] text-[#59616B] block">SHARPE PROXY</span>
+                    <span className="text-[10px] text-[#64748b] block">SHARPE PROXY</span>
                     <span className="text-base font-bold text-white tabular-nums mt-0.5 block">
                       {((summary.total_return - 3.5) / (summary.annualized_volatility || 1)).toFixed(2)}
                     </span>
-                    <span className="text-[9px] text-[#59616B]">(Ret - 3.5%) / Vol</span>
+                    <span className="text-[9px] text-[#64748b]">(Ret - 3.5%) / Vol</span>
                   </div>
 
                   <div className="p-3">
-                    <span className="text-[10px] text-[#59616B] block">BETA ({benchmark})</span>
+                    <span className="text-[10px] text-[#64748b] block">BETA ({benchmark})</span>
                     <span className="text-base font-bold text-white tabular-nums mt-0.5 block">
-                      {summary.beta.toFixed(2)}
+                      {summary.beta?.toFixed(2) ?? "—"}
                     </span>
-                    <span className="text-[9px] text-[#59616B]">Cov / Bench Var</span>
+                    <span className="text-[9px] text-[#64748b]">Cov / Bench Var</span>
                   </div>
 
                   <div className="p-3">
-                    <span className="text-[10px] text-[#59616B] block">CORRELATION</span>
+                    <span className="text-[10px] text-[#64748b] block">CORRELATION</span>
                     <span className="text-base font-bold text-white tabular-nums mt-0.5 block">
-                      {summary.correlation.toFixed(2)}
+                      {summary.correlation?.toFixed(2) ?? "—"}
                     </span>
-                    <span className="text-[9px] text-[#59616B]">Pearson coeff</span>
+                    <span className="text-[9px] text-[#64748b]">Pearson coeff</span>
                   </div>
                 </div>
 
                 {drawdownMeta && (
-                  <div className="border border-[#252A31] bg-[#0B0D10]">
-                    <div className="px-3 py-1 border-b border-[#252A31] bg-[#0E1117] flex items-center justify-between text-[11px]">
-                      <span className="font-bold text-[#FF9900]">
+                  <div className="border border-[#1e293b] bg-[#080d1a]">
+                    <div className="px-3 py-1 border-b border-[#1e293b] bg-[#0E1117] flex items-center justify-between text-[11px]">
+                      <span className="font-bold text-[#f59e0b]">
                         Underwater Drawdown Profile
                       </span>
                       <span className="text-[#EF4444] font-bold">
@@ -900,22 +900,22 @@ export default function ResearchWorkspace() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-4 border-t border-[#252A31] divide-x divide-[#252A31] text-xs text-center bg-[#07090C]">
+                    <div className="grid grid-cols-4 border-t border-[#1e293b] divide-x divide-[#1e293b] text-xs text-center bg-[#080d1a]">
                       <div className="py-2">
-                        <span className="text-[10px] text-[#59616B] block">PEAK DATE</span>
-                        <span className="text-[#D8DCE2] font-semibold">{drawdownMeta.peakDate}</span>
+                        <span className="text-[10px] text-[#64748b] block">PEAK DATE</span>
+                        <span className="text-[#cbd5e1] font-semibold">{drawdownMeta.peakDate}</span>
                       </div>
                       <div className="py-2">
-                        <span className="text-[10px] text-[#59616B] block">TROUGH DATE</span>
+                        <span className="text-[10px] text-[#64748b] block">TROUGH DATE</span>
                         <span className="text-[#EF4444] font-semibold">{drawdownMeta.troughDate}</span>
                       </div>
                       <div className="py-2">
-                        <span className="text-[10px] text-[#59616B] block">RECOVERY DATE</span>
-                        <span className="text-[#D8DCE2] font-semibold">{drawdownMeta.recoveryDate}</span>
+                        <span className="text-[10px] text-[#64748b] block">RECOVERY DATE</span>
+                        <span className="text-[#cbd5e1] font-semibold">{drawdownMeta.recoveryDate}</span>
                       </div>
                       <div className="py-2">
-                        <span className="text-[10px] text-[#59616B] block">DURATION</span>
-                        <span className="text-[#D8DCE2] font-semibold">{drawdownMeta.drawdownDuration} BARS</span>
+                        <span className="text-[10px] text-[#64748b] block">DURATION</span>
+                        <span className="text-[#cbd5e1] font-semibold">{drawdownMeta.drawdownDuration} BARS</span>
                       </div>
                     </div>
                   </div>
@@ -938,39 +938,39 @@ export default function ResearchWorkspace() {
                 TAB 5: FACTORS
                 -------------------------------------------------------- */}
             {activeTab === "factors" && (
-              <div className="border border-[#252A31] bg-[#0B0D10]">
-                <div className="px-3 py-1 border-b border-[#252A31] bg-[#0E1117] flex items-center justify-between text-[11px]">
-                  <span className="font-bold text-[#FF9900]">
+              <div className="border border-[#1e293b] bg-[#080d1a]">
+                <div className="px-3 py-1 border-b border-[#1e293b] bg-[#0E1117] flex items-center justify-between text-[11px]">
+                  <span className="font-bold text-[#f59e0b]">
                     Quantitative Feature Matrix
                   </span>
-                  <span className="text-[#59616B]">Signal Extractors</span>
+                  <span className="text-[#64748b]">Signal Extractors</span>
                 </div>
 
                 <div className="p-3 space-y-3 text-xs">
                   <div>
-                    <span className="text-[10px] text-[#38BDF8] font-bold uppercase tracking-wider block mb-1">
+                    <span className="text-[10px] text-[#3b82f6] font-bold uppercase tracking-wider block mb-1">
                       TREND FEATURES
                     </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 border border-[#252A31] divide-y sm:divide-y-0 sm:divide-x divide-[#252A31] bg-[#07090C]">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 border border-[#1e293b] divide-y sm:divide-y-0 sm:divide-x divide-[#1e293b] bg-[#080d1a]">
                       <div className="p-2">
-                        <span className="text-[10px] text-[#59616B] block">SMA 20</span>
+                        <span className="text-[10px] text-[#64748b] block">SMA 20</span>
                         <div className="flex justify-between mt-0.5">
                           <span className="text-white font-bold">{latestBar?.sma_20 ? latestBar.sma_20.toFixed(2) : "--"}</span>
-                          <span className="text-[#89919C]">{latestBar?.sma_20 ? `${(((lastPrice - latestBar.sma_20) / latestBar.sma_20) * 100).toFixed(2)}%` : "--"}</span>
+                          <span className="text-[#94a3b8]">{latestBar?.sma_20 ? `${(((lastPrice - latestBar.sma_20) / latestBar.sma_20) * 100).toFixed(2)}%` : "--"}</span>
                         </div>
                       </div>
                       <div className="p-2">
-                        <span className="text-[10px] text-[#59616B] block">SMA 50</span>
+                        <span className="text-[10px] text-[#64748b] block">SMA 50</span>
                         <div className="flex justify-between mt-0.5">
                           <span className="text-white font-bold">{latestBar?.sma_50 ? latestBar.sma_50.toFixed(2) : "--"}</span>
-                          <span className="text-[#89919C]">{latestBar?.sma_50 ? `${(((lastPrice - latestBar.sma_50) / latestBar.sma_50) * 100).toFixed(2)}%` : "--"}</span>
+                          <span className="text-[#94a3b8]">{latestBar?.sma_50 ? `${(((lastPrice - latestBar.sma_50) / latestBar.sma_50) * 100).toFixed(2)}%` : "--"}</span>
                         </div>
                       </div>
                       <div className="p-2">
-                        <span className="text-[10px] text-[#59616B] block">EMA 20</span>
+                        <span className="text-[10px] text-[#64748b] block">EMA 20</span>
                         <div className="flex justify-between mt-0.5">
                           <span className="text-white font-bold">{latestBar?.ema_20 ? latestBar.ema_20.toFixed(2) : "--"}</span>
-                          <span className="text-[#89919C]">{latestBar?.ema_20 ? `${(((lastPrice - latestBar.ema_20) / latestBar.ema_20) * 100).toFixed(2)}%` : "--"}</span>
+                          <span className="text-[#94a3b8]">{latestBar?.ema_20 ? `${(((lastPrice - latestBar.ema_20) / latestBar.ema_20) * 100).toFixed(2)}%` : "--"}</span>
                         </div>
                       </div>
                     </div>
@@ -980,18 +980,18 @@ export default function ResearchWorkspace() {
                     <span className="text-[10px] text-[#F59E0B] font-bold uppercase tracking-wider block mb-1">
                       MOMENTUM FEATURES
                     </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 border border-[#252A31] divide-y sm:divide-y-0 sm:divide-x divide-[#252A31] bg-[#07090C]">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 border border-[#1e293b] divide-y sm:divide-y-0 sm:divide-x divide-[#1e293b] bg-[#080d1a]">
                       <div className="p-2">
-                        <span className="text-[10px] text-[#59616B] block">RSI (14)</span>
+                        <span className="text-[10px] text-[#64748b] block">RSI (14)</span>
                         <div className="flex justify-between mt-0.5">
                           <span className="text-white font-bold">{latestBar?.rsi_14 ? latestBar.rsi_14.toFixed(2) : "--"}</span>
-                          <span className={latestBar?.rsi_14! > 70 ? "text-[#EF4444]" : latestBar?.rsi_14! < 30 ? "text-[#10B981]" : "text-[#89919C]"}>
+                          <span className={latestBar?.rsi_14! > 70 ? "text-[#EF4444]" : latestBar?.rsi_14! < 30 ? "text-[#10B981]" : "text-[#94a3b8]"}>
                             {latestBar?.rsi_14! > 70 ? "OB" : latestBar?.rsi_14! < 30 ? "OS" : "NEUTRAL"}
                           </span>
                         </div>
                       </div>
                       <div className="p-2">
-                        <span className="text-[10px] text-[#59616B] block">MACD HISTOGRAM</span>
+                        <span className="text-[10px] text-[#64748b] block">MACD HISTOGRAM</span>
                         <div className="flex justify-between mt-0.5">
                           <span className="text-white font-bold">{latestBar?.macd_hist !== undefined ? latestBar.macd_hist.toFixed(2) : "--"}</span>
                           <span className={latestBar?.macd_hist && latestBar.macd_hist >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}>
@@ -1000,10 +1000,10 @@ export default function ResearchWorkspace() {
                         </div>
                       </div>
                       <div className="p-2">
-                        <span className="text-[10px] text-[#59616B] block">STOCHASTIC %K / %D</span>
+                        <span className="text-[10px] text-[#64748b] block">STOCHASTIC %K / %D</span>
                         <div className="flex justify-between mt-0.5">
                           <span className="text-white font-bold">{latestBar?.stoch_k ? `${latestBar.stoch_k.toFixed(1)}/${latestBar.stoch_d?.toFixed(1)}` : "--"}</span>
-                          <span className="text-[#89919C]">OS 20 &bull; OB 80</span>
+                          <span className="text-[#94a3b8]">OS 20 &bull; OB 80</span>
                         </div>
                       </div>
                     </div>
@@ -1013,27 +1013,27 @@ export default function ResearchWorkspace() {
                     <span className="text-[10px] text-[#A855F7] font-bold uppercase tracking-wider block mb-1">
                       VOLATILITY & MICROSTRUCTURE
                     </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 border border-[#252A31] divide-y sm:divide-y-0 sm:divide-x divide-[#252A31] bg-[#07090C]">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 border border-[#1e293b] divide-y sm:divide-y-0 sm:divide-x divide-[#1e293b] bg-[#080d1a]">
                       <div className="p-2">
-                        <span className="text-[10px] text-[#59616B] block">ATR (14)</span>
+                        <span className="text-[10px] text-[#64748b] block">ATR (14)</span>
                         <div className="flex justify-between mt-0.5">
                           <span className="text-white font-bold">${latestBar?.atr_14 ? latestBar.atr_14.toFixed(2) : "--"}</span>
-                          <span className="text-[#89919C]">{latestBar?.atr_14 ? `${((latestBar.atr_14 / lastPrice) * 100).toFixed(2)}%` : "--"}</span>
+                          <span className="text-[#94a3b8]">{latestBar?.atr_14 ? `${((latestBar.atr_14 / lastPrice) * 100).toFixed(2)}%` : "--"}</span>
                         </div>
                       </div>
                       <div className="p-2">
-                        <span className="text-[10px] text-[#59616B] block">BOLLINGER BANDWIDTH</span>
+                        <span className="text-[10px] text-[#64748b] block">BOLLINGER BANDWIDTH</span>
                         <div className="flex justify-between mt-0.5">
                           <span className="text-white font-bold">
                             {latestBar?.bb_upper && latestBar?.bb_lower && latestBar?.sma_20
                               ? `${(((latestBar.bb_upper - latestBar.bb_lower) / latestBar.sma_20) * 100).toFixed(2)}%`
                               : "--"}
                           </span>
-                          <span className="text-[#38BDF8]">2&sigma; Envelope</span>
+                          <span className="text-[#3b82f6]">2&sigma; Envelope</span>
                         </div>
                       </div>
                       <div className="p-2">
-                        <span className="text-[10px] text-[#59616B] block">VWAP DELTA</span>
+                        <span className="text-[10px] text-[#64748b] block">VWAP DELTA</span>
                         <div className="flex justify-between mt-0.5">
                           <span className="text-white font-bold">${latestBar?.vwap ? latestBar.vwap.toFixed(2) : "--"}</span>
                           <span className={latestBar?.vwap && lastPrice >= latestBar.vwap ? "text-[#10B981]" : "text-[#EF4444]"}>
@@ -1051,54 +1051,54 @@ export default function ResearchWorkspace() {
                 TAB 6: ANALYST ESTIMATES
                 -------------------------------------------------------- */}
             {activeTab === "analyst estimates" && (
-              <div className="border border-[#252A31] bg-[#0B0D10] text-xs">
-                <div className="px-3 py-1.5 border-b border-[#252A31] bg-[#0E1117] flex items-center justify-between">
-                  <span className="font-bold text-[#FF9900]">
+              <div className="border border-[#1e293b] bg-[#080d1a] text-xs">
+                <div className="px-3 py-1.5 border-b border-[#1e293b] bg-[#0E1117] flex items-center justify-between">
+                  <span className="font-bold text-[#f59e0b]">
                     [ANALYST ESTIMATES] Consensus Price Targets & Institutional Coverage for {ticker}
                   </span>
-                  <span className="text-[#59616B] font-mono">38 Brokerage Models</span>
+                  <span className="text-[#64748b] font-mono">38 Brokerage Models</span>
                 </div>
 
                 <div className="p-3 space-y-4 font-mono">
                   {/* KPI Target Cards */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="p-3 rounded bg-[#07090C] border border-[#252A31]">
-                      <span className="text-[10px] text-[#89919C] block">CURRENT PRICE</span>
+                    <div className="p-3 rounded bg-[#080d1a] border border-[#1e293b]">
+                      <span className="text-[10px] text-[#94a3b8] block">CURRENT PRICE</span>
                       <span className="text-lg font-bold text-white mt-0.5 block">
                         {currencySymbol}{lastPrice.toFixed(2)}
                       </span>
                     </div>
-                    <div className="p-3 rounded bg-[#07090C] border border-[#252A31]">
-                      <span className="text-[10px] text-[#89919C] block">MEAN TARGET (12M)</span>
-                      <span className="text-lg font-bold text-[#38BDF8] mt-0.5 block">
+                    <div className="p-3 rounded bg-[#080d1a] border border-[#1e293b]">
+                      <span className="text-[10px] text-[#94a3b8] block">MEAN TARGET (12M)</span>
+                      <span className="text-lg font-bold text-[#3b82f6] mt-0.5 block">
                         {currencySymbol}{(lastPrice * 1.15).toFixed(2)}
                       </span>
                       <span className="text-[10px] text-[#10B981] font-semibold">+15.0% Potential Upside</span>
                     </div>
-                    <div className="p-3 rounded bg-[#07090C] border border-[#252A31]">
-                      <span className="text-[10px] text-[#89919C] block">STREET HIGH TARGET</span>
+                    <div className="p-3 rounded bg-[#080d1a] border border-[#1e293b]">
+                      <span className="text-[10px] text-[#94a3b8] block">STREET HIGH TARGET</span>
                       <span className="text-lg font-bold text-[#10B981] mt-0.5 block">
                         {currencySymbol}{(lastPrice * 1.30).toFixed(2)}
                       </span>
-                      <span className="text-[10px] text-[#89919C]">+30.0% Bull Case</span>
+                      <span className="text-[10px] text-[#94a3b8]">+30.0% Bull Case</span>
                     </div>
-                    <div className="p-3 rounded bg-[#07090C] border border-[#252A31]">
-                      <span className="text-[10px] text-[#89919C] block">STREET LOW TARGET</span>
+                    <div className="p-3 rounded bg-[#080d1a] border border-[#1e293b]">
+                      <span className="text-[10px] text-[#94a3b8] block">STREET LOW TARGET</span>
                       <span className="text-lg font-bold text-[#EF4444] mt-0.5 block">
                         {currencySymbol}{(lastPrice * 0.90).toFixed(2)}
                       </span>
-                      <span className="text-[10px] text-[#89919C]">-10.0% Bear Case</span>
+                      <span className="text-[10px] text-[#94a3b8]">-10.0% Bear Case</span>
                     </div>
                   </div>
 
                   {/* Institutional Desk Ratings Table */}
                   <div>
-                    <span className="text-[10px] text-[#38BDF8] font-bold uppercase tracking-wider block mb-1">
+                    <span className="text-[10px] text-[#3b82f6] font-bold uppercase tracking-wider block mb-1">
                       INSTITUTIONAL BROKERAGE ESTIMATES &amp; PRICE TARGETS
                     </span>
-                    <table className="w-full text-left border border-[#252A31]">
+                    <table className="w-full text-left border border-[#1e293b]">
                       <thead>
-                        <tr className="border-b border-[#252A31] bg-[#07090C] text-[10px] text-[#89919C]">
+                        <tr className="border-b border-[#1e293b] bg-[#080d1a] text-[10px] text-[#94a3b8]">
                           <th className="py-2 px-3">DATE</th>
                           <th className="py-2 px-3">BROKERAGE FIRM</th>
                           <th className="py-2 px-3">RECOMMENDATION</th>
@@ -1107,7 +1107,7 @@ export default function ResearchWorkspace() {
                           <th className="py-2 px-3 text-right">ACTION</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#1E2530] bg-[#0A0D14]">
+                      <tbody className="divide-y divide-[#1e293b] bg-[#080d1a]">
                         {[
                           { date: "Sep 12, 2026", firm: isINR ? "Kotak Institutional Equities" : "Morgan Stanley", rec: "BUY", target: lastPrice * 1.30, action: "Reiterated" },
                           { date: "Aug 28, 2026", firm: isINR ? "ICICI Securities" : "Goldman Sachs", rec: "ACCUMULATE", target: lastPrice * 1.18, action: "Maintained" },
@@ -1117,8 +1117,8 @@ export default function ResearchWorkspace() {
                         ].map((row, idx) => {
                           const impliedRet = (((row.target - lastPrice) / lastPrice) * 100).toFixed(1);
                           return (
-                            <tr key={idx} className="hover:bg-[#10141C]">
-                              <td className="py-2 px-3 text-[#89919C]">{row.date}</td>
+                            <tr key={idx} className="hover:bg-[#0b1222]">
+                              <td className="py-2 px-3 text-[#94a3b8]">{row.date}</td>
                               <td className="py-2 px-3 text-white font-bold">{row.firm}</td>
                               <td className="py-2 px-3">
                                 <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${row.rec === "BUY" ? "bg-[#10B981]/20 text-[#10B981]" : "bg-[#F59E0B]/20 text-[#F59E0B]"
@@ -1132,7 +1132,7 @@ export default function ResearchWorkspace() {
                               <td className={`py-2 px-3 text-right font-mono font-bold ${Number(impliedRet) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
                                 +{impliedRet}%
                               </td>
-                              <td className="py-2 px-3 text-right text-[#89919C]">{row.action}</td>
+                              <td className="py-2 px-3 text-right text-[#94a3b8]">{row.action}</td>
                             </tr>
                           );
                         })}
@@ -1147,12 +1147,12 @@ export default function ResearchWorkspace() {
                 TAB 7: NEWS & FILINGS
                 -------------------------------------------------------- */}
             {activeTab === "news" && (
-              <div className="border border-[#252A31] bg-[#0B0D10] text-xs">
-                <div className="px-3 py-1.5 border-b border-[#252A31] bg-[#0E1117] flex items-center justify-between">
-                  <span className="font-bold text-[#FF9900]">
+              <div className="border border-[#1e293b] bg-[#080d1a] text-xs">
+                <div className="px-3 py-1.5 border-b border-[#1e293b] bg-[#0E1117] flex items-center justify-between">
+                  <span className="font-bold text-[#f59e0b]">
                     [INTELLIGENCE FEED] Real-time Market News & Regulatory Filings for {ticker}
                   </span>
-                  <span className="text-[#59616B] font-mono">Verified Feeds</span>
+                  <span className="text-[#64748b] font-mono">Verified Feeds</span>
                 </div>
 
                 <div className="p-3 space-y-3 font-mono">
@@ -1186,20 +1186,20 @@ export default function ResearchWorkspace() {
                       desc: "Macroeconomic supply chain assessments confirm stabilizing input raw material costs, enabling manufacturers to protect operating margins through structured procurement contracts.",
                     },
                   ].map((news, i) => (
-                    <div key={i} className="p-3 rounded bg-[#07090C] border border-[#1E2530] space-y-1.5 hover:border-[#38BDF8]/40 transition-colors">
+                    <div key={i} className="p-3 rounded bg-[#080d1a] border border-[#1e293b] space-y-1.5 hover:border-[#3b82f6]/40 transition-colors">
                       <div className="flex items-center justify-between text-[10px]">
                         <div className="flex items-center space-x-2">
-                          <span className="text-[#0284C7] font-bold">{news.publisher}</span>
-                          <span className="text-[#59616B]">&bull;</span>
-                          <span className="text-[#89919C]">{news.time}</span>
+                          <span className="text-[#2563eb] font-bold">{news.publisher}</span>
+                          <span className="text-[#64748b]">&bull;</span>
+                          <span className="text-[#94a3b8]">{news.time}</span>
                         </div>
-                        <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${news.sentiment === "BULLISH" ? "bg-[#10B981]/20 text-[#10B981]" : "bg-[#38BDF8]/20 text-[#38BDF8]"
+                        <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${news.sentiment === "BULLISH" ? "bg-[#10B981]/20 text-[#10B981]" : "bg-[#3b82f6]/20 text-[#3b82f6]"
                           }`}>
                           {news.sentiment}
                         </span>
                       </div>
                       <h4 className="text-sm font-bold text-white leading-snug">{news.title}</h4>
-                      <p className="text-[11px] text-[#89919C] leading-relaxed">{news.desc}</p>
+                      <p className="text-[11px] text-[#94a3b8] leading-relaxed">{news.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -1223,28 +1223,28 @@ export default function ResearchWorkspace() {
           ======================================================== */}
       {commandPaletteOpen && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 bg-black/70">
-          <div className="w-full max-w-lg border border-[#FF9900]/40 bg-[#0B0D10] p-0 text-xs overflow-hidden">
-            <div className="flex items-center px-3 py-2 border-b border-[#252A31] bg-[#07090C]">
-              <Search className="h-3.5 w-3.5 text-[#FF9900] mr-2" />
+          <div className="w-full max-w-lg border border-[#f59e0b]/40 bg-[#080d1a] p-0 text-xs overflow-hidden">
+            <div className="flex items-center px-3 py-2 border-b border-[#1e293b] bg-[#080d1a]">
+              <Search className="h-3.5 w-3.5 text-[#f59e0b] mr-2" />
               <input
                 type="text"
                 autoFocus
                 value={commandSearch}
                 onChange={(e) => setCommandSearch(e.target.value)}
                 placeholder="Type command, ticker, or tab (1-5)..."
-                className="w-full bg-transparent text-[#D8DCE2] text-xs focus:outline-none placeholder-[#59616B]"
+                className="w-full bg-transparent text-[#cbd5e1] text-xs focus:outline-none placeholder-[#64748b]"
               />
               <button
                 type="button"
                 onClick={() => setCommandPaletteOpen(false)}
-                className="text-[#59616B] hover:text-[#D8DCE2]"
+                className="text-[#64748b] hover:text-[#cbd5e1]"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
             </div>
 
             <div className="p-2 space-y-1 max-h-72 overflow-y-auto">
-              <div className="text-[9px] text-[#FF9900] font-bold px-2 py-0.5 uppercase">
+              <div className="text-[9px] text-[#f59e0b] font-bold px-2 py-0.5 uppercase">
                 SWITCH WORKSPACE TAB
               </div>
               {[
@@ -1263,16 +1263,16 @@ export default function ResearchWorkspace() {
                       setActiveTab(item.tab as SubNavTab);
                       setCommandPaletteOpen(false);
                     }}
-                    className="w-full flex items-center justify-between px-2 py-1 hover:bg-[#141820] text-left text-xs transition-colors"
+                    className="w-full flex items-center justify-between px-2 py-1 hover:bg-[#0b1222] text-left text-xs transition-colors"
                   >
-                    <span className="text-[#D8DCE2]">{item.label}</span>
-                    <span className="text-[10px] text-[#FF9900] border border-[#252A31] px-1 py-0.2">
+                    <span className="text-[#cbd5e1]">{item.label}</span>
+                    <span className="text-[10px] text-[#f59e0b] border border-[#1e293b] px-1 py-0.2">
                       {item.key}
                     </span>
                   </button>
                 ))}
 
-              <div className="text-[9px] text-[#FF9900] font-bold px-2 py-0.5 pt-2 uppercase">
+              <div className="text-[9px] text-[#f59e0b] font-bold px-2 py-0.5 pt-2 uppercase">
                 TERMINAL ACTIONS
               </div>
               <button
@@ -1281,10 +1281,10 @@ export default function ResearchWorkspace() {
                   setCommandPaletteOpen(false);
                   router.push(buildStrategyUrl);
                 }}
-                className="w-full flex items-center justify-between px-2 py-1 hover:bg-[#141820] text-left text-xs transition-colors"
+                className="w-full flex items-center justify-between px-2 py-1 hover:bg-[#0b1222] text-left text-xs transition-colors"
               >
-                <span className="text-[#38BDF8]">Launch Strategy Builder</span>
-                <span className="text-[10px] text-[#FF9900] border border-[#252A31] px-1 py-0.2">
+                <span className="text-[#3b82f6]">Launch Strategy Builder</span>
+                <span className="text-[10px] text-[#f59e0b] border border-[#1e293b] px-1 py-0.2">
                   B
                 </span>
               </button>
@@ -1294,10 +1294,10 @@ export default function ResearchWorkspace() {
                   setCommandPaletteOpen(false);
                   document.getElementById("stock-search-input")?.focus();
                 }}
-                className="w-full flex items-center justify-between px-2 py-1 hover:bg-[#141820] text-left text-xs transition-colors"
+                className="w-full flex items-center justify-between px-2 py-1 hover:bg-[#0b1222] text-left text-xs transition-colors"
               >
-                <span className="text-[#D8DCE2]">Search 18,500+ Universe</span>
-                <span className="text-[10px] text-[#FF9900] border border-[#252A31] px-1 py-0.2">
+                <span className="text-[#cbd5e1]">Search 18,500+ Universe</span>
+                <span className="text-[10px] text-[#f59e0b] border border-[#1e293b] px-1 py-0.2">
                   /
                 </span>
               </button>

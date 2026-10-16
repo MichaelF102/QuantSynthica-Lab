@@ -36,19 +36,19 @@ export default function MonteCarloView({
   };
 
   return (
-    <div className="border border-[#252A31] bg-[#101318] rounded-[2px] p-4 font-mono text-xs select-none space-y-4">
+    <div className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-4 font-mono text-xs select-none space-y-4">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between pb-3 border-b border-[#252A31] gap-3">
+      <div className="flex flex-wrap items-center justify-between pb-3 border-b border-[#1e293b] gap-3">
         <div>
           <div className="flex items-center space-x-2">
-            <span className="font-bold text-[#D8DCE2] uppercase tracking-wider text-xs">
+            <span className="font-bold text-[#cbd5e1] uppercase tracking-wider text-xs">
               MONTE CARLO SIMULATION
             </span>
-            <span className="px-1.5 py-0.5 rounded-[2px] bg-[#252A31] text-[#38BDF8] text-[10px]">
+            <span className="px-1.5 py-0.5 rounded-[2px] bg-[#1e293b] text-[#3b82f6] text-[10px]">
               HISTORICAL TRADE RESAMPLING
             </span>
           </div>
-          <span className="text-[11px] text-[#59616B] block">
+          <span className="text-[11px] text-[#64748b] block">
             Bootstrap resampling without replacement across sequence variations for {strategyName} ({ticker})
           </span>
         </div>
@@ -57,7 +57,7 @@ export default function MonteCarloView({
           <select
             value={simCount}
             onChange={(e) => setSimCount(Number(e.target.value))}
-            className="bg-[#0B0D10] border border-[#252A31] rounded-[2px] px-2 py-1 text-[#D8DCE2] text-xs focus:outline-none"
+            className="bg-[#080d1a] border border-[#1e293b] rounded-[2px] px-2 py-1 text-[#cbd5e1] text-xs focus:outline-none"
           >
             <option value={1000}>1,000 Iterations</option>
             <option value={5000}>5,000 Iterations</option>
@@ -67,7 +67,7 @@ export default function MonteCarloView({
           <button
             onClick={handleRunMonteCarlo}
             disabled={isSimulating}
-            className="flex items-center space-x-1.5 px-3 py-1 rounded-[2px] bg-[#38BDF8] hover:bg-sky-500 text-[#0B0D10] font-bold text-xs transition-colors disabled:opacity-50"
+            className="flex items-center space-x-1.5 px-3 py-1 rounded-[2px] bg-[#3b82f6] hover:bg-sky-500 text-[#080d1a] font-bold text-xs transition-colors disabled:opacity-50"
           >
             <Play className={`h-3.5 w-3.5 fill-current ${isSimulating ? "animate-spin" : ""}`} />
             <span>{isSimulating ? "RESAMPLING PATHS..." : "RUN MONTE CARLO"}</span>
@@ -76,74 +76,74 @@ export default function MonteCarloView({
       </div>
 
       {/* KPI Ribbons */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 border border-[#252A31] bg-[#0B0D10] divide-x divide-y sm:divide-y-0 divide-[#252A31] text-[11px]">
+      <div className="grid grid-cols-2 sm:grid-cols-5 border border-[#1e293b] bg-[#080d1a] divide-x divide-y sm:divide-y-0 divide-[#1e293b] text-[11px]">
         <div className="p-2.5">
-          <span className="text-[10px] text-[#59616B] block uppercase">EXPECTED RETURN</span>
-          <span className="font-bold text-[#D8DCE2] text-xs">+3.15%</span>
-          <span className="text-[9px] text-[#89919C] block">Mean outcome</span>
+          <span className="text-[10px] text-[#64748b] block uppercase">EXPECTED RETURN</span>
+          <span className="font-bold text-[#cbd5e1] text-xs">+3.15%</span>
+          <span className="text-[9px] text-[#94a3b8] block">Mean outcome</span>
         </div>
         <div className="p-2.5">
-          <span className="text-[10px] text-[#59616B] block uppercase">5TH PERCENTILE</span>
+          <span className="text-[10px] text-[#64748b] block uppercase">5TH PERCENTILE</span>
           <span className="font-bold text-[#EF4444] text-xs">-6.82%</span>
-          <span className="text-[9px] text-[#89919C] block">Worst 5% tail scenario</span>
+          <span className="text-[9px] text-[#94a3b8] block">Worst 5% tail scenario</span>
         </div>
         <div className="p-2.5">
-          <span className="text-[10px] text-[#59616B] block uppercase">MEDIAN OUTCOME</span>
+          <span className="text-[10px] text-[#64748b] block uppercase">MEDIAN OUTCOME</span>
           <span className="font-bold text-[#10B981] text-xs">+2.94%</span>
-          <span className="text-[9px] text-[#89919C] block">50th percentile</span>
+          <span className="text-[9px] text-[#94a3b8] block">50th percentile</span>
         </div>
         <div className="p-2.5">
-          <span className="text-[10px] text-[#59616B] block uppercase">95TH PERCENTILE</span>
+          <span className="text-[10px] text-[#64748b] block uppercase">95TH PERCENTILE</span>
           <span className="font-bold text-[#10B981] text-xs">+12.41%</span>
-          <span className="text-[9px] text-[#89919C] block">Top 5% favorable tail</span>
+          <span className="text-[9px] text-[#94a3b8] block">Top 5% favorable tail</span>
         </div>
         <div className="p-2.5">
-          <span className="text-[10px] text-[#59616B] block uppercase">PROBABILITY OF LOSS</span>
+          <span className="text-[10px] text-[#64748b] block uppercase">PROBABILITY OF LOSS</span>
           <span className="font-bold text-[#F59E0B] text-xs">28.4%</span>
-          <span className="text-[9px] text-[#89919C] block">Runs ending &lt; $100k</span>
+          <span className="text-[9px] text-[#94a3b8] block">Runs ending &lt; $100k</span>
         </div>
       </div>
 
       {/* Distribution Chart */}
-      <div className="border border-[#252A31] bg-[#0B0D10] rounded-[2px] p-3 space-y-2">
-        <div className="flex justify-between items-center pb-1 border-b border-[#252A31]">
-          <span className="text-[10px] text-[#59616B] uppercase tracking-wider">
+      <div className="border border-[#1e293b] bg-[#080d1a] rounded-[2px] p-3 space-y-2">
+        <div className="flex justify-between items-center pb-1 border-b border-[#1e293b]">
+          <span className="text-[10px] text-[#64748b] uppercase tracking-wider">
             TERMINAL WEALTH DISTRIBUTION HISTOGRAM ({simCount.toLocaleString()} SIMULATIONS)
           </span>
-          <span className="text-[10px] text-[#89919C]">Zero reference line separates gains from losses</span>
+          <span className="text-[10px] text-[#94a3b8]">Zero reference line separates gains from losses</span>
         </div>
 
         <div className="h-[220px] w-full pt-2">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={distributionData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
-              <CartesianGrid stroke="#1E232B" strokeDasharray="1 1" vertical={false} />
-              <XAxis dataKey="return_range" stroke="#59616B" fontSize={10} tickLine={false} />
-              <YAxis stroke="#59616B" fontSize={10} tickLine={false} />
+              <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="return_range" stroke="#64748b" fontSize={10} tickLine={false} />
+              <YAxis stroke="#64748b" fontSize={10} tickLine={false} />
               <Tooltip
                 isAnimationActive={false}
                 content={({ active, payload }) => {
                   if (!active || !payload || !payload.length) return null;
                   const d = payload[0].payload;
                   return (
-                    <div className="border border-[#252A31] bg-[#101318] p-2 rounded-[2px] font-mono text-[11px]">
-                      <div className="text-[#89919C] text-[10px]">{d.return_range}</div>
-                      <div className="text-[#D8DCE2] font-bold">
+                    <div className="border border-[#1e293b] bg-[#0b1222] p-2 rounded-[2px] font-mono text-[11px]">
+                      <div className="text-[#94a3b8] text-[10px]">{d.return_range}</div>
+                      <div className="text-[#cbd5e1] font-bold">
                         Simulations: {d.count} ({((d.count / simCount) * 100).toFixed(1)}%)
                       </div>
                     </div>
                   );
                 }}
               />
-              <Bar dataKey="count" fill="#38BDF8" radius={[1, 1, 0, 0]} />
+              <Bar dataKey="count" fill="#3b82f6" radius={[1, 1, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Methodology notice */}
-      <div className="p-2.5 border border-[#252A31] bg-[#0B0D10] rounded-[2px] text-[10px] text-[#59616B] space-y-1">
-        <div className="flex items-center space-x-1 text-[#89919C] font-semibold">
-          <HelpCircle className="h-3.5 w-3.5 text-[#38BDF8]" />
+      <div className="p-2.5 border border-[#1e293b] bg-[#080d1a] rounded-[2px] text-[10px] text-[#64748b] space-y-1">
+        <div className="flex items-center space-x-1 text-[#94a3b8] font-semibold">
+          <HelpCircle className="h-3.5 w-3.5 text-[#3b82f6]" />
           <span>METHODOLOGY & ASSUMPTIONS</span>
         </div>
         <p>

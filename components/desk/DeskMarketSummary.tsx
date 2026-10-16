@@ -40,7 +40,7 @@ export default function DeskMarketSummary({
 
       <div className="grid gap-3 md:grid-cols-12">
         <Link href={`/research?ticker=${featured.symbol}`} className="qs-panel p-5 md:col-span-5">
-          <div className="text-[13px] text-[#787b86]">
+          <div className="text-[13px] text-[#94a3b8]">
             {compact ? `${featured.name} · ${featured.symbol}` : featured.name}
           </div>
           <div className="mt-1 flex items-baseline gap-3">
@@ -52,7 +52,7 @@ export default function DeskMarketSummary({
           <div className="mt-4">
             <MiniSparkline positive={featured.change >= 0} width={compact ? 240 : 220} height={compact ? 52 : 48} />
           </div>
-          {!compact && <div className="mt-3 text-[13px] text-[#787b86]">{featured.symbol}</div>}
+          {!compact && <div className="mt-3 text-[13px] text-[#94a3b8]">{featured.symbol}</div>}
         </Link>
 
         <div className="qs-panel md:col-span-3">
@@ -68,7 +68,7 @@ export default function DeskMarketSummary({
                 >
                   <span>
                     <span className="block font-semibold text-white">{item.name}</span>
-                    <span className="text-[11px] text-[#787b86]">{item.symbol}</span>
+                    <span className="text-[11px] text-[#94a3b8]">{item.symbol}</span>
                   </span>
                   {compact ? (
                     <Change value={item.change} />
@@ -106,7 +106,7 @@ export default function DeskMarketSummary({
                     <>
                       <span className="min-w-0">
                         <span className="block truncate font-semibold text-white">{item.symbol}</span>
-                        <span className="truncate text-[11px] text-[#787b86]">{item.name}</span>
+                        <span className="truncate text-[11px] text-[#94a3b8]">{item.name}</span>
                       </span>
                       <span className="ml-3 text-right">
                         <span className="block tabular-nums text-white">{item.price.toFixed(2)}</span>

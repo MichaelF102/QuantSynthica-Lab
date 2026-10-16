@@ -42,7 +42,7 @@ export default function FactorAttributionRiskGrid({
     { label: "Timing", value: 6.1, isTotal: false, color: "#10B981" },
     { label: "Risk Management", value: -4.8, isTotal: false, color: "#EF4444" },
     { label: "Costs", value: -2.3, isTotal: false, color: "#EF4444" },
-    { label: "Total Return", value: 37.2, isTotal: true, color: "#38BDF8" },
+    { label: "Total Return", value: 37.2, isTotal: true, color: "#3b82f6" },
   ];
 
   // Key Risk Metrics
@@ -71,42 +71,42 @@ export default function FactorAttributionRiskGrid({
       {/* ========================================================
           COLUMN 1: FACTOR EXPOSURE (vs. Benchmark)
           ======================================================== */}
-      <div className="border border-[#1E2530] bg-[#0A0D14] rounded-sm flex flex-col justify-between overflow-hidden">
+      <div className="border border-[#1e293b] bg-[#080d1a] rounded-sm flex flex-col justify-between overflow-hidden">
         {/* Header */}
-        <div className="px-3.5 py-2 border-b border-[#1E2530] bg-[#0E121A] flex items-center justify-between text-xs">
+        <div className="px-3.5 py-2 border-b border-[#1e293b] bg-[#0b1222] flex items-center justify-between text-xs">
           <div className="flex items-center space-x-1.5">
-            <SlidersHorizontal className="h-4 w-4 text-[#38BDF8]" />
+            <SlidersHorizontal className="h-4 w-4 text-[#3b82f6]" />
             <span className="font-semibold text-white text-[13px] tracking-tight">
               Factor Exposure (vs. Benchmark)
             </span>
           </div>
-          <ExternalLink className="h-3.5 w-3.5 text-[#59616B] hover:text-[#89919C] cursor-pointer" />
+          <ExternalLink className="h-3.5 w-3.5 text-[#64748b] hover:text-[#94a3b8] cursor-pointer" />
         </div>
 
         {/* Table Content */}
         <div className="p-3 flex-1 flex flex-col justify-between">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-[#1E2530] text-[10px] text-[#89919C]">
+              <tr className="border-b border-[#1e293b] text-[10px] text-[#94a3b8]">
                 <th className="pb-1.5 text-left font-semibold">Factor</th>
                 <th className="pb-1.5 text-center font-semibold w-[140px]">Exposure</th>
                 <th className="pb-1.5 text-right font-semibold">Contribution (1Y)</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1E2530]/50">
+            <tbody className="divide-y divide-[#1e293b]/50">
               {factorRows.map((row) => {
                 const absExp = Math.min(1.5, Math.abs(row.exposure));
                 const barWidth = Math.round((absExp / 1.5) * 50); // percentage of half width
 
                 return (
                   <tr key={row.name} className="hover:bg-[#111620]/60 transition-colors">
-                    <td className="py-2 text-[#D8DCE2] text-[11px] whitespace-nowrap">
+                    <td className="py-2 text-[#cbd5e1] text-[11px] whitespace-nowrap">
                       {row.name}
                     </td>
                     <td className="py-2 px-2">
                       <div className="flex items-center justify-center space-x-2">
                         {/* Zero-centered horizontal bar */}
-                        <div className="w-24 h-2.5 bg-[#141A24] rounded-[2px] relative flex items-center border border-[#1E2530]">
+                        <div className="w-24 h-2.5 bg-[#0b1222] rounded-[2px] relative flex items-center border border-[#1e293b]">
                           {/* Center 0 Line */}
                           <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-[#334155] z-10" />
 
@@ -119,14 +119,14 @@ export default function FactorAttributionRiskGrid({
                           ) : (
                             /* Right bar (Positive) */
                             <div
-                              className="absolute left-1/2 top-0 bottom-0 bg-[#38BDF8] rounded-r-[2px]"
+                              className="absolute left-1/2 top-0 bottom-0 bg-[#3b82f6] rounded-r-[2px]"
                               style={{ width: `${barWidth}%` }}
                             />
                           )}
                         </div>
 
                         {/* Numeric value */}
-                        <span className="text-[11px] font-mono text-[#D8DCE2] w-9 text-right">
+                        <span className="text-[11px] font-mono text-[#cbd5e1] w-9 text-right">
                           {row.exposure > 0 ? row.exposure.toFixed(2) : row.exposure.toFixed(2)}
                         </span>
                       </div>
@@ -149,16 +149,16 @@ export default function FactorAttributionRiskGrid({
       {/* ========================================================
           COLUMN 2: RETURN ATTRIBUTION (1Y)
           ======================================================== */}
-      <div className="border border-[#1E2530] bg-[#0A0D14] rounded-sm flex flex-col justify-between overflow-hidden">
+      <div className="border border-[#1e293b] bg-[#080d1a] rounded-sm flex flex-col justify-between overflow-hidden">
         {/* Header */}
-        <div className="px-3.5 py-2 border-b border-[#1E2530] bg-[#0E121A] flex items-center justify-between text-xs">
+        <div className="px-3.5 py-2 border-b border-[#1e293b] bg-[#0b1222] flex items-center justify-between text-xs">
           <div className="flex items-center space-x-1.5">
-            <BarChart2 className="h-4 w-4 text-[#38BDF8]" />
+            <BarChart2 className="h-4 w-4 text-[#3b82f6]" />
             <span className="font-semibold text-white text-[13px] tracking-tight">
               Return Attribution (1Y)
             </span>
             <span title="Brinson-Fachler attribution decomposing excess return into selection, timing, risk management, and friction">
-              <Info className="h-3.5 w-3.5 text-[#59616B] hover:text-[#89919C] cursor-pointer" />
+              <Info className="h-3.5 w-3.5 text-[#64748b] hover:text-[#94a3b8] cursor-pointer" />
             </span>
           </div>
         </div>
@@ -169,23 +169,23 @@ export default function FactorAttributionRiskGrid({
             {/* Y Axis Grid & Chart Area */}
             <div className="flex-1 relative flex">
               {/* Y Axis Labels */}
-              <div className="w-10 flex flex-col justify-between text-[10px] text-[#59616B] font-mono pb-4 pr-1 text-right select-none">
+              <div className="w-10 flex flex-col justify-between text-[10px] text-[#64748b] font-mono pb-4 pr-1 text-right select-none">
                 <span>60%</span>
                 <span>40%</span>
                 <span>20%</span>
-                <span className="text-[#89919C] font-bold">0%</span>
+                <span className="text-[#94a3b8] font-bold">0%</span>
                 <span>-20%</span>
               </div>
 
               {/* Chart Plot Area */}
-              <div className="flex-1 relative border-l border-[#1E2530] flex items-end justify-around px-2 pb-4">
+              <div className="flex-1 relative border-l border-[#1e293b] flex items-end justify-around px-2 pb-4">
                 {/* Horizontal Grid lines */}
                 <div className="absolute inset-0 flex flex-col justify-between pointer-events-none pb-4">
-                  <div className="border-b border-[#18202C] w-full" />
-                  <div className="border-b border-[#18202C] w-full" />
-                  <div className="border-b border-[#18202C] w-full" />
+                  <div className="border-b border-[#1e293b] w-full" />
+                  <div className="border-b border-[#1e293b] w-full" />
+                  <div className="border-b border-[#1e293b] w-full" />
                   <div className="border-b border-[#334155] w-full z-10" />
-                  <div className="border-b border-[#18202C] w-full" />
+                  <div className="border-b border-[#1e293b] w-full" />
                 </div>
 
                 {/* 5 Waterfall Bars */}
@@ -237,7 +237,7 @@ export default function FactorAttributionRiskGrid({
             </div>
 
             {/* X Axis Labels */}
-            <div className="flex justify-around text-[10px] text-[#89919C] pl-10 border-t border-[#1E2530] pt-1">
+            <div className="flex justify-around text-[10px] text-[#94a3b8] pl-10 border-t border-[#1e293b] pt-1">
               {attributionBars.map((b) => (
                 <div key={b.label} className="w-16 text-center leading-tight">
                   {b.label}
@@ -251,28 +251,28 @@ export default function FactorAttributionRiskGrid({
       {/* ========================================================
           COLUMN 3: KEY RISK METRICS
           ======================================================== */}
-      <div className="border border-[#1E2530] bg-[#0A0D14] rounded-sm flex flex-col justify-between overflow-hidden">
+      <div className="border border-[#1e293b] bg-[#080d1a] rounded-sm flex flex-col justify-between overflow-hidden">
         {/* Header */}
-        <div className="px-3.5 py-2 border-b border-[#1E2530] bg-[#0E121A] flex items-center justify-between text-xs">
+        <div className="px-3.5 py-2 border-b border-[#1e293b] bg-[#0b1222] flex items-center justify-between text-xs">
           <div className="flex items-center space-x-1.5">
-            <ShieldCheck className="h-4 w-4 text-[#38BDF8]" />
+            <ShieldCheck className="h-4 w-4 text-[#3b82f6]" />
             <span className="font-semibold text-white text-[13px] tracking-tight">
               Key Risk Metrics
             </span>
             <span title="Risk-adjusted return distributions, drawdowns, tail risk, and trade expectancy">
-              <Info className="h-3.5 w-3.5 text-[#59616B] hover:text-[#89919C] cursor-pointer" />
+              <Info className="h-3.5 w-3.5 text-[#64748b] hover:text-[#94a3b8] cursor-pointer" />
             </span>
           </div>
 
           {/* vs SPY / Absolute Toggle */}
-          <div className="flex items-center bg-[#131822] border border-[#232B38] rounded p-0.5 text-[10px] font-medium">
+          <div className="flex items-center bg-[#0b1222] border border-[#1e293b] rounded p-0.5 text-[10px] font-medium">
             <button
               type="button"
               onClick={() => setRiskMode("vsBenchmark")}
               className={`px-2 py-0.5 rounded transition-colors ${
                 riskMode === "vsBenchmark"
                   ? "bg-[#1E2838] text-white font-semibold"
-                  : "text-[#89919C] hover:text-white"
+                  : "text-[#94a3b8] hover:text-white"
               }`}
             >
               vs {benchmark}
@@ -283,7 +283,7 @@ export default function FactorAttributionRiskGrid({
               className={`px-2 py-0.5 rounded transition-colors ${
                 riskMode === "absolute"
                   ? "bg-[#1E2838] text-white font-semibold"
-                  : "text-[#89919C] hover:text-white"
+                  : "text-[#94a3b8] hover:text-white"
               }`}
             >
               Absolute
@@ -295,7 +295,7 @@ export default function FactorAttributionRiskGrid({
         <div className="p-3 flex-1 flex flex-col justify-between">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-[#1E2530] text-[10px] text-[#89919C]">
+              <tr className="border-b border-[#1e293b] text-[10px] text-[#94a3b8]">
                 <th className="pb-1 text-left font-semibold">Metric</th>
                 <th className="pb-1 text-right font-semibold">Strategy</th>
                 <th className="pb-1 text-right font-semibold">
@@ -303,22 +303,22 @@ export default function FactorAttributionRiskGrid({
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1E2530]/40 text-[11px]">
+            <tbody className="divide-y divide-[#1e293b]/40 text-[11px]">
               {riskMetrics.map((m) => (
                 <tr key={m.name} className="hover:bg-[#111620]/60 transition-colors">
-                  <td className="py-1 text-[#89919C]">{m.name}</td>
+                  <td className="py-1 text-[#94a3b8]">{m.name}</td>
                   <td
                     className={`py-1 text-right font-semibold font-mono ${
                       m.isPositive
                         ? "text-[#10B981]"
                         : m.isNegative
                         ? "text-[#EF4444]"
-                        : "text-[#D8DCE2]"
+                        : "text-[#cbd5e1]"
                     }`}
                   >
                     {m.strategy}
                   </td>
-                  <td className="py-1 text-right font-mono text-[#D8DCE2]">
+                  <td className="py-1 text-right font-mono text-[#cbd5e1]">
                     {m.benchmark}
                   </td>
                 </tr>

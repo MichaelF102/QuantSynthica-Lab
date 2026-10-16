@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { Info } from "lucide-react";
 
+import { TOOLTIP_STYLE } from "@/lib/chartTheme";
 interface DrawdownPoint {
   date: string;
   drawdown: number;
@@ -86,9 +87,9 @@ export default function PortfolioDrawdownWidget() {
   };
 
   return (
-    <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3.5 flex flex-col justify-between">
+    <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 flex flex-col justify-between">
       {/* 1. Header & Inline Stats */}
-      <div className="space-y-2.5 pb-2 border-b border-[#1A2230]">
+      <div className="space-y-2.5 pb-2 border-b border-[#1e293b]">
         <div className="flex items-center space-x-2">
           <h2 className="text-sm font-bold text-white tracking-tight font-sans">
             Drawdown Analysis
@@ -155,12 +156,12 @@ export default function PortfolioDrawdownWidget() {
                 <stop offset="100%" stopColor="#450A0A" stopOpacity={0.05} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="2 2" stroke="#161E2C" vertical={false} />
+            <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="date"
               stroke="#475569"
               tickLine={false}
-              tick={{ fontSize: 10, fill: "#64748B", fontFamily: "monospace" }}
+              tick={{ fontSize: 10, fill: "#64748b" }}
               tickFormatter={(val: string) => {
                 const parts = val.split("-");
                 const mIdx = parseInt(parts[1], 10) - 1;
@@ -175,18 +176,11 @@ export default function PortfolioDrawdownWidget() {
               domain={[-20, 0]}
               stroke="#475569"
               tickLine={false}
-              tick={{ fontSize: 10, fill: "#64748B", fontFamily: "monospace" }}
+              tick={{ fontSize: 10, fill: "#64748b" }}
               tickFormatter={(v: number) => `${v}%`}
             />
             <Tooltip
-              contentStyle={{
-                backgroundColor: "#0C1017",
-                borderColor: "#202C3F",
-                borderRadius: "6px",
-                fontSize: "11px",
-                color: "#E2E8F0",
-                boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
-              }}
+              contentStyle={TOOLTIP_STYLE}
               formatter={(val: any) => [`${val}%`, "Underwater Depth"]}
               labelFormatter={(label: any) => `Date: ${label}`}
             />

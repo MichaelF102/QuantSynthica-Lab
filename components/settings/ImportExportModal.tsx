@@ -79,11 +79,11 @@ export default function ImportExportModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-[#090D14] border border-[#1E2C40] rounded-lg shadow-2xl w-full max-w-xl overflow-hidden flex flex-col">
+      <div className="bg-[#080d1a] border border-[#1E2C40] rounded-lg shadow-2xl w-full max-w-xl overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[#1E2530] bg-[#0C111A]">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e293b] bg-[#0C111A]">
           <div className="flex items-center space-x-2">
-            <FileJson className="w-4 h-4 text-[#38BDF8]" />
+            <FileJson className="w-4 h-4 text-[#3b82f6]" />
             <h3 className="text-xs font-bold font-mono text-white tracking-wide uppercase">
               System Configuration Import / Export
             </h3>
@@ -91,20 +91,20 @@ export default function ImportExportModal({
           <button
             type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded hover:bg-[#151C28]"
+            className="text-slate-400 hover:text-white p-1 rounded hover:bg-[#0b1222]"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Tab switcher */}
-        <div className="flex border-b border-[#1E2530] bg-[#0B0F18] px-4 pt-2">
+        <div className="flex border-b border-[#1e293b] bg-[#0B0F18] px-4 pt-2">
           <button
             type="button"
             onClick={() => setActiveTab("export")}
             className={`pb-2 px-3 text-xs font-mono font-medium border-b-2 transition-colors ${
               activeTab === "export"
-                ? "border-[#38BDF8] text-[#38BDF8]"
+                ? "border-[#3b82f6] text-[#3b82f6]"
                 : "border-transparent text-slate-400 hover:text-slate-200"
             }`}
           >
@@ -115,7 +115,7 @@ export default function ImportExportModal({
             onClick={() => setActiveTab("import")}
             className={`pb-2 px-3 text-xs font-mono font-medium border-b-2 transition-colors ${
               activeTab === "import"
-                ? "border-[#38BDF8] text-[#38BDF8]"
+                ? "border-[#3b82f6] text-[#3b82f6]"
                 : "border-transparent text-slate-400 hover:text-slate-200"
             }`}
           >
@@ -134,13 +134,13 @@ export default function ImportExportModal({
                 readOnly
                 value={exportedJson}
                 rows={10}
-                className="w-full bg-[#111722] border border-[#1F2B3E] rounded p-2.5 text-[11px] text-slate-300 font-mono focus:outline-none select-all"
+                className="w-full bg-[#0b1222] border border-[#1e293b] rounded p-2.5 text-[11px] text-slate-300 font-mono focus:outline-none select-all"
               />
               <div className="flex items-center justify-end space-x-2 pt-1">
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-[#16202E] hover:bg-[#1E2B3E] text-slate-200 border border-[#233348] text-xs transition-colors"
+                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-[#16202E] hover:bg-[#1e293b] text-slate-200 border border-[#233348] text-xs transition-colors"
                 >
                   {copied ? <Check className="w-3.5 h-3.5 text-[#10B981]" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>{copied ? "Copied to Clipboard" : "Copy JSON"}</span>
@@ -148,7 +148,7 @@ export default function ImportExportModal({
                 <button
                   type="button"
                   onClick={handleDownload}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-medium transition-colors"
+                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-medium transition-colors"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Download .json</span>
@@ -161,8 +161,8 @@ export default function ImportExportModal({
                 Paste an exported QuantSynthica Lab configuration JSON or upload a `.json` file to restore terminal preferences across devices.
               </p>
               <div className="flex items-center space-x-2">
-                <label className="cursor-pointer flex items-center space-x-1.5 px-2.5 py-1 rounded bg-[#16202E] hover:bg-[#1E2B3E] text-slate-300 border border-[#233348] text-[11px]">
-                  <Upload className="w-3 h-3 text-[#38BDF8]" />
+                <label className="cursor-pointer flex items-center space-x-1.5 px-2.5 py-1 rounded bg-[#16202E] hover:bg-[#1e293b] text-slate-300 border border-[#233348] text-[11px]">
+                  <Upload className="w-3 h-3 text-[#3b82f6]" />
                   <span>Upload File</span>
                   <input type="file" accept=".json" onChange={handleFileUpload} className="hidden" />
                 </label>
@@ -173,7 +173,7 @@ export default function ImportExportModal({
                 onChange={(e) => setImportText(e.target.value)}
                 placeholder='Paste {"marketData": { ... }, "research": { ... }}'
                 rows={9}
-                className="w-full bg-[#111722] border border-[#1F2B3E] focus:border-[#38BDF8] rounded p-2.5 text-[11px] text-white font-mono focus:outline-none"
+                className="w-full bg-[#0b1222] border border-[#1e293b] focus:border-[#3b82f6] rounded p-2.5 text-[11px] text-white font-mono focus:outline-none"
               />
               {importError && (
                 <div className="flex items-center space-x-1.5 text-xs text-[#EF4444] bg-[#7F1D1D]/20 border border-[#991B1B]/40 p-2 rounded">
@@ -198,7 +198,7 @@ export default function ImportExportModal({
                 <button
                   type="button"
                   onClick={handleApplyImport}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-medium transition-colors"
+                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-medium transition-colors"
                 >
                   <Upload className="w-3.5 h-3.5" />
                   <span>Validate &amp; Apply</span>

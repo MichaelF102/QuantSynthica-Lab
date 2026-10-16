@@ -70,14 +70,14 @@ export default function ResearchNotesView({
   };
 
   return (
-    <div className="border border-[#252A31] bg-[#101318] rounded-[2px] p-4 font-mono text-xs select-none space-y-4">
+    <div className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-4 font-mono text-xs select-none space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-[#252A31]">
+      <div className="flex items-center justify-between pb-3 border-b border-[#1e293b]">
         <div>
-          <span className="font-bold text-[#D8DCE2] uppercase tracking-wider text-xs">
+          <span className="font-bold text-[#cbd5e1] uppercase tracking-wider text-xs">
             QUANTITATIVE RESEARCH JOURNAL & OBSERVATIONS
           </span>
-          <span className="text-[11px] text-[#59616B] block">
+          <span className="text-[11px] text-[#64748b] block">
             Record hypothesis, parameter iterations, and empirical findings for Run #{backtestId}
           </span>
         </div>
@@ -90,20 +90,20 @@ export default function ResearchNotesView({
       </div>
 
       {/* Input box */}
-      <div className="border border-[#252A31] bg-[#0B0D10] p-3 rounded-[2px] space-y-2">
+      <div className="border border-[#1e293b] bg-[#080d1a] p-3 rounded-[2px] space-y-2">
         <textarea
           rows={3}
           placeholder="Document hypothesis, changes, trade attribution anomalies, or conclusion..."
           value={newNoteContent}
           onChange={(e) => setNewNoteContent(e.target.value)}
-          className="w-full bg-transparent text-[#D8DCE2] placeholder-[#59616B] text-xs focus:outline-none resize-none"
+          className="w-full bg-transparent text-[#cbd5e1] placeholder-[#64748b] text-xs focus:outline-none resize-none"
         />
-        <div className="flex justify-between items-center pt-2 border-t border-[#252A31]">
-          <span className="text-[10px] text-[#59616B]">Supports markdown and research observations</span>
+        <div className="flex justify-between items-center pt-2 border-t border-[#1e293b]">
+          <span className="text-[10px] text-[#64748b]">Supports markdown and research observations</span>
           <button
             onClick={handleAddNote}
             disabled={!newNoteContent.trim()}
-            className="flex items-center space-x-1.5 px-3 py-1 bg-[#38BDF8] hover:bg-sky-500 text-[#0B0D10] font-bold rounded-[2px] disabled:opacity-40 transition-colors"
+            className="flex items-center space-x-1.5 px-3 py-1 bg-[#3b82f6] hover:bg-sky-500 text-[#080d1a] font-bold rounded-[2px] disabled:opacity-40 transition-colors"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>RECORD NOTE</span>
@@ -114,20 +114,20 @@ export default function ResearchNotesView({
       {/* Note entries list */}
       <div className="space-y-3">
         {notes.length === 0 ? (
-          <div className="p-8 border border-[#252A31] bg-[#0B0D10] text-center text-[#59616B]">
+          <div className="p-8 border border-[#1e293b] bg-[#080d1a] text-center text-[#64748b]">
             No research notes recorded for this backtest yet.
           </div>
         ) : (
           notes.map((n) => (
             <div
               key={n.id}
-              className="border border-[#252A31] bg-[#0B0D10] p-3 rounded-[2px] space-y-2 group"
+              className="border border-[#1e293b] bg-[#080d1a] p-3 rounded-[2px] space-y-2 group"
             >
-              <div className="flex items-center justify-between text-[10px] border-b border-[#252A31] pb-1.5">
+              <div className="flex items-center justify-between text-[10px] border-b border-[#1e293b] pb-1.5">
                 <div className="flex items-center space-x-2">
-                  <span className="font-bold text-[#38BDF8] uppercase">{n.author}</span>
-                  <span className="text-[#59616B]">&bull;</span>
-                  <div className="flex items-center space-x-1 text-[#89919C]">
+                  <span className="font-bold text-[#3b82f6] uppercase">{n.author}</span>
+                  <span className="text-[#64748b]">&bull;</span>
+                  <div className="flex items-center space-x-1 text-[#94a3b8]">
                     <Clock className="h-3 w-3" />
                     <span>{n.timestamp}</span>
                   </div>
@@ -135,14 +135,14 @@ export default function ResearchNotesView({
 
                 <button
                   onClick={() => handleDelete(n.id)}
-                  className="opacity-0 group-hover:opacity-100 text-[#59616B] hover:text-[#EF4444] transition-opacity"
+                  className="opacity-0 group-hover:opacity-100 text-[#64748b] hover:text-[#EF4444] transition-opacity"
                   title="Delete note"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
               </div>
 
-              <p className="text-[#D8DCE2] leading-relaxed text-[11px] whitespace-pre-wrap">
+              <p className="text-[#cbd5e1] leading-relaxed text-[11px] whitespace-pre-wrap">
                 {n.content}
               </p>
             </div>

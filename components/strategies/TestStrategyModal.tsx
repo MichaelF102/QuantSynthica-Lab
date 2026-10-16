@@ -226,11 +226,11 @@ export default function TestStrategyModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 animate-in fade-in duration-150 select-none">
-      <div className="w-full max-w-xl bg-[#0E1218] border border-[#252E3E] rounded-[2px] shadow-2xl overflow-hidden font-mono text-xs flex flex-col">
+      <div className="w-full max-w-xl bg-[#0E1218] border border-[#1e293b] rounded-[2px] shadow-2xl overflow-hidden font-mono text-xs flex flex-col">
         {/* Header */}
-        <div className="px-4 py-3 bg-[#080B10] border-b border-[#1E2530] flex items-center justify-between">
+        <div className="px-4 py-3 bg-[#080B10] border-b border-[#1e293b] flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
-            <div className="p-1.5 rounded-[2px] bg-[#0284C7]/20 border border-[#0284C7]/40 text-[#38BDF8]">
+            <div className="p-1.5 rounded-[2px] bg-[#2563eb]/20 border border-[#2563eb]/40 text-[#3b82f6]">
               <Play className="w-3.5 h-3.5 fill-current" />
             </div>
             <div>
@@ -242,7 +242,7 @@ export default function TestStrategyModal({
                   {strategy.strategy_type || "Trend"}
                 </span>
               </div>
-              <span className="text-[10px] text-[#89919C]">
+              <span className="text-[10px] text-[#94a3b8]">
                 Model: <span className="text-white font-bold">{strategy.name}</span> (Default: {strategy.asset})
               </span>
             </div>
@@ -251,7 +251,7 @@ export default function TestStrategyModal({
           <button
             type="button"
             onClick={onClose}
-            className="p-1 text-[#89919C] hover:text-white hover:bg-[#1A2230] rounded-[2px] cursor-pointer transition-colors"
+            className="p-1 text-[#94a3b8] hover:text-white hover:bg-[#1e293b] rounded-[2px] cursor-pointer transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -261,7 +261,7 @@ export default function TestStrategyModal({
         <div className="p-4 space-y-4 max-h-[75vh] overflow-y-auto">
           {/* Market Selection Toggle */}
           <div>
-            <label className="text-[10px] text-[#89919C] uppercase font-bold block mb-1.5">
+            <label className="text-[10px] text-[#94a3b8] uppercase font-bold block mb-1.5">
               1. Choose Target Market
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -271,13 +271,13 @@ export default function TestStrategyModal({
                 className={`py-2 px-3 rounded-[2px] border flex items-center justify-center space-x-2 transition-all cursor-pointer ${
                   market === "India"
                     ? "bg-[#10B981]/15 border-[#10B981] text-white font-bold shadow-xs"
-                    : "bg-[#0A0D14] border-[#1E2530] text-[#89919C] hover:text-white hover:bg-[#141A24]"
+                    : "bg-[#080d1a] border-[#1e293b] text-[#94a3b8] hover:text-white hover:bg-[#0b1222]"
                 }`}
               >
                 <span className="text-base">🇮🇳</span>
                 <div className="text-left">
                   <div className="leading-tight">India Equities</div>
-                  <div className="text-[9px] text-[#89919C] font-normal">NSE / BSE &bull; ₹ INR</div>
+                  <div className="text-[9px] text-[#94a3b8] font-normal">NSE / BSE &bull; ₹ INR</div>
                 </div>
               </button>
 
@@ -286,14 +286,14 @@ export default function TestStrategyModal({
                 onClick={() => handleMarketToggle("US")}
                 className={`py-2 px-3 rounded-[2px] border flex items-center justify-center space-x-2 transition-all cursor-pointer ${
                   market === "US"
-                    ? "bg-[#38BDF8]/15 border-[#38BDF8] text-white font-bold shadow-xs"
-                    : "bg-[#0A0D14] border-[#1E2530] text-[#89919C] hover:text-white hover:bg-[#141A24]"
+                    ? "bg-[#3b82f6]/15 border-[#3b82f6] text-white font-bold shadow-xs"
+                    : "bg-[#080d1a] border-[#1e293b] text-[#94a3b8] hover:text-white hover:bg-[#0b1222]"
                 }`}
               >
                 <span className="text-base">🇺🇸</span>
                 <div className="text-left">
                   <div className="leading-tight">US Equities</div>
-                  <div className="text-[9px] text-[#89919C] font-normal">NYSE / NASDAQ &bull; $ USD</div>
+                  <div className="text-[9px] text-[#94a3b8] font-normal">NYSE / NASDAQ &bull; $ USD</div>
                 </div>
               </button>
             </div>
@@ -302,10 +302,10 @@ export default function TestStrategyModal({
           {/* Stock Search & Selection */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-[10px] text-[#89919C] uppercase font-bold">
+              <label className="text-[10px] text-[#94a3b8] uppercase font-bold">
                 2. Select Security to Test ({isIndiaMarket ? "India ₹" : "US $"})
               </label>
-              <span className="text-[10px] text-[#38BDF8] font-bold">
+              <span className="text-[10px] text-[#3b82f6] font-bold">
                 Active: {selectedStock}
               </span>
             </div>
@@ -323,7 +323,7 @@ export default function TestStrategyModal({
 
               {/* Quick Suggestion Chips */}
               <div className="flex items-center space-x-1.5 flex-wrap gap-y-1 pt-1">
-                <span className="text-[9px] text-[#59616B] uppercase font-bold">Suggestions:</span>
+                <span className="text-[9px] text-[#64748b] uppercase font-bold">Suggestions:</span>
                 {(isIndiaMarket
                   ? ["GENUSPOWER", "RELIANCE", "TCS", "HDFCBANK", "INFY", "TATAMOTORS", "ICICIBANK"]
                   : ["AAPL", "NVDA", "TSLA", "MSFT", "SPY", "QQQ", "AMZN"]
@@ -336,8 +336,8 @@ export default function TestStrategyModal({
                       selectedStock === s
                         ? isIndiaMarket
                           ? "bg-[#10B981]/20 border-[#10B981] text-[#10B981] font-bold"
-                          : "bg-[#38BDF8]/20 border-[#38BDF8] text-[#38BDF8] font-bold"
-                        : "bg-[#080B10] border-[#1E2530] text-[#89919C] hover:text-white"
+                          : "bg-[#3b82f6]/20 border-[#3b82f6] text-[#3b82f6] font-bold"
+                        : "bg-[#080B10] border-[#1e293b] text-[#94a3b8] hover:text-white"
                     }`}
                   >
                     {s}
@@ -351,7 +351,7 @@ export default function TestStrategyModal({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-[10px] text-[#89919C] uppercase font-bold">
+                <label className="text-[10px] text-[#94a3b8] uppercase font-bold">
                   3. Lookback Window
                 </label>
                 <div className="flex items-center space-x-1 text-[9px]">
@@ -362,8 +362,8 @@ export default function TestStrategyModal({
                       onClick={() => handlePresetChange(p)}
                       className={`px-1.5 py-0.2 rounded-[2px] transition-colors cursor-pointer ${
                         datePreset === p
-                          ? "bg-[#0284C7] text-white font-bold"
-                          : "text-[#89919C] hover:text-white bg-[#0A0D14]"
+                          ? "bg-[#2563eb] text-white font-bold"
+                          : "text-[#94a3b8] hover:text-white bg-[#080d1a]"
                       }`}
                     >
                       {p}
@@ -377,26 +377,26 @@ export default function TestStrategyModal({
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-1/2 p-1.5 rounded-[2px] bg-[#0A0D14] border border-[#1E2530] text-[10px] text-white focus:outline-none focus:border-[#38BDF8]"
+                  className="w-1/2 p-1.5 rounded-[2px] bg-[#080d1a] border border-[#1e293b] text-[10px] text-white focus:outline-none focus:border-[#3b82f6]"
                 />
-                <span className="text-[#59616B]">&rarr;</span>
+                <span className="text-[#64748b]">&rarr;</span>
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-1/2 p-1.5 rounded-[2px] bg-[#0A0D14] border border-[#1E2530] text-[10px] text-white focus:outline-none focus:border-[#38BDF8]"
+                  className="w-1/2 p-1.5 rounded-[2px] bg-[#080d1a] border border-[#1e293b] text-[10px] text-white focus:outline-none focus:border-[#3b82f6]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-[10px] text-[#89919C] uppercase font-bold block mb-1.5">
+              <label className="text-[10px] text-[#94a3b8] uppercase font-bold block mb-1.5">
                 4. Benchmark for Alpha
               </label>
               <select
                 value={benchmark}
                 onChange={(e) => setBenchmark(e.target.value)}
-                className="w-full p-1.5 rounded-[2px] bg-[#0A0D14] border border-[#1E2530] text-[11px] text-white focus:outline-none focus:border-[#38BDF8]"
+                className="w-full p-1.5 rounded-[2px] bg-[#080d1a] border border-[#1e293b] text-[11px] text-white focus:outline-none focus:border-[#3b82f6]"
               >
                 {BENCHMARKS.map((b) => (
                   <option key={b.symbol} value={b.symbol}>
@@ -408,20 +408,20 @@ export default function TestStrategyModal({
           </div>
 
           {/* Capital & Position Sizing */}
-          <div className="grid grid-cols-2 gap-3 p-3 rounded-[2px] bg-[#080B10] border border-[#1E2530]">
+          <div className="grid grid-cols-2 gap-3 p-3 rounded-[2px] bg-[#080B10] border border-[#1e293b]">
             <div>
-              <label className="text-[10px] text-[#89919C] uppercase font-bold block mb-1">
+              <label className="text-[10px] text-[#94a3b8] uppercase font-bold block mb-1">
                 Initial Capital ({sym})
               </label>
               <input
                 type="number"
                 value={initialCapital}
                 onChange={(e) => setInitialCapital(Number(e.target.value))}
-                className="w-full p-1 rounded-[2px] bg-[#0A0D14] border border-[#1E2530] text-xs font-mono font-bold text-white focus:outline-none focus:border-[#38BDF8]"
+                className="w-full p-1 rounded-[2px] bg-[#080d1a] border border-[#1e293b] text-xs font-mono font-bold text-white focus:outline-none focus:border-[#3b82f6]"
               />
             </div>
             <div>
-              <label className="text-[10px] text-[#89919C] uppercase font-bold block mb-1">
+              <label className="text-[10px] text-[#94a3b8] uppercase font-bold block mb-1">
                 Position Size (% of Capital)
               </label>
               <div className="flex items-center space-x-2">
@@ -431,19 +431,19 @@ export default function TestStrategyModal({
                   min={1}
                   max={100}
                   onChange={(e) => setPositionSizePct(Number(e.target.value))}
-                  className="w-20 p-1 rounded-[2px] bg-[#0A0D14] border border-[#1E2530] text-xs font-mono font-bold text-white focus:outline-none focus:border-[#38BDF8]"
+                  className="w-20 p-1 rounded-[2px] bg-[#080d1a] border border-[#1e293b] text-xs font-mono font-bold text-white focus:outline-none focus:border-[#3b82f6]"
                 />
-                <span className="text-[10px] text-[#89919C]">% per trade</span>
+                <span className="text-[10px] text-[#94a3b8]">% per trade</span>
               </div>
             </div>
           </div>
 
           {/* Execution Progress & Feedback */}
           {status !== "IDLE" && (
-            <div className="p-3 rounded-[2px] border border-[#0284C7]/30 bg-[#0284C7]/10 space-y-1.5 animate-in fade-in">
+            <div className="p-3 rounded-[2px] border border-[#2563eb]/30 bg-[#2563eb]/10 space-y-1.5 animate-in fade-in">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold text-white flex items-center space-x-2">
-                  <span className="w-2 h-2 rounded-full bg-[#38BDF8] animate-ping" />
+                  <span className="w-2 h-2 rounded-full bg-[#3b82f6] animate-ping" />
                   <span>
                     {status === "QUEUED" && "Queuing simulation task..."}
                     {status === "SIMULATING" && `Fetching OHLCV & executing rules on ${selectedStock}...`}
@@ -452,7 +452,7 @@ export default function TestStrategyModal({
                     {status === "ERROR" && "Execution error"}
                   </span>
                 </span>
-                <span className="text-[10px] text-[#38BDF8] font-mono">
+                <span className="text-[10px] text-[#3b82f6] font-mono">
                   {status}
                 </span>
               </div>
@@ -468,14 +468,14 @@ export default function TestStrategyModal({
         </div>
 
         {/* Footer Actions */}
-        <div className="px-4 py-3 bg-[#080B10] border-t border-[#1E2530] flex items-center justify-between">
+        <div className="px-4 py-3 bg-[#080B10] border-t border-[#1e293b] flex items-center justify-between">
           <button
             type="button"
             onClick={() => {
               onClose();
               router.push(`/backtests?run=${strategy.id}&ticker=${encodeURIComponent(selectedStock)}`);
             }}
-            className="text-[10px] text-[#89919C] hover:text-[#38BDF8] flex items-center space-x-1 cursor-pointer transition-colors"
+            className="text-[10px] text-[#94a3b8] hover:text-[#3b82f6] flex items-center space-x-1 cursor-pointer transition-colors"
           >
             <ExternalLink className="w-3 h-3" />
             <span>Open in Backtest Studio</span>
@@ -486,7 +486,7 @@ export default function TestStrategyModal({
               type="button"
               onClick={onClose}
               disabled={status === "SIMULATING" || status === "CALCULATING"}
-              className="px-3 py-1.5 rounded-[2px] bg-[#141A24] hover:bg-[#1E2530] text-[#D8DCE2] border border-[#232B38] text-[11px] cursor-pointer transition-colors disabled:opacity-50"
+              className="px-3 py-1.5 rounded-[2px] bg-[#0b1222] hover:bg-[#1e293b] text-[#cbd5e1] border border-[#1e293b] text-[11px] cursor-pointer transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
@@ -498,7 +498,7 @@ export default function TestStrategyModal({
               className={`px-4 py-1.5 rounded-[2px] font-bold text-xs flex items-center space-x-1.5 transition-all cursor-pointer ${
                 isIndiaMarket
                   ? "bg-[#10B981] hover:bg-[#059669] text-black shadow-sm"
-                  : "bg-[#0284C7] hover:bg-[#0369A1] text-white shadow-sm"
+                  : "bg-[#2563eb] hover:bg-[#1d4ed8] text-white shadow-sm"
               } disabled:opacity-50`}
             >
               <Play className="w-3.5 h-3.5 fill-current" />

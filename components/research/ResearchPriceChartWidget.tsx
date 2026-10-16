@@ -475,11 +475,11 @@ export default function ResearchPriceChartWidget({
   };
 
   return (
-    <div className="border border-[#1E2530] bg-[#0A0D14] rounded-sm overflow-hidden flex flex-col">
+    <div className="border border-[#1e293b] bg-[#080d1a] rounded-sm overflow-hidden flex flex-col">
       {/* ========================================================
           TOOLBAR HEADER
           ======================================================== */}
-      <div className="px-3.5 py-2 border-b border-[#1E2530] bg-[#0E121A] flex flex-wrap items-center justify-between gap-2 text-xs select-none">
+      <div className="px-3.5 py-2 border-b border-[#1e293b] bg-[#0b1222] flex flex-wrap items-center justify-between gap-2 text-xs select-none">
         {/* Left: Title & Range Pills */}
         <div className="flex items-center space-x-3 flex-wrap gap-y-1">
           <span className="font-semibold text-white text-[13px] tracking-tight">
@@ -501,8 +501,8 @@ export default function ResearchPriceChartWidget({
                 }}
                 className={`px-2 py-0.5 rounded transition-colors ${
                   activeRange === r
-                    ? "bg-[#0284C7] text-white font-bold shadow-sm"
-                    : "text-[#89919C] hover:text-white"
+                    ? "bg-[#2563eb] text-white font-bold shadow-sm"
+                    : "text-[#94a3b8] hover:text-white"
                 }`}
               >
                 {r}
@@ -511,54 +511,54 @@ export default function ResearchPriceChartWidget({
           </div>
 
           {/* Tools: Indicators, Compare, Draw, Resolution */}
-          <div className="hidden sm:flex items-center space-x-1.5 pl-2 border-l border-[#1E2530] text-[11px] text-[#89919C]">
+          <div className="hidden sm:flex items-center space-x-1.5 pl-2 border-l border-[#1e293b] text-[11px] text-[#94a3b8]">
             <button
               type="button"
-              className="flex items-center space-x-1 px-2 py-0.5 hover:text-white hover:bg-[#141A24] rounded transition-colors"
+              className="flex items-center space-x-1 px-2 py-0.5 hover:text-white hover:bg-[#0b1222] rounded transition-colors"
             >
-              <SlidersHorizontal className="w-3 h-3 text-[#38BDF8]" />
+              <SlidersHorizontal className="w-3 h-3 text-[#3b82f6]" />
               <span>Indicators</span>
-              <ChevronDown className="w-2.5 h-2.5 text-[#59616B]" />
+              <ChevronDown className="w-2.5 h-2.5 text-[#64748b]" />
             </button>
 
             <button
               type="button"
-              className="flex items-center space-x-1 px-2 py-0.5 hover:text-white hover:bg-[#141A24] rounded transition-colors"
+              className="flex items-center space-x-1 px-2 py-0.5 hover:text-white hover:bg-[#0b1222] rounded transition-colors"
             >
-              <GitCompare className="w-3 h-3 text-[#89919C]" />
+              <GitCompare className="w-3 h-3 text-[#94a3b8]" />
               <span>Compare</span>
-              <ChevronDown className="w-2.5 h-2.5 text-[#59616B]" />
+              <ChevronDown className="w-2.5 h-2.5 text-[#64748b]" />
             </button>
 
             <button
               type="button"
-              className="flex items-center space-x-1 px-2 py-0.5 hover:text-white hover:bg-[#141A24] rounded transition-colors"
+              className="flex items-center space-x-1 px-2 py-0.5 hover:text-white hover:bg-[#0b1222] rounded transition-colors"
             >
-              <PenTool className="w-3 h-3 text-[#89919C]" />
+              <PenTool className="w-3 h-3 text-[#94a3b8]" />
               <span>Draw</span>
-              <ChevronDown className="w-2.5 h-2.5 text-[#59616B]" />
+              <ChevronDown className="w-2.5 h-2.5 text-[#64748b]" />
             </button>
 
             <button
               type="button"
-              className="flex items-center space-x-1 px-2 py-0.5 hover:text-white hover:bg-[#141A24] rounded transition-colors font-mono"
+              className="flex items-center space-x-1 px-2 py-0.5 hover:text-white hover:bg-[#0b1222] rounded transition-colors font-mono"
             >
               <span>Day</span>
-              <ChevronDown className="w-2.5 h-2.5 text-[#59616B]" />
+              <ChevronDown className="w-2.5 h-2.5 text-[#64748b]" />
             </button>
           </div>
         </div>
 
         {/* Right: Chart Type Switcher & Settings */}
         <div className="flex items-center space-x-2">
-          <div className="flex items-center bg-[#131822] border border-[#232B38] rounded p-0.5 text-[11px]">
+          <div className="flex items-center bg-[#0b1222] border border-[#1e293b] rounded p-0.5 text-[11px]">
             <button
               type="button"
               onClick={() => setChartMode("candles")}
               className={`px-2.5 py-0.5 rounded transition-colors ${
                 chartMode === "candles"
-                  ? "bg-[#0284C7] text-white font-medium shadow-sm"
-                  : "text-[#89919C] hover:text-white"
+                  ? "bg-[#2563eb] text-white font-medium shadow-sm"
+                  : "text-[#94a3b8] hover:text-white"
               }`}
             >
               Candles
@@ -568,8 +568,8 @@ export default function ResearchPriceChartWidget({
               onClick={() => setChartMode("line")}
               className={`px-2.5 py-0.5 rounded transition-colors ${
                 chartMode === "line"
-                  ? "bg-[#0284C7] text-white font-medium shadow-sm"
-                  : "text-[#89919C] hover:text-white"
+                  ? "bg-[#2563eb] text-white font-medium shadow-sm"
+                  : "text-[#94a3b8] hover:text-white"
               }`}
             >
               Line
@@ -579,8 +579,8 @@ export default function ResearchPriceChartWidget({
               onClick={() => setChartMode("area")}
               className={`px-2.5 py-0.5 rounded transition-colors ${
                 chartMode === "area"
-                  ? "bg-[#0284C7] text-white font-medium shadow-sm"
-                  : "text-[#89919C] hover:text-white"
+                  ? "bg-[#2563eb] text-white font-medium shadow-sm"
+                  : "text-[#94a3b8] hover:text-white"
               }`}
             >
               Area
@@ -589,7 +589,7 @@ export default function ResearchPriceChartWidget({
 
           <button
             type="button"
-            className="p-1 text-[#89919C] hover:text-white transition-colors"
+            className="p-1 text-[#94a3b8] hover:text-white transition-colors"
             title="Chart Settings"
           >
             <Settings className="w-3.5 h-3.5" />
@@ -600,37 +600,37 @@ export default function ResearchPriceChartWidget({
       {/* ========================================================
           OHLC LIVE READOUT BAR
           ======================================================== */}
-      <div className="px-3.5 py-1.5 border-b border-[#1E2530] bg-[#07090D] flex flex-wrap items-center justify-between text-[11px] font-mono select-none">
+      <div className="px-3.5 py-1.5 border-b border-[#1e293b] bg-[#080d1a] flex flex-wrap items-center justify-between text-[11px] font-mono select-none">
         <div className="flex flex-wrap items-center space-x-3">
           <span className="font-bold text-white">{ticker}</span>
           <div>
-            <span className="text-[#59616B]">O </span>
-            <span className="text-[#38BDF8]">{sym}{currentOpen.toFixed(2)}</span>
+            <span className="text-[#64748b]">O </span>
+            <span className="text-[#3b82f6]">{sym}{currentOpen.toFixed(2)}</span>
           </div>
           <div>
-            <span className="text-[#59616B]">H </span>
+            <span className="text-[#64748b]">H </span>
             <span className="text-[#10B981]">{sym}{currentHigh.toFixed(2)}</span>
           </div>
           <div>
-            <span className="text-[#59616B]">L </span>
+            <span className="text-[#64748b]">L </span>
             <span className="text-[#EF4444]">{sym}{currentLow.toFixed(2)}</span>
           </div>
           <div>
-            <span className="text-[#59616B]">C </span>
+            <span className="text-[#64748b]">C </span>
             <span className="text-white font-bold">{sym}{currentClose.toFixed(2)}</span>
           </div>
           <div className={currentReturn >= 0 ? "text-[#10B981] font-semibold" : "text-[#EF4444] font-semibold"}>
             {currentReturn >= 0 ? "+" : ""}{sym}{(currentClose - currentOpen).toFixed(2)} ({currentReturn >= 0 ? "+" : ""}{currentReturn.toFixed(2)}%)
           </div>
           <div className="hidden sm:block">
-            <span className="text-[#59616B]">Vol </span>
-            <span className="text-[#D8DCE2]">{currentVol}</span>
+            <span className="text-[#64748b]">Vol </span>
+            <span className="text-[#cbd5e1]">{currentVol}</span>
           </div>
         </div>
 
         {/* Date readout */}
         {activeBar?.date && (
-          <div className="text-[#59616B] text-[10px] hidden md:block">
+          <div className="text-[#64748b] text-[10px] hidden md:block">
             {activeBar.date}
           </div>
         )}
@@ -639,7 +639,7 @@ export default function ResearchPriceChartWidget({
       {/* ========================================================
           MAIN BIG CHART + OVERLAYS SIDEBAR (Height 520px)
           ======================================================== */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-[#1E2530]">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-[#1e293b]">
         {/* Left / Main Chart Area (~82% = col-span-10) */}
         <div className="lg:col-span-10 p-2 relative h-[520px]">
           <ResponsiveContainer width="100%" height="100%">
@@ -655,12 +655,12 @@ export default function ResearchPriceChartWidget({
             >
               <defs>
                 <linearGradient id="mainAreaGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#38BDF8" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#38BDF8" stopOpacity={0.0} />
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
 
-              <CartesianGrid stroke="#18202C" strokeDasharray="2 2" vertical={false} />
+              <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
 
               {/* X Axis: Monthly Dates */}
               <XAxis
@@ -668,7 +668,7 @@ export default function ResearchPriceChartWidget({
                 stroke="#485362"
                 fontSize={10}
                 tickLine={false}
-                axisLine={{ stroke: "#1E2530" }}
+                axisLine={{ stroke: "#1e293b" }}
                 minTickGap={40}
                 tickFormatter={formatXAxis}
               />
@@ -734,7 +734,7 @@ export default function ResearchPriceChartWidget({
                   yAxisId="price"
                   type="monotone"
                   dataKey="close"
-                  stroke="#38BDF8"
+                  stroke="#3b82f6"
                   strokeWidth={2}
                   dot={false}
                   isAnimationActive={false}
@@ -747,7 +747,7 @@ export default function ResearchPriceChartWidget({
                   yAxisId="price"
                   type="monotone"
                   dataKey="close"
-                  stroke="#38BDF8"
+                  stroke="#3b82f6"
                   strokeWidth={2}
                   fill="url(#mainAreaGradient)"
                   isAnimationActive={false}
@@ -773,7 +773,7 @@ export default function ResearchPriceChartWidget({
                   yAxisId="price"
                   type="monotone"
                   dataKey="sma_50"
-                  stroke="#38BDF8"
+                  stroke="#3b82f6"
                   strokeWidth={1.5}
                   dot={false}
                   isAnimationActive={false}
@@ -1000,24 +1000,24 @@ export default function ResearchPriceChartWidget({
         <div className="lg:col-span-2 p-3 bg-[#080B10]/60 flex flex-col justify-between overflow-hidden">
           <div className="flex flex-col h-[450px]">
             {/* Header: Overlays | Reset */}
-            <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1E2530] flex-shrink-0">
+            <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1e293b] flex-shrink-0">
               <span className="font-semibold text-white text-[12px] tracking-tight">
                 Overlays
               </span>
               <button
                 type="button"
                 onClick={handleResetOverlays}
-                className="text-[11px] text-[#38BDF8] hover:underline"
+                className="text-[11px] text-[#3b82f6] hover:underline"
               >
                 Reset
               </button>
             </div>
 
             {/* Scrollable Checklist of Overlays with Categories */}
-            <div className="flex-1 overflow-y-auto pr-1 space-y-3 scrollbar-thin scrollbar-thumb-[#1E2530]">
+            <div className="flex-1 overflow-y-auto pr-1 space-y-3 scrollbar-thin scrollbar-thumb-[#1e293b]">
               {/* Category 1: Moving Averages */}
               <div className="space-y-1.5">
-                <div className="text-[9px] font-mono uppercase tracking-wider text-[#59616B] font-semibold">
+                <div className="text-[9px] font-mono uppercase tracking-wider text-[#64748b] font-semibold">
                   Moving Averages
                 </div>
                 
@@ -1028,12 +1028,12 @@ export default function ResearchPriceChartWidget({
                       type="checkbox"
                       checked={showSma20}
                       onChange={(e) => setShowSma20(e.target.checked)}
-                      className="rounded bg-[#131822] border-[#252E3E] text-[#0284C7] focus:ring-0 cursor-pointer w-3.5 h-3.5"
+                      className="rounded bg-[#0b1222] border-[#1e293b] text-[#2563eb] focus:ring-0 cursor-pointer w-3.5 h-3.5"
                     />
                     <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
-                    <span className="text-[11px] text-[#D8DCE2] group-hover:text-white">SMA 20</span>
+                    <span className="text-[11px] text-[#cbd5e1] group-hover:text-white">SMA 20</span>
                   </div>
-                  <span className="font-mono text-[10px] text-[#89919C]">{sma20Val}</span>
+                  <span className="font-mono text-[10px] text-[#94a3b8]">{sma20Val}</span>
                 </label>
 
                 {/* SMA 50 */}
@@ -1043,12 +1043,12 @@ export default function ResearchPriceChartWidget({
                       type="checkbox"
                       checked={showSma50}
                       onChange={(e) => setShowSma50(e.target.checked)}
-                      className="rounded bg-[#131822] border-[#252E3E] text-[#0284C7] focus:ring-0 cursor-pointer w-3.5 h-3.5"
+                      className="rounded bg-[#0b1222] border-[#1e293b] text-[#2563eb] focus:ring-0 cursor-pointer w-3.5 h-3.5"
                     />
-                    <span className="w-2 h-2 rounded-full bg-[#38BDF8]" />
-                    <span className="text-[11px] text-[#D8DCE2] group-hover:text-white">SMA 50</span>
+                    <span className="w-2 h-2 rounded-full bg-[#3b82f6]" />
+                    <span className="text-[11px] text-[#cbd5e1] group-hover:text-white">SMA 50</span>
                   </div>
-                  <span className="font-mono text-[10px] text-[#89919C]">{sma50Val}</span>
+                  <span className="font-mono text-[10px] text-[#94a3b8]">{sma50Val}</span>
                 </label>
 
                 {/* SMA 200 */}
@@ -1058,12 +1058,12 @@ export default function ResearchPriceChartWidget({
                       type="checkbox"
                       checked={showSma200}
                       onChange={(e) => setShowSma200(e.target.checked)}
-                      className="rounded bg-[#131822] border-[#252E3E] text-[#0284C7] focus:ring-0 cursor-pointer w-3.5 h-3.5"
+                      className="rounded bg-[#0b1222] border-[#1e293b] text-[#2563eb] focus:ring-0 cursor-pointer w-3.5 h-3.5"
                     />
                     <span className="w-2 h-2 rounded-full bg-[#A855F7]" />
-                    <span className="text-[11px] text-[#D8DCE2] group-hover:text-white">SMA 200</span>
+                    <span className="text-[11px] text-[#cbd5e1] group-hover:text-white">SMA 200</span>
                   </div>
-                  <span className="font-mono text-[10px] text-[#89919C]">{sma200Val}</span>
+                  <span className="font-mono text-[10px] text-[#94a3b8]">{sma200Val}</span>
                 </label>
 
                 {/* EMA 9 */}
@@ -1073,12 +1073,12 @@ export default function ResearchPriceChartWidget({
                       type="checkbox"
                       checked={showEma9}
                       onChange={(e) => setShowEma9(e.target.checked)}
-                      className="rounded bg-[#131822] border-[#252E3E] text-[#0284C7] focus:ring-0 cursor-pointer w-3.5 h-3.5"
+                      className="rounded bg-[#0b1222] border-[#1e293b] text-[#2563eb] focus:ring-0 cursor-pointer w-3.5 h-3.5"
                     />
                     <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-                    <span className="text-[11px] text-[#D8DCE2] group-hover:text-white">EMA 9</span>
+                    <span className="text-[11px] text-[#cbd5e1] group-hover:text-white">EMA 9</span>
                   </div>
-                  <span className="font-mono text-[10px] text-[#89919C]">{ema9Val}</span>
+                  <span className="font-mono text-[10px] text-[#94a3b8]">{ema9Val}</span>
                 </label>
 
                 {/* EMA 20 */}
@@ -1088,12 +1088,12 @@ export default function ResearchPriceChartWidget({
                       type="checkbox"
                       checked={showEma20}
                       onChange={(e) => setShowEma20(e.target.checked)}
-                      className="rounded bg-[#131822] border-[#252E3E] text-[#0284C7] focus:ring-0 cursor-pointer w-3.5 h-3.5"
+                      className="rounded bg-[#0b1222] border-[#1e293b] text-[#2563eb] focus:ring-0 cursor-pointer w-3.5 h-3.5"
                     />
                     <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
-                    <span className="text-[11px] text-[#D8DCE2] group-hover:text-white">EMA 20</span>
+                    <span className="text-[11px] text-[#cbd5e1] group-hover:text-white">EMA 20</span>
                   </div>
-                  <span className="font-mono text-[10px] text-[#89919C]">{ema20Val}</span>
+                  <span className="font-mono text-[10px] text-[#94a3b8]">{ema20Val}</span>
                 </label>
 
                 {/* EMA 50 */}
@@ -1103,12 +1103,12 @@ export default function ResearchPriceChartWidget({
                       type="checkbox"
                       checked={showEma50}
                       onChange={(e) => setShowEma50(e.target.checked)}
-                      className="rounded bg-[#131822] border-[#252E3E] text-[#0284C7] focus:ring-0 cursor-pointer w-3.5 h-3.5"
+                      className="rounded bg-[#0b1222] border-[#1e293b] text-[#2563eb] focus:ring-0 cursor-pointer w-3.5 h-3.5"
                     />
                     <span className="w-2 h-2 rounded-full bg-[#06B6D4]" />
-                    <span className="text-[11px] text-[#D8DCE2] group-hover:text-white">EMA 50</span>
+                    <span className="text-[11px] text-[#cbd5e1] group-hover:text-white">EMA 50</span>
                   </div>
-                  <span className="font-mono text-[10px] text-[#89919C]">{ema50Val}</span>
+                  <span className="font-mono text-[10px] text-[#94a3b8]">{ema50Val}</span>
                 </label>
 
                 {/* EMA 200 */}
@@ -1118,18 +1118,18 @@ export default function ResearchPriceChartWidget({
                       type="checkbox"
                       checked={showEma200}
                       onChange={(e) => setShowEma200(e.target.checked)}
-                      className="rounded bg-[#131822] border-[#252E3E] text-[#0284C7] focus:ring-0 cursor-pointer w-3.5 h-3.5"
+                      className="rounded bg-[#0b1222] border-[#1e293b] text-[#2563eb] focus:ring-0 cursor-pointer w-3.5 h-3.5"
                     />
                     <span className="w-2 h-2 rounded-full bg-[#8B5CF6]" />
-                    <span className="text-[11px] text-[#D8DCE2] group-hover:text-white">EMA 200</span>
+                    <span className="text-[11px] text-[#cbd5e1] group-hover:text-white">EMA 200</span>
                   </div>
-                  <span className="font-mono text-[10px] text-[#89919C]">{ema200Val}</span>
+                  <span className="font-mono text-[10px] text-[#94a3b8]">{ema200Val}</span>
                 </label>
               </div>
 
               {/* Category 2: Bands & Channels */}
-              <div className="space-y-1.5 pt-1 border-t border-[#1E2530]/50">
-                <div className="text-[9px] font-mono uppercase tracking-wider text-[#59616B] font-semibold">
+              <div className="space-y-1.5 pt-1 border-t border-[#1e293b]/50">
+                <div className="text-[9px] font-mono uppercase tracking-wider text-[#64748b] font-semibold">
                   Bands & Channels
                 </div>
 
@@ -1140,10 +1140,10 @@ export default function ResearchPriceChartWidget({
                       type="checkbox"
                       checked={showBollinger}
                       onChange={(e) => setShowBollinger(e.target.checked)}
-                      className="rounded bg-[#131822] border-[#252E3E] text-[#0284C7] focus:ring-0 cursor-pointer w-3.5 h-3.5"
+                      className="rounded bg-[#0b1222] border-[#1e293b] text-[#2563eb] focus:ring-0 cursor-pointer w-3.5 h-3.5"
                     />
                     <span className="w-2 h-2 rounded-full bg-[#A855F7]" />
-                    <span className="text-[11px] text-[#D8DCE2] group-hover:text-white">Bollinger Bands</span>
+                    <span className="text-[11px] text-[#cbd5e1] group-hover:text-white">Bollinger Bands</span>
                   </div>
                 </label>
 
@@ -1154,12 +1154,12 @@ export default function ResearchPriceChartWidget({
                       type="checkbox"
                       checked={showKeltner}
                       onChange={(e) => setShowKeltner(e.target.checked)}
-                      className="rounded bg-[#131822] border-[#252E3E] text-[#0284C7] focus:ring-0 cursor-pointer w-3.5 h-3.5"
+                      className="rounded bg-[#0b1222] border-[#1e293b] text-[#2563eb] focus:ring-0 cursor-pointer w-3.5 h-3.5"
                     />
                     <span className="w-2 h-2 rounded-full bg-[#F43F5E]" />
-                    <span className="text-[11px] text-[#D8DCE2] group-hover:text-white">Keltner Channels</span>
+                    <span className="text-[11px] text-[#cbd5e1] group-hover:text-white">Keltner Channels</span>
                   </div>
-                  <span className="font-mono text-[10px] text-[#89919C]">{keltnerVal}</span>
+                  <span className="font-mono text-[10px] text-[#94a3b8]">{keltnerVal}</span>
                 </label>
 
                 {/* Donchian Channels */}
@@ -1169,18 +1169,18 @@ export default function ResearchPriceChartWidget({
                       type="checkbox"
                       checked={showDonchian}
                       onChange={(e) => setShowDonchian(e.target.checked)}
-                      className="rounded bg-[#131822] border-[#252E3E] text-[#0284C7] focus:ring-0 cursor-pointer w-3.5 h-3.5"
+                      className="rounded bg-[#0b1222] border-[#1e293b] text-[#2563eb] focus:ring-0 cursor-pointer w-3.5 h-3.5"
                     />
                     <span className="w-2 h-2 rounded-full bg-[#6366F1]" />
-                    <span className="text-[11px] text-[#D8DCE2] group-hover:text-white">Donchian (20)</span>
+                    <span className="text-[11px] text-[#cbd5e1] group-hover:text-white">Donchian (20)</span>
                   </div>
-                  <span className="font-mono text-[10px] text-[#89919C]">{donchianVal}</span>
+                  <span className="font-mono text-[10px] text-[#94a3b8]">{donchianVal}</span>
                 </label>
               </div>
 
               {/* Category 3: Trend Overlays */}
-              <div className="space-y-1.5 pt-1 border-t border-[#1E2530]/50">
-                <div className="text-[9px] font-mono uppercase tracking-wider text-[#59616B] font-semibold">
+              <div className="space-y-1.5 pt-1 border-t border-[#1e293b]/50">
+                <div className="text-[9px] font-mono uppercase tracking-wider text-[#64748b] font-semibold">
                   Trend Overlays
                 </div>
 
@@ -1191,12 +1191,12 @@ export default function ResearchPriceChartWidget({
                       type="checkbox"
                       checked={showVwap}
                       onChange={(e) => setShowVwap(e.target.checked)}
-                      className="rounded bg-[#131822] border-[#252E3E] text-[#0284C7] focus:ring-0 cursor-pointer w-3.5 h-3.5"
+                      className="rounded bg-[#0b1222] border-[#1e293b] text-[#2563eb] focus:ring-0 cursor-pointer w-3.5 h-3.5"
                     />
                     <span className="w-2 h-2 rounded-full bg-[#EC4899]" />
-                    <span className="text-[11px] text-[#D8DCE2] group-hover:text-white">VWAP</span>
+                    <span className="text-[11px] text-[#cbd5e1] group-hover:text-white">VWAP</span>
                   </div>
-                  <span className="font-mono text-[10px] text-[#89919C]">{vwapVal}</span>
+                  <span className="font-mono text-[10px] text-[#94a3b8]">{vwapVal}</span>
                 </label>
 
                 {/* SuperTrend */}
@@ -1206,12 +1206,12 @@ export default function ResearchPriceChartWidget({
                       type="checkbox"
                       checked={showSuperTrend}
                       onChange={(e) => setShowSuperTrend(e.target.checked)}
-                      className="rounded bg-[#131822] border-[#252E3E] text-[#0284C7] focus:ring-0 cursor-pointer w-3.5 h-3.5"
+                      className="rounded bg-[#0b1222] border-[#1e293b] text-[#2563eb] focus:ring-0 cursor-pointer w-3.5 h-3.5"
                     />
                     <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-                    <span className="text-[11px] text-[#D8DCE2] group-hover:text-white">SuperTrend (10,3)</span>
+                    <span className="text-[11px] text-[#cbd5e1] group-hover:text-white">SuperTrend (10,3)</span>
                   </div>
-                  <span className="font-mono text-[10px] text-[#89919C]">{supertrendVal}</span>
+                  <span className="font-mono text-[10px] text-[#94a3b8]">{supertrendVal}</span>
                 </label>
 
                 {/* Parabolic SAR */}
@@ -1221,12 +1221,12 @@ export default function ResearchPriceChartWidget({
                       type="checkbox"
                       checked={showPsar}
                       onChange={(e) => setShowPsar(e.target.checked)}
-                      className="rounded bg-[#131822] border-[#252E3E] text-[#0284C7] focus:ring-0 cursor-pointer w-3.5 h-3.5"
+                      className="rounded bg-[#0b1222] border-[#1e293b] text-[#2563eb] focus:ring-0 cursor-pointer w-3.5 h-3.5"
                     />
                     <span className="w-2 h-2 rounded-full bg-[#EAB308]" />
-                    <span className="text-[11px] text-[#D8DCE2] group-hover:text-white">Parabolic SAR</span>
+                    <span className="text-[11px] text-[#cbd5e1] group-hover:text-white">Parabolic SAR</span>
                   </div>
-                  <span className="font-mono text-[10px] text-[#89919C]">{psarVal}</span>
+                  <span className="font-mono text-[10px] text-[#94a3b8]">{psarVal}</span>
                 </label>
 
                 {/* Ichimoku (Tenkan/Kijun) */}
@@ -1236,18 +1236,18 @@ export default function ResearchPriceChartWidget({
                       type="checkbox"
                       checked={showIchimoku}
                       onChange={(e) => setShowIchimoku(e.target.checked)}
-                      className="rounded bg-[#131822] border-[#252E3E] text-[#0284C7] focus:ring-0 cursor-pointer w-3.5 h-3.5"
+                      className="rounded bg-[#0b1222] border-[#1e293b] text-[#2563eb] focus:ring-0 cursor-pointer w-3.5 h-3.5"
                     />
                     <span className="w-2 h-2 rounded-full bg-[#14B8A6]" />
-                    <span className="text-[11px] text-[#D8DCE2] group-hover:text-white">Ichimoku T/K</span>
+                    <span className="text-[11px] text-[#cbd5e1] group-hover:text-white">Ichimoku T/K</span>
                   </div>
-                  <span className="font-mono text-[10px] text-[#89919C]">{ichimokuVal}</span>
+                  <span className="font-mono text-[10px] text-[#94a3b8]">{ichimokuVal}</span>
                 </label>
               </div>
 
               {/* Category 4: Volume & Momentum */}
-              <div className="space-y-1.5 pt-1 border-t border-[#1E2530]/50">
-                <div className="text-[9px] font-mono uppercase tracking-wider text-[#59616B] font-semibold">
+              <div className="space-y-1.5 pt-1 border-t border-[#1e293b]/50">
+                <div className="text-[9px] font-mono uppercase tracking-wider text-[#64748b] font-semibold">
                   Volume & Momentum
                 </div>
 
@@ -1258,9 +1258,9 @@ export default function ResearchPriceChartWidget({
                       type="checkbox"
                       checked={showVolume}
                       onChange={(e) => setShowVolume(e.target.checked)}
-                      className="rounded bg-[#131822] border-[#252E3E] text-[#0284C7] focus:ring-0 cursor-pointer w-3.5 h-3.5"
+                      className="rounded bg-[#0b1222] border-[#1e293b] text-[#2563eb] focus:ring-0 cursor-pointer w-3.5 h-3.5"
                     />
-                    <span className="text-[11px] text-[#89919C] group-hover:text-[#D8DCE2]">Volume</span>
+                    <span className="text-[11px] text-[#94a3b8] group-hover:text-[#cbd5e1]">Volume</span>
                   </div>
                 </label>
 
@@ -1271,9 +1271,9 @@ export default function ResearchPriceChartWidget({
                       type="checkbox"
                       checked={showRsi}
                       onChange={(e) => setShowRsi(e.target.checked)}
-                      className="rounded bg-[#131822] border-[#252E3E] text-[#0284C7] focus:ring-0 cursor-pointer w-3.5 h-3.5"
+                      className="rounded bg-[#0b1222] border-[#1e293b] text-[#2563eb] focus:ring-0 cursor-pointer w-3.5 h-3.5"
                     />
-                    <span className="text-[11px] text-[#89919C] group-hover:text-[#D8DCE2]">RSI (14)</span>
+                    <span className="text-[11px] text-[#94a3b8] group-hover:text-[#cbd5e1]">RSI (14)</span>
                   </div>
                 </label>
 
@@ -1284,23 +1284,23 @@ export default function ResearchPriceChartWidget({
                       type="checkbox"
                       checked={showMacd}
                       onChange={(e) => setShowMacd(e.target.checked)}
-                      className="rounded bg-[#131822] border-[#252E3E] text-[#0284C7] focus:ring-0 cursor-pointer w-3.5 h-3.5"
+                      className="rounded bg-[#0b1222] border-[#1e293b] text-[#2563eb] focus:ring-0 cursor-pointer w-3.5 h-3.5"
                     />
-                    <span className="text-[11px] text-[#89919C] group-hover:text-[#D8DCE2]">MACD</span>
+                    <span className="text-[11px] text-[#94a3b8] group-hover:text-[#cbd5e1]">MACD</span>
                   </div>
                 </label>
               </div>
             </div>
           </div>
 
-          <div className="pt-2 border-t border-[#1E2530] text-[10px] text-[#59616B] space-y-1 flex-shrink-0">
+          <div className="pt-2 border-t border-[#1e293b] text-[10px] text-[#64748b] space-y-1 flex-shrink-0">
             <div className="flex justify-between">
               <span>Bars:</span>
-              <span className="text-[#D8DCE2] font-mono">{visibleBars.length}</span>
+              <span className="text-[#cbd5e1] font-mono">{visibleBars.length}</span>
             </div>
             <div className="flex justify-between">
               <span>Resolution:</span>
-              <span className="text-[#D8DCE2] font-mono">1D (Daily)</span>
+              <span className="text-[#cbd5e1] font-mono">1D (Daily)</span>
             </div>
           </div>
         </div>

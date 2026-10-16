@@ -25,17 +25,17 @@ export default function StrategyExecutionBanner({
   };
 
   return (
-    <div className="border border-[#1E2530] bg-[#0A0D14] rounded-sm p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+    <div className="border border-[#1e293b] bg-[#080d1a] rounded-sm p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
       {/* Left info & description */}
       <div className="flex items-center space-x-3">
-        <div className="w-6 h-6 rounded-full bg-[#0284C7]/20 border border-[#0284C7]/40 flex items-center justify-center flex-shrink-0">
-          <Info className="h-3.5 w-3.5 text-[#38BDF8]" />
+        <div className="w-6 h-6 rounded-full bg-[#2563eb]/20 border border-[#2563eb]/40 flex items-center justify-center flex-shrink-0">
+          <Info className="h-3.5 w-3.5 text-[#3b82f6]" />
         </div>
         <div>
           <div className="font-semibold text-white text-[13px] tracking-tight">
             Research &rarr; Strategy Execution
           </div>
-          <div className="text-[#89919C] text-[11px] mt-0.5">
+          <div className="text-[#94a3b8] text-[11px] mt-0.5">
             Transfer current setup to Strategy Builder with benchmark, date range, and indicators.
           </div>
         </div>
@@ -45,7 +45,7 @@ export default function StrategyExecutionBanner({
       <div className="flex items-center space-x-2 relative">
         <Link
           href={strategyUrl}
-          className="px-4 py-2 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold rounded flex items-center space-x-1.5 shadow-sm transition-colors"
+          className="px-4 py-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-semibold rounded flex items-center space-x-1.5 shadow-sm transition-colors"
         >
           <span>Open in Strategy Builder</span>
           <ArrowUpRight className="h-3.5 w-3.5" />
@@ -55,7 +55,7 @@ export default function StrategyExecutionBanner({
           <button
             type="button"
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="px-3.5 py-2 bg-[#10141D] hover:bg-[#161D2B] border border-[#252E3E] text-[#D8DCE2] text-xs font-medium rounded flex items-center space-x-1 transition-colors"
+            className="px-3.5 py-2 bg-[#10141D] hover:bg-[#161D2B] border border-[#1e293b] text-[#cbd5e1] text-xs font-medium rounded flex items-center space-x-1 transition-colors"
           >
             {templateSaved ? (
               <span className="text-[#10B981] flex items-center space-x-1">
@@ -65,24 +65,24 @@ export default function StrategyExecutionBanner({
             ) : (
               <>
                 <span>Save as Template</span>
-                <ChevronDown className="h-3.5 w-3.5 text-[#89919C]" />
+                <ChevronDown className="h-3.5 w-3.5 text-[#94a3b8]" />
               </>
             )}
           </button>
 
           {dropdownOpen && (
-            <div className="absolute right-0 bottom-full mb-1 w-48 bg-[#0E131C] border border-[#252E3E] rounded shadow-xl py-1 z-30">
+            <div className="absolute right-0 bottom-full mb-1 w-48 bg-[#0E131C] border border-[#1e293b] rounded shadow-xl py-1 z-30">
               <button
                 type="button"
                 onClick={handleSaveTemplate}
-                className="w-full px-3 py-1.5 text-left text-[11px] text-[#D8DCE2] hover:bg-[#1A2230] hover:text-white"
+                className="w-full px-3 py-1.5 text-left text-[11px] text-[#cbd5e1] hover:bg-[#1e293b] hover:text-white"
               >
                 Save as {ticker} Workspace Preset
               </button>
               <button
                 type="button"
                 onClick={handleSaveTemplate}
-                className="w-full px-3 py-1.5 text-left text-[11px] text-[#D8DCE2] hover:bg-[#1A2230] hover:text-white"
+                className="w-full px-3 py-1.5 text-left text-[11px] text-[#cbd5e1] hover:bg-[#1e293b] hover:text-white"
               >
                 Save {ticker} vs {benchmark} Spread
               </button>

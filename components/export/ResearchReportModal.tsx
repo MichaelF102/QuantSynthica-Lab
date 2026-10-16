@@ -2,7 +2,10 @@
 
 import React, { useState } from "react";
 import { BacktestResult } from "@/types";
-import { formatCurrency, formatPercent } from "@/lib/formatters";
+import { formatCurrency, formatPercent, fmtPct, isNum } from "@/lib/formatters";
+
+// Loss shown as a negative magnitude; a missing value stays "—".
+const lossPct = (v: unknown) => (isNum(v) ? fmtPct(-Math.abs(v)) : "—");
 import { X, Copy, Download, Check } from "lucide-react";
 
 interface ReportModalProps {
@@ -59,10 +62,10 @@ Net P&L:             ${formatCurrency(m.net_pnl)}
 
 4. TAIL RISK & REGIMES
 ------------------------------------------------------------
-Historical VaR 95%:  -${r?.var_95?.toFixed(2) || "0.00"}% daily
-Historical VaR 99%:  -${r?.var_99?.toFixed(2) || "0.00"}% daily
-Expected Shortfall:  -${r?.cvar_95?.toFixed(2) || "0.00"}% (CVaR 95%)
-Downside Deviation:  ${r?.downside_deviation?.toFixed(2) || "0.00"}%
+Historical VaR 95%:  ${lossPct(r?.var_95)} daily
+Historical VaR 99%:  ${lossPct(r?.var_99)} daily
+Expected Shortfall:  ${lossPct(r?.cvar_95)} (CVaR 95%)
+Downside Deviation:  ${fmtPct(r?.downside_deviation, 2, false)}
 ============================================================
 ASSUMPTIONS & METHODOLOGY:
 - Chronological execution: signal generated at bar t close, filled strictly at bar t+1 open.

@@ -30,8 +30,8 @@ export default function AnalyticsAttributionTab({
   return (
     <div className="space-y-4">
       {/* Brinson-Fachler Decomposition Table */}
-      <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-4 space-y-3">
-        <div className="pb-2 border-b border-[#1E2530]">
+      <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-4 space-y-3">
+        <div className="pb-2 border-b border-[#1e293b]">
           <span className="font-semibold text-white text-xs tracking-tight">
             Brinson-Fachler Performance Attribution Decomposition
           </span>
@@ -40,15 +40,15 @@ export default function AnalyticsAttributionTab({
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-[#1E2530] text-[10px] text-slate-400 uppercase font-sans">
+              <tr className="border-b border-[#1e293b] text-[10px] text-slate-400 uppercase font-sans">
                 <th className="py-2">Attribution Component</th>
                 <th className="py-2">Return Impact</th>
                 <th className="py-2">Quantitative Methodology</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1E2530]/50">
+            <tbody className="divide-y divide-[#1e293b]/50">
               {brinsonDecomposition.map((item, idx) => (
-                <tr key={item.component} className={idx === brinsonDecomposition.length - 1 ? "bg-[#111622] font-bold" : "hover:bg-[#111622]/50"}>
+                <tr key={item.component} className={idx === brinsonDecomposition.length - 1 ? "bg-[#0b1222] font-bold" : "hover:bg-[#0b1222]/50"}>
                   <td className="py-2.5 font-bold text-white font-sans">{item.component}</td>
                   <td className={`py-2.5 font-bold ${item.returnPct.startsWith("+") ? "text-[#10B981]" : "text-[#EF4444]"}`}>
                     {item.returnPct}
@@ -62,8 +62,8 @@ export default function AnalyticsAttributionTab({
       </div>
 
       {/* Sector Attribution Breakdown */}
-      <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-4 space-y-3">
-        <div className="pb-2 border-b border-[#1E2530]">
+      <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-4 space-y-3">
+        <div className="pb-2 border-b border-[#1e293b]">
           <span className="font-semibold text-white text-xs tracking-tight">
             Sector & Asset Class Attribution Breakdown
           </span>
@@ -72,7 +72,7 @@ export default function AnalyticsAttributionTab({
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-[#1E2530] text-[10px] text-slate-400 uppercase font-sans">
+              <tr className="border-b border-[#1e293b] text-[10px] text-slate-400 uppercase font-sans">
                 <th className="py-2">Sector / Asset Class</th>
                 <th className="py-2 text-right">Portfolio Weight</th>
                 <th className="py-2 text-right">Benchmark Weight</th>
@@ -80,9 +80,9 @@ export default function AnalyticsAttributionTab({
                 <th className="py-2 text-right">Net Contribution</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1E2530]/50">
+            <tbody className="divide-y divide-[#1e293b]/50">
               {sectorAttributions.map((s) => (
-                <tr key={s.sector} className="hover:bg-[#111622]/50">
+                <tr key={s.sector} className="hover:bg-[#0b1222]/50">
                   <td className="py-2.5 font-medium text-slate-200 font-sans">{s.sector}</td>
                   <td className="py-2.5 text-right text-white">{s.weight}</td>
                   <td className="py-2.5 text-right text-slate-400">{s.benchmarkWeight}</td>

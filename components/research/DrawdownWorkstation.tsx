@@ -166,30 +166,30 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
   };
 
   return (
-    <div className="border border-[#1E2530] bg-[#0A0D14] rounded-sm overflow-hidden">
+    <div className="border border-[#1e293b] bg-[#080d1a] rounded-sm overflow-hidden">
       {/* Header Bar */}
-      <div className="px-3.5 py-2 border-b border-[#1E2530] bg-[#0E121A] flex flex-wrap items-center justify-between gap-2 text-xs">
+      <div className="px-3.5 py-2 border-b border-[#1e293b] bg-[#0b1222] flex flex-wrap items-center justify-between gap-2 text-xs">
         {/* Left Title & Sub-tabs */}
         <div className="flex items-center space-x-3 flex-wrap gap-y-1">
           <div className="flex items-center space-x-1.5">
-            <Activity className="h-4 w-4 text-[#38BDF8]" />
+            <Activity className="h-4 w-4 text-[#3b82f6]" />
             <span className="font-semibold text-white text-[13px] tracking-tight">
               Drawdown Analysis & Recovery Timeline
             </span>
             <span title="Comprehensive peak-to-trough equity degradation and recovery duration metrics">
-              <Info className="h-3.5 w-3.5 text-[#59616B] hover:text-[#89919C] cursor-pointer" />
+              <Info className="h-3.5 w-3.5 text-[#64748b] hover:text-[#94a3b8] cursor-pointer" />
             </span>
           </div>
 
           {/* Sub Tabs Pill Navigation */}
-          <div className="flex items-center bg-[#131822] border border-[#232B38] rounded p-0.5 text-[11px]">
+          <div className="flex items-center bg-[#0b1222] border border-[#1e293b] rounded p-0.5 text-[11px]">
             <button
               type="button"
               onClick={() => setActiveSubTab("underwater")}
               className={`px-2.5 py-0.5 rounded transition-colors ${
                 activeSubTab === "underwater"
                   ? "bg-[#1E2838] text-white font-medium shadow-sm"
-                  : "text-[#89919C] hover:text-white"
+                  : "text-[#94a3b8] hover:text-white"
               }`}
             >
               Underwater Chart
@@ -200,7 +200,7 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
               className={`px-2.5 py-0.5 rounded transition-colors ${
                 activeSubTab === "table"
                   ? "bg-[#1E2838] text-white font-medium shadow-sm"
-                  : "text-[#89919C] hover:text-white"
+                  : "text-[#94a3b8] hover:text-white"
               }`}
             >
               Drawdown Table
@@ -211,7 +211,7 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
               className={`px-2.5 py-0.5 rounded transition-colors ${
                 activeSubTab === "recovery"
                   ? "bg-[#1E2838] text-white font-medium shadow-sm"
-                  : "text-[#89919C] hover:text-white"
+                  : "text-[#94a3b8] hover:text-white"
               }`}
             >
               Recovery Periods
@@ -222,7 +222,7 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
               className={`px-2.5 py-0.5 rounded transition-colors ${
                 activeSubTab === "distribution"
                   ? "bg-[#1E2838] text-white font-medium shadow-sm"
-                  : "text-[#89919C] hover:text-white"
+                  : "text-[#94a3b8] hover:text-white"
               }`}
             >
               Distribution
@@ -231,7 +231,7 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
         </div>
 
         {/* Right Range Selector */}
-        <div className="flex items-center bg-[#131822] border border-[#232B38] rounded text-[10px] font-medium">
+        <div className="flex items-center bg-[#0b1222] border border-[#1e293b] rounded text-[10px] font-medium">
           {(["1M", "3M", "6M", "YTD", "1Y", "ALL"] as RangePreset[]).map((range) => (
             <button
               key={range}
@@ -239,8 +239,8 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
               onClick={() => setActiveRange(range)}
               className={`px-2 py-0.5 transition-colors ${
                 activeRange === range
-                  ? "bg-[#1E2838] text-[#38BDF8] font-bold"
-                  : "text-[#89919C] hover:text-white"
+                  ? "bg-[#1E2838] text-[#3b82f6] font-bold"
+                  : "text-[#94a3b8] hover:text-white"
               }`}
             >
               {range}
@@ -251,7 +251,7 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
 
       {/* Main Body: 3-Column Workstation Layout */}
       {activeSubTab === "underwater" && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-[#1E2530] text-xs">
+        <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-[#1e293b] text-xs">
           {/* Column 1: Underwater Area Chart (approx 60% = col-span-7) */}
           <div className="lg:col-span-7 p-3 relative flex flex-col justify-between">
             <div className="h-[210px] w-full relative">
@@ -266,13 +266,13 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
                       <stop offset="90%" stopColor="#EF4444" stopOpacity={0.03} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid stroke="#18202C" strokeDasharray="2 2" vertical={false} />
+                  <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
                   <XAxis
                     dataKey="date"
                     stroke="#485362"
                     fontSize={10}
                     tickLine={false}
-                    axisLine={{ stroke: "#1E2530" }}
+                    axisLine={{ stroke: "#1e293b" }}
                     minTickGap={35}
                     tickFormatter={formatXAxisDate}
                   />
@@ -292,7 +292,7 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
                       if (!active || !payload || !payload.length) return null;
                       const d = payload[0].payload;
                       return (
-                        <div className="rounded border border-[#252E3E] bg-[#0E131C] px-2.5 py-1.5 text-[11px] shadow-xl">
+                        <div className="rounded border border-[#1e293b] bg-[#0E131C] px-2.5 py-1.5 text-[11px] shadow-xl">
                           <div className="text-[#94A3B8]">{d.date}</div>
                           <div className="text-[#EF4444] font-bold mt-0.5">
                             Drawdown: {d.drawdown.toFixed(2)}%
@@ -338,42 +338,42 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
           {/* Column 2: Drawdown Stats Card (approx 25% = col-span-3) */}
           <div className="lg:col-span-3 p-3 bg-[#080B10]/40 flex flex-col justify-between">
             <div>
-              <div className="text-[12px] font-semibold text-[#D8DCE2] mb-2 tracking-tight">
+              <div className="text-[12px] font-semibold text-[#cbd5e1] mb-2 tracking-tight">
                 Drawdown Stats
               </div>
               <div className="space-y-1.5 text-[11px]">
                 <div className="flex items-center justify-between pb-1 border-b border-[#1B222E]">
-                  <span className="text-[#89919C]">Max Drawdown</span>
+                  <span className="text-[#94a3b8]">Max Drawdown</span>
                   <span className="text-[#EF4444] font-bold tabular-nums">
                     -{ddStats.maxDrawdown.toFixed(2)}%
                   </span>
                 </div>
                 <div className="flex items-center justify-between pb-1 border-b border-[#1B222E]">
-                  <span className="text-[#89919C]">Peak Date</span>
-                  <span className="text-[#D8DCE2] font-mono tabular-nums">{ddStats.peakDate}</span>
+                  <span className="text-[#94a3b8]">Peak Date</span>
+                  <span className="text-[#cbd5e1] font-mono tabular-nums">{ddStats.peakDate}</span>
                 </div>
                 <div className="flex items-center justify-between pb-1 border-b border-[#1B222E]">
-                  <span className="text-[#89919C]">Trough Date</span>
-                  <span className="text-[#D8DCE2] font-mono tabular-nums">{ddStats.troughDate}</span>
+                  <span className="text-[#94a3b8]">Trough Date</span>
+                  <span className="text-[#cbd5e1] font-mono tabular-nums">{ddStats.troughDate}</span>
                 </div>
                 <div className="flex items-center justify-between pb-1 border-b border-[#1B222E]">
-                  <span className="text-[#89919C]">Recovery Date</span>
-                  <span className="text-[#D8DCE2] font-mono tabular-nums">{ddStats.recoveryDate}</span>
+                  <span className="text-[#94a3b8]">Recovery Date</span>
+                  <span className="text-[#cbd5e1] font-mono tabular-nums">{ddStats.recoveryDate}</span>
                 </div>
                 <div className="flex items-center justify-between pb-1 border-b border-[#1B222E]">
-                  <span className="text-[#89919C]">Drawdown Duration</span>
-                  <span className="text-[#D8DCE2] font-semibold tabular-nums">
+                  <span className="text-[#94a3b8]">Drawdown Duration</span>
+                  <span className="text-[#cbd5e1] font-semibold tabular-nums">
                     {ddStats.drawdownDuration} Bars
                   </span>
                 </div>
                 <div className="flex items-center justify-between pb-1 border-b border-[#1B222E]">
-                  <span className="text-[#89919C]">Recovery Duration</span>
-                  <span className="text-[#D8DCE2] font-semibold tabular-nums">
+                  <span className="text-[#94a3b8]">Recovery Duration</span>
+                  <span className="text-[#cbd5e1] font-semibold tabular-nums">
                     {ddStats.recoveryDuration} Bars
                   </span>
                 </div>
                 <div className="flex items-center justify-between pb-1 border-b border-[#1B222E]">
-                  <span className="text-[#89919C]">Current Drawdown</span>
+                  <span className="text-[#94a3b8]">Current Drawdown</span>
                   <span
                     className={`font-bold tabular-nums ${
                       ddStats.currentDrawdown < 0 ? "text-[#EF4444]" : "text-[#10B981]"
@@ -383,8 +383,8 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#89919C]">Time to Recovery</span>
-                  <span className="text-[#D8DCE2] font-semibold tabular-nums">
+                  <span className="text-[#94a3b8]">Time to Recovery</span>
+                  <span className="text-[#cbd5e1] font-semibold tabular-nums">
                     {ddStats.timeToRecovery} Bars
                   </span>
                 </div>
@@ -396,10 +396,10 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
           <div className="lg:col-span-2 p-3 bg-[#080B10]/40 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[12px] font-semibold text-[#D8DCE2] tracking-tight">
+                <span className="text-[12px] font-semibold text-[#cbd5e1] tracking-tight">
                   Drawdown Distribution
                 </span>
-                <span className="text-[10px] text-[#89919C] font-mono">
+                <span className="text-[10px] text-[#94a3b8] font-mono">
                   Median: {ddStats.medianDrawdown.toFixed(1)}%
                 </span>
               </div>
@@ -418,7 +418,7 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
                 />
 
                 {/* Bars */}
-                <div className="flex-1 flex items-end justify-between gap-[2px] pb-1 border-b border-[#1E2530]">
+                <div className="flex-1 flex items-end justify-between gap-[2px] pb-1 border-b border-[#1e293b]">
                   {ddStats.distribution.map((bin, i) => {
                     const maxCount = Math.max(
                       1,
@@ -434,7 +434,7 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
                         className="flex-1 bg-[#EF4444]/75 hover:bg-[#EF4444] rounded-t-[1px] transition-all relative group"
                         style={{ height: `${heightPercent}%` }}
                       >
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-[#111620] border border-[#252E3E] text-[9px] px-1 py-0.5 text-white whitespace-nowrap z-30">
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-[#111620] border border-[#1e293b] text-[9px] px-1 py-0.5 text-white whitespace-nowrap z-30">
                           {bin.binStart.toFixed(0)}% to {bin.binEnd.toFixed(0)}%: {bin.count} bars
                         </div>
                       </div>
@@ -443,7 +443,7 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
                 </div>
 
                 {/* Histogram X Axis ticks */}
-                <div className="flex justify-between text-[9px] text-[#59616B] font-mono pt-1">
+                <div className="flex justify-between text-[9px] text-[#64748b] font-mono pt-1">
                   <span>-20%</span>
                   <span>-15%</span>
                   <span>-10%</span>
@@ -453,7 +453,7 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
               </div>
             </div>
 
-            <div className="text-[9px] text-[#59616B] text-center mt-1">
+            <div className="text-[9px] text-[#64748b] text-center mt-1">
               Sample count: {ddStats.chartData.length} bars
             </div>
           </div>
@@ -465,7 +465,7 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
         <div className="p-3">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-[#1E2530] text-[10px] text-[#59616B] bg-[#0E121A]">
+              <tr className="border-b border-[#1e293b] text-[10px] text-[#64748b] bg-[#0b1222]">
                 <th className="py-2 px-3">EPISODE</th>
                 <th className="py-2 px-3">PEAK DATE</th>
                 <th className="py-2 px-3">TROUGH DATE</th>
@@ -475,29 +475,29 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
                 <th className="py-2 px-3 text-right">STATUS</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1E2530]/60">
+            <tbody className="divide-y divide-[#1e293b]/60">
               <tr className="hover:bg-[#121620]">
                 <td className="py-2 px-3 font-semibold text-white">#1 Major Drawdown</td>
-                <td className="py-2 px-3 text-[#D8DCE2] font-mono">{ddStats.peakDate}</td>
+                <td className="py-2 px-3 text-[#cbd5e1] font-mono">{ddStats.peakDate}</td>
                 <td className="py-2 px-3 text-[#EF4444] font-mono">{ddStats.troughDate}</td>
                 <td className="py-2 px-3 text-[#10B981] font-mono">{ddStats.recoveryDate}</td>
                 <td className="py-2 px-3 text-right font-bold text-[#EF4444]">
                   -{ddStats.maxDrawdown.toFixed(2)}%
                 </td>
-                <td className="py-2 px-3 text-right text-[#D8DCE2]">
+                <td className="py-2 px-3 text-right text-[#cbd5e1]">
                   {ddStats.drawdownDuration} bars
                 </td>
                 <td className="py-2 px-3 text-right text-[#10B981] font-semibold">Recovered</td>
               </tr>
               <tr className="hover:bg-[#121620]">
                 <td className="py-2 px-3 font-semibold text-white">#2 Active Episode</td>
-                <td className="py-2 px-3 text-[#D8DCE2] font-mono">{ddStats.recoveryDate}</td>
+                <td className="py-2 px-3 text-[#cbd5e1] font-mono">{ddStats.recoveryDate}</td>
                 <td className="py-2 px-3 text-[#EF4444] font-mono">Current</td>
                 <td className="py-2 px-3 text-[#F59E0B] font-mono">In Progress</td>
                 <td className="py-2 px-3 text-right font-bold text-[#EF4444]">
                   {ddStats.currentDrawdown.toFixed(2)}%
                 </td>
-                <td className="py-2 px-3 text-right text-[#D8DCE2]">
+                <td className="py-2 px-3 text-right text-[#cbd5e1]">
                   {ddStats.timeToRecovery} bars
                 </td>
                 <td className="py-2 px-3 text-right text-[#F59E0B] font-semibold">Open</td>
@@ -511,20 +511,20 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
       {activeSubTab === "recovery" && (
         <div className="p-4 space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="p-3 border border-[#1E2530] bg-[#0E121A] rounded">
-              <span className="text-[10px] text-[#59616B] block uppercase">Average Recovery Time</span>
+            <div className="p-3 border border-[#1e293b] bg-[#0b1222] rounded">
+              <span className="text-[10px] text-[#64748b] block uppercase">Average Recovery Time</span>
               <span className="text-base font-bold text-white mt-1 block">
                 {ddStats.recoveryDuration} Trading Days
               </span>
             </div>
-            <div className="p-3 border border-[#1E2530] bg-[#0E121A] rounded">
-              <span className="text-[10px] text-[#59616B] block uppercase">Max Historical Decline</span>
+            <div className="p-3 border border-[#1e293b] bg-[#0b1222] rounded">
+              <span className="text-[10px] text-[#64748b] block uppercase">Max Historical Decline</span>
               <span className="text-base font-bold text-[#EF4444] mt-1 block">
                 -{ddStats.maxDrawdown.toFixed(2)}%
               </span>
             </div>
-            <div className="p-3 border border-[#1E2530] bg-[#0E121A] rounded">
-              <span className="text-[10px] text-[#59616B] block uppercase">Recovery Rate (Bars/DD)</span>
+            <div className="p-3 border border-[#1e293b] bg-[#0b1222] rounded">
+              <span className="text-[10px] text-[#64748b] block uppercase">Recovery Rate (Bars/DD)</span>
               <span className="text-base font-bold text-[#10B981] mt-1 block">
                 {(ddStats.maxDrawdown / (ddStats.recoveryDuration || 1)).toFixed(2)}% / bar
               </span>
@@ -537,26 +537,26 @@ export default function DrawdownWorkstation({ bars, ticker }: DrawdownWorkstatio
       {activeSubTab === "distribution" && (
         <div className="p-4 space-y-3">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-            <div className="p-2.5 border border-[#1E2530] bg-[#0E121A] rounded">
-              <span className="text-[10px] text-[#59616B] block">99th Percentile DD</span>
+            <div className="p-2.5 border border-[#1e293b] bg-[#0b1222] rounded">
+              <span className="text-[10px] text-[#64748b] block">99th Percentile DD</span>
               <span className="text-sm font-bold text-[#EF4444]">
                 -{(ddStats.maxDrawdown * 0.95).toFixed(2)}%
               </span>
             </div>
-            <div className="p-2.5 border border-[#1E2530] bg-[#0E121A] rounded">
-              <span className="text-[10px] text-[#59616B] block">95th Percentile DD</span>
+            <div className="p-2.5 border border-[#1e293b] bg-[#0b1222] rounded">
+              <span className="text-[10px] text-[#64748b] block">95th Percentile DD</span>
               <span className="text-sm font-bold text-[#EF4444]">
                 -{(ddStats.maxDrawdown * 0.8).toFixed(2)}%
               </span>
             </div>
-            <div className="p-2.5 border border-[#1E2530] bg-[#0E121A] rounded">
-              <span className="text-[10px] text-[#59616B] block">Median DD</span>
-              <span className="text-sm font-bold text-[#D8DCE2]">
+            <div className="p-2.5 border border-[#1e293b] bg-[#0b1222] rounded">
+              <span className="text-[10px] text-[#64748b] block">Median DD</span>
+              <span className="text-sm font-bold text-[#cbd5e1]">
                 {ddStats.medianDrawdown.toFixed(2)}%
               </span>
             </div>
-            <div className="p-2.5 border border-[#1E2530] bg-[#0E121A] rounded">
-              <span className="text-[10px] text-[#59616B] block">Zero DD Days (At ATH)</span>
+            <div className="p-2.5 border border-[#1e293b] bg-[#0b1222] rounded">
+              <span className="text-[10px] text-[#64748b] block">Zero DD Days (At ATH)</span>
               <span className="text-sm font-bold text-[#10B981]">
                 {Math.round(ddStats.chartData.filter((d) => d.drawdown >= -0.05).length)} Bars
               </span>

@@ -72,7 +72,7 @@ export default function WorkspaceHome() {
             <div className="qs-panel overflow-x-auto">
               <table className="w-full text-left text-[13px]">
                 <thead>
-                  <tr className="border-b border-border text-[12px] text-[#787b86]">
+                  <tr className="border-b border-border text-[12px] text-[#94a3b8]">
                     <th className="px-4 py-2.5 font-medium">Name</th>
                     <th className="px-4 py-2.5 font-medium">Asset</th>
                     <th className="px-4 py-2.5 font-medium">Type</th>
@@ -82,7 +82,7 @@ export default function WorkspaceHome() {
                 <tbody className="divide-y divide-border">
                   {strategies.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-4 py-8 text-center text-[#787b86]">
+                      <td colSpan={4} className="px-4 py-8 text-center text-[#94a3b8]">
                         No strategies yet.{" "}
                         <Link href="/strategies/builder" className="qs-link inline">
                           Create one
@@ -101,7 +101,7 @@ export default function WorkspaceHome() {
                         <td className="px-4 py-2.5 capitalize text-[#b2b5be]">
                           {(strat.strategy_type || "quantitative").replace(/_/g, " ")}
                         </td>
-                        <td className="max-w-[180px] truncate px-4 py-2.5 text-[#787b86]">
+                        <td className="max-w-[180px] truncate px-4 py-2.5 text-[#94a3b8]">
                           {formatConditionRule(strat.entry_rules[0], strat.indicators)}
                         </td>
                       </tr>
@@ -124,7 +124,7 @@ export default function WorkspaceHome() {
               <div className="qs-panel p-4">
                 <div className="mb-3 flex flex-wrap gap-x-6 gap-y-2 border-b border-border pb-3 text-[13px]">
                   <span className="text-white">{activeBt.strategy_name}</span>
-                  <span className="text-[#787b86]">{activeBt.asset}</span>
+                  <span className="text-[#94a3b8]">{activeBt.asset}</span>
                   <span
                     className={
                       (activeBt.metrics?.total_return || 0) >= 0 ? "text-market-up" : "text-market-down"
@@ -132,7 +132,7 @@ export default function WorkspaceHome() {
                   >
                     {formatPercent(activeBt.metrics?.total_return)}
                   </span>
-                  <span className="text-[#787b86]">Sharpe {formatRatio(activeBt.metrics?.sharpe_ratio)}</span>
+                  <span className="text-[#94a3b8]">Sharpe {formatRatio(activeBt.metrics?.sharpe_ratio)}</span>
                 </div>
                 <div className="h-[260px]">
                   <EquityCurveChart data={activeBt.equity_curve} benchmarkSymbol={activeBt.benchmark} />
@@ -152,7 +152,7 @@ export default function WorkspaceHome() {
           </div>
           <div className="qs-panel divide-y divide-border">
             {backtests.length === 0 ? (
-              <div className="p-5 text-[13px] text-[#787b86]">
+              <div className="p-5 text-[13px] text-[#94a3b8]">
                 No backtests yet.
                 <Link href="/backtests" className="qs-link mt-2">
                   <Play className="h-3.5 w-3.5" />
@@ -165,7 +165,7 @@ export default function WorkspaceHome() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="text-[13px] font-semibold text-white">{bt.strategy_name}</div>
-                      <div className="mt-0.5 text-[12px] text-[#787b86]">{bt.asset}</div>
+                      <div className="mt-0.5 text-[12px] text-[#94a3b8]">{bt.asset}</div>
                     </div>
                     <span
                       className={`text-[13px] font-semibold tabular-nums ${

@@ -68,3 +68,46 @@ def test_api_pairs_trading():
     assert "hedge_ratio" in pairs_res
     assert "spread_series" in pairs_res
     assert len(pairs_res["equity_curve"]) > 10
+
+
+def test_api_market_data_unavailable_is_503_not_synthetic(monkeypatch):
+    """With synthetic fallback off and the provider failing, the API must not invent prices."""
+    import backend.engine.data as data_mod
+
+    monkeypatch.delenv("ALLOW_SYNTHETIC_DATA", raising=False)
+    monkeypatch.setattr(data_mod.yf, "Ticker", lambda *_a, **_k: (_ for _ in ()).throw(RuntimeError("offline")))
+    response = client.get("/market/data?ticker=ZZZNOCACHE&start_date=2019-01-01&end_date=2019-03-01")
+    assert response.status_code == 503
+    assert "unavailable" in response.json()["detail"].lower()
+
+
+def test_api_failed_sync_backtest_not_persisted(monkeypatch):
+    import backend.engine.data as data_mod
+    from backend.api.storage import storage
+
+    template = client.get("/strategies").json()[0]
+    template["asset"] = "ZZZNOCACHE2"
+    monkeypatch.delenv("ALLOW_SYNTHETIC_DATA", raising=False)
+    monkeypatch.setattr(data_mod.yf, "Ticker", lambda *_a, **_k: (_ for _ in ()).throw(RuntimeError("offline")))
+    before = len(storage.list_backtests())
+    response = client.post(
+        "/backtests",
+        json={"strategy": template, "start_date": "2019-01-01", "end_date": "2019-06-01", "benchmark": "ZZZNOCACHE3"},
+    )
+    assert response.status_code == 503
+    assert len(storage.list_backtests()) == before
+
+
+def test_api_report_export_handles_missing_risk():
+    template = client.get("/strategies").json()[0]
+    bt = client.post(
+        "/backtests",
+        json={"strategy": template, "start_date": "2023-01-01", "end_date": "2023-06-01", "benchmark": "SPY"},
+    ).json()
+    from backend.api.storage import storage
+
+    stored = storage.get_backtest(bt["id"])
+    stored.risk = None
+    response = client.get(f"/backtests/{bt['id']}/export/report")
+    assert response.status_code == 200
+    assert "—" in response.text

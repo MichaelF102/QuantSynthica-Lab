@@ -58,20 +58,20 @@ export default function BacktestReRunModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 select-none">
-      <div className="w-full max-w-xl border border-[#252A31] bg-[#101318] rounded-[2px] shadow-2xl flex flex-col font-mono text-xs">
+      <div className="w-full max-w-xl border border-[#1e293b] bg-[#0b1222] rounded-[2px] shadow-2xl flex flex-col font-mono text-xs">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[#252A31] bg-[#0B0D10]">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e293b] bg-[#080d1a]">
           <div>
-            <span className="font-bold text-[#D8DCE2] uppercase tracking-wider text-xs">
+            <span className="font-bold text-[#cbd5e1] uppercase tracking-wider text-xs">
               RE-RUN BACKTEST SIMULATION
             </span>
-            <span className="text-[10px] text-[#59616B] block">
+            <span className="text-[10px] text-[#64748b] block">
               {backtest.strategy_name} &bull; {backtest.ticker}
             </span>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-[2px] text-[#89919C] hover:text-[#D8DCE2] hover:bg-[#252A31]"
+            className="p-1 rounded-[2px] text-[#94a3b8] hover:text-[#cbd5e1] hover:bg-[#1e293b]"
           >
             <X className="h-4 w-4" />
           </button>
@@ -80,17 +80,17 @@ export default function BacktestReRunModal({
         {/* Body Form */}
         <div className="p-4 space-y-4">
           {/* Current Strategy Info Strip */}
-          <div className="border border-[#252A31] bg-[#0B0D10] p-2.5 rounded-[2px] space-y-1 text-[11px]">
+          <div className="border border-[#1e293b] bg-[#080d1a] p-2.5 rounded-[2px] space-y-1 text-[11px]">
             <div className="flex justify-between">
-              <span className="text-[#59616B]">ASSET & TIMEFRAME:</span>
-              <span className="text-[#D8DCE2] font-semibold">{backtest.ticker} &bull; 1D</span>
+              <span className="text-[#64748b]">ASSET & TIMEFRAME:</span>
+              <span className="text-[#cbd5e1] font-semibold">{backtest.ticker} &bull; 1D</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#59616B]">MODEL:</span>
-              <span className="text-[#38BDF8]">{backtest.strategy_name}</span>
+              <span className="text-[#64748b]">MODEL:</span>
+              <span className="text-[#3b82f6]">{backtest.strategy_name}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#59616B]">EXECUTION TIMING:</span>
+              <span className="text-[#64748b]">EXECUTION TIMING:</span>
               <span className="text-[#10B981]">Next Bar Open (Zero Bias)</span>
             </div>
           </div>
@@ -98,31 +98,31 @@ export default function BacktestReRunModal({
           {/* Form Fields */}
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div>
-              <label className="block text-[10px] text-[#59616B] uppercase mb-1">Start Date</label>
+              <label className="block text-[10px] text-[#64748b] uppercase mb-1">Start Date</label>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full bg-[#0B0D10] border border-[#252A31] rounded-[2px] px-2.5 py-1.5 text-[#D8DCE2] focus:outline-none focus:border-[#38BDF8]"
+                className="w-full bg-[#080d1a] border border-[#1e293b] rounded-[2px] px-2.5 py-1.5 text-[#cbd5e1] focus:outline-none focus:border-[#3b82f6]"
               />
             </div>
 
             <div>
-              <label className="block text-[10px] text-[#59616B] uppercase mb-1">End Date</label>
+              <label className="block text-[10px] text-[#64748b] uppercase mb-1">End Date</label>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full bg-[#0B0D10] border border-[#252A31] rounded-[2px] px-2.5 py-1.5 text-[#D8DCE2] focus:outline-none focus:border-[#38BDF8]"
+                className="w-full bg-[#080d1a] border border-[#1e293b] rounded-[2px] px-2.5 py-1.5 text-[#cbd5e1] focus:outline-none focus:border-[#3b82f6]"
               />
             </div>
 
             <div>
-              <label className="block text-[10px] text-[#59616B] uppercase mb-1">Benchmark</label>
+              <label className="block text-[10px] text-[#64748b] uppercase mb-1">Benchmark</label>
               <select
                 value={benchmark}
                 onChange={(e) => setBenchmark(e.target.value)}
-                className="w-full bg-[#0B0D10] border border-[#252A31] rounded-[2px] px-2 py-1.5 text-[#D8DCE2] focus:outline-none focus:border-[#38BDF8]"
+                className="w-full bg-[#080d1a] border border-[#1e293b] rounded-[2px] px-2 py-1.5 text-[#cbd5e1] focus:outline-none focus:border-[#3b82f6]"
               >
                 {BENCHMARKS.map((b) => (
                   <option key={b.symbol} value={b.symbol}>
@@ -133,47 +133,47 @@ export default function BacktestReRunModal({
             </div>
 
             <div>
-              <label className="block text-[10px] text-[#59616B] uppercase mb-1">Initial Capital ($)</label>
+              <label className="block text-[10px] text-[#64748b] uppercase mb-1">Initial Capital ($)</label>
               <input
                 type="number"
                 value={capital}
                 onChange={(e) => setCapital(Number(e.target.value))}
-                className="w-full bg-[#0B0D10] border border-[#252A31] rounded-[2px] px-2.5 py-1.5 text-[#D8DCE2] focus:outline-none focus:border-[#38BDF8]"
+                className="w-full bg-[#080d1a] border border-[#1e293b] rounded-[2px] px-2.5 py-1.5 text-[#cbd5e1] focus:outline-none focus:border-[#3b82f6]"
               />
             </div>
 
             <div>
-              <label className="block text-[10px] text-[#59616B] uppercase mb-1">Commission (%)</label>
+              <label className="block text-[10px] text-[#64748b] uppercase mb-1">Commission (%)</label>
               <input
                 type="number"
                 step="0.01"
                 value={commission}
                 onChange={(e) => setCommission(Number(e.target.value))}
-                className="w-full bg-[#0B0D10] border border-[#252A31] rounded-[2px] px-2.5 py-1.5 text-[#D8DCE2] focus:outline-none focus:border-[#38BDF8]"
+                className="w-full bg-[#080d1a] border border-[#1e293b] rounded-[2px] px-2.5 py-1.5 text-[#cbd5e1] focus:outline-none focus:border-[#3b82f6]"
               />
             </div>
 
             <div>
-              <label className="block text-[10px] text-[#59616B] uppercase mb-1">Slippage (%)</label>
+              <label className="block text-[10px] text-[#64748b] uppercase mb-1">Slippage (%)</label>
               <input
                 type="number"
                 step="0.01"
                 value={slippage}
                 onChange={(e) => setSlippage(Number(e.target.value))}
-                className="w-full bg-[#0B0D10] border border-[#252A31] rounded-[2px] px-2.5 py-1.5 text-[#D8DCE2] focus:outline-none focus:border-[#38BDF8]"
+                className="w-full bg-[#080d1a] border border-[#1e293b] rounded-[2px] px-2.5 py-1.5 text-[#cbd5e1] focus:outline-none focus:border-[#3b82f6]"
               />
             </div>
           </div>
 
           {/* State Indicator */}
           {status !== "IDLE" && (
-            <div className="border border-[#252A31] bg-[#0B0D10] p-2.5 rounded-[2px] flex items-center justify-between text-[11px]">
+            <div className="border border-[#1e293b] bg-[#080d1a] p-2.5 rounded-[2px] flex items-center justify-between text-[11px]">
               <div className="flex items-center space-x-2">
-                <RefreshCw className={`h-3.5 w-3.5 ${status !== "COMPLETE" && status !== "ERROR" ? "animate-spin text-[#38BDF8]" : "text-[#10B981]"}`} />
-                <span className="text-[#89919C]">STATUS:</span>
-                <span className="font-bold text-[#D8DCE2] uppercase">{status}</span>
+                <RefreshCw className={`h-3.5 w-3.5 ${status !== "COMPLETE" && status !== "ERROR" ? "animate-spin text-[#3b82f6]" : "text-[#10B981]"}`} />
+                <span className="text-[#94a3b8]">STATUS:</span>
+                <span className="font-bold text-[#cbd5e1] uppercase">{status}</span>
               </div>
-              <span className="text-[10px] text-[#59616B]">
+              <span className="text-[10px] text-[#64748b]">
                 {status === "QUEUED" && "Dispatched to engine queue..."}
                 {status === "RUNNING" && "Evaluating signal transitions..."}
                 {status === "CALCULATING" && "Computing metrics & risk..."}
@@ -192,18 +192,18 @@ export default function BacktestReRunModal({
         </div>
 
         {/* Actions Footer */}
-        <div className="flex items-center justify-end space-x-2 px-4 py-3 border-t border-[#252A31] bg-[#0B0D10]">
+        <div className="flex items-center justify-end space-x-2 px-4 py-3 border-t border-[#1e293b] bg-[#080d1a]">
           <button
             onClick={onClose}
             disabled={status === "RUNNING" || status === "CALCULATING"}
-            className="px-3 py-1.5 rounded-[2px] border border-[#252A31] bg-[#101318] hover:bg-[#141820] text-[#89919C] hover:text-[#D8DCE2] transition-colors"
+            className="px-3 py-1.5 rounded-[2px] border border-[#1e293b] bg-[#0b1222] hover:bg-[#0b1222] text-[#94a3b8] hover:text-[#cbd5e1] transition-colors"
           >
             CANCEL
           </button>
           <button
             onClick={handleExecute}
             disabled={status === "RUNNING" || status === "CALCULATING"}
-            className="flex items-center space-x-1.5 px-4 py-1.5 rounded-[2px] bg-[#38BDF8] hover:bg-sky-500 text-[#0B0D10] font-bold transition-colors disabled:opacity-50"
+            className="flex items-center space-x-1.5 px-4 py-1.5 rounded-[2px] bg-[#3b82f6] hover:bg-sky-500 text-[#080d1a] font-bold transition-colors disabled:opacity-50"
           >
             <Play className="h-3.5 w-3.5 fill-current" />
             <span>RUN BACKTEST</span>

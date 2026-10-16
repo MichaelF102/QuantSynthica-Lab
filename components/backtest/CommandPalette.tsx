@@ -180,19 +180,19 @@ export default function CommandPalette({
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 bg-black/80 backdrop-blur-xs p-4 select-none">
-      <div className="w-full max-w-lg border border-[#252A31] bg-[#101318] rounded-[2px] shadow-2xl overflow-hidden font-mono text-xs">
+      <div className="w-full max-w-lg border border-[#1e293b] bg-[#0b1222] rounded-[2px] shadow-2xl overflow-hidden font-mono text-xs">
         {/* Search header */}
-        <div className="flex items-center px-3 py-2.5 border-b border-[#252A31] bg-[#0B0D10]">
-          <Search className="h-4 w-4 text-[#59616B] mr-2" />
+        <div className="flex items-center px-3 py-2.5 border-b border-[#1e293b] bg-[#080d1a]">
+          <Search className="h-4 w-4 text-[#64748b] mr-2" />
           <input
             autoFocus
             type="text"
             placeholder="Type a command or search actions... (Esc to cancel)"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="flex-1 bg-transparent text-[#D8DCE2] placeholder-[#59616B] text-xs focus:outline-none"
+            className="flex-1 bg-transparent text-[#cbd5e1] placeholder-[#64748b] text-xs focus:outline-none"
           />
-          <kbd className="px-1.5 py-0.5 rounded-[2px] bg-[#252A31] text-[10px] text-[#89919C]">
+          <kbd className="px-1.5 py-0.5 rounded-[2px] bg-[#1e293b] text-[10px] text-[#94a3b8]">
             ESC
           </kbd>
         </div>
@@ -200,7 +200,7 @@ export default function CommandPalette({
         {/* Command list */}
         <div className="max-h-80 overflow-y-auto py-1">
           {filtered.length === 0 ? (
-            <div className="px-4 py-6 text-center text-[#59616B]">No matching commands found</div>
+            <div className="px-4 py-6 text-center text-[#64748b]">No matching commands found</div>
           ) : (
             filtered.map((cmd) => {
               const Icon = cmd.icon;
@@ -208,14 +208,14 @@ export default function CommandPalette({
                 <button
                   key={cmd.id}
                   onClick={cmd.action}
-                  className="w-full flex items-center justify-between px-3 py-2 hover:bg-[#141820] text-left transition-colors group"
+                  className="w-full flex items-center justify-between px-3 py-2 hover:bg-[#0b1222] text-left transition-colors group"
                 >
                   <div className="flex items-center space-x-2.5">
-                    <Icon className="h-3.5 w-3.5 text-[#89919C] group-hover:text-[#38BDF8]" />
-                    <span className="text-[#D8DCE2] group-hover:text-white">{cmd.label}</span>
+                    <Icon className="h-3.5 w-3.5 text-[#94a3b8] group-hover:text-[#3b82f6]" />
+                    <span className="text-[#cbd5e1] group-hover:text-white">{cmd.label}</span>
                   </div>
                   {cmd.shortcut && (
-                    <kbd className="px-1.5 py-0.5 rounded-[2px] bg-[#0B0D10] border border-[#252A31] text-[10px] text-[#89919C]">
+                    <kbd className="px-1.5 py-0.5 rounded-[2px] bg-[#080d1a] border border-[#1e293b] text-[10px] text-[#94a3b8]">
                       {cmd.shortcut}
                     </kbd>
                   )}
@@ -225,7 +225,7 @@ export default function CommandPalette({
           )}
         </div>
 
-        <div className="px-3 py-1.5 border-t border-[#252A31] bg-[#0B0D10] flex justify-between text-[10px] text-[#59616B]">
+        <div className="px-3 py-1.5 border-t border-[#1e293b] bg-[#080d1a] flex justify-between text-[10px] text-[#64748b]">
           <span>QuantSynthica Lab Terminal Command Palette</span>
           <span>Press Enter to select</span>
         </div>

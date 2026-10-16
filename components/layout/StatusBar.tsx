@@ -36,7 +36,7 @@ export default function StatusBar() {
   }, []);
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 z-40 flex h-7 items-center justify-between border-t border-border bg-[#1e222d] px-4 text-[11px] text-[#787b86]">
+    <footer className="fixed bottom-0 left-0 right-0 z-40 flex h-7 items-center justify-between border-t border-border bg-[#0b1222] px-4 text-[11px] text-[#94a3b8]">
       <div className="flex items-center gap-4">
         <span className="flex items-center gap-1.5">
           <span className={cn("h-1.5 w-1.5 rounded-full", engineReady ? "bg-market-up" : "bg-brand-amber")} />
@@ -46,7 +46,7 @@ export default function StatusBar() {
       </div>
       <div className="flex items-center gap-4">
         <span className="hidden md:inline">{latency}</span>
-        <span className="tabular-nums text-[#d1d4dc]">{timeStr}</span>
+        <span className="tabular-nums text-[#cbd5e1]">{timeStr}</span>
       </div>
     </footer>
   );

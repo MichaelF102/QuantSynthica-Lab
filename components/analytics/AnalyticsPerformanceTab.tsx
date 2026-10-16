@@ -39,8 +39,8 @@ export default function AnalyticsPerformanceTab({
   return (
     <div className="space-y-4">
       {/* Monthly Returns Heatmap Matrix */}
-      <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-4 space-y-3">
-        <div className="flex items-center justify-between pb-2 border-b border-[#1E2530]">
+      <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-4 space-y-3">
+        <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
           <div>
             <div className="flex items-center space-x-1.5">
               <span className="font-semibold text-white text-xs tracking-tight">
@@ -48,7 +48,7 @@ export default function AnalyticsPerformanceTab({
               </span>
               <Info className="w-3.5 h-3.5 text-slate-500 cursor-pointer" />
             </div>
-            <p className="text-[11px] text-[#89919C]">
+            <p className="text-[11px] text-[#94a3b8]">
               Calendar month return distribution across historical backtest years
             </p>
           </div>
@@ -57,7 +57,7 @@ export default function AnalyticsPerformanceTab({
         <div className="overflow-x-auto">
           <table className="w-full text-center text-xs font-mono">
             <thead>
-              <tr className="border-b border-[#1E2530] text-[10px] text-slate-400 uppercase font-sans">
+              <tr className="border-b border-[#1e293b] text-[10px] text-slate-400 uppercase font-sans">
                 <th className="py-2 text-left pl-2">Year</th>
                 {months.map((m) => (
                   <th key={m} className="py-2">{m}</th>
@@ -65,9 +65,9 @@ export default function AnalyticsPerformanceTab({
                 <th className="py-2 text-right pr-2">YTD</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1E2530]/40">
+            <tbody className="divide-y divide-[#1e293b]/40">
               {monthlyMatrix.map((row) => (
-                <tr key={row.year} className="hover:bg-[#111622]">
+                <tr key={row.year} className="hover:bg-[#0b1222]">
                   <td className="py-2.5 text-left font-bold text-white pl-2">{row.year}</td>
                   {months.map((m) => {
                     const val = (row as any)[m];
@@ -88,8 +88,8 @@ export default function AnalyticsPerformanceTab({
       </div>
 
       {/* Annual Breakdown Table */}
-      <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-4 space-y-3">
-        <div className="pb-2 border-b border-[#1E2530]">
+      <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-4 space-y-3">
+        <div className="pb-2 border-b border-[#1e293b]">
           <span className="font-semibold text-white text-xs tracking-tight">
             Annual Performance Breakdown vs Benchmark
           </span>
@@ -98,7 +98,7 @@ export default function AnalyticsPerformanceTab({
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-[#1E2530] text-[10px] text-slate-400 uppercase font-sans">
+              <tr className="border-b border-[#1e293b] text-[10px] text-slate-400 uppercase font-sans">
                 <th className="py-2">Year</th>
                 <th className="py-2">Strategy Return</th>
                 <th className="py-2">Benchmark Return</th>
@@ -107,9 +107,9 @@ export default function AnalyticsPerformanceTab({
                 <th className="py-2">Max Drawdown</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1E2530]/50">
+            <tbody className="divide-y divide-[#1e293b]/50">
               {annualComparison.map((r) => (
-                <tr key={r.year} className="hover:bg-[#111622]/50">
+                <tr key={r.year} className="hover:bg-[#0b1222]/50">
                   <td className="py-2.5 font-bold text-white">{r.year}</td>
                   <td className="py-2.5 text-[#10B981] font-semibold">{r.strategy}</td>
                   <td className="py-2.5 text-slate-300">{r.benchmark}</td>

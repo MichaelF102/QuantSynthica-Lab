@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import { Info } from "lucide-react";
 
+import { TOOLTIP_STYLE } from "@/lib/chartTheme";
 interface TrajectoryPoint {
   date: string;
   p95: number;
@@ -60,9 +61,9 @@ export default function PortfolioMonteCarloWidget() {
   const data = useMemo(() => generateMonteCarloPaths(), []);
 
   return (
-    <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3.5 flex flex-col justify-between h-full">
+    <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 flex flex-col justify-between h-full">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-[#1A2230]">
+      <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
         <div className="flex items-center space-x-2">
           <h2 className="text-sm font-bold text-white tracking-tight font-sans">
             Monte Carlo Simulation
@@ -85,43 +86,37 @@ export default function PortfolioMonteCarloWidget() {
       <div className="relative h-36 w-full pt-2">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 8, right: 65, left: -10, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="2 2" stroke="#161E2C" vertical={false} />
+            <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="date"
               stroke="#475569"
               tickLine={false}
-              tick={{ fontSize: 9, fill: "#64748B", fontFamily: "monospace" }}
+              tick={{ fontSize: 10, fill: "#64748b" }}
             />
             <YAxis
               domain={[50000, 250000]}
               stroke="#475569"
               tickLine={false}
-              tick={{ fontSize: 9, fill: "#64748B", fontFamily: "monospace" }}
+              tick={{ fontSize: 10, fill: "#64748b" }}
               tickFormatter={(v: number) => `$${Math.round(v / 1000)}K`}
             />
             <Tooltip
-              contentStyle={{
-                backgroundColor: "#0C1017",
-                borderColor: "#202C3F",
-                borderRadius: "6px",
-                fontSize: "11px",
-                color: "#E2E8F0",
-              }}
+              contentStyle={TOOLTIP_STYLE}
               formatter={(val: any, name: string) => [
                 `$${Number(val).toLocaleString()}`,
                 name.toUpperCase(),
               ]}
             />
             {/* Background Sample Paths */}
-            <Line type="monotone" dataKey="path1" stroke="#38BDF8" strokeWidth={0.6} strokeOpacity={0.25} dot={false} />
-            <Line type="monotone" dataKey="path2" stroke="#38BDF8" strokeWidth={0.6} strokeOpacity={0.25} dot={false} />
-            <Line type="monotone" dataKey="path3" stroke="#38BDF8" strokeWidth={0.6} strokeOpacity={0.25} dot={false} />
-            <Line type="monotone" dataKey="path4" stroke="#38BDF8" strokeWidth={0.6} strokeOpacity={0.25} dot={false} />
-            <Line type="monotone" dataKey="path5" stroke="#38BDF8" strokeWidth={0.6} strokeOpacity={0.25} dot={false} />
-            <Line type="monotone" dataKey="path6" stroke="#38BDF8" strokeWidth={0.6} strokeOpacity={0.25} dot={false} />
+            <Line type="monotone" dataKey="path1" stroke="#3b82f6" strokeWidth={0.6} strokeOpacity={0.25} dot={false} />
+            <Line type="monotone" dataKey="path2" stroke="#3b82f6" strokeWidth={0.6} strokeOpacity={0.25} dot={false} />
+            <Line type="monotone" dataKey="path3" stroke="#3b82f6" strokeWidth={0.6} strokeOpacity={0.25} dot={false} />
+            <Line type="monotone" dataKey="path4" stroke="#3b82f6" strokeWidth={0.6} strokeOpacity={0.25} dot={false} />
+            <Line type="monotone" dataKey="path5" stroke="#3b82f6" strokeWidth={0.6} strokeOpacity={0.25} dot={false} />
+            <Line type="monotone" dataKey="path6" stroke="#3b82f6" strokeWidth={0.6} strokeOpacity={0.25} dot={false} />
             {/* Key Percentiles */}
-            <Line type="monotone" dataKey="p95" stroke="#38BDF8" strokeWidth={1.5} dot={false} />
-            <Line type="monotone" dataKey="median" stroke="#0284C7" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="p95" stroke="#3b82f6" strokeWidth={1.5} dot={false} />
+            <Line type="monotone" dataKey="median" stroke="#2563eb" strokeWidth={2} dot={false} />
             <Line type="monotone" dataKey="p05" stroke="#60A5FA" strokeWidth={1.5} dot={false} />
           </LineChart>
         </ResponsiveContainer>
@@ -130,7 +125,7 @@ export default function PortfolioMonteCarloWidget() {
         <div className="absolute right-0 top-3 flex flex-col justify-between h-28 text-[9px] font-mono text-slate-300 pointer-events-none text-right pr-1">
           <div>
             <div className="text-slate-400">95th %</div>
-            <div className="font-bold text-[#38BDF8]">$182,450</div>
+            <div className="font-bold text-[#3b82f6]">$182,450</div>
           </div>
           <div>
             <div className="text-slate-400">Median</div>
@@ -144,7 +139,7 @@ export default function PortfolioMonteCarloWidget() {
       </div>
 
       {/* Bottom KPI Metrics */}
-      <div className="grid grid-cols-4 gap-2 pt-2 border-t border-[#1A2230] text-center">
+      <div className="grid grid-cols-4 gap-2 pt-2 border-t border-[#1e293b] text-center">
         <div>
           <div className="text-[10px] text-slate-400 leading-tight">Expected Return</div>
           <div className="font-mono font-bold text-xs text-[#10B981] mt-0.5">+12.8%</div>

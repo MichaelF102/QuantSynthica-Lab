@@ -13,7 +13,6 @@ import {
 } from "@/types";
 import {
   SEED_STRATEGIES,
-  SEED_BACKTESTS,
   SEED_STOCK_PROFILES,
   generateSyntheticBars,
 } from "@/lib/seedData";
@@ -467,91 +466,9 @@ export const api = {
           benchmark,
         }),
       }, 10000);
-    } catch {
-      // High fidelity client-side simulated backtest result
-      const btId = `bt_${Date.now()}`;
-      const isIndia = (strategy.asset || "").endsWith(".NS") || ["RELIANCE", "TCS", "INFY", "HDFCBANK", "GENUSPOWER"].includes(strategy.asset);
-      const cap = strategy.execution?.initial_capital || (isIndia ? 1000000 : 100000);
-      const ret = 0.22 + (Math.random() * 0.15);
-
-      const simBt: BacktestResult = {
-        id: btId,
-        strategy_id: strategy.id,
-        strategy_name: strategy.name,
-        ticker: strategy.asset || (isIndia ? "RELIANCE" : "AAPL"),
-        asset: strategy.asset || (isIndia ? "RELIANCE" : "AAPL"),
-        benchmark: benchmark || (isIndia ? "^NSEI" : "SPY"),
-        start_date: startDate,
-        end_date: endDate,
-        status: "COMPLETED",
-        metrics: {
-          total_return: ret,
-          cagr: ret * 0.85,
-          annualized_return: ret * 0.9,
-          annualized_volatility: 0.165,
-          sharpe_ratio: 1.68,
-          sortino_ratio: 2.25,
-          calmar_ratio: 0.95,
-          max_drawdown: 12.8,
-          max_drawdown_duration: 32,
-          win_rate: 62.5,
-          loss_rate: 37.5,
-          profit_factor: 2.15,
-          expectancy: 1.92,
-          num_trades: 38,
-          winning_trades: 24,
-          losing_trades: 14,
-          avg_trade_return: 1.35,
-          avg_win: 3.55,
-          avg_loss: 1.85,
-          avg_holding_period: 15.0,
-          turnover: 1.4,
-          total_fees: Math.round(cap * 0.0015),
-          gross_pnl: Math.round(cap * (ret + 0.002)),
-          net_pnl: Math.round(cap * ret),
-          best_trade: 8.5,
-          worst_trade: -3.2,
-          alpha: 0.05,
-          beta: 1.0,
-          information_ratio: 1.2,
-          tracking_error: 0.05,
-        },
-        equity_curve: Array.from({ length: 40 }, (_, i) => ({
-          date: `2023-${String(Math.floor(i / 3.5) + 1).padStart(2, "0")}-${String((i % 28) + 1).padStart(2, "0")}`,
-          portfolio_value: Math.round(cap * (1 + (i / 40) * ret + Math.sin(i * 0.9) * 0.012)),
-          benchmark_value: Math.round(cap * (1 + (i / 40) * (ret * 0.6) + Math.sin(i * 0.7) * 0.01)),
-          cash: Math.round(cap * 0.12),
-          drawdown: Math.max(0, Number((Math.sin(i * 0.4) * 5.5).toFixed(2))),
-          returns: 0.005,
-          benchmark_returns: 0.003,
-        })),
-        trades: [
-          {
-            id: `tr_${Date.now()}_1`,
-            ticker: strategy.asset || (isIndia ? "RELIANCE" : "AAPL"),
-            direction: "LONG",
-            entry_date: `${startDate.split("-")[0]}-02-15`,
-            exit_date: `${startDate.split("-")[0]}-03-20`,
-            entry_price: isIndia ? 1240.0 : 155.0,
-            exit_price: isIndia ? 1340.0 : 168.5,
-            quantity: isIndia ? 500 : 400,
-            gross_pnl: isIndia ? 50000 : 5400,
-            fees: isIndia ? 150 : 25,
-            net_pnl: isIndia ? 49850 : 5375,
-            return_pct: 8.06,
-            holding_period_bars: 25,
-            exit_reason: "TAKE_PROFIT",
-            mae: -1.2,
-            mfe: 9.5,
-          },
-        ],
-        monthly_returns: [],
-        logs: ["Simulated run generated"],
-        created_at: new Date().toISOString(),
-      };
-
-      saveLocalBacktest(simBt);
-      return simBt;
+    } catch (err) {
+      // Never fabricate performance numbers: surface the failure to the caller.
+      throw err instanceof Error ? err : new Error("Backtest engine unavailable. Check the backend and retry.");
     }
   },
 
@@ -561,10 +478,8 @@ export const api = {
       if (remote && remote.length > 0) return remote;
     } catch {}
 
-    const local = getLocalBacktests();
-    const existingIds = new Set(local.map((b) => b.id));
-    const seeds = SEED_BACKTESTS.filter((b) => !existingIds.has(b.id));
-    return [...local, ...seeds];
+    // Only real, locally saved runs; never fabricated seed results.
+    return getLocalBacktests();
   },
 
   getBacktest: async (id: string): Promise<BacktestResult> => {
@@ -574,9 +489,6 @@ export const api = {
 
     const local = getLocalBacktests().find((b) => b.id === id);
     if (local) return local;
-
-    const seed = SEED_BACKTESTS.find((b) => b.id === id);
-    if (seed) return seed;
 
     throw new Error(`Backtest ${id} not found.`);
   },

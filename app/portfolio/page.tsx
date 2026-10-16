@@ -22,8 +22,9 @@ import PortfolioStockBasketModal from "@/components/portfolio/PortfolioStockBask
 import { api } from "@/lib/api";
 import { loadSystemSettings } from "@/lib/settings";
 
+import { SERIES_COLORS } from "@/lib/chartTheme";
 const INDIA_INITIAL_ALLOCATIONS: AssetAllocation[] = [
-  { ticker: "KAYNES", weight: 25.0, value: 305850, color: "#38BDF8", targetWeight: 22.0, drift: 3.0 },
+  { ticker: "KAYNES", weight: 25.0, value: 305850, color: "#3b82f6", targetWeight: 22.0, drift: 3.0 },
   { ticker: "GENUSPOWER", weight: 25.0, value: 305850, color: "#10B981", targetWeight: 24.0, drift: 1.0 },
   { ticker: "RELIANCE", weight: 20.0, value: 244680, color: "#F59E0B", targetWeight: 22.0, drift: -2.0 },
   { ticker: "TCS", weight: 15.0, value: 183510, color: "#EC4899", targetWeight: 16.0, drift: -1.0 },
@@ -31,7 +32,7 @@ const INDIA_INITIAL_ALLOCATIONS: AssetAllocation[] = [
 ];
 
 const US_INITIAL_ALLOCATIONS: AssetAllocation[] = [
-  { ticker: "AAPL", weight: 20.0, value: 24468, color: "#38BDF8", targetWeight: 18.4, drift: 1.6 },
+  { ticker: "AAPL", weight: 20.0, value: 24468, color: "#3b82f6", targetWeight: 18.4, drift: 1.6 },
   { ticker: "MSFT", weight: 20.0, value: 24468, color: "#F59E0B", targetWeight: 16.7, drift: 3.3 },
   { ticker: "NVDA", weight: 20.0, value: 24468, color: "#EC4899", targetWeight: 28.2, drift: -8.2 },
   { ticker: "SPY", weight: 20.0, value: 24468, color: "#8B5CF6", targetWeight: 22.1, drift: -2.1 },
@@ -219,7 +220,7 @@ export default function PortfolioPage() {
   const handleAddStockQuick = (ticker: string) => {
     const sym = ticker.toUpperCase();
     if (allocations.some((a) => a.ticker === sym)) return;
-    const colors = ["#38BDF8", "#10B981", "#F59E0B", "#EC4899", "#8B5CF6", "#06B6D4"];
+    const colors = [...SERIES_COLORS];
     const newColor = colors[allocations.length % colors.length];
     const newAlloc: AssetAllocation = {
       ticker: sym,
@@ -234,7 +235,7 @@ export default function PortfolioPage() {
 
   return (
     <div className="min-h-[calc(100vh-6.5rem)] pb-16 text-slate-100">
-      <div className="mx-auto max-w-[1720px] animate-fade-up space-y-3.5 px-4 py-4">
+      <div className="app-container animate-fade-up space-y-4 py-6">
         {/* 1. Header & Parameter Ribbon */}
         <PortfolioHeader
           portfolioName={portfolioName}
@@ -269,6 +270,10 @@ export default function PortfolioPage() {
         {/* 2. Seven-Tab Institutional Sub-Navigation */}
         <PortfolioSubNav activeTab={activeTab} onTabChange={setActiveTab} />
 
+        <div role="note" className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300">
+        <span className="font-mono font-bold uppercase tracking-wider">Illustrative</span>
+        <span>Portfolio analytics widgets below are a layout preview and are not yet computed from your holdings.</span>
+      </div>
         {/* 3. 9-Metric KPI Strip with Country Benchmark Comparison */}
         <PortfolioKpiStrip benchmarkSymbol={benchmark} />
 

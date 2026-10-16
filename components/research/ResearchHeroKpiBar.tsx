@@ -101,50 +101,27 @@ export default function ResearchHeroKpiBar({
     ? marketCapFormatted
     : "--";
 
-  // 52W Range & Day Range derived from real bars
+  // 52W Range & Day Range derived from real bars only; missing data stays "—".
+  const fixed2 = (v: number | null) => (v === null ? "—" : v.toFixed(2));
   const { w52Low, w52High } = useMemo(() => {
-    if (bars && bars.length > 0) {
-      const validHighs = bars.map((b) => b.high).filter((h) => h !== undefined && h > 0);
-      const validLows = bars.map((b) => b.low).filter((l) => l !== undefined && l > 0);
-      if (validHighs.length > 0 && validLows.length > 0) {
-        return {
-          w52Low: Math.min(...validLows).toFixed(2),
-          w52High: Math.max(...validHighs).toFixed(2),
-        };
-      }
-    }
-    const base = lastPrice || (profile?.price ? Number(profile.price) : 100);
+    const highs = (bars ?? []).map((b) => b.high).filter((h) => typeof h === "number" && h > 0);
+    const lows = (bars ?? []).map((b) => b.low).filter((l) => typeof l === "number" && l > 0);
     return {
-      w52Low: (base * 0.75).toFixed(2),
-      w52High: (base * 1.35).toFixed(2),
+      w52Low: lows.length ? Math.min(...lows) : null,
+      w52High: highs.length ? Math.max(...highs) : null,
     };
-  }, [bars, lastPrice, profile]);
+  }, [bars]);
 
   const latestBar = bars[bars.length - 1];
-  const dayLow = latestBar?.low
-    ? latestBar.low.toFixed(2)
-    : lastPrice > 0
-    ? (lastPrice * 0.992).toFixed(2)
-    : "0.00";
-  const dayHigh = latestBar?.high
-    ? latestBar.high.toFixed(2)
-    : lastPrice > 0
-    ? (lastPrice * 1.008).toFixed(2)
-    : "0.00";
+  const dayLow = latestBar?.low > 0 ? latestBar.low : null;
+  const dayHigh = latestBar?.high > 0 ? latestBar.high : null;
 
-  const numW52Low = parseFloat(w52Low);
-  const numW52High = parseFloat(w52High);
-  const w52Pct =
-    numW52High > numW52Low
-      ? Math.max(0, Math.min(100, ((lastPrice - numW52Low) / (numW52High - numW52Low)) * 100))
-      : 50;
-
-  const numDayLow = parseFloat(dayLow);
-  const numDayHigh = parseFloat(dayHigh);
-  const dayPct =
-    numDayHigh > numDayLow
-      ? Math.max(0, Math.min(100, ((lastPrice - numDayLow) / (numDayHigh - numDayLow)) * 100))
-      : 50;
+  const rangePct = (lo: number | null, hi: number | null) =>
+    lo !== null && hi !== null && hi > lo && lastPrice > 0
+      ? Math.max(0, Math.min(100, ((lastPrice - lo) / (hi - lo)) * 100))
+      : null;
+  const w52Pct = rangePct(w52Low, w52High);
+  const dayPct = rangePct(dayLow, dayHigh);
 
   const changeAbs = (lastPrice * (Math.abs(change1D) / 100)).toFixed(2);
 
@@ -266,12 +243,12 @@ export default function ResearchHeroKpiBar({
           <div className="w-28 sm:w-32">
             <span className="block text-[10px] uppercase tracking-wide text-slate-500">52W Range</span>
             <span className="block text-[11px] font-semibold tabular-nums text-slate-200">
-              {sym}{w52Low} &ndash; {sym}{w52High}
+              {w52Low === null || w52High === null ? "—" : <>{sym}{fixed2(w52Low)} &ndash; {sym}{fixed2(w52High)}</>}
             </span>
             <div className="relative mt-1 h-1.5 w-full overflow-hidden rounded-full bg-surface-active">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-brand-blue to-market-up"
-                style={{ width: `${w52Pct}%` }}
+                style={{ width: `${w52Pct ?? 0}%` }}
               />
             </div>
           </div>
@@ -280,12 +257,12 @@ export default function ResearchHeroKpiBar({
           <div className="w-28 sm:w-32">
             <span className="block text-[10px] uppercase tracking-wide text-slate-500">Day Range</span>
             <span className="block text-[11px] font-semibold tabular-nums text-slate-200">
-              {sym}{dayLow} &ndash; {sym}{dayHigh}
+              {dayLow === null || dayHigh === null ? "—" : <>{sym}{fixed2(dayLow)} &ndash; {sym}{fixed2(dayHigh)}</>}
             </span>
             <div className="relative mt-1 h-1.5 w-full overflow-hidden rounded-full bg-surface-active">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-brand-blue to-market-up"
-                style={{ width: `${dayPct}%` }}
+                style={{ width: `${dayPct ?? 0}%` }}
               />
             </div>
           </div>

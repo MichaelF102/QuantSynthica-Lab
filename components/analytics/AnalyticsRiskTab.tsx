@@ -5,6 +5,7 @@ import { Info, ShieldAlert, AlertTriangle, Activity } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { BacktestResult } from "@/types";
 
+import { TOOLTIP_STYLE } from "@/lib/chartTheme";
 interface AnalyticsRiskTabProps {
   selectedBacktests: BacktestResult[];
 }
@@ -33,31 +34,31 @@ export default function AnalyticsRiskTab({
     <div className="space-y-4">
       {/* 4 Risk KPI Gauges */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3 space-y-1">
+        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
           <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Value at Risk (95% Daily)</span>
           <div className="text-xl font-bold text-[#EF4444] font-mono">1.42%</div>
           <p className="text-[10px] text-slate-400">95% confidence max expected single-day loss.</p>
         </div>
-        <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3 space-y-1">
+        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
           <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Conditional VaR (95% ES)</span>
           <div className="text-xl font-bold text-[#EF4444] font-mono">1.96%</div>
           <p className="text-[10px] text-slate-400">Average expected loss in worst 5% tail events.</p>
         </div>
-        <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3 space-y-1">
+        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
           <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Downside Deviation</span>
           <div className="text-xl font-bold text-amber-400 font-mono">9.84%</div>
           <p className="text-[10px] text-slate-400">Annualized downside volatility under zero return.</p>
         </div>
-        <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3 space-y-1">
+        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
           <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Ulcer Performance Index</span>
-          <div className="text-xl font-bold text-[#38BDF8] font-mono">3.42</div>
+          <div className="text-xl font-bold text-[#3b82f6] font-mono">3.42</div>
           <p className="text-[10px] text-slate-400">Measures depth and duration of underwater stress.</p>
         </div>
       </div>
 
       {/* Historical Stress Test Simulation Table */}
-      <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-4 space-y-3">
-        <div className="pb-2 border-b border-[#1E2530]">
+      <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-4 space-y-3">
+        <div className="pb-2 border-b border-[#1e293b]">
           <span className="font-semibold text-white text-xs tracking-tight">
             Historical Stress-Testing Simulations
           </span>
@@ -66,7 +67,7 @@ export default function AnalyticsRiskTab({
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-[#1E2530] text-[10px] text-slate-400 uppercase font-sans">
+              <tr className="border-b border-[#1e293b] text-[10px] text-slate-400 uppercase font-sans">
                 <th className="py-2">Macro Crisis Event</th>
                 <th className="py-2">Historical Window</th>
                 <th className="py-2">Market Drawdown</th>
@@ -74,9 +75,9 @@ export default function AnalyticsRiskTab({
                 <th className="py-2">Capital Preservation Alpha</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1E2530]/50">
+            <tbody className="divide-y divide-[#1e293b]/50">
               {stressScenarios.map((sc) => (
-                <tr key={sc.name} className="hover:bg-[#111622]/50">
+                <tr key={sc.name} className="hover:bg-[#0b1222]/50">
                   <td className="py-2.5 font-bold text-white">{sc.name}</td>
                   <td className="py-2.5 text-slate-400">{sc.duration}</td>
                   <td className="py-2.5 text-[#EF4444] font-semibold">{sc.marketReturn}</td>
@@ -90,8 +91,8 @@ export default function AnalyticsRiskTab({
       </div>
 
       {/* Drawdown Duration Distribution Histogram */}
-      <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-4 space-y-3">
-        <div className="pb-2 border-b border-[#1E2530]">
+      <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-4 space-y-3">
+        <div className="pb-2 border-b border-[#1e293b]">
           <span className="font-semibold text-white text-xs tracking-tight">
             Drawdown Severity Distribution (Days Spent in Drawdown Tier)
           </span>
@@ -99,18 +100,13 @@ export default function AnalyticsRiskTab({
         <div className="h-44">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={drawdownBins} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid stroke="#18202C" strokeDasharray="2 2" vertical={false} />
+              <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="range" stroke="#485362" fontSize={10} />
               <YAxis stroke="#485362" fontSize={10} />
               <Tooltip
-                contentStyle={{
-                  backgroundColor: "#0C1017",
-                  borderColor: "#202C3F",
-                  fontSize: "11px",
-                  fontFamily: "monospace",
-                }}
+                contentStyle={TOOLTIP_STYLE}
               />
-              <Bar dataKey="days" fill="#0284C7" isAnimationActive={false} />
+              <Bar dataKey="days" fill="#2563eb" isAnimationActive={false} />
             </BarChart>
           </ResponsiveContainer>
         </div>

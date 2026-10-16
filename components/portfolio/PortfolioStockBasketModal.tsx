@@ -31,7 +31,7 @@ interface PortfolioStockBasketModalProps {
 }
 
 const COLOR_PALETTE = [
-  "#38BDF8", // Sky blue
+  "#3b82f6", // Sky blue
   "#10B981", // Emerald
   "#F59E0B", // Amber
   "#EC4899", // Pink
@@ -302,11 +302,11 @@ export default function PortfolioStockBasketModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 font-mono text-xs">
-      <div className="bg-[#0B0E14] border border-[#202C3F] rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div className="bg-[#0B0E14] border border-[#1e293b] rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
         {/* 1. Modal Header */}
-        <div className="p-4 border-b border-[#1E2530] bg-[#0E131C] flex items-center justify-between">
+        <div className="p-4 border-b border-[#1e293b] bg-[#0E131C] flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="p-2 rounded bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/30">
+            <div className="p-2 rounded bg-[#3b82f6]/15 text-[#3b82f6] border border-[#3b82f6]/30">
               <PieIcon className="w-5 h-5" />
             </div>
             <div>
@@ -327,16 +327,16 @@ export default function PortfolioStockBasketModal({
           <button
             type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded hover:bg-[#151C28] transition-colors"
+            className="text-slate-400 hover:text-white p-1 rounded hover:bg-[#0b1222] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* 2. Market Switcher & Quick Add Strip */}
-        <div className="p-3 border-b border-[#1E2530] bg-[#090D14] flex flex-wrap items-center justify-between gap-3">
+        <div className="p-3 border-b border-[#1e293b] bg-[#080d1a] flex flex-wrap items-center justify-between gap-3">
           {/* Market Switcher */}
-          <div className="inline-flex rounded p-0.5 bg-[#111722] border border-[#1F2B3E]">
+          <div className="inline-flex rounded p-0.5 bg-[#0b1222] border border-[#1e293b]">
             <button
               type="button"
               onClick={() => onMarketChange("India")}
@@ -354,7 +354,7 @@ export default function PortfolioStockBasketModal({
               onClick={() => onMarketChange("US")}
               className={`flex items-center space-x-1.5 px-3 py-1 text-xs font-bold rounded transition-all cursor-pointer ${
                 market === "US"
-                  ? "bg-[#38BDF8] text-black shadow-sm"
+                  ? "bg-[#3b82f6] text-black shadow-sm"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -379,7 +379,7 @@ export default function PortfolioStockBasketModal({
         </div>
 
         {/* 3. Curated Presets Ribbon */}
-        <div className="p-3 border-b border-[#1E2530] bg-[#0C1017] space-y-1.5">
+        <div className="p-3 border-b border-[#1e293b] bg-[#0C1017] space-y-1.5">
           <div className="flex items-center justify-between text-[11px]">
             <span className="text-slate-400 font-bold uppercase tracking-wider">
               Quick Institutional Baskets ({market}):
@@ -393,16 +393,16 @@ export default function PortfolioStockBasketModal({
                 key={p.id}
                 type="button"
                 onClick={() => handleApplyPreset(p)}
-                className="p-2 rounded border border-[#202C3F] bg-[#111722] hover:border-[#38BDF8]/60 hover:bg-[#151D2A] text-left transition-all cursor-pointer group"
+                className="p-2 rounded border border-[#1e293b] bg-[#0b1222] hover:border-[#3b82f6]/60 hover:bg-[#151D2A] text-left transition-all cursor-pointer group"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-200 text-xs group-hover:text-[#38BDF8]">
+                  <span className="font-bold text-slate-200 text-xs group-hover:text-[#3b82f6]">
                     {p.name}
                   </span>
-                  <ArrowRight className="w-3 h-3 text-slate-500 group-hover:text-[#38BDF8] group-hover:translate-x-0.5 transition-transform" />
+                  <ArrowRight className="w-3 h-3 text-slate-500 group-hover:text-[#3b82f6] group-hover:translate-x-0.5 transition-transform" />
                 </div>
                 <div className="text-[10px] text-slate-400 truncate mt-0.5">{p.desc}</div>
-                <div className="text-[9px] text-[#38BDF8] mt-1 font-mono">
+                <div className="text-[9px] text-[#3b82f6] mt-1 font-mono">
                   {p.stocks.map((s) => s.ticker).join(", ")}
                 </div>
               </button>
@@ -411,7 +411,7 @@ export default function PortfolioStockBasketModal({
         </div>
 
         {/* 4. Stock Search & Add Bar */}
-        <div className="p-3 border-b border-[#1E2530] bg-[#0E131C]">
+        <div className="p-3 border-b border-[#1e293b] bg-[#0E131C]">
           <div className="flex items-center space-x-2">
             <div className="flex-1">
               <label className="text-[10px] text-slate-400 uppercase block mb-1">
@@ -439,7 +439,7 @@ export default function PortfolioStockBasketModal({
               <button
                 type="button"
                 onClick={handleNormalize}
-                className="px-2.5 py-1.5 bg-[#141A25] hover:bg-[#1B2332] border border-[#253247] rounded text-[#38BDF8] text-[11px] font-semibold transition-colors cursor-pointer"
+                className="px-2.5 py-1.5 bg-[#141A25] hover:bg-[#1B2332] border border-[#253247] rounded text-[#3b82f6] text-[11px] font-semibold transition-colors cursor-pointer"
                 title="Scale all weights proportionally to 100%"
               >
                 Normalize to 100%
@@ -450,10 +450,10 @@ export default function PortfolioStockBasketModal({
 
         {/* 5. Constituent Stocks Table */}
         <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-[#080B10]">
-          <div className="border border-[#1E2530] rounded overflow-hidden">
+          <div className="border border-[#1e293b] rounded overflow-hidden">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-[#1E2530] bg-[#0E131C] text-[10px] text-slate-400 uppercase">
+                <tr className="border-b border-[#1e293b] bg-[#0E131C] text-[10px] text-slate-400 uppercase">
                   <th className="py-2 px-3 w-8">#</th>
                   <th className="py-2 px-3">Stock Ticker</th>
                   <th className="py-2 px-3">Weight (%)</th>
@@ -462,7 +462,7 @@ export default function PortfolioStockBasketModal({
                   <th className="py-2 px-3 text-center w-12">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#1A2230] text-xs">
+              <tbody className="divide-y divide-[#1e293b] text-xs">
                 {basket.map((item, idx) => (
                   <tr key={item.ticker} className="hover:bg-[#0F141E] transition-colors">
                     <td className="py-2 px-3 font-mono text-slate-500">{idx + 1}</td>
@@ -486,7 +486,7 @@ export default function PortfolioStockBasketModal({
                           onChange={(e) =>
                             handleWeightChange(item.ticker, parseFloat(e.target.value) || 0)
                           }
-                          className="w-16 bg-[#131822] border border-[#252E3E] text-white text-xs px-2 py-1 rounded text-right font-mono focus:outline-none focus:border-[#38BDF8]"
+                          className="w-16 bg-[#0b1222] border border-[#1e293b] text-white text-xs px-2 py-1 rounded text-right font-mono focus:outline-none focus:border-[#3b82f6]"
                         />
                         <span className="text-slate-400 text-xs">%</span>
                       </div>
@@ -501,7 +501,7 @@ export default function PortfolioStockBasketModal({
                         onChange={(e) =>
                           handleWeightChange(item.ticker, parseFloat(e.target.value) || 0)
                         }
-                        className="w-full accent-[#38BDF8] cursor-pointer"
+                        className="w-full accent-[#3b82f6] cursor-pointer"
                       />
                     </td>
                     <td className="py-2 px-3 text-right font-mono text-slate-200">
@@ -512,7 +512,7 @@ export default function PortfolioStockBasketModal({
                       <button
                         type="button"
                         onClick={() => handleRemoveStock(item.ticker)}
-                        className="p-1 rounded text-slate-500 hover:text-[#EF4444] hover:bg-[#1E2530] transition-colors cursor-pointer"
+                        className="p-1 rounded text-slate-500 hover:text-[#EF4444] hover:bg-[#1e293b] transition-colors cursor-pointer"
                         title={`Remove ${item.ticker}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -526,7 +526,7 @@ export default function PortfolioStockBasketModal({
         </div>
 
         {/* 6. Footer Total Weight & Apply Bar */}
-        <div className="p-3 border-t border-[#1E2530] bg-[#0E131C] flex flex-wrap items-center justify-between gap-3">
+        <div className="p-3 border-t border-[#1e293b] bg-[#0E131C] flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2">
               <span className="text-slate-400 text-xs">Total Weight:</span>
@@ -554,7 +554,7 @@ export default function PortfolioStockBasketModal({
               <button
                 type="button"
                 onClick={handleNormalize}
-                className="text-[11px] text-[#38BDF8] hover:underline flex items-center space-x-1"
+                className="text-[11px] text-[#3b82f6] hover:underline flex items-center space-x-1"
               >
                 <RefreshCw className="w-3 h-3" />
                 <span>Auto-Fix to 100%</span>
@@ -566,14 +566,14 @@ export default function PortfolioStockBasketModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-1.5 rounded border border-[#202C3F] bg-[#111722] hover:bg-[#151D2A] text-slate-300 text-xs transition-colors cursor-pointer"
+              className="px-3.5 py-1.5 rounded border border-[#1e293b] bg-[#0b1222] hover:bg-[#151D2A] text-slate-300 text-xs transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleSave}
-              className="flex items-center space-x-1.5 px-4 py-1.5 rounded bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-bold shadow-md transition-colors cursor-pointer"
+              className="flex items-center space-x-1.5 px-4 py-1.5 rounded bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-bold shadow-md transition-colors cursor-pointer"
             >
               <Check className="w-4 h-4" />
               <span>Apply &amp; Simulate Basket</span>

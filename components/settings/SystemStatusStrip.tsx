@@ -57,12 +57,12 @@ export default function SystemStatusStrip({
   }, [apiUrl]);
 
   return (
-    <div className="bg-[#080C14] border border-[#1E2530] rounded-lg p-2.5 flex flex-wrap items-center justify-between gap-3 text-xs font-mono select-none">
+    <div className="bg-[#080C14] border border-[#1e293b] rounded-lg p-2.5 flex flex-wrap items-center justify-between gap-3 text-xs font-mono select-none">
       {/* 5 Indicator Badges */}
       <div className="flex flex-wrap items-center gap-4 sm:gap-6">
         {/* Data Feed */}
         <div className="flex items-center space-x-1.5">
-          <Globe className="w-3.5 h-3.5 text-[#38BDF8]" />
+          <Globe className="w-3.5 h-3.5 text-[#3b82f6]" />
           <span className="text-slate-400 text-[11px]">DATA FEED</span>
           <span className="flex items-center space-x-1 font-bold text-[#10B981] text-[11px]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
@@ -72,7 +72,7 @@ export default function SystemStatusStrip({
 
         {/* Quant Engine */}
         <div className="flex items-center space-x-1.5">
-          <Cpu className="w-3.5 h-3.5 text-[#38BDF8]" />
+          <Cpu className="w-3.5 h-3.5 text-[#3b82f6]" />
           <span className="text-slate-400 text-[11px]">QUANT ENGINE</span>
           <span
             className={`flex items-center space-x-1 font-bold text-[11px] ${
@@ -93,7 +93,7 @@ export default function SystemStatusStrip({
           <HardDrive className="w-3.5 h-3.5 text-slate-400" />
           <span className="text-slate-400 text-[11px]">CACHE</span>
           <span className="flex items-center space-x-1 font-bold text-slate-200 text-[11px]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#38BDF8]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#3b82f6]" />
             <span>{cacheStatus} ({cacheSize})</span>
           </span>
         </div>
@@ -138,7 +138,7 @@ export default function SystemStatusStrip({
         className="flex items-center space-x-1 text-[11px] text-slate-400 hover:text-white px-2 py-0.5 rounded hover:bg-[#141C28] transition-colors disabled:opacity-50"
         title="Check system telemetry"
       >
-        <RefreshCw className={`w-3 h-3 ${loading ? "animate-spin text-[#38BDF8]" : ""}`} />
+        <RefreshCw className={`w-3 h-3 ${loading ? "animate-spin text-[#3b82f6]" : ""}`} />
         <span className="hidden sm:inline">Telemetry</span>
       </button>
     </div>

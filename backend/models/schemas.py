@@ -166,6 +166,8 @@ class BacktestResult(BaseModel):
     monthly_returns: List[Dict[str, Any]] = Field(default_factory=list)
     logs: List[str] = Field(default_factory=list)
     created_at: Optional[str] = None
+    # True when any input series was generated rather than fetched (dev/test only).
+    is_synthetic: bool = False
 
 class OptimizationParamRange(BaseModel):
     name: str # e.g. "fast_period" or "stop_loss_pct"

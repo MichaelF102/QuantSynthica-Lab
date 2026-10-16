@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { BacktestResult, StrategyConfig } from "@/types";
-import { SEED_BACKTESTS, SEED_STRATEGIES } from "@/lib/seedData";
+import { SEED_STRATEGIES } from "@/lib/seedData";
 import { formatCurrency, formatPercent, formatRatio } from "@/lib/formatters";
 import { BENCHMARKS } from "@/lib/constants";
 import { loadSystemSettings } from "@/lib/settings";
@@ -23,9 +23,9 @@ function BacktestsContent() {
   const searchParams = useSearchParams();
   const runStrategyId = searchParams.get("run");
 
-  const [backtests, setBacktests] = useState<BacktestResult[]>(() => SEED_BACKTESTS);
+  const [backtests, setBacktests] = useState<BacktestResult[]>([]);
   const [strategies, setStrategies] = useState<StrategyConfig[]>(() => SEED_STRATEGIES);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [loadNotice, setLoadNotice] = useState<string | null>(null);
 
   // Search & Filter State
@@ -82,9 +82,7 @@ function BacktestsContent() {
         api.getBacktests(),
         api.getStrategies(),
       ]);
-      if (bts && bts.length > 0) {
-        setBacktests([...bts].reverse());
-      }
+      setBacktests([...(bts ?? [])].reverse());
       if (strats && strats.length > 0) {
         setStrategies(strats);
         if (!selectedStratId) {
@@ -96,7 +94,7 @@ function BacktestsContent() {
       }
     } catch (err) {
       console.warn("Backtests registry load notice:", err);
-      setLoadNotice("Operating in local simulation cache mode");
+      setLoadNotice("Backtest engine unreachable — showing saved runs only");
     } finally {
       setLoading(false);
     }
@@ -180,11 +178,11 @@ function BacktestsContent() {
   }, [backtests, filterAsset, filterStatus, searchQuery]);
 
   return (
-    <div className="mx-auto max-w-[1920px] animate-fade-up space-y-4 p-4 font-sans text-xs">
+    <div className="app-container animate-fade-up space-y-4 py-6 font-sans text-xs">
       <div className="flex flex-col justify-between gap-3 border-b border-border pb-5 sm:flex-row sm:items-end">
         <div>
           <h1 className="qs-title text-[1.45rem]">Backtests</h1>
-          <p className="mt-1 text-sm text-stone-500">
+          <p className="mt-1 text-sm text-slate-500">
             {backtests.length} run{backtests.length === 1 ? "" : "s"} · fills at the next open
           </p>
         </div>
@@ -195,18 +193,25 @@ function BacktestsContent() {
         </button>
       </div>
 
+      {loadNotice && (
+        <div role="status" className="flex items-center justify-between rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300">
+          <span>{loadNotice}</span>
+          <button onClick={loadData} className="font-medium text-amber-200 hover:text-white">Retry</button>
+        </div>
+      )}
+
       {/* Execution Launcher Strip */}
       <div className="qs-panel space-y-3 p-4">
-        <div className="flex items-center justify-between border-b border-[#252A31] pb-1.5">
-          <span className="text-[12px] font-medium text-stone-500">
+        <div className="flex items-center justify-between border-b border-[#1e293b] pb-1.5">
+          <span className="text-[12px] font-medium text-slate-500">
             New simulation
           </span>
-          <span className="text-[10px] text-stone-500">Fills at next open</span>
+          <span className="text-[10px] text-slate-500">Fills at next open</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end text-xs">
           <div className="lg:col-span-2">
-            <label className="block text-[10px] text-[#59616B] uppercase mb-1">
+            <label className="block text-[10px] text-[#64748b] uppercase mb-1">
               Select Strategy Model
             </label>
             <select
@@ -218,7 +223,7 @@ function BacktestsContent() {
                   setTargetAsset(s.asset);
                 }
               }}
-              className="w-full rounded-[2px] bg-[#0B0D10] border border-[#252A31] px-2.5 py-1.5 text-xs text-[#D8DCE2] focus:outline-none focus:border-[#2962FF]"
+              className="w-full rounded-[2px] bg-[#080d1a] border border-[#1e293b] px-2.5 py-1.5 text-xs text-[#cbd5e1] focus:outline-none focus:border-[#2563eb]"
             >
               {strategies.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -230,10 +235,10 @@ function BacktestsContent() {
 
           <div className="lg:col-span-1">
             <div className="flex items-center justify-between mb-1">
-              <label className="text-[10px] text-[#59616B] uppercase">
+              <label className="text-[10px] text-[#64748b] uppercase">
                 Target Stock
               </label>
-              <span className={`text-[9px] px-1 py-0.2 rounded font-bold ${isTargetIndia ? "text-[#10B981] bg-[#10B981]/15" : "text-[#2962FF] bg-[#2962FF]/15"}`}>
+              <span className={`text-[9px] px-1 py-0.2 rounded font-bold ${isTargetIndia ? "text-[#10B981] bg-[#10B981]/15" : "text-[#2563eb] bg-[#2563eb]/15"}`}>
                 {isTargetIndia ? "🇮🇳 INDIA" : "🇺🇸 US"}
               </span>
             </div>
@@ -243,19 +248,19 @@ function BacktestsContent() {
                 value={targetAsset}
                 placeholder="e.g. GENUSPOWER, RELIANCE, AAPL..."
                 onChange={(e) => setTargetAsset(e.target.value.toUpperCase())}
-                className="w-full rounded-[2px] bg-[#0B0D10] border border-[#252A31] px-2.5 py-1.5 text-xs font-mono font-bold text-white focus:outline-none focus:border-[#2962FF]"
+                className="w-full rounded-[2px] bg-[#080d1a] border border-[#1e293b] px-2.5 py-1.5 text-xs font-mono font-bold text-white focus:outline-none focus:border-[#2563eb]"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-[10px] text-[#59616B] uppercase mb-1">
+            <label className="block text-[10px] text-[#64748b] uppercase mb-1">
               Benchmark
             </label>
             <select
               value={benchmark}
               onChange={(e) => setBenchmark(e.target.value)}
-              className="w-full rounded-[2px] bg-[#0B0D10] border border-[#252A31] px-2.5 py-1.5 text-xs text-[#D8DCE2] focus:outline-none focus:border-[#2962FF]"
+              className="w-full rounded-[2px] bg-[#080d1a] border border-[#1e293b] px-2.5 py-1.5 text-xs text-[#cbd5e1] focus:outline-none focus:border-[#2563eb]"
             >
               {BENCHMARKS.map((b) => (
                 <option key={b.symbol} value={b.symbol}>
@@ -266,7 +271,7 @@ function BacktestsContent() {
           </div>
 
           <div>
-            <label className="block text-[10px] text-[#59616B] uppercase mb-1">
+            <label className="block text-[10px] text-[#64748b] uppercase mb-1">
               Date Window
             </label>
             <div className="flex items-center space-x-1">
@@ -274,14 +279,14 @@ function BacktestsContent() {
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-1/2 rounded-[2px] bg-[#0B0D10] border border-[#252A31] px-1.5 py-1.5 text-[10px] text-[#D8DCE2] focus:outline-none focus:border-[#2962FF]"
+                className="w-1/2 rounded-[2px] bg-[#080d1a] border border-[#1e293b] px-1.5 py-1.5 text-[10px] text-[#cbd5e1] focus:outline-none focus:border-[#2563eb]"
                 title="Start Date"
               />
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-1/2 rounded-[2px] bg-[#0B0D10] border border-[#252A31] px-1.5 py-1.5 text-[10px] text-[#D8DCE2] focus:outline-none focus:border-[#2962FF]"
+                className="w-1/2 rounded-[2px] bg-[#080d1a] border border-[#1e293b] px-1.5 py-1.5 text-[10px] text-[#cbd5e1] focus:outline-none focus:border-[#2563eb]"
                 title="End Date"
               />
             </div>
@@ -291,7 +296,7 @@ function BacktestsContent() {
             <button
               onClick={handleLaunchBacktest}
               disabled={isExecuting || !selectedStratId}
-              className="flex-1 flex items-center justify-center space-x-1.5 rounded-lg bg-[#2962FF] hover:bg-[#1e53e5] px-3 py-1.5 text-xs font-bold text-white transition-colors disabled:opacity-50 cursor-pointer"
+              className="flex-1 flex items-center justify-center space-x-1.5 rounded-lg bg-[#2563eb] hover:bg-[#1e53e5] px-3 py-1.5 text-xs font-bold text-white transition-colors disabled:opacity-50 cursor-pointer"
             >
               <Play className="h-3.5 w-3.5 fill-current" />
               <span>{isExecuting ? "Running…" : `Run ${targetAsset || "symbol"}`}</span>
@@ -299,7 +304,7 @@ function BacktestsContent() {
             <button
               type="button"
               onClick={() => setShowTestModal(true)}
-              className="px-2 py-1.5 rounded-[2px] border border-[#252A31] bg-[#141820] text-[#D8DCE2] hover:text-white hover:border-[#10B981] transition-colors cursor-pointer text-xs"
+              className="px-2 py-1.5 rounded-[2px] border border-[#1e293b] bg-[#0b1222] text-[#cbd5e1] hover:text-white hover:border-[#10B981] transition-colors cursor-pointer text-xs"
               title="Open Easy Stock Testing Modal"
             >
               ⚡ Modal
@@ -310,7 +315,7 @@ function BacktestsContent() {
         {/* Quick Stock Suggestions Bar */}
         <div className="pt-1.5 border-t border-[#1C222C] flex flex-wrap items-center justify-between text-[10px] gap-2">
           <div className="flex items-center space-x-1.5 flex-wrap gap-y-1">
-            <span className="text-[#59616B] font-mono">Quick Stocks:</span>
+            <span className="text-[#64748b] font-mono">Quick Stocks:</span>
             {terminalTicker && (
               <button
                 type="button"
@@ -318,13 +323,13 @@ function BacktestsContent() {
                 className={`px-1.5 py-0.5 rounded-[2px] border text-[9px] font-mono font-bold transition-colors cursor-pointer flex items-center space-x-1 ${
                   targetAsset === terminalTicker
                     ? "bg-[#F59E0B]/20 border-[#F59E0B] text-[#F59E0B]"
-                    : "bg-[#141820] border-[#F59E0B]/50 text-[#F59E0B] hover:bg-[#F59E0B]/10"
+                    : "bg-[#0b1222] border-[#F59E0B]/50 text-[#F59E0B] hover:bg-[#F59E0B]/10"
                 }`}
               >
                 <span>⚡ Active: {terminalTicker}</span>
               </button>
             )}
-            <span className="text-[#89919C] font-semibold">🇮🇳 India:</span>
+            <span className="text-[#94a3b8] font-semibold">🇮🇳 India:</span>
             {["GENUSPOWER", "BHARTIARTL", "RELIANCE", "TCS", "HDFCBANK", "INFY", "TATAMOTORS", "SBIN"].map((sym) => (
               <button
                 key={sym}
@@ -333,14 +338,14 @@ function BacktestsContent() {
                 className={`px-1.5 py-0.5 rounded-[2px] border text-[9px] font-mono transition-colors cursor-pointer ${
                   targetAsset === sym
                     ? "bg-[#10B981]/20 border-[#10B981] text-[#10B981] font-bold"
-                    : "bg-[#0B0D10] border-[#252A31] text-[#89919C] hover:text-white"
+                    : "bg-[#080d1a] border-[#1e293b] text-[#94a3b8] hover:text-white"
                 }`}
               >
                 {sym}
               </button>
             ))}
-            <span className="text-[#59616B] mx-1">|</span>
-            <span className="text-[#89919C] font-semibold">🇺🇸 US:</span>
+            <span className="text-[#64748b] mx-1">|</span>
+            <span className="text-[#94a3b8] font-semibold">🇺🇸 US:</span>
             {["AAPL", "NVDA", "TSLA", "MSFT", "SPY", "QQQ"].map((sym) => (
               <button
                 key={sym}
@@ -348,8 +353,8 @@ function BacktestsContent() {
                 onClick={() => setTargetAsset(sym)}
                 className={`px-1.5 py-0.5 rounded-[2px] border text-[9px] font-mono transition-colors cursor-pointer ${
                   targetAsset === sym
-                    ? "bg-[#2962FF]/20 border-[#2962FF] text-[#2962FF] font-bold"
-                    : "bg-[#0B0D10] border-[#252A31] text-[#89919C] hover:text-white"
+                    ? "bg-[#2563eb]/20 border-[#2563eb] text-[#2563eb] font-bold"
+                    : "bg-[#080d1a] border-[#1e293b] text-[#94a3b8] hover:text-white"
                 }`}
               >
                 {sym}
@@ -360,7 +365,7 @@ function BacktestsContent() {
           <button
             type="button"
             onClick={() => setShowTestModal(true)}
-            className="text-[#2962FF] hover:text-[#7DD3FC] underline font-mono text-[10px] flex items-center space-x-1 cursor-pointer"
+            className="text-[#2563eb] hover:text-[#7DD3FC] underline font-mono text-[10px] flex items-center space-x-1 cursor-pointer"
           >
             <span>Browse names</span>
           </button>
@@ -368,25 +373,25 @@ function BacktestsContent() {
       </div>
 
       {/* Filter and Search Ribbon */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border border-[#252A31] bg-[#101318] p-2.5 rounded-[2px]">
+      <div className="flex flex-wrap items-center justify-between gap-3 border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-[2px]">
         <div className="flex items-center space-x-2 flex-1 max-w-md">
-          <Search className="h-3.5 w-3.5 text-[#59616B]" />
+          <Search className="h-3.5 w-3.5 text-[#64748b]" />
           <input
             type="text"
             placeholder="Filter by strategy, run id, asset, or benchmark... (/)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-transparent text-[#D8DCE2] placeholder-[#59616B] text-xs focus:outline-none"
+            className="w-full bg-transparent text-[#cbd5e1] placeholder-[#64748b] text-xs focus:outline-none"
           />
         </div>
 
         <div className="flex items-center space-x-2 text-[11px]">
           <div className="flex items-center space-x-1">
-            <span className="text-[#59616B]">ASSET:</span>
+            <span className="text-[#64748b]">ASSET:</span>
             <select
               value={filterAsset}
               onChange={(e) => setFilterAsset(e.target.value)}
-              className="bg-[#0B0D10] border border-[#252A31] rounded-[2px] px-2 py-1 text-[#D8DCE2] focus:outline-none"
+              className="bg-[#080d1a] border border-[#1e293b] rounded-[2px] px-2 py-1 text-[#cbd5e1] focus:outline-none"
             >
               <option value="ALL">All Assets</option>
               {distinctAssets.map((a) => (
@@ -398,11 +403,11 @@ function BacktestsContent() {
           </div>
 
           <div className="flex items-center space-x-1">
-            <span className="text-[#59616B]">STATUS:</span>
+            <span className="text-[#64748b]">STATUS:</span>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="bg-[#0B0D10] border border-[#252A31] rounded-[2px] px-2 py-1 text-[#D8DCE2] focus:outline-none"
+              className="bg-[#080d1a] border border-[#1e293b] rounded-[2px] px-2 py-1 text-[#cbd5e1] focus:outline-none"
             >
               <option value="ALL">All Statuses</option>
               <option value="COMPLETED">Completed</option>
@@ -413,11 +418,11 @@ function BacktestsContent() {
       </div>
 
       {/* Historical Backtests Execution Table */}
-      <div className="border border-[#252A31] bg-[#101318] rounded-[2px] overflow-hidden">
+      <div className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-[#252A31] bg-[#0B0D10] text-[10px] text-[#89919C] font-bold uppercase tracking-wider">
+              <tr className="border-b border-[#1e293b] bg-[#080d1a] text-[10px] text-[#94a3b8] font-bold uppercase tracking-wider">
                 <th className="py-2.5 px-3">RUN ID</th>
                 <th className="py-2.5 px-3">STRATEGY</th>
                 <th className="py-2.5 px-3">ASSET</th>
@@ -432,21 +437,20 @@ function BacktestsContent() {
                 <th className="py-2.5 px-3 text-right">ACTIONS</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#252A31]/50">
+            <tbody className="divide-y divide-[#1e293b]/50">
               {loading && backtests.length === 0 ? (
-                <tr>
-                  <td colSpan={12} className="py-12 text-center text-[#89919C]">
-                    <div className="flex flex-col items-center justify-center space-y-2">
-                      <RefreshCw className="h-5 w-5 animate-spin text-brand-amber" />
-                      <span>Loading simulation history from quantitative repository...</span>
-                    </div>
-                  </td>
-                </tr>
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td colSpan={12} className="py-2">
+                      <div className="h-9 rounded bg-slate-800/50" />
+                    </td>
+                  </tr>
+                ))
               ) : filteredBacktests.length === 0 ? (
                 <tr>
-                  <td colSpan={12} className="py-12 text-center text-[#59616B]">
+                  <td colSpan={12} className="py-12 text-center text-[#64748b]">
                     <div className="flex flex-col items-center justify-center space-y-2">
-                      <Play className="h-6 w-6 text-[#2962FF]/40" />
+                      <Play className="h-6 w-6 text-[#2563eb]/40" />
                       <span className="text-slate-300 font-medium text-xs">NO BACKTEST RUNS FOUND</span>
                       <span className="text-slate-500 text-[11px]">
                         Select a strategy and target stock above, then click EXECUTE BACKTEST.
@@ -463,21 +467,21 @@ function BacktestsContent() {
                     <tr
                       key={bt.id}
                       onClick={() => router.push(`/backtests/${bt.id}`)}
-                      className="hover:bg-[#141820]/60 transition-colors cursor-pointer group"
+                      className="hover:bg-[#0b1222]/60 transition-colors cursor-pointer group"
                     >
-                      <td className="py-2.5 px-3 text-[#59616B] font-semibold group-hover:text-[#2962FF]">
+                      <td className="py-2.5 px-3 text-[#64748b] font-semibold group-hover:text-[#2563eb]">
                         {bt.id}
                       </td>
-                      <td className="py-2.5 px-3 font-bold text-[#D8DCE2] group-hover:text-white">
+                      <td className="py-2.5 px-3 font-bold text-[#cbd5e1] group-hover:text-white">
                         {bt.strategy_name}
                       </td>
-                      <td className="py-2.5 px-3 text-[#D8DCE2]">
+                      <td className="py-2.5 px-3 text-[#cbd5e1]">
                         {bt.ticker || bt.asset}
                       </td>
-                      <td className="py-2.5 px-3 text-[10px] text-[#89919C]">
+                      <td className="py-2.5 px-3 text-[10px] text-[#94a3b8]">
                         {bt.start_date} &rarr; {bt.end_date}
                       </td>
-                      <td className="py-2.5 px-3 text-[#89919C]">
+                      <td className="py-2.5 px-3 text-[#94a3b8]">
                         {bt.benchmark}
                       </td>
                       <td className="py-2.5 px-3 text-right font-bold tabular-nums">
@@ -485,7 +489,7 @@ function BacktestsContent() {
                           {m ? formatPercent(m.total_return) : "—"}
                         </span>
                       </td>
-                      <td className="py-2.5 px-3 text-right text-[#D8DCE2] tabular-nums">
+                      <td className="py-2.5 px-3 text-right text-[#cbd5e1] tabular-nums">
                         {m ? formatPercent(m.cagr) : "—"}
                       </td>
                       <td className="py-2.5 px-3 text-right font-bold text-white tabular-nums">
@@ -494,7 +498,7 @@ function BacktestsContent() {
                       <td className="py-2.5 px-3 text-right text-[#EF4444] tabular-nums font-semibold">
                         {m ? `-${m.max_drawdown.toFixed(1)}%` : "—"}
                       </td>
-                      <td className="py-2.5 px-3 text-right text-[#2962FF] tabular-nums">
+                      <td className="py-2.5 px-3 text-right text-[#2563eb] tabular-nums">
                         {m ? m.num_trades : bt.trades.length}
                       </td>
                       <td className="py-2.5 px-3 text-center">
@@ -512,12 +516,12 @@ function BacktestsContent() {
                         <div className="flex items-center justify-end space-x-2">
                           <button
                             onClick={(e) => handleDeleteBacktest(e, bt.id)}
-                            className="p-1 rounded-[2px] text-[#59616B] hover:text-[#EF4444] hover:bg-[#252A31] transition-colors"
+                            className="p-1 rounded-[2px] text-[#64748b] hover:text-[#EF4444] hover:bg-[#1e293b] transition-colors"
                             title="Delete Backtest"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
-                          <span className="text-[#2962FF] flex items-center space-x-0.5 group-hover:translate-x-0.5 transition-transform">
+                          <span className="text-[#2563eb] flex items-center space-x-0.5 group-hover:translate-x-0.5 transition-transform">
                             <span>OPEN</span>
                             <ArrowRight className="h-3 w-3" />
                           </span>
@@ -547,15 +551,15 @@ export default function BacktestsPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#0B0D10] text-[#D8DCE2] flex flex-col items-center justify-center space-y-3 font-mono text-xs select-none">
+        <div className="min-h-screen bg-[#080d1a] text-[#cbd5e1] flex flex-col items-center justify-center space-y-3 font-mono text-xs select-none">
           <div className="relative w-8 h-8">
-            <div className="w-8 h-8 border-2 border-[#252A31] rounded-full" />
-            <div className="w-8 h-8 border-2 border-[#2962FF] border-t-transparent rounded-full animate-spin absolute top-0 left-0" />
+            <div className="w-8 h-8 border-2 border-[#1e293b] rounded-full" />
+            <div className="w-8 h-8 border-2 border-[#2563eb] border-t-transparent rounded-full animate-spin absolute top-0 left-0" />
           </div>
           <span className="tracking-wider uppercase text-slate-300">
             LOADING BACKTEST REGISTRY...
           </span>
-          <span className="text-[11px] text-[#59616B]">
+          <span className="text-[11px] text-[#64748b]">
             Fetching performance tearsheets, trade attributions & risk matrices
           </span>
         </div>

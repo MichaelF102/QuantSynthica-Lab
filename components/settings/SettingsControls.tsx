@@ -34,7 +34,7 @@ export function SettingsField({
           )}
         </div>
         {badge && (
-          <span className="text-[9px] font-mono text-[#38BDF8] bg-[#38BDF8]/10 px-1 py-0.2 rounded border border-[#38BDF8]/30">
+          <span className="text-[9px] font-mono text-[#3b82f6] bg-[#3b82f6]/10 px-1 py-0.2 rounded border border-[#3b82f6]/30">
             {badge}
           </span>
         )}
@@ -68,7 +68,7 @@ export function SettingsSelect<T extends string>({
         value={value}
         onChange={(e) => onChange(e.target.value as T)}
         disabled={disabled}
-        className="w-full appearance-none bg-[#111722] border border-[#1F2B3E] hover:border-[#2C3E56] focus:border-[#38BDF8] text-slate-200 text-xs px-2.5 py-1.5 rounded focus:outline-none transition-colors cursor-pointer font-sans disabled:opacity-50"
+        className="w-full appearance-none bg-[#0b1222] border border-[#1e293b] hover:border-[#2C3E56] focus:border-[#3b82f6] text-slate-200 text-xs px-2.5 py-1.5 rounded focus:outline-none transition-colors cursor-pointer font-sans disabled:opacity-50"
       >
         {options.map((opt) => {
           const val = typeof opt === "string" ? opt : opt.value;
@@ -126,7 +126,7 @@ export function SettingsInput({
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        className={`w-full bg-[#111722] border border-[#1F2B3E] hover:border-[#2C3E56] focus:border-[#38BDF8] text-slate-100 text-xs py-1.5 rounded focus:outline-none transition-colors font-mono disabled:opacity-50 ${
+        className={`w-full bg-[#0b1222] border border-[#1e293b] hover:border-[#2C3E56] focus:border-[#3b82f6] text-slate-100 text-xs py-1.5 rounded focus:outline-none transition-colors font-mono disabled:opacity-50 ${
           prefix ? "pl-6" : "pl-2.5"
         } ${suffix ? "pr-8 text-right" : "pr-2.5"}`}
       />
@@ -160,7 +160,7 @@ export function SettingsToggle({
         disabled={disabled}
         onClick={() => onChange(!checked)}
         className={`w-8 h-4 rounded-full transition-colors relative p-0.5 disabled:opacity-50 ${
-          checked ? "bg-[#0284C7]" : "bg-[#1E293B]"
+          checked ? "bg-[#2563eb]" : "bg-[#1E293B]"
         }`}
       >
         <div

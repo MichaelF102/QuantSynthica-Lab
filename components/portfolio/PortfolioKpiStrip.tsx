@@ -180,7 +180,7 @@ export default function PortfolioKpiStrip({
       {cards.map((c, i) => (
         <div
           key={i}
-          className="bg-[#090D14] border border-[#1E2530] rounded-lg p-2.5 flex flex-col justify-between hover:border-[#2B374A] transition-colors"
+          className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-2.5 flex flex-col justify-between hover:border-[#2B374A] transition-colors"
         >
           <div className="text-[11px] text-[#8490A0] font-medium leading-tight truncate">
             {c.label}

@@ -22,8 +22,8 @@ export default function ColumnsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="bg-[#0C1017] border border-[#202C3F] rounded-lg shadow-2xl max-w-sm w-full p-4 space-y-4">
-        <div className="flex items-center justify-between pb-2 border-b border-[#1E2530]">
+      <div className="bg-[#0C1017] border border-[#1e293b] rounded-lg shadow-2xl max-w-sm w-full p-4 space-y-4">
+        <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
           <h3 className="text-sm font-semibold text-white">Customize Table Columns</h3>
           <button
             type="button"
@@ -40,25 +40,25 @@ export default function ColumnsModal({
             return (
               <label
                 key={col.id}
-                className="flex items-center justify-between p-2 rounded hover:bg-[#131822] cursor-pointer text-xs"
+                className="flex items-center justify-between p-2 rounded hover:bg-[#0b1222] cursor-pointer text-xs"
               >
                 <span className="text-slate-200">{col.label}</span>
                 <input
                   type="checkbox"
                   checked={isChecked}
                   onChange={() => onToggleColumn(col.id)}
-                  className="rounded bg-[#131822] border-[#252E3E] text-[#0284C7] focus:ring-0 w-4 h-4 cursor-pointer"
+                  className="rounded bg-[#0b1222] border-[#1e293b] text-[#2563eb] focus:ring-0 w-4 h-4 cursor-pointer"
                 />
               </label>
             );
           })}
         </div>
 
-        <div className="flex justify-end pt-2 border-t border-[#1E2530]">
+        <div className="flex justify-end pt-2 border-t border-[#1e293b]">
           <button
             type="button"
             onClick={onClose}
-            className="px-3 py-1.5 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold rounded"
+            className="px-3 py-1.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-semibold rounded"
           >
             Done
           </button>

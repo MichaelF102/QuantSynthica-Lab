@@ -45,9 +45,9 @@ export default function PortfolioOptimizationWidget({
   };
 
   return (
-    <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3.5 flex flex-col justify-between h-full">
+    <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 flex flex-col justify-between h-full">
       {/* Header & Tabs */}
-      <div className="space-y-2 pb-2 border-b border-[#1A2230]">
+      <div className="space-y-2 pb-2 border-b border-[#1e293b]">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <h2 className="text-sm font-bold text-white tracking-tight font-sans">
@@ -64,7 +64,7 @@ export default function PortfolioOptimizationWidget({
         </div>
 
         {/* Method selector pills */}
-        <div className="flex items-center space-x-1 overflow-x-auto bg-[#111722] border border-[#1F2B3E] rounded p-0.5 text-[11px] font-mono scrollbar-none">
+        <div className="flex items-center space-x-1 overflow-x-auto bg-[#0b1222] border border-[#1e293b] rounded p-0.5 text-[11px] font-mono scrollbar-none">
           {(
             [
               "Equal Weight",
@@ -80,7 +80,7 @@ export default function PortfolioOptimizationWidget({
               onClick={() => setMethod(m)}
               className={`px-2 py-0.5 rounded whitespace-nowrap transition-all ${
                 method === m
-                  ? "bg-[#0284C7] text-white font-bold shadow-sm"
+                  ? "bg-[#2563eb] text-white font-bold shadow-sm"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -103,7 +103,7 @@ export default function PortfolioOptimizationWidget({
                 </span>
                 <div className="flex-1 bg-[#141C28] h-2 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-[#38BDF8] rounded-full transition-all duration-300"
+                    className="h-full bg-[#3b82f6] rounded-full transition-all duration-300"
                     style={{ width: `${Math.min(100, w * 2.5)}%` }}
                   />
                 </div>
@@ -116,18 +116,18 @@ export default function PortfolioOptimizationWidget({
         </div>
 
         {/* Action Button (4 cols) */}
-        <div className="col-span-4 flex flex-col items-center justify-center pl-2 border-l border-[#1A2230]">
+        <div className="col-span-4 flex flex-col items-center justify-center pl-2 border-l border-[#1e293b]">
           <button
             type="button"
             onClick={handleOptimize}
             disabled={isOptimizing}
-            className="flex flex-col items-center justify-center p-3 rounded-lg border border-[#0284C7]/60 hover:border-[#38BDF8] bg-[#0C1523] hover:bg-[#121F33] text-white transition-all w-full shadow-md group disabled:opacity-60"
+            className="flex flex-col items-center justify-center p-3 rounded-lg border border-[#2563eb]/60 hover:border-[#3b82f6] bg-[#0C1523] hover:bg-[#121F33] text-white transition-all w-full shadow-md group disabled:opacity-60"
           >
             {appliedToast ? (
               <Check className="w-5 h-5 text-[#10B981] mb-1" />
             ) : (
               <Settings2
-                className={`w-5 h-5 text-[#38BDF8] mb-1 group-hover:rotate-45 transition-transform ${
+                className={`w-5 h-5 text-[#3b82f6] mb-1 group-hover:rotate-45 transition-transform ${
                   isOptimizing ? "animate-spin" : ""
                 }`}
               />

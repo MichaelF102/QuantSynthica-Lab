@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import { Info } from "lucide-react";
 
+import { TOOLTIP_STYLE } from "@/lib/chartTheme";
 interface PortfolioEquityCurveWidgetProps {
   portfolioName?: string;
   benchmarkSymbol?: string;
@@ -109,9 +110,9 @@ export default function PortfolioEquityCurveWidget({
   };
 
   return (
-    <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3.5 flex flex-col justify-between">
+    <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 flex flex-col justify-between">
       {/* 1. Header & Inline Stats & Controls */}
-      <div className="space-y-2.5 pb-2 border-b border-[#1A2230]">
+      <div className="space-y-2.5 pb-2 border-b border-[#1e293b]">
         <div className="flex flex-wrap items-center justify-between gap-3">
           {/* Title & Info icon */}
           <div className="flex items-center space-x-2">
@@ -130,7 +131,7 @@ export default function PortfolioEquityCurveWidget({
           {/* Right Controls: Timeframe Pills & Log Scale Switch */}
           <div className="flex items-center space-x-3">
             {/* Timeframe Pills */}
-            <div className="flex items-center bg-[#111722] border border-[#1F2B3E] rounded p-0.5 text-[11px] font-mono">
+            <div className="flex items-center bg-[#0b1222] border border-[#1e293b] rounded p-0.5 text-[11px] font-mono">
               {(["1M", "3M", "6M", "YTD", "1Y", "ALL"] as const).map((tf) => (
                 <button
                   key={tf}
@@ -138,7 +139,7 @@ export default function PortfolioEquityCurveWidget({
                   onClick={() => setTimeframe(tf)}
                   className={`px-2 py-0.5 rounded transition-all ${
                     timeframe === tf
-                      ? "bg-[#0284C7] text-white font-bold shadow-sm"
+                      ? "bg-[#2563eb] text-white font-bold shadow-sm"
                       : "text-slate-400 hover:text-white"
                   }`}
                 >
@@ -154,7 +155,7 @@ export default function PortfolioEquityCurveWidget({
                 type="button"
                 onClick={() => setLogScale(!logScale)}
                 className={`w-7 h-4 rounded-full transition-colors relative p-0.5 ${
-                  logScale ? "bg-[#0284C7]" : "bg-[#1E293B]"
+                  logScale ? "bg-[#2563eb]" : "bg-[#1E293B]"
                 }`}
               >
                 <div
@@ -213,12 +214,12 @@ export default function PortfolioEquityCurveWidget({
             data={filteredData}
             margin={{ top: 12, right: 90, left: 0, bottom: 4 }}
           >
-            <CartesianGrid strokeDasharray="2 2" stroke="#161E2C" vertical={false} />
+            <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="date"
               stroke="#475569"
               tickLine={false}
-              tick={{ fontSize: 10, fill: "#64748B", fontFamily: "monospace" }}
+              tick={{ fontSize: 10, fill: "#64748b" }}
               tickFormatter={(val: string) => {
                 // e.g. "2023-01-01" -> "Jan 2023"
                 const parts = val.split("-");
@@ -237,7 +238,7 @@ export default function PortfolioEquityCurveWidget({
               stroke="#475569"
               tickLine={false}
               orientation="left"
-              tick={{ fontSize: 10, fill: "#64748B", fontFamily: "monospace" }}
+              tick={{ fontSize: 10, fill: "#64748b" }}
               tickFormatter={(v: number) => {
                 if (currency === "INR") {
                   if (v >= 10000000) return `₹${(v / 10000000).toFixed(1)}Cr`;
@@ -255,19 +256,12 @@ export default function PortfolioEquityCurveWidget({
                 domain={[-30, 0]}
                 stroke="#F43F5E"
                 tickLine={false}
-                tick={{ fontSize: 9, fill: "#F43F5E", fontFamily: "monospace" }}
+                tick={{ fontSize: 10, fill: "#64748b" }}
                 tickFormatter={(v: number) => `${v}%`}
               />
             )}
             <Tooltip
-              contentStyle={{
-                backgroundColor: "#0C1017",
-                borderColor: "#202C3F",
-                borderRadius: "6px",
-                fontSize: "11px",
-                color: "#E2E8F0",
-                boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
-              }}
+              contentStyle={TOOLTIP_STYLE}
               formatter={(val: any, name: string) => {
                 if (name === "drawdown") return [`${val}%`, "Drawdown"];
                 return [`${currSymbol}${Number(val).toLocaleString()}`, name === "portfolio" ? "Portfolio" : benchmarkSymbol];
@@ -279,10 +273,10 @@ export default function PortfolioEquityCurveWidget({
               type="monotone"
               dataKey="portfolio"
               name="portfolio"
-              stroke="#38BDF8"
+              stroke="#3b82f6"
               strokeWidth={2.4}
               dot={false}
-              activeDot={{ r: 4, fill: "#38BDF8", stroke: "#0C1017", strokeWidth: 2 }}
+              activeDot={{ r: 4, fill: "#3b82f6", stroke: "#0C1017", strokeWidth: 2 }}
             />
             {/* Benchmark Line */}
             <Line
@@ -313,7 +307,7 @@ export default function PortfolioEquityCurveWidget({
         {/* Floating Endpoint Badges matching screenshot */}
         <div className="absolute right-1.5 top-14 flex flex-col items-end space-y-3 pointer-events-none">
           {/* Top Badge: Portfolio */}
-          <div className="bg-[#0284C7] text-white px-2.5 py-1 rounded shadow-lg border border-[#38BDF8]/40 text-right">
+          <div className="bg-[#2563eb] text-white px-2.5 py-1 rounded shadow-lg border border-[#3b82f6]/40 text-right">
             <div className="text-[11px] font-bold font-mono leading-none">
               {currSymbol}{lastPoint.portfolio.toLocaleString()}
             </div>
@@ -335,9 +329,9 @@ export default function PortfolioEquityCurveWidget({
       </div>
 
       {/* 3. Bottom Legend Strip */}
-      <div className="flex flex-wrap items-center justify-start gap-4 pt-2 border-t border-[#161F2C] text-xs">
+      <div className="flex flex-wrap items-center justify-start gap-4 pt-2 border-t border-[#0b1222] text-xs">
         <div className="flex items-center space-x-2 text-slate-300">
-          <span className="w-4 h-0.5 bg-[#38BDF8] inline-block rounded" />
+          <span className="w-4 h-0.5 bg-[#3b82f6] inline-block rounded" />
           <span className="text-[11px] font-medium">Portfolio ({portfolioName})</span>
         </div>
 

@@ -5,6 +5,7 @@ import { Info, Sparkles, ShieldCheck } from "lucide-react";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { BacktestResult } from "@/types";
 
+import { TOOLTIP_STYLE } from "@/lib/chartTheme";
 interface AnalyticsRobustnessTabProps {
   selectedBacktests: BacktestResult[];
 }
@@ -27,22 +28,22 @@ export default function AnalyticsRobustnessTab({
     <div className="space-y-4">
       {/* Robustness Indicators */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3 space-y-1">
+        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
           <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Deflated Sharpe Ratio</span>
           <div className="text-xl font-bold text-[#10B981] font-mono">0.894</div>
           <p className="text-[10px] text-slate-400">Probability &gt; 95% that strategy is not overfit.</p>
         </div>
-        <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3 space-y-1">
+        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
           <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">White's Reality Check</span>
           <div className="text-xl font-bold text-white font-mono">p = 0.012</div>
           <p className="text-[10px] text-slate-400">Data snooping bias rejected with 98.8% confidence.</p>
         </div>
-        <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3 space-y-1">
+        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
           <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Monte Carlo Survival Rate</span>
-          <div className="text-xl font-bold text-[#38BDF8] font-mono">98.4%</div>
+          <div className="text-xl font-bold text-[#3b82f6] font-mono">98.4%</div>
           <p className="text-[10px] text-slate-400">16 of 1,000 paths triggered max 20% drawdown.</p>
         </div>
-        <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3 space-y-1">
+        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3 space-y-1">
           <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">Parameter Stability</span>
           <div className="text-xl font-bold text-[#10B981] font-mono">87.5%</div>
           <p className="text-[10px] text-slate-400">Neighboring parameter sets produce positive Sharpe.</p>
@@ -50,19 +51,19 @@ export default function AnalyticsRobustnessTab({
       </div>
 
       {/* Monte Carlo Fan Chart */}
-      <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-4 space-y-3">
-        <div className="flex items-center justify-between pb-2 border-b border-[#1E2530]">
+      <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-4 space-y-3">
+        <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
           <div>
             <span className="font-semibold text-white text-xs tracking-tight">
               Monte Carlo 1,000-Iteration Confidence Cone Simulation
             </span>
-            <p className="text-[11px] text-[#89919C]">
+            <p className="text-[11px] text-[#94a3b8]">
               Forward 12-month paths sampled via stationary bootstrap with replacement
             </p>
           </div>
           <div className="flex items-center space-x-3 text-[10px] font-mono text-slate-400">
             <span className="flex items-center space-x-1">
-              <span className="w-2 h-2 rounded-full bg-[#38BDF8]" />
+              <span className="w-2 h-2 rounded-full bg-[#3b82f6]" />
               <span>50th Median</span>
             </span>
             <span className="flex items-center space-x-1">
@@ -79,21 +80,16 @@ export default function AnalyticsRobustnessTab({
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={monteCarloCones} margin={{ top: 15, right: 15, left: 10, bottom: 0 }}>
-              <CartesianGrid stroke="#18202C" strokeDasharray="2 2" vertical={false} />
+              <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="period" stroke="#485362" fontSize={10} />
               <YAxis stroke="#485362" fontSize={10} domain={[80000, 160000]} tickFormatter={(v) => `$${v/1000}k`} />
               <Tooltip
-                contentStyle={{
-                  backgroundColor: "#0C1017",
-                  borderColor: "#202C3F",
-                  fontSize: "11px",
-                  fontFamily: "monospace",
-                }}
+                contentStyle={TOOLTIP_STYLE}
                 formatter={(val: any) => [`$${Number(val).toLocaleString()}`, ""]}
               />
               <Area type="monotone" dataKey="p95" stroke="#10B981" fill="#10B981" fillOpacity={0.1} />
-              <Area type="monotone" dataKey="p75" stroke="#38BDF8" fill="#38BDF8" fillOpacity={0.15} />
-              <Area type="monotone" dataKey="p50" stroke="#38BDF8" strokeWidth={2} fill="#38BDF8" fillOpacity={0.2} />
+              <Area type="monotone" dataKey="p75" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.15} />
+              <Area type="monotone" dataKey="p50" stroke="#3b82f6" strokeWidth={2} fill="#3b82f6" fillOpacity={0.2} />
               <Area type="monotone" dataKey="p25" stroke="#F59E0B" fill="#F59E0B" fillOpacity={0.15} />
               <Area type="monotone" dataKey="p5" stroke="#EF4444" fill="#EF4444" fillOpacity={0.1} />
             </AreaChart>

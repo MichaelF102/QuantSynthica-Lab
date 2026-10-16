@@ -40,9 +40,9 @@ export default function PortfolioRebalancingWidget({
   };
 
   return (
-    <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3.5 flex flex-col justify-between h-full">
+    <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 flex flex-col justify-between h-full">
       {/* Header */}
-      <div className="flex items-center space-x-2 pb-2 border-b border-[#1A2230]">
+      <div className="flex items-center space-x-2 pb-2 border-b border-[#1e293b]">
         <h2 className="text-sm font-bold text-white tracking-tight font-sans">
           Rebalancing Analysis
         </h2>
@@ -77,7 +77,7 @@ export default function PortfolioRebalancingWidget({
                   onClick={() => handleSelect(r.frequency)}
                   className={`cursor-pointer transition-colors ${
                     active
-                      ? "bg-[#111C2B] border-l-2 border-l-[#38BDF8]"
+                      ? "bg-[#111C2B] border-l-2 border-l-[#3b82f6]"
                       : "hover:bg-[#0E1522]"
                   }`}
                 >

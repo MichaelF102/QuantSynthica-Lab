@@ -60,7 +60,7 @@ export default function AnalyticsSubNav({
           >
             <Icon
               className={`h-3.5 w-3.5 ${
-                isActive ? "text-brand-amber" : "text-stone-500"
+                isActive ? "text-brand-amber" : "text-slate-500"
               }`}
             />
             <span>{tab.label}</span>

@@ -172,37 +172,37 @@ export default function MarketRegimeTimeline({ bars, ticker }: MarketRegimeTimel
       : "text-[#F59E0B]";
 
   return (
-    <div className="border border-[#1E2530] bg-[#0A0D14] rounded-sm overflow-hidden">
+    <div className="border border-[#1e293b] bg-[#080d1a] rounded-sm overflow-hidden">
       {/* Header Bar */}
-      <div className="px-3.5 py-2 border-b border-[#1E2530] bg-[#0E121A] flex flex-wrap items-center justify-between gap-2 text-xs">
+      <div className="px-3.5 py-2 border-b border-[#1e293b] bg-[#0b1222] flex flex-wrap items-center justify-between gap-2 text-xs">
         <div className="flex items-center space-x-1.5">
-          <Layers className="h-4 w-4 text-[#38BDF8]" />
+          <Layers className="h-4 w-4 text-[#3b82f6]" />
           <span className="font-semibold text-white text-[13px] tracking-tight">
             Market Regime Classification
           </span>
           <span title="Hidden Markov Model & multi-factor trend/volatility regime segmenter">
-            <Info className="h-3.5 w-3.5 text-[#59616B] hover:text-[#89919C] cursor-pointer" />
+            <Info className="h-3.5 w-3.5 text-[#64748b] hover:text-[#94a3b8] cursor-pointer" />
           </span>
         </div>
 
         <div className="flex items-center space-x-2 text-[11px]">
-          <span className="text-[#59616B] hidden sm:inline">
+          <span className="text-[#64748b] hidden sm:inline">
             Methodology: SMA 20/50 &bull; Realized Volatility &bull; RSI(14) &bull; HMM
           </span>
-          <div className="flex items-center space-x-1 px-2 py-0.5 border border-[#232B38] bg-[#131822] rounded text-[#D8DCE2] cursor-pointer hover:border-[#38BDF8]/40">
-            <span className="text-[#89919C]">•</span>
+          <div className="flex items-center space-x-1 px-2 py-0.5 border border-[#1e293b] bg-[#0b1222] rounded text-[#cbd5e1] cursor-pointer hover:border-[#3b82f6]/40">
+            <span className="text-[#94a3b8]">•</span>
             <span className="font-medium text-[11px]">1Y</span>
-            <ChevronDown className="h-3 w-3 text-[#59616B]" />
+            <ChevronDown className="h-3 w-3 text-[#64748b]" />
           </div>
         </div>
       </div>
 
       {/* Content Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-[#1E2530] p-3 gap-y-3 lg:gap-y-0">
+      <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-[#1e293b] p-3 gap-y-3 lg:gap-y-0">
         {/* Left: Continuous Horizontal Regime Ribbon (col-span-8) */}
         <div className="lg:col-span-8 lg:pr-4 flex flex-col justify-center">
           {/* Continuous Ribbon Bar */}
-          <div className="w-full h-7 rounded-sm overflow-hidden flex shadow-inner border border-[#1E2530]">
+          <div className="w-full h-7 rounded-sm overflow-hidden flex shadow-inner border border-[#1e293b]">
             {regimeAnalysis.segments.map((seg, idx) => (
               <div
                 key={idx}
@@ -213,9 +213,9 @@ export default function MarketRegimeTimeline({ bars, ticker }: MarketRegimeTimel
                 }}
               >
                 {/* Tooltip on Hover */}
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block bg-[#111620] border border-[#252E3E] text-[10px] px-2 py-1 text-white whitespace-nowrap z-30 shadow-xl rounded-[2px]">
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block bg-[#111620] border border-[#1e293b] text-[10px] px-2 py-1 text-white whitespace-nowrap z-30 shadow-xl rounded-[2px]">
                   <div className="font-bold">{seg.regime} Regime</div>
-                  <div className="text-[#89919C] text-[9px] font-mono">
+                  <div className="text-[#94a3b8] text-[9px] font-mono">
                     {seg.startDate} &rarr; {seg.endDate}
                   </div>
                 </div>
@@ -224,7 +224,7 @@ export default function MarketRegimeTimeline({ bars, ticker }: MarketRegimeTimel
           </div>
 
           {/* Timeline Date Ticks */}
-          <div className="flex items-center justify-between text-[10px] text-[#59616B] font-mono mt-2 px-1">
+          <div className="flex items-center justify-between text-[10px] text-[#64748b] font-mono mt-2 px-1">
             {regimeAnalysis.timelineTicks.map((tick, idx) => (
               <span key={idx}>{tick}</span>
             ))}
@@ -234,13 +234,13 @@ export default function MarketRegimeTimeline({ bars, ticker }: MarketRegimeTimel
         {/* Right: Current Regime Status & Distribution Badges (col-span-4) */}
         <div className="lg:col-span-4 lg:pl-4 flex flex-col justify-between space-y-2">
           <div>
-            <div className="text-[10px] uppercase font-semibold text-[#89919C] tracking-wider">
+            <div className="text-[10px] uppercase font-semibold text-[#94a3b8] tracking-wider">
               Current Regime
             </div>
             <div className={`text-xl font-bold ${activeRegimeColor} mt-0.5 tracking-tight`}>
               {regimeAnalysis.currentRegime}
             </div>
-            <div className="text-[11px] text-[#59616B] mt-0.5">
+            <div className="text-[11px] text-[#64748b] mt-0.5">
               Since {regimeAnalysis.currentRegimeSince} ({regimeAnalysis.currentRegimeDays} days)
             </div>
           </div>

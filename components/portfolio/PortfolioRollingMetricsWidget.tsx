@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import { Info } from "lucide-react";
 
+import { TOOLTIP_STYLE } from "@/lib/chartTheme";
 type RollingMetric = "Rolling Return" | "Rolling Sharpe" | "Rolling Volatility" | "Rolling Beta";
 type RollingTimeframe = "3M" | "6M" | "1Y" | "ALL";
 
@@ -126,9 +127,9 @@ export default function PortfolioRollingMetricsWidget({
   }, [activeMetric]);
 
   return (
-    <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3.5 flex flex-col justify-between">
+    <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 flex flex-col justify-between">
       {/* 1. Header & Controls */}
-      <div className="space-y-2.5 pb-2 border-b border-[#1A2230]">
+      <div className="space-y-2.5 pb-2 border-b border-[#1e293b]">
         <div className="flex flex-wrap items-center justify-between gap-2">
           {/* Title */}
           <div className="flex items-center space-x-2">
@@ -145,7 +146,7 @@ export default function PortfolioRollingMetricsWidget({
           </div>
 
           {/* Timeframe pills */}
-          <div className="flex items-center bg-[#111722] border border-[#1F2B3E] rounded p-0.5 text-[11px] font-mono">
+          <div className="flex items-center bg-[#0b1222] border border-[#1e293b] rounded p-0.5 text-[11px] font-mono">
             {(["3M", "6M", "1Y", "ALL"] as const).map((tf) => (
               <button
                 key={tf}
@@ -153,7 +154,7 @@ export default function PortfolioRollingMetricsWidget({
                 onClick={() => setTimeframe(tf)}
                 className={`px-2 py-0.5 rounded transition-all ${
                   timeframe === tf
-                    ? "bg-[#0284C7] text-white font-bold shadow-sm"
+                    ? "bg-[#2563eb] text-white font-bold shadow-sm"
                     : "text-slate-400 hover:text-white"
                 }`}
               >
@@ -172,8 +173,8 @@ export default function PortfolioRollingMetricsWidget({
               onClick={() => setActiveMetric(m)}
               className={`px-3 py-1 rounded text-xs font-medium transition-all ${
                 activeMetric === m
-                  ? "bg-[#0284C7] text-white font-semibold shadow-sm"
-                  : "bg-[#111722] text-slate-400 hover:text-slate-200 border border-[#1C2636]"
+                  ? "bg-[#2563eb] text-white font-semibold shadow-sm"
+                  : "bg-[#0b1222] text-slate-400 hover:text-slate-200 border border-[#1C2636]"
               }`}
             >
               {m}
@@ -191,12 +192,12 @@ export default function PortfolioRollingMetricsWidget({
               data={data}
               margin={{ top: 8, right: 10, left: -10, bottom: 2 }}
             >
-              <CartesianGrid strokeDasharray="2 2" stroke="#161E2C" vertical={false} />
+              <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
               <XAxis
                 dataKey="date"
                 stroke="#475569"
                 tickLine={false}
-                tick={{ fontSize: 10, fill: "#64748B", fontFamily: "monospace" }}
+                tick={{ fontSize: 10, fill: "#64748b" }}
                 tickFormatter={(val: string) => {
                   const parts = val.split("-");
                   const mIdx = parseInt(parts[1], 10) - 1;
@@ -211,7 +212,7 @@ export default function PortfolioRollingMetricsWidget({
                 domain={activeMetric === "Rolling Return" ? [-20, 60] : ["auto", "auto"]}
                 stroke="#475569"
                 tickLine={false}
-                tick={{ fontSize: 10, fill: "#64748B", fontFamily: "monospace" }}
+                tick={{ fontSize: 10, fill: "#64748b" }}
                 tickFormatter={(v: number) =>
                   activeMetric === "Rolling Return" || activeMetric === "Rolling Volatility"
                     ? `${v}%`
@@ -219,14 +220,7 @@ export default function PortfolioRollingMetricsWidget({
                 }
               />
               <Tooltip
-                contentStyle={{
-                  backgroundColor: "#0C1017",
-                  borderColor: "#202C3F",
-                  borderRadius: "6px",
-                  fontSize: "11px",
-                  color: "#E2E8F0",
-                  boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
-                }}
+                contentStyle={TOOLTIP_STYLE}
                 formatter={(val: any, name: string) => [
                   `${val}${stats.unit}`,
                   name === "portfolio" ? "Portfolio" : benchmarkSymbol,
@@ -237,10 +231,10 @@ export default function PortfolioRollingMetricsWidget({
                 type="monotone"
                 dataKey="portfolio"
                 name="portfolio"
-                stroke="#38BDF8"
+                stroke="#3b82f6"
                 strokeWidth={2.2}
                 dot={false}
-                activeDot={{ r: 4, fill: "#38BDF8", stroke: "#0C1017", strokeWidth: 2 }}
+                activeDot={{ r: 4, fill: "#3b82f6", stroke: "#0C1017", strokeWidth: 2 }}
               />
               <Line
                 type="monotone"
@@ -258,7 +252,7 @@ export default function PortfolioRollingMetricsWidget({
           {/* Bottom Chart Legend */}
           <div className="flex items-center space-x-4 pt-1 text-[11px]">
             <div className="flex items-center space-x-1.5 text-slate-300">
-              <span className="w-3.5 h-0.5 bg-[#38BDF8] inline-block rounded" />
+              <span className="w-3.5 h-0.5 bg-[#3b82f6] inline-block rounded" />
               <span>Portfolio</span>
             </div>
             <div className="flex items-center space-x-1.5 text-slate-400">
@@ -269,7 +263,7 @@ export default function PortfolioRollingMetricsWidget({
         </div>
 
         {/* Right 1 col: Current (1Y) Stat Panel */}
-        <div className="bg-[#0D131D] border border-[#1F2B3E] rounded-lg p-3 flex flex-col justify-between self-center h-44 w-full">
+        <div className="bg-[#0D131D] border border-[#1e293b] rounded-lg p-3 flex flex-col justify-between self-center h-44 w-full">
           <div>
             <div className="text-xs font-semibold text-slate-300 mb-2">
               Current ({timeframe})

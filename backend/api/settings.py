@@ -63,9 +63,10 @@ def run_system_diagnostics() -> Dict[str, Any]:
             dependencies[label] = {"status": "error", "version": str(e), "available": False}
 
     # Universe stats
-    total_securities = len(universe_manager.stocks) if hasattr(universe_manager, "stocks") else 18547
-    us_count = sum(1 for s in universe_manager.stocks if s.get("market") == "US") if hasattr(universe_manager, "stocks") else 10240
-    india_count = total_securities - us_count
+    stocks = getattr(universe_manager, "stocks", [])
+    total_securities = len(stocks)
+    us_count = sum(1 for s in stocks if s.get("market") == "US")
+    india_count = sum(1 for s in stocks if s.get("market") == "India")
 
     # Cache stats
     cache_files = glob.glob(os.path.join(CACHE_DIR, "*.parquet"))
@@ -89,7 +90,7 @@ def run_system_diagnostics() -> Dict[str, Any]:
             "total_securities": total_securities,
             "us_equities": us_count,
             "india_equities": india_count,
-            "status": "INDEXED",
+            "status": "INDEXED" if total_securities else "EMPTY",
         },
         "cache": {
             "directory": CACHE_DIR,

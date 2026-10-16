@@ -90,7 +90,7 @@ export default function ResearchCompanyHeader({
           {/* Identity Row */}
           <div className="flex flex-wrap items-center gap-3">
             {/* Logo Avatar */}
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-sm border border-border bg-surface-muted font-serif text-sm text-[#f4eee4]">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-sm border border-border bg-surface-muted font-mono text-sm text-slate-100">
               {ticker === "AAPL" ? (
                 <svg className="w-5 h-5 fill-current" viewBox="0 0 170 170">
                   <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.69-7.85-12-14.44-6.1-9.35-10.8-19.78-14.09-31.31-3.29-11.53-4.94-22.37-4.94-32.54 0-14.45 3.63-26.65 10.89-36.6 7.26-9.95 16.53-15.02 27.81-15.22 4.47 0 9.53 1.25 15.18 3.75 5.66 2.5 9.4 3.77 11.22 3.8 1.45 0 5.49-1.37 12.11-4.11 6.63-2.74 12.13-3.9 16.51-3.48 12.39 1.14 22.02 5.86 28.91 14.16-11.08 6.74-16.52 16.14-16.32 28.2.22 9.57 3.91 17.56 11.07 23.97 7.16 6.41 15.7 10.02 25.62 10.83-2.22 6.74-5.07 13.91-8.55 21.52zM119.22 33.15c0-6.96 2.5-13.53 7.5-19.71 5-6.18 11.26-10.45 18.78-12.81.65 2.17.98 4.24.98 6.2 0 7.07-2.61 13.75-7.83 20.04-5.22 6.29-11.53 10.15-18.93 11.58-.33-1.74-.5-3.51-.5-5.3z" />
@@ -145,7 +145,7 @@ export default function ResearchCompanyHeader({
                     type="button"
                     onClick={() => setSearchOpen(!searchOpen)}
                     title="Search & Switch Ticker"
-                    className="p-1 text-stone-500 transition-colors hover:text-brand-amber"
+                    className="p-1 text-slate-500 transition-colors hover:text-brand-amber"
                   >
                     <Search className="w-3 h-3" />
                   </button>

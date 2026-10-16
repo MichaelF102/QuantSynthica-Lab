@@ -122,7 +122,7 @@ export default function OptimizationPage() {
   };
 
   return (
-    <div className="p-5 space-y-6 max-w-[1600px] mx-auto">
+    <div className="app-container py-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-border gap-4">
         <div>

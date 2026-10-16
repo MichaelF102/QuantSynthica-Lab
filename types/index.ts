@@ -304,8 +304,8 @@ export interface MarketDataResponse {
     total_return: number;
     annualized_volatility: number;
     max_drawdown: number;
-    beta: number;
-    correlation: number;
+    beta: number | null;
+    correlation: number | null;
     benchmark: string;
     profile?: StockProfile | null;
     high_52w?: number;

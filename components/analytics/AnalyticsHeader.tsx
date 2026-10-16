@@ -46,7 +46,7 @@ export default function AnalyticsHeader({
         <div className="flex items-center gap-3">
           <h1 className="qs-title text-[1.4rem]">Analytics</h1>
         </div>
-        <p className="mt-1 text-sm text-stone-500">
+        <p className="mt-1 text-sm text-slate-500">
           Performance, risk, and how the book behaved in different markets.
         </p>
       </div>
@@ -63,11 +63,11 @@ export default function AnalyticsHeader({
             <span>{startDate}</span>
             <span className="text-slate-500">→</span>
             <span>{endDate}</span>
-            <Calendar className="w-3.5 h-3.5 text-[#38BDF8] ml-1" />
+            <Calendar className="w-3.5 h-3.5 text-[#3b82f6] ml-1" />
           </button>
 
           {showDatePicker && (
-            <div className="absolute right-0 top-full mt-1.5 bg-[#0C1017] border border-[#202C3F] rounded-lg p-3 shadow-2xl z-50 w-72 space-y-3">
+            <div className="absolute right-0 top-full mt-1.5 bg-[#0C1017] border border-[#1e293b] rounded-lg p-3 shadow-2xl z-50 w-72 space-y-3">
               <div className="text-[11px] font-semibold text-white">Select Date Window</div>
               <div className="space-y-2">
                 <div>
@@ -76,7 +76,7 @@ export default function AnalyticsHeader({
                     type="date"
                     value={tempStart}
                     onChange={(e) => setTempStart(e.target.value)}
-                    className="w-full bg-[#131822] border border-[#252E3E] text-white text-xs px-2 py-1 rounded focus:outline-none focus:border-[#38BDF8]"
+                    className="w-full bg-[#0b1222] border border-[#1e293b] text-white text-xs px-2 py-1 rounded focus:outline-none focus:border-[#3b82f6]"
                   />
                 </div>
                 <div>
@@ -85,11 +85,11 @@ export default function AnalyticsHeader({
                     type="date"
                     value={tempEnd}
                     onChange={(e) => setTempEnd(e.target.value)}
-                    className="w-full bg-[#131822] border border-[#252E3E] text-white text-xs px-2 py-1 rounded focus:outline-none focus:border-[#38BDF8]"
+                    className="w-full bg-[#0b1222] border border-[#1e293b] text-white text-xs px-2 py-1 rounded focus:outline-none focus:border-[#3b82f6]"
                   />
                 </div>
               </div>
-              <div className="flex justify-end space-x-2 pt-1 border-t border-[#1E2530]">
+              <div className="flex justify-end space-x-2 pt-1 border-t border-[#1e293b]">
                 <button
                   type="button"
                   onClick={() => setShowDatePicker(false)}
@@ -100,7 +100,7 @@ export default function AnalyticsHeader({
                 <button
                   type="button"
                   onClick={handleApplyDate}
-                  className="px-3 py-1 text-[11px] bg-[#0284C7] hover:bg-[#0369A1] text-white font-medium rounded"
+                  className="px-3 py-1 text-[11px] bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium rounded"
                 >
                   Apply
                 </button>
@@ -114,7 +114,7 @@ export default function AnalyticsHeader({
           <select
             value={frequency}
             onChange={(e) => onFrequencyChange(e.target.value as any)}
-            className="appearance-none bg-[#0F141D] hover:bg-[#151C28] border border-[#202C3F] text-slate-200 pl-3 pr-7 py-1.5 rounded text-xs focus:outline-none focus:border-[#38BDF8] cursor-pointer"
+            className="appearance-none bg-[#0b1222] hover:bg-[#0b1222] border border-[#1e293b] text-slate-200 pl-3 pr-7 py-1.5 rounded text-xs focus:outline-none focus:border-[#3b82f6] cursor-pointer"
           >
             <option value="Daily">Daily</option>
             <option value="Weekly">Weekly</option>
@@ -128,7 +128,7 @@ export default function AnalyticsHeader({
           <select
             value={currency}
             onChange={(e) => onCurrencyChange(e.target.value as any)}
-            className="appearance-none bg-[#0F141D] hover:bg-[#151C28] border border-[#202C3F] text-slate-200 pl-3 pr-7 py-1.5 rounded text-xs focus:outline-none focus:border-[#38BDF8] cursor-pointer"
+            className="appearance-none bg-[#0b1222] hover:bg-[#0b1222] border border-[#1e293b] text-slate-200 pl-3 pr-7 py-1.5 rounded text-xs focus:outline-none focus:border-[#3b82f6] cursor-pointer"
           >
             <option value="USD">USD ($)</option>
             <option value="INR">INR (₹)</option>

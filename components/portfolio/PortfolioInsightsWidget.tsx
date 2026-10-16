@@ -39,18 +39,18 @@ export default function PortfolioInsightsWidget() {
       title: "Rebalancing Improves Stability",
       desc: "Monthly rebalancing improves Sharpe by 18.7% vs no rebalancing.",
       icon: RotateCw,
-      iconColor: "text-[#38BDF8]",
+      iconColor: "text-[#3b82f6]",
       bgColor: "bg-[#075985]/20",
-      borderColor: "border-[#0284C7]/40",
+      borderColor: "border-[#2563eb]/40",
     },
   ];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch">
       {/* 1. Left: Key Risk Insights 4-Card Strip (8 cols) */}
-      <div className="lg:col-span-8 bg-[#090D14] border border-[#1E2530] rounded-lg p-3.5 flex flex-col justify-between">
-        <div className="flex items-center space-x-2 pb-2 border-b border-[#1A2230]">
-          <Compass className="w-4 h-4 text-[#38BDF8]" />
+      <div className="lg:col-span-8 bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 flex flex-col justify-between">
+        <div className="flex items-center space-x-2 pb-2 border-b border-[#1e293b]">
+          <Compass className="w-4 h-4 text-[#3b82f6]" />
           <h2 className="text-sm font-bold text-white tracking-tight font-sans">
             Key Risk Insights
           </h2>
@@ -62,10 +62,10 @@ export default function PortfolioInsightsWidget() {
             return (
               <div
                 key={card.title}
-                className={`p-2.5 rounded-lg border flex flex-col justify-between space-y-2 hover:border-[#38BDF8]/40 transition-colors ${card.bgColor} ${card.borderColor}`}
+                className={`p-2.5 rounded-lg border flex flex-col justify-between space-y-2 hover:border-[#3b82f6]/40 transition-colors ${card.bgColor} ${card.borderColor}`}
               >
                 <div className="flex items-center space-x-2">
-                  <div className="p-1 rounded bg-[#090D14]/80 shrink-0">
+                  <div className="p-1 rounded bg-[#080d1a]/80 shrink-0">
                     <Icon className={`w-3.5 h-3.5 ${card.iconColor}`} />
                   </div>
                   <span className="text-[11px] font-bold text-slate-100 font-sans leading-tight">
@@ -82,8 +82,8 @@ export default function PortfolioInsightsWidget() {
       </div>
 
       {/* 2. Right: Portfolio Risk Summary (4 cols) */}
-      <div className="lg:col-span-4 bg-[#090D14] border border-[#1E2530] rounded-lg p-3.5 flex flex-col justify-between">
-        <div className="flex items-center justify-between pb-2 border-b border-[#1A2230]">
+      <div className="lg:col-span-4 bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 flex flex-col justify-between">
+        <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
           <h2 className="text-sm font-bold text-white tracking-tight font-sans">
             Portfolio Risk Summary
           </h2>
@@ -116,7 +116,7 @@ export default function PortfolioInsightsWidget() {
           </div>
 
           {/* Col 2 */}
-          <div className="space-y-1.5 border-l border-[#1A2230] pl-3">
+          <div className="space-y-1.5 border-l border-[#1e293b] pl-3">
             <div className="flex items-center justify-between">
               <span className="text-slate-400 text-[11px]">Largest Risk Contributor</span>
               <span className="font-mono font-bold text-slate-200 truncate ml-1 text-right">

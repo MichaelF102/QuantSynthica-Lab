@@ -24,9 +24,9 @@ export default function PortfolioFactorExposureWidget({
   factors?: FactorExposureItem[];
 }) {
   return (
-    <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3.5 flex flex-col justify-between h-full">
+    <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 flex flex-col justify-between h-full">
       {/* Header */}
-      <div className="flex items-center space-x-2 pb-2 border-b border-[#1A2230]">
+      <div className="flex items-center space-x-2 pb-2 border-b border-[#1e293b]">
         <h2 className="text-sm font-bold text-white tracking-tight font-sans">
           Factor Exposure (vs SPY)
         </h2>
@@ -67,7 +67,7 @@ export default function PortfolioFactorExposureWidget({
                   <div className="w-20 bg-[#141C28] h-2 rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
-                        isPos ? "bg-[#38BDF8]" : "bg-[#EF4444]"
+                        isPos ? "bg-[#3b82f6]" : "bg-[#EF4444]"
                       }`}
                       style={{ width: `${barWidth}%` }}
                     />

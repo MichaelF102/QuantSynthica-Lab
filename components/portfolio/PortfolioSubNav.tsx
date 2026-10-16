@@ -40,7 +40,7 @@ export default function PortfolioSubNav({
   onTabChange,
 }: PortfolioSubNavProps) {
   return (
-    <div className="flex items-center space-x-1 border-b border-[#1E2530] pb-2 overflow-x-auto scrollbar-none">
+    <div className="flex items-center space-x-1 border-b border-[#1e293b] pb-2 overflow-x-auto scrollbar-none">
       {TABS.map((tab) => {
         const Icon = tab.icon;
         const isActive = activeTab === tab.id;
@@ -57,7 +57,7 @@ export default function PortfolioSubNav({
           >
             <Icon
               className={`w-3.5 h-3.5 ${
-                isActive ? "text-[#38BDF8]" : "text-slate-500"
+                isActive ? "text-[#3b82f6]" : "text-slate-500"
               }`}
             />
             <span>{tab.label}</span>

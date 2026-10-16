@@ -146,7 +146,7 @@ export default function PortfolioHeader({
           <div className="flex items-center gap-3">
             <h1 className="qs-title text-[1.4rem]">Portfolio</h1>
           </div>
-          <p className="mt-1 text-sm text-stone-500">
+          <p className="mt-1 text-sm text-slate-500">
             Allocation, tail risk, and how the book is mixed.
           </p>
         </div>
@@ -154,9 +154,9 @@ export default function PortfolioHeader({
         {/* Top Right: Country Switcher + Action Buttons */}
         <div className="flex items-center space-x-2 text-xs flex-wrap gap-y-1">
           {/* Active Market Context indicator */}
-          <div className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded bg-[#0F141D] border border-[#202C3F] text-[11px] font-mono">
+          <div className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded bg-[#0b1222] border border-[#1e293b] text-[11px] font-mono">
             <span className="text-slate-500 font-sans">MARKET:</span>
-            <span className={`font-bold ${market === "India" ? "text-[#10B981]" : "text-[#38BDF8]"}`}>
+            <span className={`font-bold ${market === "India" ? "text-[#10B981]" : "text-[#3b82f6]"}`}>
               {market === "India" ? "🇮🇳 INDIA" : "🇺🇸 US"}
             </span>
           </div>
@@ -164,7 +164,7 @@ export default function PortfolioHeader({
           <button
             type="button"
             onClick={handleSaveLayout}
-            className="flex items-center space-x-1.5 bg-[#0F141D] hover:bg-[#151C28] active:bg-[#1B2433] border border-[#202C3F] px-3 py-1.5 rounded text-slate-200 hover:text-white transition-colors text-xs font-medium shadow-sm"
+            className="flex items-center space-x-1.5 bg-[#0b1222] hover:bg-[#0b1222] active:bg-[#1B2433] border border-[#1e293b] px-3 py-1.5 rounded text-slate-200 hover:text-white transition-colors text-xs font-medium shadow-sm"
           >
             {savedLayoutToast ? (
               <Check className="w-3.5 h-3.5 text-[#10B981]" />
@@ -177,7 +177,7 @@ export default function PortfolioHeader({
           <button
             type="button"
             onClick={handleExport}
-            className="flex items-center space-x-1.5 bg-[#0F141D] hover:bg-[#151C28] active:bg-[#1B2433] border border-[#202C3F] px-3 py-1.5 rounded text-slate-200 hover:text-white transition-colors text-xs font-medium shadow-sm"
+            className="flex items-center space-x-1.5 bg-[#0b1222] hover:bg-[#0b1222] active:bg-[#1B2433] border border-[#1e293b] px-3 py-1.5 rounded text-slate-200 hover:text-white transition-colors text-xs font-medium shadow-sm"
           >
             <Download className="w-3.5 h-3.5 text-slate-400" />
             <span>Export Report</span>
@@ -186,7 +186,7 @@ export default function PortfolioHeader({
       </div>
 
       {/* 2. Configuration & Parameter Ribbon */}
-      <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-2.5 flex flex-wrap items-center justify-between gap-2.5 text-xs font-mono">
+      <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-2.5 flex flex-wrap items-center justify-between gap-2.5 text-xs font-mono">
         {/* Portfolio Selector */}
         <div className="flex items-center space-x-1.5">
           <span className="text-slate-400 text-[11px]">Portfolio</span>
@@ -196,7 +196,7 @@ export default function PortfolioHeader({
                 type="text"
                 value={customName}
                 onChange={(e) => setCustomName(e.target.value)}
-                className="bg-[#111622] border border-[#38BDF8] text-white text-xs px-2 py-1 rounded w-48 focus:outline-none"
+                className="bg-[#0b1222] border border-[#3b82f6] text-white text-xs px-2 py-1 rounded w-48 focus:outline-none"
               />
               <button
                 type="button"
@@ -217,7 +217,7 @@ export default function PortfolioHeader({
                   onChange={(e) => {
                     if (onPortfolioNameChange) onPortfolioNameChange(e.target.value);
                   }}
-                  className="appearance-none bg-[#111622] border border-[#202C3F] text-slate-200 pl-2.5 pr-6 py-1 rounded text-xs focus:outline-none focus:border-[#38BDF8] cursor-pointer font-sans"
+                  className="appearance-none bg-[#0b1222] border border-[#1e293b] text-slate-200 pl-2.5 pr-6 py-1 rounded text-xs focus:outline-none focus:border-[#3b82f6] cursor-pointer font-sans"
                 >
                   {availablePortfolios.map((p) => (
                     <option key={p} value={p}>
@@ -230,7 +230,7 @@ export default function PortfolioHeader({
               <button
                 type="button"
                 onClick={() => setIsEditingName(true)}
-                className="text-slate-500 hover:text-slate-300 p-1 rounded hover:bg-[#151C28]"
+                className="text-slate-500 hover:text-slate-300 p-1 rounded hover:bg-[#0b1222]"
                 title="Rename portfolio"
               >
                 <Edit2 className="w-3 h-3" />
@@ -243,7 +243,7 @@ export default function PortfolioHeader({
         <div className="flex items-center space-x-1.5">
           <div className="flex items-center space-x-1">
             <span className="text-slate-400 text-[11px]">Benchmark</span>
-            <span className={`text-[9px] px-1 py-0.2 rounded font-bold ${market === "India" ? "text-[#10B981] bg-[#10B981]/15" : "text-[#38BDF8] bg-[#38BDF8]/15"}`}>
+            <span className={`text-[9px] px-1 py-0.2 rounded font-bold ${market === "India" ? "text-[#10B981] bg-[#10B981]/15" : "text-[#3b82f6] bg-[#3b82f6]/15"}`}>
               {market === "India" ? "IN" : "US"}
             </span>
           </div>
@@ -251,7 +251,7 @@ export default function PortfolioHeader({
             <select
               value={benchmark}
               onChange={(e) => onBenchmarkChange(e.target.value)}
-              className="appearance-none bg-[#111622] border border-[#202C3F] text-slate-200 pl-2.5 pr-6 py-1 rounded text-xs focus:outline-none focus:border-[#38BDF8] cursor-pointer font-sans"
+              className="appearance-none bg-[#0b1222] border border-[#1e293b] text-slate-200 pl-2.5 pr-6 py-1 rounded text-xs focus:outline-none focus:border-[#3b82f6] cursor-pointer font-sans"
             >
               {benchmarks.map((b) => (
                 <option key={b.value} value={b.value}>
@@ -270,16 +270,16 @@ export default function PortfolioHeader({
             <button
               type="button"
               onClick={() => setShowDatePicker(!showDatePicker)}
-              className="flex items-center space-x-1.5 bg-[#111622] hover:bg-[#151C28] border border-[#202C3F] px-2.5 py-1 rounded text-slate-200 text-xs font-mono"
+              className="flex items-center space-x-1.5 bg-[#0b1222] hover:bg-[#0b1222] border border-[#1e293b] px-2.5 py-1 rounded text-slate-200 text-xs font-mono"
             >
-              <Calendar className="w-3 h-3 text-[#38BDF8]" />
+              <Calendar className="w-3 h-3 text-[#3b82f6]" />
               <span>{startDate}</span>
               <span className="text-slate-500">→</span>
               <span>{endDate}</span>
             </button>
 
             {showDatePicker && (
-              <div className="absolute left-0 top-full mt-1.5 bg-[#0C1017] border border-[#202C3F] rounded-lg p-3 shadow-2xl z-50 w-72 space-y-3">
+              <div className="absolute left-0 top-full mt-1.5 bg-[#0C1017] border border-[#1e293b] rounded-lg p-3 shadow-2xl z-50 w-72 space-y-3">
                 <div className="text-[11px] font-semibold text-white">Select Date Window</div>
                 <div className="space-y-2">
                   <div>
@@ -288,7 +288,7 @@ export default function PortfolioHeader({
                       type="date"
                       value={tempStart}
                       onChange={(e) => setTempStart(e.target.value)}
-                      className="w-full bg-[#131822] border border-[#252E3E] text-white text-xs px-2 py-1 rounded focus:outline-none focus:border-[#38BDF8]"
+                      className="w-full bg-[#0b1222] border border-[#1e293b] text-white text-xs px-2 py-1 rounded focus:outline-none focus:border-[#3b82f6]"
                     />
                   </div>
                   <div>
@@ -297,11 +297,11 @@ export default function PortfolioHeader({
                       type="date"
                       value={tempEnd}
                       onChange={(e) => setTempEnd(e.target.value)}
-                      className="w-full bg-[#131822] border border-[#252E3E] text-white text-xs px-2 py-1 rounded focus:outline-none focus:border-[#38BDF8]"
+                      className="w-full bg-[#0b1222] border border-[#1e293b] text-white text-xs px-2 py-1 rounded focus:outline-none focus:border-[#3b82f6]"
                     />
                   </div>
                 </div>
-                <div className="flex justify-end space-x-2 pt-1 border-t border-[#1E2530]">
+                <div className="flex justify-end space-x-2 pt-1 border-t border-[#1e293b]">
                   <button
                     type="button"
                     onClick={() => setShowDatePicker(false)}
@@ -312,7 +312,7 @@ export default function PortfolioHeader({
                   <button
                     type="button"
                     onClick={handleApplyDate}
-                    className="px-3 py-1 text-[11px] bg-[#0284C7] hover:bg-[#0369A1] text-white font-medium rounded"
+                    className="px-3 py-1 text-[11px] bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium rounded"
                   >
                     Apply
                   </button>
@@ -329,7 +329,7 @@ export default function PortfolioHeader({
             <select
               value={frequency}
               onChange={(e) => onFrequencyChange(e.target.value as any)}
-              className="appearance-none bg-[#111622] border border-[#202C3F] text-slate-200 pl-2.5 pr-6 py-1 rounded text-xs focus:outline-none focus:border-[#38BDF8] cursor-pointer"
+              className="appearance-none bg-[#0b1222] border border-[#1e293b] text-slate-200 pl-2.5 pr-6 py-1 rounded text-xs focus:outline-none focus:border-[#3b82f6] cursor-pointer"
             >
               <option value="Daily">Daily</option>
               <option value="Weekly">Weekly</option>
@@ -346,7 +346,7 @@ export default function PortfolioHeader({
             <select
               value={currency}
               onChange={(e) => onCurrencyChange(e.target.value as any)}
-              className="appearance-none bg-[#111622] border border-[#202C3F] text-slate-200 pl-2.5 pr-6 py-1 rounded text-xs focus:outline-none focus:border-[#38BDF8] cursor-pointer font-bold"
+              className="appearance-none bg-[#0b1222] border border-[#1e293b] text-slate-200 pl-2.5 pr-6 py-1 rounded text-xs focus:outline-none focus:border-[#3b82f6] cursor-pointer font-bold"
             >
               <option value="INR">INR (₹)</option>
               <option value="USD">USD ($)</option>
@@ -369,7 +369,7 @@ export default function PortfolioHeader({
                 type="number"
                 value={initialCapital}
                 onChange={(e) => onInitialCapitalChange(Number(e.target.value) || 100000)}
-                className="bg-[#111622] border border-[#202C3F] text-white text-xs pl-5 pr-2 py-1 rounded w-full font-mono text-right focus:outline-none focus:border-[#38BDF8]"
+                className="bg-[#0b1222] border border-[#1e293b] text-white text-xs pl-5 pr-2 py-1 rounded w-full font-mono text-right focus:outline-none focus:border-[#3b82f6]"
               />
             </div>
 
@@ -382,8 +382,8 @@ export default function PortfolioHeader({
                   onClick={() => onInitialCapitalChange(p.val)}
                   className={`px-1 py-0.5 text-[9px] font-mono rounded border transition-colors cursor-pointer ${
                     initialCapital === p.val
-                      ? "bg-[#38BDF8]/20 border-[#38BDF8] text-[#38BDF8] font-bold"
-                      : "bg-[#111722] border-[#202C3F] text-slate-400 hover:text-white"
+                      ? "bg-[#3b82f6]/20 border-[#3b82f6] text-[#3b82f6] font-bold"
+                      : "bg-[#0b1222] border-[#1e293b] text-slate-400 hover:text-white"
                   }`}
                 >
                   {p.label}
@@ -400,7 +400,7 @@ export default function PortfolioHeader({
             <select
               value={rebalance}
               onChange={(e) => onRebalanceChange(e.target.value as any)}
-              className="appearance-none bg-[#111622] border border-[#202C3F] text-slate-200 pl-2.5 pr-6 py-1 rounded text-xs focus:outline-none focus:border-[#38BDF8] cursor-pointer"
+              className="appearance-none bg-[#0b1222] border border-[#1e293b] text-slate-200 pl-2.5 pr-6 py-1 rounded text-xs focus:outline-none focus:border-[#3b82f6] cursor-pointer"
             >
               <option value="Monthly">Monthly</option>
               <option value="Quarterly">Quarterly</option>
@@ -416,7 +416,7 @@ export default function PortfolioHeader({
           type="button"
           onClick={onRunAnalysis}
           disabled={isRunning}
-          className="flex items-center space-x-1.5 bg-[#0284C7] hover:bg-[#0369A1] active:bg-[#075985] text-white px-3.5 py-1.5 rounded text-xs font-semibold shadow-md transition-all disabled:opacity-50 cursor-pointer"
+          className="flex items-center space-x-1.5 bg-[#2563eb] hover:bg-[#1d4ed8] active:bg-[#075985] text-white px-3.5 py-1.5 rounded text-xs font-semibold shadow-md transition-all disabled:opacity-50 cursor-pointer"
         >
           {isRunning ? (
             <RotateCw className="w-3.5 h-3.5 animate-spin text-white" />
@@ -428,10 +428,10 @@ export default function PortfolioHeader({
       </div>
 
       {/* 3. Constituent Stocks & Basket Quick Strip */}
-      <div className="flex flex-wrap items-center justify-between gap-2 p-2 bg-[#090D14] border border-[#1E2530] rounded-lg text-xs font-mono">
+      <div className="flex flex-wrap items-center justify-between gap-2 p-2 bg-[#080d1a] border border-[#1e293b] rounded-lg text-xs font-mono">
         <div className="flex items-center space-x-2 flex-wrap gap-y-1">
           <div className="flex items-center space-x-1.5 text-slate-400 text-[11px]">
-            <PieIcon className="w-3.5 h-3.5 text-[#38BDF8]" />
+            <PieIcon className="w-3.5 h-3.5 text-[#3b82f6]" />
             <span className="font-semibold text-slate-300">Basket Stocks ({allocations.length}):</span>
           </div>
 
@@ -440,10 +440,10 @@ export default function PortfolioHeader({
               key={a.ticker}
               type="button"
               onClick={onOpenStockBasketModal}
-              className="flex items-center space-x-1.5 px-2 py-0.5 rounded bg-[#111722] hover:bg-[#182030] border border-[#202C3F] hover:border-[#38BDF8]/60 text-slate-200 transition-colors cursor-pointer group"
+              className="flex items-center space-x-1.5 px-2 py-0.5 rounded bg-[#0b1222] hover:bg-[#182030] border border-[#1e293b] hover:border-[#3b82f6]/60 text-slate-200 transition-colors cursor-pointer group"
             >
               <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: a.color }} />
-              <span className="font-bold font-mono group-hover:text-[#38BDF8]">{a.ticker}</span>
+              <span className="font-bold font-mono group-hover:text-[#3b82f6]">{a.ticker}</span>
               <span className="text-[10px] text-slate-400 font-mono">{a.weight}%</span>
             </button>
           ))}
@@ -452,7 +452,7 @@ export default function PortfolioHeader({
             <button
               type="button"
               onClick={onOpenStockBasketModal}
-              className="flex items-center space-x-1 px-2.5 py-0.5 rounded bg-[#0284C7]/20 hover:bg-[#0284C7]/30 border border-[#0284C7]/50 text-[#38BDF8] text-[11px] font-semibold transition-colors cursor-pointer"
+              className="flex items-center space-x-1 px-2.5 py-0.5 rounded bg-[#2563eb]/20 hover:bg-[#2563eb]/30 border border-[#2563eb]/50 text-[#3b82f6] text-[11px] font-semibold transition-colors cursor-pointer"
             >
               <Sliders className="w-3 h-3" />
               <span>+ Configure Basket &amp; Weights</span>

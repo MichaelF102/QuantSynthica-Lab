@@ -170,7 +170,7 @@ export default function ResearchFourCardsGrid({
     };
   }, [summary, bars, lastPrice, profile]);
 
-  const betaVal = summary?.beta !== undefined ? summary.beta.toFixed(2) : "0.98";
+  const betaVal = typeof summary?.beta === "number" ? summary.beta.toFixed(2) : "—";
   const epsVal = profile?.eps_ttm ? `${sym}${Number(profile.eps_ttm).toFixed(2)}` : `${sym}21.28`;
   const divYieldVal = profile?.dividend_yield ? `${(Number(profile.dividend_yield) * 100).toFixed(2)}%` : "0.77%";
   const isinCode = profile?.isin || (isIndiaStock ? "INE955D01029" : "US0378331005");
@@ -462,14 +462,14 @@ export default function ResearchFourCardsGrid({
       {/* ========================================================
           CARD 1: KEY STATISTICS
           ======================================================== */}
-      <div className="border border-[#1E2530] bg-[#0A0D14] rounded-sm p-3.5 flex flex-col justify-between relative transition-all">
+      <div className="border border-[#1e293b] bg-[#080d1a] rounded-sm p-3.5 flex flex-col justify-between relative transition-all">
         <div>
           {/* Header */}
-          <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1E2530]">
+          <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1e293b]">
             <span className="font-semibold text-white text-[13px] tracking-tight flex items-center space-x-1.5">
               <span>Key Statistics</span>
               {expandedStats && (
-                <span className="text-[9px] px-1 py-0.2 rounded bg-[#0284C7]/20 text-[#38BDF8] border border-[#0284C7]/30">
+                <span className="text-[9px] px-1 py-0.2 rounded bg-[#2563eb]/20 text-[#3b82f6] border border-[#2563eb]/30">
                   EXTENDED
                 </span>
               )}
@@ -479,7 +479,7 @@ export default function ResearchFourCardsGrid({
               <button
                 type="button"
                 onClick={() => setStatsModalOpen(true)}
-                className="text-[10px] text-[#89919C] hover:text-[#38BDF8] flex items-center space-x-0.5 transition-colors cursor-pointer"
+                className="text-[10px] text-[#94a3b8] hover:text-[#3b82f6] flex items-center space-x-0.5 transition-colors cursor-pointer"
                 title="Open comprehensive 24-point valuation & fundamentals matrix"
               >
                 <Layers className="w-3 h-3" />
@@ -489,14 +489,14 @@ export default function ResearchFourCardsGrid({
               <button
                 type="button"
                 onClick={() => setExpandedStats(!expandedStats)}
-                className="text-[11px] text-[#38BDF8] hover:text-white flex items-center space-x-0.5 transition-colors group cursor-pointer"
+                className="text-[11px] text-[#3b82f6] hover:text-white flex items-center space-x-0.5 transition-colors group cursor-pointer"
                 title={expandedStats ? "Collapse extra statistics" : "Expand comprehensive metrics"}
               >
                 <span>{expandedStats ? "View Less" : "View More"}</span>
                 {expandedStats ? (
-                  <ChevronDown className="w-3 h-3 text-[#38BDF8] group-hover:text-white" />
+                  <ChevronDown className="w-3 h-3 text-[#3b82f6] group-hover:text-white" />
                 ) : (
-                  <ChevronRight className="w-3 h-3 text-[#38BDF8] group-hover:text-white" />
+                  <ChevronRight className="w-3 h-3 text-[#3b82f6] group-hover:text-white" />
                 )}
               </button>
             </div>
@@ -504,105 +504,105 @@ export default function ResearchFourCardsGrid({
 
           {/* Standard 2-Column Stats Table (12 metrics) */}
           <div className="space-y-2 text-[11px]">
-            <div className="grid grid-cols-2 gap-x-3 pb-1 border-b border-[#18202C]">
+            <div className="grid grid-cols-2 gap-x-3 pb-1 border-b border-[#1e293b]">
               <div className="flex justify-between" title="Previous trading session closing price">
-                <span className="text-[#89919C]">Prev Close</span>
+                <span className="text-[#94a3b8]">Prev Close</span>
                 <span className="text-white font-mono">{sym}{prevClose}</span>
               </div>
               <div className="flex justify-between" title="Total equity valuation based on shares outstanding">
-                <span className="text-[#89919C]">Market Cap</span>
+                <span className="text-[#94a3b8]">Market Cap</span>
                 <span className="text-white font-mono">{mcapVal}</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-x-3 pb-1 border-b border-[#18202C]">
+            <div className="grid grid-cols-2 gap-x-3 pb-1 border-b border-[#1e293b]">
               <div className="flex justify-between" title="Current session opening price">
-                <span className="text-[#89919C]">Open</span>
+                <span className="text-[#94a3b8]">Open</span>
                 <span className="text-white font-mono">{sym}{openPrice}</span>
               </div>
               <div className="flex justify-between" title="Enterprise Value = Market Cap + Net Debt">
-                <span className="text-[#89919C]">Enterprise Value</span>
+                <span className="text-[#94a3b8]">Enterprise Value</span>
                 <span className="text-white font-mono">{evVal}</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-x-3 pb-1 border-b border-[#18202C]">
+            <div className="grid grid-cols-2 gap-x-3 pb-1 border-b border-[#1e293b]">
               <div className="flex justify-between" title="Highest price recorded in current session">
-                <span className="text-[#89919C]">High</span>
+                <span className="text-[#94a3b8]">High</span>
                 <span className="text-white font-mono">{sym}{highPrice}</span>
               </div>
               <div className="flex justify-between" title="Price to Trailing Twelve Months Earnings">
-                <span className="text-[#89919C]">P/E (TTM)</span>
+                <span className="text-[#94a3b8]">P/E (TTM)</span>
                 <span className="text-white font-mono">{peVal}</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-x-3 pb-1 border-b border-[#18202C]">
+            <div className="grid grid-cols-2 gap-x-3 pb-1 border-b border-[#1e293b]">
               <div className="flex justify-between" title="Lowest price recorded in current session">
-                <span className="text-[#89919C]">Low</span>
+                <span className="text-[#94a3b8]">Low</span>
                 <span className="text-white font-mono">{sym}{lowPrice}</span>
               </div>
               <div className="flex justify-between" title="Price/Earnings to 5-Year Growth Ratio">
-                <span className="text-[#89919C]">PEG (5Y)</span>
+                <span className="text-[#94a3b8]">PEG (5Y)</span>
                 <span className="text-white font-mono">{pegVal}</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-x-3 pb-1 border-b border-[#18202C]">
+            <div className="grid grid-cols-2 gap-x-3 pb-1 border-b border-[#1e293b]">
               <div className="flex justify-between" title="Number of shares traded in latest session">
-                <span className="text-[#89919C]">Volume</span>
+                <span className="text-[#94a3b8]">Volume</span>
                 <span className="text-white font-mono">{volStr}</span>
               </div>
               <div className="flex justify-between" title="Price to Annual Sales/Revenue Multiple">
-                <span className="text-[#89919C]">Price / Sales</span>
+                <span className="text-[#94a3b8]">Price / Sales</span>
                 <span className="text-white font-mono">{psVal}</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-x-3 pb-1 border-b border-[#18202C]">
+            <div className="grid grid-cols-2 gap-x-3 pb-1 border-b border-[#1e293b]">
               <div className="flex justify-between" title="30-Day Rolling Average Trading Volume">
-                <span className="text-[#89919C]">Avg Vol (30D)</span>
+                <span className="text-[#94a3b8]">Avg Vol (30D)</span>
                 <span className="text-white font-mono">{avgVol30D}</span>
               </div>
               <div className="flex justify-between" title="Price to Net Book Value per Share">
-                <span className="text-[#89919C]">Price / Book</span>
+                <span className="text-[#94a3b8]">Price / Book</span>
                 <span className="text-white font-mono">{pbVal}</span>
               </div>
             </div>
 
             {/* Additional 8 Metrics when 'View More' is toggled */}
             {expandedStats && (
-              <div className="space-y-2 pt-1 border-t border-[#0284C7]/30 bg-[#070A0F] p-2 rounded animate-in fade-in duration-200">
-                <div className="grid grid-cols-2 gap-x-3 pb-1 border-b border-[#18202C]">
+              <div className="space-y-2 pt-1 border-t border-[#2563eb]/30 bg-[#070A0F] p-2 rounded animate-in fade-in duration-200">
+                <div className="grid grid-cols-2 gap-x-3 pb-1 border-b border-[#1e293b]">
                   <div className="flex justify-between" title="Highest price in past 52 weeks">
-                    <span className="text-[#89919C]">52W High</span>
+                    <span className="text-[#94a3b8]">52W High</span>
                     <span className="text-[#10B981] font-mono font-bold">{sym}{w52High}</span>
                   </div>
                   <div className="flex justify-between" title="Lowest price in past 52 weeks">
-                    <span className="text-[#89919C]">52W Low</span>
+                    <span className="text-[#94a3b8]">52W Low</span>
                     <span className="text-[#EF4444] font-mono font-bold">{sym}{w52Low}</span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-x-3 pb-1 border-b border-[#18202C]">
+                <div className="grid grid-cols-2 gap-x-3 pb-1 border-b border-[#1e293b]">
                   <div className="flex justify-between" title={`Sensitivity vs ${benchmarkName}`}>
-                    <span className="text-[#89919C]">Beta vs {benchmarkName.split(" ")[0]}</span>
+                    <span className="text-[#94a3b8]">Beta vs {benchmarkName.split(" ")[0]}</span>
                     <span className="text-white font-mono">{betaVal}</span>
                   </div>
                   <div className="flex justify-between" title="Trailing 12-Month Earnings per Share">
-                    <span className="text-[#89919C]">EPS (TTM)</span>
+                    <span className="text-[#94a3b8]">EPS (TTM)</span>
                     <span className="text-white font-mono">{epsVal}</span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-x-3 pb-1 border-b border-[#18202C]">
+                <div className="grid grid-cols-2 gap-x-3 pb-1 border-b border-[#1e293b]">
                   <div className="flex justify-between" title="Annualized Dividend Yield %">
-                    <span className="text-[#89919C]">Dividend Yield</span>
+                    <span className="text-[#94a3b8]">Dividend Yield</span>
                     <span className="text-[#10B981] font-mono">{divYieldVal}</span>
                   </div>
                   <div className="flex justify-between" title="Primary Trading Exchange">
-                    <span className="text-[#89919C]">Exchange</span>
-                    <span className="text-[#38BDF8] font-mono">{exchange}</span>
+                    <span className="text-[#94a3b8]">Exchange</span>
+                    <span className="text-[#3b82f6] font-mono">{exchange}</span>
                   </div>
                 </div>
 
@@ -610,7 +610,7 @@ export default function ResearchFourCardsGrid({
                   <button
                     type="button"
                     onClick={() => setStatsModalOpen(true)}
-                    className="flex-1 py-1 px-1.5 rounded bg-[#10141C] hover:bg-[#18202C] border border-[#212A38] text-[10px] text-[#38BDF8] font-semibold flex items-center justify-center space-x-1 transition-colors cursor-pointer"
+                    className="flex-1 py-1 px-1.5 rounded bg-[#0b1222] hover:bg-[#1e293b] border border-[#212A38] text-[10px] text-[#3b82f6] font-semibold flex items-center justify-center space-x-1 transition-colors cursor-pointer"
                   >
                     <Layers className="w-3 h-3" />
                     <span>Deep Matrix</span>
@@ -619,7 +619,7 @@ export default function ResearchFourCardsGrid({
                     <button
                       type="button"
                       onClick={() => onTabChange("fundamentals")}
-                      className="flex-1 py-1 px-1.5 rounded bg-[#0284C7]/20 hover:bg-[#0284C7]/30 border border-[#0284C7]/40 text-[10px] text-[#38BDF8] font-semibold flex items-center justify-center space-x-1 transition-colors cursor-pointer"
+                      className="flex-1 py-1 px-1.5 rounded bg-[#2563eb]/20 hover:bg-[#2563eb]/30 border border-[#2563eb]/40 text-[10px] text-[#3b82f6] font-semibold flex items-center justify-center space-x-1 transition-colors cursor-pointer"
                     >
                       <span>Financials ➔</span>
                     </button>
@@ -634,15 +634,15 @@ export default function ResearchFourCardsGrid({
       {/* ========================================================
           CARD 2: PERFORMANCE
           ======================================================== */}
-      <div className="border border-[#1E2530] bg-[#0A0D14] rounded-sm p-3.5 flex flex-col justify-between">
+      <div className="border border-[#1e293b] bg-[#080d1a] rounded-sm p-3.5 flex flex-col justify-between">
         <div>
           {/* Header with Working Timeframe Pills */}
-          <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1E2530]">
+          <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1e293b]">
             <div className="flex items-center space-x-1.5">
               <span className="font-semibold text-white text-[13px] tracking-tight">
                 Performance
               </span>
-              <span className="text-[9px] text-[#89919C] font-mono">
+              <span className="text-[9px] text-[#94a3b8] font-mono">
                 {perfViewMode === "ABSOLUTE" ? "(Abs %)" : `(vs ${benchmarkName.split(" ")[0]})`}
               </span>
             </div>
@@ -656,8 +656,8 @@ export default function ResearchFourCardsGrid({
                   onClick={() => handlePerfPillClick(range)}
                   className={`px-1.5 py-0.5 rounded transition-all cursor-pointer ${
                     perfRange === range
-                      ? "bg-[#0284C7] text-white font-bold shadow-sm"
-                      : "text-[#89919C] hover:text-white hover:bg-[#141A24]"
+                      ? "bg-[#2563eb] text-white font-bold shadow-sm"
+                      : "text-[#94a3b8] hover:text-white hover:bg-[#0b1222]"
                   }`}
                   title={`Focus on ${range} performance & synchronize chart`}
                 >
@@ -668,14 +668,14 @@ export default function ResearchFourCardsGrid({
           </div>
 
           {/* Performance Inspection Banner for active range */}
-          <div className="mb-2 px-2 py-1.5 rounded bg-[#0E121A] border border-[#1E2530] flex items-center justify-between text-[10px] font-mono">
+          <div className="mb-2 px-2 py-1.5 rounded bg-[#0b1222] border border-[#1e293b] flex items-center justify-between text-[10px] font-mono">
             <div className="flex items-center space-x-1.5 flex-wrap">
-              <span className="font-bold text-[#38BDF8]">{selectedPerfRow.period}</span>
+              <span className="font-bold text-[#3b82f6]">{selectedPerfRow.period}</span>
               <span className={`font-bold ${selectedPerfRow.value >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
                 {selectedPerfRow.value >= 0 ? "+" : ""}{selectedPerfRow.value.toFixed(2)}%
               </span>
-              <span className="text-[#59616B]">|</span>
-              <span className="text-[#89919C] text-[9px]">{benchmarkName.split(" ")[0]}:</span>
+              <span className="text-[#64748b]">|</span>
+              <span className="text-[#94a3b8] text-[9px]">{benchmarkName.split(" ")[0]}:</span>
               <span className={`text-[9px] ${selectedPerfRow.benchValue >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
                 {selectedPerfRow.benchValue >= 0 ? "+" : ""}{selectedPerfRow.benchValue.toFixed(2)}%
               </span>
@@ -692,7 +692,7 @@ export default function ResearchFourCardsGrid({
               </span>
             </div>
 
-            <div className="flex items-center space-x-1.5 text-[#89919C] text-[9px]">
+            <div className="flex items-center space-x-1.5 text-[#94a3b8] text-[9px]">
               <span>R: {sym}{selectedPerfRow.low.toFixed(0)}–{sym}{selectedPerfRow.high.toFixed(0)}</span>
               <span>•</span>
               <span title="Percentage of positive daily closes in window">Win {selectedPerfRow.winRate}%</span>
@@ -713,11 +713,11 @@ export default function ResearchFourCardsGrid({
                   key={row.period}
                   onClick={() => handlePerfPillClick(row.rangeKey as PerfRange)}
                   className={`flex items-center justify-between text-[11px] p-0.5 rounded transition-colors cursor-pointer ${
-                    isSelected ? "bg-[#141A24] border-l-2 border-[#38BDF8]" : "hover:bg-[#10141C]"
+                    isSelected ? "bg-[#0b1222] border-l-2 border-[#3b82f6]" : "hover:bg-[#0b1222]"
                   }`}
                   title={`Click to inspect ${row.period} returns and sync chart`}
                 >
-                  <span className={`w-16 ${isSelected ? "text-white font-bold" : "text-[#89919C]"}`}>
+                  <span className={`w-16 ${isSelected ? "text-white font-bold" : "text-[#94a3b8]"}`}>
                     {row.period}
                   </span>
                   <span
@@ -727,7 +727,7 @@ export default function ResearchFourCardsGrid({
                   >
                     {displayVal >= 0 ? "+" : ""}{displayVal.toFixed(2)}%
                   </span>
-                  <div className="flex-1 h-3.5 bg-[#141A24] rounded-sm relative overflow-hidden">
+                  <div className="flex-1 h-3.5 bg-[#0b1222] rounded-sm relative overflow-hidden">
                     <div
                       className={`h-full rounded-sm transition-all duration-300 ${
                         displayVal >= 0 ? "bg-[#10B981]" : "bg-[#EF4444]"
@@ -741,14 +741,14 @@ export default function ResearchFourCardsGrid({
           </div>
 
           {/* Bottom View Mode Switcher Button */}
-          <div className="mt-2 pt-1 border-t border-[#18202C] flex items-center justify-between text-[10px]">
-            <span className="text-[#59616B]">Comparison</span>
+          <div className="mt-2 pt-1 border-t border-[#1e293b] flex items-center justify-between text-[10px]">
+            <span className="text-[#64748b]">Comparison</span>
             <button
               type="button"
               onClick={() =>
                 setPerfViewMode(perfViewMode === "ABSOLUTE" ? "RELATIVE" : "ABSOLUTE")
               }
-              className="px-2 py-0.5 rounded bg-[#101318] hover:bg-[#141820] border border-[#212836] text-[#38BDF8] font-mono cursor-pointer transition-colors"
+              className="px-2 py-0.5 rounded bg-[#0b1222] hover:bg-[#0b1222] border border-[#212836] text-[#3b82f6] font-mono cursor-pointer transition-colors"
             >
               {perfViewMode === "ABSOLUTE" ? `Switch to vs ${benchmarkName.split(" ")[0]} Alpha` : "Switch to Raw Return %"}
             </button>
@@ -759,16 +759,16 @@ export default function ResearchFourCardsGrid({
       {/* ========================================================
           CARD 3: ANALYST CONSENSUS
           ======================================================== */}
-      <div className="border border-[#1E2530] bg-[#0A0D14] rounded-sm p-3.5 flex flex-col justify-between">
+      <div className="border border-[#1e293b] bg-[#080d1a] rounded-sm p-3.5 flex flex-col justify-between">
         <div>
           {/* Header */}
-          <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1E2530]">
+          <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1e293b]">
             <div className="flex items-center space-x-1.5">
               <span className="font-semibold text-white text-[13px] tracking-tight">
                 Analyst Consensus
               </span>
               {consensusFilter !== "ALL" && (
-                <span className="text-[9px] px-1 rounded bg-[#38BDF8]/20 text-[#38BDF8] border border-[#38BDF8]/30">
+                <span className="text-[9px] px-1 rounded bg-[#3b82f6]/20 text-[#3b82f6] border border-[#3b82f6]/30">
                   {consensusFilter}
                 </span>
               )}
@@ -777,7 +777,7 @@ export default function ResearchFourCardsGrid({
             <button
               type="button"
               onClick={() => setAnalystModalOpen(true)}
-              className="text-[11px] text-[#38BDF8] hover:text-white flex items-center space-x-0.5 transition-colors cursor-pointer"
+              className="text-[11px] text-[#3b82f6] hover:text-white flex items-center space-x-0.5 transition-colors cursor-pointer"
               title="Open detailed analyst breakdown and institutional brokerage models"
             >
               <span>View Details</span>
@@ -795,7 +795,7 @@ export default function ResearchFourCardsGrid({
             >
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                 <path
-                  className="text-[#1A2230]"
+                  className="text-[#1e293b]"
                   strokeWidth="3.5"
                   stroke="currentColor"
                   fill="none"
@@ -834,7 +834,7 @@ export default function ResearchFourCardsGrid({
                 <span className="text-xs font-bold text-[#10B981] leading-tight group-hover:scale-105 transition-transform">
                   Buy
                 </span>
-                <span className="text-[9px] text-[#89919C] leading-none mt-0.5">
+                <span className="text-[9px] text-[#94a3b8] leading-none mt-0.5">
                   {analystTotal} Analysts
                 </span>
               </div>
@@ -846,12 +846,12 @@ export default function ResearchFourCardsGrid({
                 type="button"
                 onClick={() => setConsensusFilter(consensusFilter === "BUY" ? "ALL" : "BUY")}
                 className={`flex items-center space-x-2 px-1.5 py-0.5 rounded transition-colors w-full cursor-pointer text-left ${
-                  consensusFilter === "BUY" ? "bg-[#10B981]/20 border border-[#10B981]/40" : "hover:bg-[#141A24]"
+                  consensusFilter === "BUY" ? "bg-[#10B981]/20 border border-[#10B981]/40" : "hover:bg-[#0b1222]"
                 }`}
                 title="Filter to Buy ratings"
               >
                 <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-                <span className="text-[#89919C]">Buy</span>
+                <span className="text-[#94a3b8]">Buy</span>
                 <span className="text-white font-semibold">68% ({buyCount})</span>
               </button>
 
@@ -859,12 +859,12 @@ export default function ResearchFourCardsGrid({
                 type="button"
                 onClick={() => setConsensusFilter(consensusFilter === "HOLD" ? "ALL" : "HOLD")}
                 className={`flex items-center space-x-2 px-1.5 py-0.5 rounded transition-colors w-full cursor-pointer text-left ${
-                  consensusFilter === "HOLD" ? "bg-[#F59E0B]/20 border border-[#F59E0B]/40" : "hover:bg-[#141A24]"
+                  consensusFilter === "HOLD" ? "bg-[#F59E0B]/20 border border-[#F59E0B]/40" : "hover:bg-[#0b1222]"
                 }`}
                 title="Filter to Hold ratings"
               >
                 <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
-                <span className="text-[#89919C]">Hold</span>
+                <span className="text-[#94a3b8]">Hold</span>
                 <span className="text-white font-semibold">24% ({holdCount})</span>
               </button>
 
@@ -872,27 +872,27 @@ export default function ResearchFourCardsGrid({
                 type="button"
                 onClick={() => setConsensusFilter(consensusFilter === "SELL" ? "ALL" : "SELL")}
                 className={`flex items-center space-x-2 px-1.5 py-0.5 rounded transition-colors w-full cursor-pointer text-left ${
-                  consensusFilter === "SELL" ? "bg-[#EF4444]/20 border border-[#EF4444]/40" : "hover:bg-[#141A24]"
+                  consensusFilter === "SELL" ? "bg-[#EF4444]/20 border border-[#EF4444]/40" : "hover:bg-[#0b1222]"
                 }`}
                 title="Filter to Sell ratings"
               >
                 <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
-                <span className="text-[#89919C]">Sell</span>
+                <span className="text-[#94a3b8]">Sell</span>
                 <span className="text-white font-semibold">8% ({sellCount})</span>
               </button>
             </div>
           </div>
 
           {/* Dynamic Price Targets with Scenario Switcher */}
-          <div className="mt-3 pt-2.5 border-t border-[#1E2530]">
+          <div className="mt-3 pt-2.5 border-t border-[#1e293b]">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[10px] text-[#89919C]">Price Target (12M)</span>
+              <span className="text-[10px] text-[#94a3b8]">Price Target (12M)</span>
               <div className="flex items-center space-x-1 text-[9px]">
                 <button
                   type="button"
                   onClick={() => setTargetScenario("MEAN")}
                   className={`px-1 py-0.2 rounded transition-colors cursor-pointer ${
-                    targetScenario === "MEAN" ? "bg-[#0284C7] text-white font-bold" : "text-[#89919C] hover:text-white"
+                    targetScenario === "MEAN" ? "bg-[#2563eb] text-white font-bold" : "text-[#94a3b8] hover:text-white"
                   }`}
                   title="Consensus Base Target"
                 >
@@ -902,7 +902,7 @@ export default function ResearchFourCardsGrid({
                   type="button"
                   onClick={() => setTargetScenario("BULL")}
                   className={`px-1 py-0.2 rounded transition-colors cursor-pointer ${
-                    targetScenario === "BULL" ? "bg-[#10B981] text-white font-bold" : "text-[#89919C] hover:text-white"
+                    targetScenario === "BULL" ? "bg-[#10B981] text-white font-bold" : "text-[#94a3b8] hover:text-white"
                   }`}
                   title="Street High Bull Case"
                 >
@@ -912,7 +912,7 @@ export default function ResearchFourCardsGrid({
                   type="button"
                   onClick={() => setTargetScenario("BEAR")}
                   className={`px-1 py-0.2 rounded transition-colors cursor-pointer ${
-                    targetScenario === "BEAR" ? "bg-[#EF4444] text-white font-bold" : "text-[#89919C] hover:text-white"
+                    targetScenario === "BEAR" ? "bg-[#EF4444] text-white font-bold" : "text-[#94a3b8] hover:text-white"
                   }`}
                   title="Street Low Bear Case"
                 >
@@ -939,7 +939,7 @@ export default function ResearchFourCardsGrid({
                   onClick={() => setTargetScenario("BULL")}
                   className="flex justify-end space-x-2 cursor-pointer hover:opacity-80"
                 >
-                  <span className="text-[#89919C]">High</span>
+                  <span className="text-[#94a3b8]">High</span>
                   <span className="text-white font-mono">{sym}{targetBullVal}</span>
                 </button>
                 <button
@@ -947,7 +947,7 @@ export default function ResearchFourCardsGrid({
                   onClick={() => setTargetScenario("MEAN")}
                   className="flex justify-end space-x-2 cursor-pointer hover:opacity-80"
                 >
-                  <span className="text-[#89919C]">Average</span>
+                  <span className="text-[#94a3b8]">Average</span>
                   <span className="text-white font-mono">{sym}{targetMeanVal}</span>
                 </button>
                 <button
@@ -955,7 +955,7 @@ export default function ResearchFourCardsGrid({
                   onClick={() => setTargetScenario("BEAR")}
                   className="flex justify-end space-x-2 cursor-pointer hover:opacity-80"
                 >
-                  <span className="text-[#89919C]">Low</span>
+                  <span className="text-[#94a3b8]">Low</span>
                   <span className="text-white font-mono">{sym}{targetBearVal}</span>
                 </button>
               </div>
@@ -967,10 +967,10 @@ export default function ResearchFourCardsGrid({
       {/* ========================================================
           CARD 4: LATEST NEWS
           ======================================================== */}
-      <div className="border border-[#1E2530] bg-[#0A0D14] rounded-sm p-3.5 flex flex-col justify-between">
+      <div className="border border-[#1e293b] bg-[#080d1a] rounded-sm p-3.5 flex flex-col justify-between">
         <div>
           {/* Header with Category Filter Pills & Working View All */}
-          <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1E2530]">
+          <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1e293b]">
             <div className="flex items-center space-x-1.5">
               <span className="font-semibold text-white text-[13px] tracking-tight">
                 Latest News
@@ -978,8 +978,8 @@ export default function ResearchFourCardsGrid({
               <button
                 type="button"
                 onClick={handleRefreshNews}
-                className={`text-[#59616B] hover:text-[#38BDF8] transition-all cursor-pointer ${
-                  isRefreshingNews ? "animate-spin text-[#38BDF8]" : ""
+                className={`text-[#64748b] hover:text-[#3b82f6] transition-all cursor-pointer ${
+                  isRefreshingNews ? "animate-spin text-[#3b82f6]" : ""
                 }`}
                 title="Refresh news intelligence stream"
               >
@@ -997,8 +997,8 @@ export default function ResearchFourCardsGrid({
                     onClick={() => setNewsCategory(cat)}
                     className={`px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
                       newsCategory === cat
-                        ? "bg-[#0284C7] text-white font-bold"
-                        : "text-[#89919C] hover:text-white hover:bg-[#141A24]"
+                        ? "bg-[#2563eb] text-white font-bold"
+                        : "text-[#94a3b8] hover:text-white hover:bg-[#0b1222]"
                     }`}
                   >
                     {cat}
@@ -1015,7 +1015,7 @@ export default function ResearchFourCardsGrid({
                     setSelectedArticle(allNewsArticles[0]);
                   }
                 }}
-                className="text-[11px] text-[#38BDF8] hover:text-white transition-colors cursor-pointer ml-1"
+                className="text-[11px] text-[#3b82f6] hover:text-white transition-colors cursor-pointer ml-1"
                 title="View full news and filings stream"
               >
                 View All
@@ -1029,25 +1029,25 @@ export default function ResearchFourCardsGrid({
               <div
                 key={news.id}
                 onClick={() => setSelectedArticle(news)}
-                className="flex items-start justify-between gap-2 group cursor-pointer p-1 rounded hover:bg-[#141A24] transition-colors"
+                className="flex items-start justify-between gap-2 group cursor-pointer p-1 rounded hover:bg-[#0b1222] transition-colors"
                 title="Click to read article intelligence summary"
               >
                 <div className="flex items-start space-x-2">
-                  <span className="text-[10px] text-[#59616B] font-mono mt-0.5 w-4 flex-shrink-0">
+                  <span className="text-[10px] text-[#64748b] font-mono mt-0.5 w-4 flex-shrink-0">
                     {news.time}
                   </span>
                   <div>
-                    <div className="text-[11px] text-[#D8DCE2] group-hover:text-[#38BDF8] line-clamp-1 leading-snug transition-colors">
+                    <div className="text-[11px] text-[#cbd5e1] group-hover:text-[#3b82f6] line-clamp-1 leading-snug transition-colors">
                       {news.title}
                     </div>
                     <div className="text-[10px] flex items-center space-x-2 mt-0.5 font-medium">
-                      <span className="text-[#0284C7]">{news.publisher}</span>
-                      <span className="text-[#59616B]">&bull;</span>
+                      <span className="text-[#2563eb]">{news.publisher}</span>
+                      <span className="text-[#64748b]">&bull;</span>
                       <span
                         className={`text-[9px] px-1 rounded ${
                           news.sentiment === "BULLISH"
                             ? "text-[#10B981] bg-[#10B981]/10"
-                            : "text-[#89919C] bg-[#141A24]"
+                            : "text-[#94a3b8] bg-[#0b1222]"
                         }`}
                       >
                         {news.sentiment}
@@ -1055,7 +1055,7 @@ export default function ResearchFourCardsGrid({
                     </div>
                   </div>
                 </div>
-                <FileText className="w-3.5 h-3.5 text-[#59616B] flex-shrink-0 mt-0.5 group-hover:text-[#38BDF8]" />
+                <FileText className="w-3.5 h-3.5 text-[#64748b] flex-shrink-0 mt-0.5 group-hover:text-[#3b82f6]" />
               </div>
             ))}
           </div>
@@ -1067,20 +1067,20 @@ export default function ResearchFourCardsGrid({
           ======================================================== */}
       {selectedArticle && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4">
-          <div className="w-full max-w-lg bg-[#0E131C] border border-[#252E3E] rounded shadow-2xl overflow-hidden font-mono text-xs animate-in zoom-in-95 duration-150">
+          <div className="w-full max-w-lg bg-[#0E131C] border border-[#1e293b] rounded shadow-2xl overflow-hidden font-mono text-xs animate-in zoom-in-95 duration-150">
             {/* Modal Header */}
-            <div className="px-4 py-2.5 bg-[#07090D] border-b border-[#1E2530] flex items-center justify-between">
+            <div className="px-4 py-2.5 bg-[#080d1a] border-b border-[#1e293b] flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <span className="px-1.5 py-0.5 rounded bg-[#0284C7]/20 text-[#38BDF8] text-[10px] font-bold">
+                <span className="px-1.5 py-0.5 rounded bg-[#2563eb]/20 text-[#3b82f6] text-[10px] font-bold">
                   {selectedArticle.category}
                 </span>
-                <span className="text-[11px] text-[#89919C]">{selectedArticle.publisher}</span>
-                <span className="text-[11px] text-[#59616B]">&bull; {selectedArticle.time} ago</span>
+                <span className="text-[11px] text-[#94a3b8]">{selectedArticle.publisher}</span>
+                <span className="text-[11px] text-[#64748b]">&bull; {selectedArticle.time} ago</span>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedArticle(null)}
-                className="p-1 text-[#89919C] hover:text-white hover:bg-[#1E2530] rounded cursor-pointer"
+                className="p-1 text-[#94a3b8] hover:text-white hover:bg-[#1e293b] rounded cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1093,10 +1093,10 @@ export default function ResearchFourCardsGrid({
               </h3>
 
               <div className="flex items-center space-x-2 text-[10px]">
-                <span className="text-[#89919C]">Security:</span>
-                <span className="text-[#38BDF8] font-bold">{ticker}</span>
-                <span className="text-[#59616B]">&bull;</span>
-                <span className="text-[#89919C]">Market Sentiment:</span>
+                <span className="text-[#94a3b8]">Security:</span>
+                <span className="text-[#3b82f6] font-bold">{ticker}</span>
+                <span className="text-[#64748b]">&bull;</span>
+                <span className="text-[#94a3b8]">Market Sentiment:</span>
                 <span
                   className={`font-bold ${
                     selectedArticle.sentiment === "BULLISH"
@@ -1108,18 +1108,18 @@ export default function ResearchFourCardsGrid({
                 </span>
               </div>
 
-              <div className="p-3 bg-[#07090D] border border-[#1E2530] rounded text-[#D8DCE2] leading-relaxed">
+              <div className="p-3 bg-[#080d1a] border border-[#1e293b] rounded text-[#cbd5e1] leading-relaxed">
                 {selectedArticle.summary}
               </div>
 
               <div>
-                <span className="text-[10px] text-[#89919C] uppercase font-bold block mb-1">
+                <span className="text-[10px] text-[#94a3b8] uppercase font-bold block mb-1">
                   Key Quantitative Takeaways:
                 </span>
-                <ul className="space-y-1 text-[#D8DCE2]">
+                <ul className="space-y-1 text-[#cbd5e1]">
                   {selectedArticle.keyPoints.map((pt, i) => (
                     <li key={i} className="flex items-start space-x-1.5">
-                      <span className="text-[#38BDF8] font-bold mt-0.5">&bull;</span>
+                      <span className="text-[#3b82f6] font-bold mt-0.5">&bull;</span>
                       <span>{pt}</span>
                     </li>
                   ))}
@@ -1128,12 +1128,12 @@ export default function ResearchFourCardsGrid({
             </div>
 
             {/* Modal Footer */}
-            <div className="px-4 py-2.5 bg-[#07090D] border-t border-[#1E2530] flex items-center justify-between">
+            <div className="px-4 py-2.5 bg-[#080d1a] border-t border-[#1e293b] flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <button
                   type="button"
                   onClick={() => handleCopyHeadline(selectedArticle.title)}
-                  className="px-2 py-1 rounded bg-[#141A24] hover:bg-[#1E2530] text-[#D8DCE2] border border-[#232B38] text-[10px] flex items-center space-x-1 cursor-pointer transition-colors"
+                  className="px-2 py-1 rounded bg-[#0b1222] hover:bg-[#1e293b] text-[#cbd5e1] border border-[#1e293b] text-[10px] flex items-center space-x-1 cursor-pointer transition-colors"
                   title="Copy headline to clipboard"
                 >
                   {copiedHeadline ? (
@@ -1143,7 +1143,7 @@ export default function ResearchFourCardsGrid({
                     </>
                   ) : (
                     <>
-                      <Copy className="w-3 h-3 text-[#89919C]" />
+                      <Copy className="w-3 h-3 text-[#94a3b8]" />
                       <span>Copy Headline</span>
                     </>
                   )}
@@ -1152,7 +1152,7 @@ export default function ResearchFourCardsGrid({
                 <button
                   type="button"
                   onClick={() => handleOpenSource(selectedArticle.title, selectedArticle.publisher)}
-                  className="px-2 py-1 rounded bg-[#141A24] hover:bg-[#1E2530] text-[#38BDF8] border border-[#232B38] text-[10px] flex items-center space-x-1 cursor-pointer transition-colors"
+                  className="px-2 py-1 rounded bg-[#0b1222] hover:bg-[#1e293b] text-[#3b82f6] border border-[#1e293b] text-[10px] flex items-center space-x-1 cursor-pointer transition-colors"
                   title="Search original news coverage in web"
                 >
                   <ExternalLink className="w-3 h-3" />
@@ -1168,7 +1168,7 @@ export default function ResearchFourCardsGrid({
                       setSelectedArticle(null);
                       onTabChange("news");
                     }}
-                    className="px-3 py-1 rounded bg-[#0284C7] hover:bg-[#0369A1] text-white text-[11px] font-semibold cursor-pointer"
+                    className="px-3 py-1 rounded bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[11px] font-semibold cursor-pointer"
                   >
                     View All News ➔
                   </button>
@@ -1176,7 +1176,7 @@ export default function ResearchFourCardsGrid({
                 <button
                   type="button"
                   onClick={() => setSelectedArticle(null)}
-                  className="px-3 py-1 rounded bg-[#141A24] hover:bg-[#1E2530] text-[#D8DCE2] border border-[#232B38] text-[11px] cursor-pointer"
+                  className="px-3 py-1 rounded bg-[#0b1222] hover:bg-[#1e293b] text-[#cbd5e1] border border-[#1e293b] text-[11px] cursor-pointer"
                 >
                   Close
                 </button>
@@ -1191,17 +1191,17 @@ export default function ResearchFourCardsGrid({
           ======================================================== */}
       {analystModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4">
-          <div className="w-full max-w-xl bg-[#0E131C] border border-[#252E3E] rounded shadow-2xl overflow-hidden font-mono text-xs animate-in zoom-in-95 duration-150">
+          <div className="w-full max-w-xl bg-[#0E131C] border border-[#1e293b] rounded shadow-2xl overflow-hidden font-mono text-xs animate-in zoom-in-95 duration-150">
             {/* Header */}
-            <div className="px-4 py-2.5 bg-[#07090D] border-b border-[#1E2530] flex items-center justify-between">
+            <div className="px-4 py-2.5 bg-[#080d1a] border-b border-[#1e293b] flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <span className="font-bold text-white">Analyst Ratings Breakdown</span>
-                <span className="text-[10px] text-[#38BDF8]">({ticker} - {companyName})</span>
+                <span className="text-[10px] text-[#3b82f6]">({ticker} - {companyName})</span>
               </div>
               <button
                 type="button"
                 onClick={() => setAnalystModalOpen(false)}
-                className="p-1 text-[#89919C] hover:text-white hover:bg-[#1E2530] rounded cursor-pointer"
+                className="p-1 text-[#94a3b8] hover:text-white hover:bg-[#1e293b] rounded cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1219,7 +1219,7 @@ export default function ResearchFourCardsGrid({
                 >
                   <span className="text-[10px] text-[#10B981] block">BUY RATINGS</span>
                   <span className="text-base font-bold text-white">68%</span>
-                  <span className="text-[9px] text-[#89919C] block">{buyCount} Desks</span>
+                  <span className="text-[9px] text-[#94a3b8] block">{buyCount} Desks</span>
                 </div>
                 <div
                   onClick={() => setConsensusFilter("HOLD")}
@@ -1229,7 +1229,7 @@ export default function ResearchFourCardsGrid({
                 >
                   <span className="text-[10px] text-[#F59E0B] block">HOLD RATINGS</span>
                   <span className="text-base font-bold text-white">24%</span>
-                  <span className="text-[9px] text-[#89919C] block">{holdCount} Desks</span>
+                  <span className="text-[9px] text-[#94a3b8] block">{holdCount} Desks</span>
                 </div>
                 <div
                   onClick={() => setConsensusFilter("SELL")}
@@ -1239,36 +1239,36 @@ export default function ResearchFourCardsGrid({
                 >
                   <span className="text-[10px] text-[#EF4444] block">SELL RATINGS</span>
                   <span className="text-base font-bold text-white">8%</span>
-                  <span className="text-[9px] text-[#89919C] block">{sellCount} Desks</span>
+                  <span className="text-[9px] text-[#94a3b8] block">{sellCount} Desks</span>
                 </div>
               </div>
 
               {/* Target Ranges */}
-              <div className="p-3 bg-[#07090D] border border-[#1E2530] rounded space-y-2">
-                <div className="flex justify-between text-[11px] pb-1.5 border-b border-[#18202C]">
-                  <span className="text-[#89919C]">Current Market Price:</span>
+              <div className="p-3 bg-[#080d1a] border border-[#1e293b] rounded space-y-2">
+                <div className="flex justify-between text-[11px] pb-1.5 border-b border-[#1e293b]">
+                  <span className="text-[#94a3b8]">Current Market Price:</span>
                   <span className="font-bold text-white">{sym}{lastPrice.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-[11px]">
-                  <span className="text-[#89919C]">Consensus 12M Mean Target:</span>
-                  <span className="font-bold text-[#38BDF8]">{sym}{targetMeanVal} (+15.0% Upside)</span>
+                  <span className="text-[#94a3b8]">Consensus 12M Mean Target:</span>
+                  <span className="font-bold text-[#3b82f6]">{sym}{targetMeanVal} (+15.0% Upside)</span>
                 </div>
                 <div className="flex justify-between text-[11px]">
-                  <span className="text-[#89919C]">Street High Bull Target:</span>
+                  <span className="text-[#94a3b8]">Street High Bull Target:</span>
                   <span className="font-bold text-[#10B981]">{sym}{targetBullVal} (+30.0% Bull Case)</span>
                 </div>
                 <div className="flex justify-between text-[11px]">
-                  <span className="text-[#89919C]">Street Low Bear Target:</span>
+                  <span className="text-[#94a3b8]">Street Low Bear Target:</span>
                   <span className="font-bold text-[#EF4444]">{sym}{targetBearVal} (-10.0% Bear Case)</span>
                 </div>
               </div>
 
               {/* Broker Recommendations Desk Coverage */}
               <div>
-                <span className="text-[10px] text-[#89919C] uppercase font-bold block mb-1">
+                <span className="text-[10px] text-[#94a3b8] uppercase font-bold block mb-1">
                   Recent Institutional Brokerage Desk Models:
                 </span>
-                <div className="divide-y divide-[#1E2530] border border-[#1E2530] rounded bg-[#07090D]">
+                <div className="divide-y divide-[#1e293b] border border-[#1e293b] rounded bg-[#080d1a]">
                   {[
                     {
                       firm: isIndiaStock ? "Kotak Institutional Equities" : "Morgan Stanley",
@@ -1306,10 +1306,10 @@ export default function ResearchFourCardsGrid({
                       action: "Coverage Re-initiated",
                     },
                   ].map((desk, i) => (
-                    <div key={i} className="p-2 flex justify-between items-center hover:bg-[#10141C] transition-colors">
+                    <div key={i} className="p-2 flex justify-between items-center hover:bg-[#0b1222] transition-colors">
                       <div>
                         <span className="text-white font-bold block">{desk.firm}</span>
-                        <div className="flex items-center space-x-2 text-[9px] text-[#89919C] mt-0.5">
+                        <div className="flex items-center space-x-2 text-[9px] text-[#94a3b8] mt-0.5">
                           <span>Target: {sym}{desk.target}</span>
                           <span>&bull;</span>
                           <span>{desk.action}</span>
@@ -1325,7 +1325,7 @@ export default function ResearchFourCardsGrid({
             </div>
 
             {/* Footer */}
-            <div className="px-4 py-2.5 bg-[#07090D] border-t border-[#1E2530] flex items-center justify-between">
+            <div className="px-4 py-2.5 bg-[#080d1a] border-t border-[#1e293b] flex items-center justify-between">
               {onTabChange ? (
                 <button
                   type="button"
@@ -1333,7 +1333,7 @@ export default function ResearchFourCardsGrid({
                     setAnalystModalOpen(false);
                     onTabChange("analyst estimates");
                   }}
-                  className="px-3 py-1 rounded bg-[#0284C7] hover:bg-[#0369A1] text-white text-[11px] font-semibold cursor-pointer transition-colors"
+                  className="px-3 py-1 rounded bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[11px] font-semibold cursor-pointer transition-colors"
                 >
                   Open Dedicated Estimates Workspace ➔
                 </button>
@@ -1343,7 +1343,7 @@ export default function ResearchFourCardsGrid({
               <button
                 type="button"
                 onClick={() => setAnalystModalOpen(false)}
-                className="px-3 py-1 rounded bg-[#141A24] hover:bg-[#1E2530] text-[#D8DCE2] border border-[#232B38] text-[11px] cursor-pointer"
+                className="px-3 py-1 rounded bg-[#0b1222] hover:bg-[#1e293b] text-[#cbd5e1] border border-[#1e293b] text-[11px] cursor-pointer"
               >
                 Close
               </button>
@@ -1357,25 +1357,25 @@ export default function ResearchFourCardsGrid({
           ======================================================== */}
       {statsModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4">
-          <div className="w-full max-w-2xl bg-[#0E131C] border border-[#252E3E] rounded shadow-2xl overflow-hidden font-mono text-xs animate-in zoom-in-95 duration-150">
+          <div className="w-full max-w-2xl bg-[#0E131C] border border-[#1e293b] rounded shadow-2xl overflow-hidden font-mono text-xs animate-in zoom-in-95 duration-150">
             {/* Modal Header */}
-            <div className="px-4 py-2.5 bg-[#07090D] border-b border-[#1E2530] flex items-center justify-between">
+            <div className="px-4 py-2.5 bg-[#080d1a] border-b border-[#1e293b] flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <BarChart3 className="w-4 h-4 text-[#38BDF8]" />
+                <BarChart3 className="w-4 h-4 text-[#3b82f6]" />
                 <span className="font-bold text-white">Comprehensive Financial &amp; Statistical Matrix</span>
-                <span className="text-[10px] text-[#38BDF8]">({ticker})</span>
+                <span className="text-[10px] text-[#3b82f6]">({ticker})</span>
               </div>
               <button
                 type="button"
                 onClick={() => setStatsModalOpen(false)}
-                className="p-1 text-[#89919C] hover:text-white hover:bg-[#1E2530] rounded cursor-pointer"
+                className="p-1 text-[#94a3b8] hover:text-white hover:bg-[#1e293b] rounded cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Modal Tab Switcher */}
-            <div className="px-4 pt-2 bg-[#0A0D14] border-b border-[#1E2530] flex space-x-1">
+            <div className="px-4 pt-2 bg-[#080d1a] border-b border-[#1e293b] flex space-x-1">
               {[
                 { id: "valuation", label: "Valuation Multiples" },
                 { id: "trading", label: "Price & Trading Profile" },
@@ -1388,8 +1388,8 @@ export default function ResearchFourCardsGrid({
                   onClick={() => setActiveStatsTab(tab.id as StatsModalTab)}
                   className={`px-3 py-1.5 border-b-2 text-[11px] font-semibold transition-colors cursor-pointer ${
                     activeStatsTab === tab.id
-                      ? "border-[#38BDF8] text-white bg-[#141A24]"
-                      : "border-transparent text-[#89919C] hover:text-white"
+                      ? "border-[#3b82f6] text-white bg-[#0b1222]"
+                      : "border-transparent text-[#94a3b8] hover:text-white"
                   }`}
                 >
                   {tab.label}
@@ -1401,11 +1401,11 @@ export default function ResearchFourCardsGrid({
             <div className="p-4 space-y-3 max-h-[65vh] overflow-y-auto">
               {activeStatsTab === "valuation" && (
                 <div className="space-y-2">
-                  <span className="text-[10px] text-[#89919C] uppercase font-bold block">
+                  <span className="text-[10px] text-[#94a3b8] uppercase font-bold block">
                     Valuation Ratios &amp; Multiples
                   </span>
-                  <table className="w-full text-left border border-[#1E2530]">
-                    <thead className="bg-[#07090D] text-[10px] text-[#89919C]">
+                  <table className="w-full text-left border border-[#1e293b]">
+                    <thead className="bg-[#080d1a] text-[10px] text-[#94a3b8]">
                       <tr>
                         <th className="p-2">METRIC</th>
                         <th className="p-2 text-right">VALUE</th>
@@ -1413,42 +1413,42 @@ export default function ResearchFourCardsGrid({
                         <th className="p-2">DESCRIPTION</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#18202C] bg-[#0A0D14]">
+                    <tbody className="divide-y divide-[#1e293b] bg-[#080d1a]">
                       <tr>
                         <td className="p-2 text-white font-bold">P/E Ratio (TTM)</td>
-                        <td className="p-2 text-right font-bold text-[#38BDF8]">{peVal}</td>
-                        <td className="p-2 text-right text-[#89919C]">22.4</td>
-                        <td className="p-2 text-[#89919C]">Price to Trailing 12-Month Net Earnings</td>
+                        <td className="p-2 text-right font-bold text-[#3b82f6]">{peVal}</td>
+                        <td className="p-2 text-right text-[#94a3b8]">22.4</td>
+                        <td className="p-2 text-[#94a3b8]">Price to Trailing 12-Month Net Earnings</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-white font-bold">PEG Ratio (5Y)</td>
                         <td className="p-2 text-right font-bold text-white">{pegVal}</td>
-                        <td className="p-2 text-right text-[#89919C]">1.5</td>
-                        <td className="p-2 text-[#89919C]">Price/Earnings to Expected Growth Ratio</td>
+                        <td className="p-2 text-right text-[#94a3b8]">1.5</td>
+                        <td className="p-2 text-[#94a3b8]">Price/Earnings to Expected Growth Ratio</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-white font-bold">Price / Sales</td>
                         <td className="p-2 text-right font-bold text-white">{psVal}</td>
-                        <td className="p-2 text-right text-[#89919C]">2.9</td>
-                        <td className="p-2 text-[#89919C]">Market Cap relative to Annual Sales Revenue</td>
+                        <td className="p-2 text-right text-[#94a3b8]">2.9</td>
+                        <td className="p-2 text-[#94a3b8]">Market Cap relative to Annual Sales Revenue</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-white font-bold">Price / Book</td>
                         <td className="p-2 text-right font-bold text-white">{pbVal}</td>
-                        <td className="p-2 text-right text-[#89919C]">3.1</td>
-                        <td className="p-2 text-[#89919C]">Price relative to Stated Net Asset Book Value</td>
+                        <td className="p-2 text-right text-[#94a3b8]">3.1</td>
+                        <td className="p-2 text-[#94a3b8]">Price relative to Stated Net Asset Book Value</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-white font-bold">Enterprise Value / Sales</td>
                         <td className="p-2 text-right font-bold text-white">{(Number(psVal) * 1.05).toFixed(1)}</td>
-                        <td className="p-2 text-right text-[#89919C]">3.2</td>
-                        <td className="p-2 text-[#89919C]">Enterprise Value relative to Total Revenue</td>
+                        <td className="p-2 text-right text-[#94a3b8]">3.2</td>
+                        <td className="p-2 text-[#94a3b8]">Enterprise Value relative to Total Revenue</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-white font-bold">EV / EBITDA</td>
                         <td className="p-2 text-right font-bold text-white">{(Number(peVal) * 0.72).toFixed(1)}</td>
-                        <td className="p-2 text-right text-[#89919C]">14.8</td>
-                        <td className="p-2 text-[#89919C]">Operating Enterprise Value multiple</td>
+                        <td className="p-2 text-right text-[#94a3b8]">14.8</td>
+                        <td className="p-2 text-[#94a3b8]">Operating Enterprise Value multiple</td>
                       </tr>
                     </tbody>
                   </table>
@@ -1457,51 +1457,51 @@ export default function ResearchFourCardsGrid({
 
               {activeStatsTab === "trading" && (
                 <div className="space-y-2">
-                  <span className="text-[10px] text-[#89919C] uppercase font-bold block">
+                  <span className="text-[10px] text-[#94a3b8] uppercase font-bold block">
                     Price &amp; Liquidity Profile
                   </span>
-                  <table className="w-full text-left border border-[#1E2530]">
-                    <thead className="bg-[#07090D] text-[10px] text-[#89919C]">
+                  <table className="w-full text-left border border-[#1e293b]">
+                    <thead className="bg-[#080d1a] text-[10px] text-[#94a3b8]">
                       <tr>
                         <th className="p-2">METRIC</th>
                         <th className="p-2 text-right">VALUE</th>
                         <th className="p-2">DESCRIPTION</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#18202C] bg-[#0A0D14]">
+                    <tbody className="divide-y divide-[#1e293b] bg-[#080d1a]">
                       <tr>
                         <td className="p-2 text-white font-bold">52-Week High</td>
                         <td className="p-2 text-right font-bold text-[#10B981]">{sym}{w52High}</td>
-                        <td className="p-2 text-[#89919C]">Highest intraday print over past 252 sessions</td>
+                        <td className="p-2 text-[#94a3b8]">Highest intraday print over past 252 sessions</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-white font-bold">52-Week Low</td>
                         <td className="p-2 text-right font-bold text-[#EF4444]">{sym}{w52Low}</td>
-                        <td className="p-2 text-[#89919C]">Lowest intraday print over past 252 sessions</td>
+                        <td className="p-2 text-[#94a3b8]">Lowest intraday print over past 252 sessions</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-white font-bold">Beta vs {benchmarkName}</td>
                         <td className="p-2 text-right font-bold text-white">{betaVal}</td>
-                        <td className="p-2 text-[#89919C]">Covariance sensitivity coefficient vs primary index</td>
+                        <td className="p-2 text-[#94a3b8]">Covariance sensitivity coefficient vs primary index</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-white font-bold">30-Day Average Volume</td>
                         <td className="p-2 text-right font-bold text-white">{avgVol30D}</td>
-                        <td className="p-2 text-[#89919C]">Average shares exchanged per trading session</td>
+                        <td className="p-2 text-[#94a3b8]">Average shares exchanged per trading session</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-white font-bold">Annualized Volatility</td>
-                        <td className="p-2 text-right font-bold text-[#38BDF8]">
+                        <td className="p-2 text-right font-bold text-[#3b82f6]">
                           {summary?.annualized_volatility ? `${summary.annualized_volatility.toFixed(1)}%` : "41.3%"}
                         </td>
-                        <td className="p-2 text-[#89919C]">Standard deviation of daily log returns * sqrt(252)</td>
+                        <td className="p-2 text-[#94a3b8]">Standard deviation of daily log returns * sqrt(252)</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-white font-bold">Max Drawdown (1Y)</td>
                         <td className="p-2 text-right font-bold text-[#EF4444]">
                           {summary?.max_drawdown ? `-${summary.max_drawdown.toFixed(1)}%` : "-39.4%"}
                         </td>
-                        <td className="p-2 text-[#89919C]">Peak to trough maximum unrealized equity decline</td>
+                        <td className="p-2 text-[#94a3b8]">Peak to trough maximum unrealized equity decline</td>
                       </tr>
                     </tbody>
                   </table>
@@ -1510,42 +1510,42 @@ export default function ResearchFourCardsGrid({
 
               {activeStatsTab === "profitability" && (
                 <div className="space-y-2">
-                  <span className="text-[10px] text-[#89919C] uppercase font-bold block">
+                  <span className="text-[10px] text-[#94a3b8] uppercase font-bold block">
                     Per Share Performance &amp; Margins
                   </span>
-                  <table className="w-full text-left border border-[#1E2530]">
-                    <thead className="bg-[#07090D] text-[10px] text-[#89919C]">
+                  <table className="w-full text-left border border-[#1e293b]">
+                    <thead className="bg-[#080d1a] text-[10px] text-[#94a3b8]">
                       <tr>
                         <th className="p-2">METRIC</th>
                         <th className="p-2 text-right">VALUE</th>
                         <th className="p-2">DESCRIPTION</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#18202C] bg-[#0A0D14]">
+                    <tbody className="divide-y divide-[#1e293b] bg-[#080d1a]">
                       <tr>
                         <td className="p-2 text-white font-bold">EPS (TTM Diluted)</td>
                         <td className="p-2 text-right font-bold text-[#10B981]">{epsVal}</td>
-                        <td className="p-2 text-[#89919C]">Trailing twelve-month diluted earnings per share</td>
+                        <td className="p-2 text-[#94a3b8]">Trailing twelve-month diluted earnings per share</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-white font-bold">Dividend Yield</td>
                         <td className="p-2 text-right font-bold text-[#10B981]">{divYieldVal}</td>
-                        <td className="p-2 text-[#89919C]">Annual cash dividend payout as % of share price</td>
+                        <td className="p-2 text-[#94a3b8]">Annual cash dividend payout as % of share price</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-white font-bold">Return on Equity (ROE)</td>
                         <td className="p-2 text-right font-bold text-white">16.8%</td>
-                        <td className="p-2 text-[#89919C]">Net Income divided by average shareholders equity</td>
+                        <td className="p-2 text-[#94a3b8]">Net Income divided by average shareholders equity</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-white font-bold">ROCE / ROIC</td>
                         <td className="p-2 text-right font-bold text-white">19.4%</td>
-                        <td className="p-2 text-[#89919C]">Operating profit generated relative to capital employed</td>
+                        <td className="p-2 text-[#94a3b8]">Operating profit generated relative to capital employed</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-white font-bold">Operating Margin</td>
                         <td className="p-2 text-right font-bold text-white">14.2%</td>
-                        <td className="p-2 text-[#89919C]">Operating Income as % of Net Revenues</td>
+                        <td className="p-2 text-[#94a3b8]">Operating Income as % of Net Revenues</td>
                       </tr>
                     </tbody>
                   </table>
@@ -1554,42 +1554,42 @@ export default function ResearchFourCardsGrid({
 
               {activeStatsTab === "capital" && (
                 <div className="space-y-2">
-                  <span className="text-[10px] text-[#89919C] uppercase font-bold block">
+                  <span className="text-[10px] text-[#94a3b8] uppercase font-bold block">
                     Capital Structure &amp; Listing Identifiers
                   </span>
-                  <table className="w-full text-left border border-[#1E2530]">
-                    <thead className="bg-[#07090D] text-[10px] text-[#89919C]">
+                  <table className="w-full text-left border border-[#1e293b]">
+                    <thead className="bg-[#080d1a] text-[10px] text-[#94a3b8]">
                       <tr>
                         <th className="p-2">FIELD</th>
                         <th className="p-2 text-right">VALUE</th>
                         <th className="p-2">SPECIFICATION</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#18202C] bg-[#0A0D14]">
+                    <tbody className="divide-y divide-[#1e293b] bg-[#080d1a]">
                       <tr>
                         <td className="p-2 text-white font-bold">Market Capitalization</td>
-                        <td className="p-2 text-right font-bold text-[#38BDF8]">{mcapVal}</td>
-                        <td className="p-2 text-[#89919C]">Outstanding equity value at current market price</td>
+                        <td className="p-2 text-right font-bold text-[#3b82f6]">{mcapVal}</td>
+                        <td className="p-2 text-[#94a3b8]">Outstanding equity value at current market price</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-white font-bold">Enterprise Value (EV)</td>
                         <td className="p-2 text-right font-bold text-white">{evVal}</td>
-                        <td className="p-2 text-[#89919C]">Market Cap + Total Debt minus Cash reserves</td>
+                        <td className="p-2 text-[#94a3b8]">Market Cap + Total Debt minus Cash reserves</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-white font-bold">Primary Exchange</td>
                         <td className="p-2 text-right font-bold text-white">{exchange}</td>
-                        <td className="p-2 text-[#89919C]">National Stock Exchange / Listing Venue</td>
+                        <td className="p-2 text-[#94a3b8]">National Stock Exchange / Listing Venue</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-white font-bold">ISIN Identifier</td>
                         <td className="p-2 text-right font-mono text-white">{isinCode}</td>
-                        <td className="p-2 text-[#89919C]">International Securities Identification Number</td>
+                        <td className="p-2 text-[#94a3b8]">International Securities Identification Number</td>
                       </tr>
                       <tr>
                         <td className="p-2 text-white font-bold">Settlement Cycle</td>
                         <td className="p-2 text-right font-bold text-white">{isIndiaStock ? "T+1 Daily" : "T+1"}</td>
-                        <td className="p-2 text-[#89919C]">Regulatory trade clearing and settlement period</td>
+                        <td className="p-2 text-[#94a3b8]">Regulatory trade clearing and settlement period</td>
                       </tr>
                     </tbody>
                   </table>
@@ -1598,7 +1598,7 @@ export default function ResearchFourCardsGrid({
             </div>
 
             {/* Modal Footer */}
-            <div className="px-4 py-2.5 bg-[#07090D] border-t border-[#1E2530] flex items-center justify-between">
+            <div className="px-4 py-2.5 bg-[#080d1a] border-t border-[#1e293b] flex items-center justify-between">
               {onTabChange ? (
                 <button
                   type="button"
@@ -1606,7 +1606,7 @@ export default function ResearchFourCardsGrid({
                     setStatsModalOpen(false);
                     onTabChange("fundamentals");
                   }}
-                  className="px-3 py-1 rounded bg-[#0284C7] hover:bg-[#0369A1] text-white text-[11px] font-semibold cursor-pointer transition-colors"
+                  className="px-3 py-1 rounded bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[11px] font-semibold cursor-pointer transition-colors"
                 >
                   Open Full Financials &amp; Balance Sheet Tab ➔
                 </button>
@@ -1616,7 +1616,7 @@ export default function ResearchFourCardsGrid({
               <button
                 type="button"
                 onClick={() => setStatsModalOpen(false)}
-                className="px-3 py-1 rounded bg-[#141A24] hover:bg-[#1E2530] text-[#D8DCE2] border border-[#232B38] text-[11px] cursor-pointer"
+                className="px-3 py-1 rounded bg-[#0b1222] hover:bg-[#1e293b] text-[#cbd5e1] border border-[#1e293b] text-[11px] cursor-pointer"
               >
                 Close
               </button>

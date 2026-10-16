@@ -18,11 +18,11 @@ export default function DetailedReportModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="bg-[#090D14] border border-[#202C3F] rounded-xl shadow-2xl max-w-4xl w-full p-6 space-y-5 max-h-[92vh] overflow-y-auto">
+      <div className="bg-[#080d1a] border border-[#1e293b] rounded-xl shadow-2xl max-w-4xl w-full p-6 space-y-5 max-h-[92vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#1E2530]">
+        <div className="flex items-center justify-between pb-3 border-b border-[#1e293b]">
           <div className="flex items-center space-x-2.5">
-            <FileText className="w-5 h-5 text-[#38BDF8]" />
+            <FileText className="w-5 h-5 text-[#3b82f6]" />
             <div>
               <h2 className="text-base font-bold text-white tracking-tight">
                 Quantitative Strategy Tear Sheet & Executive Audit
@@ -36,7 +36,7 @@ export default function DetailedReportModal({
             <button
               type="button"
               onClick={() => window.print()}
-              className="flex items-center space-x-1 px-2.5 py-1 bg-[#131822] hover:bg-[#1E2530] text-slate-200 text-xs rounded border border-[#202C3F]"
+              className="flex items-center space-x-1 px-2.5 py-1 bg-[#0b1222] hover:bg-[#1e293b] text-slate-200 text-xs rounded border border-[#1e293b]"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Print</span>
@@ -44,7 +44,7 @@ export default function DetailedReportModal({
             <button
               type="button"
               onClick={onClose}
-              className="text-slate-400 hover:text-white p-1 rounded hover:bg-[#131822]"
+              className="text-slate-400 hover:text-white p-1 rounded hover:bg-[#0b1222]"
             >
               <X className="w-5 h-5" />
             </button>
@@ -53,7 +53,7 @@ export default function DetailedReportModal({
 
         {/* Executive Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-          <div className="bg-[#0F141D] border border-[#1E2530] rounded-lg p-3 space-y-1">
+          <div className="bg-[#0b1222] border border-[#1e293b] rounded-lg p-3 space-y-1">
             <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">
               Portfolio Strategy Alpha
             </span>
@@ -63,7 +63,7 @@ export default function DetailedReportModal({
             </p>
           </div>
 
-          <div className="bg-[#0F141D] border border-[#1E2530] rounded-lg p-3 space-y-1">
+          <div className="bg-[#0b1222] border border-[#1e293b] rounded-lg p-3 space-y-1">
             <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">
               Max Peak Drawdown
             </span>
@@ -73,7 +73,7 @@ export default function DetailedReportModal({
             </p>
           </div>
 
-          <div className="bg-[#0F141D] border border-[#1E2530] rounded-lg p-3 space-y-1">
+          <div className="bg-[#0b1222] border border-[#1e293b] rounded-lg p-3 space-y-1">
             <span className="text-[10px] uppercase font-mono text-slate-500 font-semibold">
               Overall Portfolio Sharpe
             </span>
@@ -85,7 +85,7 @@ export default function DetailedReportModal({
         </div>
 
         {/* Selected Strategies Audit Breakdown */}
-        <div className="bg-[#0F141D] border border-[#1E2530] rounded-lg p-4 space-y-3">
+        <div className="bg-[#0b1222] border border-[#1e293b] rounded-lg p-4 space-y-3">
           <div className="text-xs font-semibold text-white uppercase tracking-wider font-mono">
             Included Strategies in Analysis
           </div>
@@ -93,7 +93,7 @@ export default function DetailedReportModal({
             {selectedStrategies.map((s, idx) => (
               <div
                 key={s.id || idx}
-                className="flex items-center justify-between p-2.5 bg-[#131822] rounded border border-[#1E2530]"
+                className="flex items-center justify-between p-2.5 bg-[#0b1222] rounded border border-[#1e293b]"
               >
                 <div>
                   <div className="font-semibold text-white">{s.strategy_name || s.name}</div>
@@ -115,7 +115,7 @@ export default function DetailedReportModal({
         </div>
 
         {/* Quant Takeaways */}
-        <div className="bg-[#0F141D] border border-[#1E2530] rounded-lg p-4 space-y-2 text-xs">
+        <div className="bg-[#0b1222] border border-[#1e293b] rounded-lg p-4 space-y-2 text-xs">
           <div className="font-semibold text-white">Investment Committee Conclusion</div>
           <p className="text-slate-300 leading-relaxed">
             The multi-strategy basket displays robust positive alpha across equity bull and low-volatility regimes.
@@ -126,11 +126,11 @@ export default function DetailedReportModal({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end space-x-2 pt-3 border-t border-[#1E2530]">
+        <div className="flex justify-end space-x-2 pt-3 border-t border-[#1e293b]">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold rounded"
+            className="px-4 py-1.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-semibold rounded"
           >
             Done
           </button>

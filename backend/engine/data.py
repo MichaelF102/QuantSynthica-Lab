@@ -10,6 +10,16 @@ from typing import Optional, Tuple, Dict, Any
 
 logger = logging.getLogger("quantsynthica.data")
 
+
+class MarketDataUnavailable(RuntimeError):
+    """Raised when real market data cannot be fetched and synthetic fallback is disabled."""
+
+
+def synthetic_allowed() -> bool:
+    """Synthetic (GBM) data is a dev/test convenience and must be opted into explicitly."""
+    return os.getenv("ALLOW_SYNTHETIC_DATA", "").strip().lower() in {"1", "true", "yes"}
+
+
 CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "cache")
 os.makedirs(CACHE_DIR, exist_ok=True)
 
@@ -145,7 +155,13 @@ class MarketDataEngine:
             except Exception as ex:
                 logger.debug(f"yfinance attempt failed for {candidate_sym}: {ex}")
 
-        # 3. Fallback to synthetic market data generator with realistic base price from CSV
+        # 3. Never present invented prices as real: only fall back when explicitly enabled.
+        if not synthetic_allowed():
+            raise MarketDataUnavailable(
+                f"Market data unavailable for {ticker} ({start_date} to {end_date}). "
+                "The data provider returned no usable history; try again shortly."
+            )
+        logger.warning("Using SYNTHETIC data for %s (ALLOW_SYNTHETIC_DATA is set)", ticker)
         base_price = float(stock_info["price"]) if (stock_info and stock_info.get("price")) else 150.0
         df_syn = generate_synthetic_ohlcv(ticker, start_date, end_date, base_price=base_price)
         return df_syn, True
@@ -159,7 +175,8 @@ class MarketDataEngine:
         """
         Returns benchmark daily returns Series aligned by date.
         """
-        df, _ = self.fetch_ohlcv(benchmark, start_date, end_date)
+        df, is_synthetic = self.fetch_ohlcv(benchmark, start_date, end_date)
         returns = df["close"].pct_change().fillna(0.0)
         returns.name = "benchmark_return"
+        returns.attrs["is_synthetic"] = is_synthetic
         return returns

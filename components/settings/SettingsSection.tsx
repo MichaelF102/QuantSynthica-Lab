@@ -31,16 +31,16 @@ export default function SettingsSection({
   return (
     <div
       id={id}
-      className="bg-[#090D14] border border-[#1E2530] rounded-lg overflow-hidden transition-all duration-200 hover:border-[#2A374A]"
+      className="bg-[#080d1a] border border-[#1e293b] rounded-lg overflow-hidden transition-all duration-200 hover:border-[#2A374A]"
     >
       {/* Clickable Header */}
       <div
         onClick={onToggle}
-        className="p-3.5 flex items-center justify-between cursor-pointer select-none bg-[#0B0F18] border-b border-[#1A2230] hover:bg-[#0E1522] transition-colors"
+        className="p-3.5 flex items-center justify-between cursor-pointer select-none bg-[#0B0F18] border-b border-[#1e293b] hover:bg-[#0E1522] transition-colors"
       >
         <div className="flex items-start space-x-3 pr-2">
           {/* Section Number Badge */}
-          <span className="font-mono text-xs font-bold text-[#38BDF8] bg-[#38BDF8]/10 border border-[#38BDF8]/25 px-1.5 py-0.5 rounded shrink-0 mt-0.5">
+          <span className="font-mono text-xs font-bold text-[#3b82f6] bg-[#3b82f6]/10 border border-[#3b82f6]/25 px-1.5 py-0.5 rounded shrink-0 mt-0.5">
             {numberStr}
           </span>
 
@@ -91,7 +91,7 @@ export default function SettingsSection({
 
       {/* Expandable Section Body */}
       {isOpen && (
-        <div className="p-3.5 sm:p-4 space-y-3.5 bg-[#090D14] animate-fadeIn">
+        <div className="p-3.5 sm:p-4 space-y-3.5 bg-[#080d1a] animate-fadeIn">
           {children}
         </div>
       )}

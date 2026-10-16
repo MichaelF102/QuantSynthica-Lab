@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -90,6 +92,41 @@ html.dark {
   --bg-cta: #03060C;
 }
 
+
+/* ---- DESIGN.md §4.1 theme tokens ---- */
+:root {
+  --bg-canvas: #FAFAF9;  --bg-surface: #FFFFFF;  --border-color: #E4E4E7;
+  --text-primary: #18181B;  --text-secondary: #71717A;
+  --accent-color: #2563EB;  --accent-subtle-color: #EFF6FF;
+  --positive-color: #16803C;  --positive-subtle-color: #F0FDF4;
+  --negative-color: #C62828;  --negative-subtle-color: #FEF2F2;
+  --warning-color: #B45309;  --warning-subtle-color: #FFFBEB;
+  --hover-bg: #F4F4F5;
+}
+.dark {
+  --bg-canvas: #09090B;  --bg-surface: #18181B;  --border-color: #27272A;
+  --text-primary: #F4F4F5;  --text-secondary: #A1A1AA;
+  --accent-color: #3B82F6;  --accent-subtle-color: #1E293B;
+  --positive-color: #22C55E;  --positive-subtle-color: #064E3B;
+  --negative-color: #EF4444;  --negative-subtle-color: #451A1A;
+  --warning-color: #F59E0B;  --warning-subtle-color: #2D1F06;
+  --hover-bg: #27272A;
+}
+/* Signature navy palette: wrap a page in .qs-market-theme to get it in dark mode. */
+.dark .qs-market-theme {
+  --bg-canvas: #080d1a;  --bg-surface: #0b1222;  --border-color: #1e293b;
+  --text-primary: #f1f5f9;  --text-secondary: #94a3b8;
+  --accent-color: #3b82f6;  --accent-subtle-color: #0e172e;  --hover-bg: #0e172e;
+  --positive-subtle-color: #0b2a22;  --negative-subtle-color: #2c1219;  --warning-subtle-color: #2a1e08;
+}
+
+/* ---- DESIGN.md §6.1 page container ---- */
+.app-container { width: 92%; max-width: 1700px; margin: 0 auto; padding: 0 1rem; }
+@media (min-width: 640px)  { .app-container { padding: 0 1.5rem; } }
+@media (min-width: 1024px) { .app-container { width: 94%; padding: 0 1.75rem; } }
+@media (min-width: 1440px) { .app-container { width: 92%; padding: 0 2rem; } }
+@media (max-width: 767px)  { .app-container { width: 100%; padding: 0 1rem; } }
+
 html {
   color-scheme: light;
 }
@@ -122,18 +159,18 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #131722;
+  background: var(--bg-canvas);
 }
 ::-webkit-scrollbar-thumb {
-  background: #363a45;
-  border-radius: 4px;
+  background: var(--border-color);
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #434651;
+  background: var(--text-secondary);
 }
 
 .tabular-nums {
@@ -155,7 +192,7 @@ body {
   }
 
   .qs-section-label {
-    @apply text-sm font-semibold text-[#d1d4dc];
+    @apply text-sm font-semibold text-slate-300;
   }
 
   .qs-title {
@@ -163,19 +200,19 @@ body {
   }
 
   .qs-btn-primary {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#2962FF] px-3.5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[#1e53e5];
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-blue-500;
   }
 
   .qs-btn-ghost {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-transparent px-3.5 py-2 text-[13px] font-semibold text-[#d1d4dc] transition-colors hover:bg-surface-muted hover:text-white;
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-transparent px-3.5 py-2 text-[13px] font-semibold text-slate-300 transition-colors hover:bg-surface-muted hover:text-white;
   }
 
   .qs-badge {
-    @apply inline-flex items-center rounded px-1.5 py-0.5 text-[11px] text-[#787b86];
+    @apply inline-flex items-center rounded px-1.5 py-0.5 text-[11px] text-slate-400;
   }
 
   .qs-link {
-    @apply inline-flex items-center gap-1 text-[13px] font-semibold text-[#2962FF] transition-colors hover:text-[#5b8def];
+    @apply inline-flex items-center gap-1 text-[13px] font-semibold text-blue-400 transition-colors hover:text-blue-300;
   }
 }
 

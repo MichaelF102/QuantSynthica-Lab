@@ -391,23 +391,23 @@ function BuilderContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0B0D10] text-[#D8DCE2] flex flex-col font-mono selection:bg-[#38BDF8] selection:text-black">
+    <div className="min-h-screen bg-[#080d1a] text-[#cbd5e1] flex flex-col font-mono selection:bg-[#3b82f6] selection:text-black">
       {/* 1. TOP TERMINAL WORKSTATION HEADER */}
-      <div className="border-b border-[#252A31] bg-[#05070A] px-4 py-2 flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div className="border-b border-[#1e293b] bg-[#05070A] px-4 py-2 flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex items-center space-x-3">
           <Link
             href="/strategies"
-            className="text-[#59616B] hover:text-[#D8DCE2] flex items-center space-x-1"
+            className="text-[#64748b] hover:text-[#cbd5e1] flex items-center space-x-1"
           >
             <ArrowLeft className="h-3 w-3" />
             <span>REGISTRY</span>
           </Link>
-          <span className="text-[#59616B]">│</span>
-          <span className="text-[#FF9900] font-bold tracking-wider">
+          <span className="text-[#64748b]">│</span>
+          <span className="text-[#f59e0b] font-bold tracking-wider">
             STRATEGY BUILDER
           </span>
-          <span className="text-[#59616B]">│</span>
-          <span className="text-[#D8DCE2] font-semibold">{strategy.name}</span>
+          <span className="text-[#64748b]">│</span>
+          <span className="text-[#cbd5e1] font-semibold">{strategy.name}</span>
           {saveStatus && (
             <span className="px-1.5 py-0.2 rounded-[2px] bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/40 text-[10px] font-bold">
               ✓ {saveStatus}
@@ -419,9 +419,9 @@ function BuilderContent() {
           <button
             type="button"
             onClick={() => setShowChooserModal(true)}
-            className="flex items-center space-x-1 px-2.5 py-1 rounded-[2px] border border-[#252A31] bg-[#101318] text-[#D8DCE2] hover:bg-[#141820] transition-colors text-xs"
+            className="flex items-center space-x-1 px-2.5 py-1 rounded-[2px] border border-[#1e293b] bg-[#0b1222] text-[#cbd5e1] hover:bg-[#0b1222] transition-colors text-xs"
           >
-            <Layers className="h-3 w-3 text-[#38BDF8]" />
+            <Layers className="h-3 w-3 text-[#3b82f6]" />
             <span>PRESETS</span>
           </button>
 
@@ -429,11 +429,11 @@ function BuilderContent() {
             type="button"
             onClick={handleSaveStrategy}
             disabled={saving}
-            className="flex items-center space-x-1 px-3 py-1 rounded-[2px] border border-[#252A31] bg-[#101318] hover:bg-[#141820] hover:border-[#38BDF8]/40 text-[#D8DCE2] transition-colors text-xs"
+            className="flex items-center space-x-1 px-3 py-1 rounded-[2px] border border-[#1e293b] bg-[#0b1222] hover:bg-[#0b1222] hover:border-[#3b82f6]/40 text-[#cbd5e1] transition-colors text-xs"
           >
-            <Save className="h-3 w-3 text-[#38BDF8]" />
+            <Save className="h-3 w-3 text-[#3b82f6]" />
             <span>{saving ? "SAVING..." : "SAVE STRATEGY"}</span>
-            <span className="text-[10px] text-[#59616B] font-mono">[^S]</span>
+            <span className="text-[10px] text-[#64748b] font-mono">[^S]</span>
           </button>
 
           <button
@@ -453,8 +453,8 @@ function BuilderContent() {
             disabled={!validation.isValid || saving}
             className={`flex items-center space-x-1.5 px-3 py-1 rounded-[2px] font-semibold text-xs transition-colors ${
               validation.isValid
-                ? "bg-[#38BDF8] hover:bg-[#0284C7] text-black"
-                : "bg-[#1E232B] text-[#59616B] cursor-not-allowed border border-[#252A31]"
+                ? "bg-[#3b82f6] hover:bg-[#2563eb] text-black"
+                : "bg-[#1E232B] text-[#64748b] cursor-not-allowed border border-[#1e293b]"
             }`}
           >
             <Play className="h-3 w-3" />
@@ -469,9 +469,9 @@ function BuilderContent() {
         {/* =================================================================== */}
         {/* COLUMN 1: LEFT NAVIGATION JUMP COLUMN (Col 1-2)                      */}
         {/* =================================================================== */}
-        <div className="lg:col-span-2 border-r border-[#252A31] bg-[#0B0D10] p-3 space-y-1 select-none flex flex-col justify-between">
+        <div className="lg:col-span-2 border-r border-[#1e293b] bg-[#080d1a] p-3 space-y-1 select-none flex flex-col justify-between">
           <div className="space-y-1">
-            <div className="px-2 py-1 text-[10px] uppercase font-bold text-[#59616B] tracking-wider">
+            <div className="px-2 py-1 text-[10px] uppercase font-bold text-[#64748b] tracking-wider">
               STRATEGY ARCHITECTURE
             </div>
 
@@ -484,13 +484,13 @@ function BuilderContent() {
                   onClick={() => setActiveSection(sec.id)}
                   className={`w-full text-left px-2.5 py-2 rounded-[2px] text-xs font-mono flex items-center justify-between transition-colors ${
                     isActive
-                      ? "bg-[#141820] text-[#38BDF8] font-bold border border-[#38BDF8]/40"
-                      : "text-[#89919C] hover:text-[#D8DCE2] hover:bg-[#101318]"
+                      ? "bg-[#0b1222] text-[#3b82f6] font-bold border border-[#3b82f6]/40"
+                      : "text-[#94a3b8] hover:text-[#cbd5e1] hover:bg-[#0b1222]"
                   }`}
                 >
                   <span className="truncate">{sec.label}</span>
                   {sec.count !== null && (
-                    <span className="text-[10px] text-[#59616B] ml-1">
+                    <span className="text-[10px] text-[#64748b] ml-1">
                       {sec.count}
                     </span>
                   )}
@@ -500,9 +500,9 @@ function BuilderContent() {
           </div>
 
           {/* Quick Info & Methodology box */}
-          <div className="p-2.5 border border-[#252A31] bg-[#101318] rounded-[2px] text-[10px] text-[#59616B] space-y-1">
-            <div className="text-[#D8DCE2] font-semibold flex items-center space-x-1">
-              <Zap className="h-3 w-3 text-[#FF9900]" />
+          <div className="p-2.5 border border-[#1e293b] bg-[#0b1222] rounded-[2px] text-[10px] text-[#64748b] space-y-1">
+            <div className="text-[#cbd5e1] font-semibold flex items-center space-x-1">
+              <Zap className="h-3 w-3 text-[#f59e0b]" />
               <span>ZERO LOOK-AHEAD</span>
             </div>
             <p>
@@ -514,22 +514,22 @@ function BuilderContent() {
         {/* =================================================================== */}
         {/* COLUMN 2: CENTER DIRECT MANIPULATION RULE BUILDER (Col 3-8)          */}
         {/* =================================================================== */}
-        <div className="lg:col-span-6 overflow-y-auto p-4 md:p-6 space-y-6 bg-[#0B0D10]">
+        <div className="lg:col-span-6 overflow-y-auto p-4 md:p-6 space-y-6 bg-[#080d1a]">
           {/* A. Identity & Thesis Section */}
           <div
             id="section-identity"
-            className="border border-[#252A31] bg-[#101318] rounded-[2px] p-4 space-y-3"
+            className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-4 space-y-3"
           >
-            <div className="border-b border-[#252A31] pb-2 flex items-center justify-between">
-              <span className="font-bold text-xs text-[#FF9900] tracking-wider uppercase">
+            <div className="border-b border-[#1e293b] pb-2 flex items-center justify-between">
+              <span className="font-bold text-xs text-[#f59e0b] tracking-wider uppercase">
                 1. MODEL IDENTITY & THESIS
               </span>
-              <span className="text-[10px] text-[#59616B]">Step 1 of 6</span>
+              <span className="text-[10px] text-[#64748b]">Step 1 of 6</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div className="sm:col-span-2">
-                <label className="text-[10px] text-[#59616B] uppercase block mb-1">
+                <label className="text-[10px] text-[#64748b] uppercase block mb-1">
                   STRATEGY NAME
                 </label>
                 <input
@@ -539,12 +539,12 @@ function BuilderContent() {
                     setStrategy({ ...strategy, name: e.target.value })
                   }
                   placeholder="e.g. EMA Momentum Alpha"
-                  className="w-full px-3 py-1.5 bg-[#0B0D10] border border-[#252A31] rounded-[2px] text-xs text-[#D8DCE2] focus:outline-none focus:border-[#38BDF8]"
+                  className="w-full px-3 py-1.5 bg-[#080d1a] border border-[#1e293b] rounded-[2px] text-xs text-[#cbd5e1] focus:outline-none focus:border-[#3b82f6]"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] text-[#59616B] uppercase block mb-1">
+                <label className="text-[10px] text-[#64748b] uppercase block mb-1">
                   STRATEGY STYLE CATEGORY
                 </label>
                 <select
@@ -552,7 +552,7 @@ function BuilderContent() {
                   onChange={(e) =>
                     setStrategy({ ...strategy, strategy_type: e.target.value })
                   }
-                  className="w-full px-3 py-1.5 bg-[#0B0D10] border border-[#252A31] rounded-[2px] text-xs text-[#D8DCE2] focus:outline-none focus:border-[#38BDF8]"
+                  className="w-full px-3 py-1.5 bg-[#080d1a] border border-[#1e293b] rounded-[2px] text-xs text-[#cbd5e1] focus:outline-none focus:border-[#3b82f6]"
                 >
                   <option value="trend">Trend Following</option>
                   <option value="mean_reversion">Mean Reversion</option>
@@ -566,7 +566,7 @@ function BuilderContent() {
               </div>
 
               <div>
-                <label className="text-[10px] text-[#59616B] uppercase block mb-1">
+                <label className="text-[10px] text-[#64748b] uppercase block mb-1">
                   EXECUTION TIMEFRAME
                 </label>
                 <select
@@ -574,7 +574,7 @@ function BuilderContent() {
                   onChange={(e) =>
                     setStrategy({ ...strategy, timeframe: e.target.value })
                   }
-                  className="w-full px-3 py-1.5 bg-[#0B0D10] border border-[#252A31] rounded-[2px] text-xs text-[#D8DCE2] focus:outline-none focus:border-[#38BDF8]"
+                  className="w-full px-3 py-1.5 bg-[#080d1a] border border-[#1e293b] rounded-[2px] text-xs text-[#cbd5e1] focus:outline-none focus:border-[#3b82f6]"
                 >
                   <option value="1D">1D (Daily Bars)</option>
                   <option value="1W">1W (Weekly Bars)</option>
@@ -582,7 +582,7 @@ function BuilderContent() {
               </div>
 
               <div className="sm:col-span-2">
-                <label className="text-[10px] text-[#59616B] uppercase block mb-1">
+                <label className="text-[10px] text-[#64748b] uppercase block mb-1">
                   QUANTITATIVE HYPOTHESIS & THESIS
                 </label>
                 <textarea
@@ -592,7 +592,7 @@ function BuilderContent() {
                     setStrategy({ ...strategy, description: e.target.value })
                   }
                   placeholder="Explain the theoretical edge, micro-structure premise or statistical anomaly..."
-                  className="w-full px-3 py-1.5 bg-[#0B0D10] border border-[#252A31] rounded-[2px] text-xs text-[#D8DCE2] focus:outline-none focus:border-[#38BDF8]"
+                  className="w-full px-3 py-1.5 bg-[#080d1a] border border-[#1e293b] rounded-[2px] text-xs text-[#cbd5e1] focus:outline-none focus:border-[#3b82f6]"
                 />
               </div>
             </div>
@@ -601,18 +601,18 @@ function BuilderContent() {
           {/* B. Universe & Target Security */}
           <div
             id="section-universe"
-            className="border border-[#252A31] bg-[#101318] rounded-[2px] p-4 space-y-3"
+            className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-4 space-y-3"
           >
-            <div className="border-b border-[#252A31] pb-2 flex items-center justify-between">
+            <div className="border-b border-[#1e293b] pb-2 flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <span className="font-bold text-xs text-[#FF9900] tracking-wider uppercase">
+                <span className="font-bold text-xs text-[#f59e0b] tracking-wider uppercase">
                   2. TARGET SECURITY & UNIVERSE
                 </span>
-                <span className="text-[10px] px-1.5 py-0.2 bg-[#141820] text-[#38BDF8] rounded border border-[#252A31]">
+                <span className="text-[10px] px-1.5 py-0.2 bg-[#0b1222] text-[#3b82f6] rounded border border-[#1e293b]">
                   18,500+ Listed Equities
                 </span>
               </div>
-              <span className="text-[10px] text-[#59616B]">Supports Indian (NSE/BSE) & US (NYSE/NASDAQ) Equities</span>
+              <span className="text-[10px] text-[#64748b]">Supports Indian (NSE/BSE) & US (NYSE/NASDAQ) Equities</span>
             </div>
 
             <EasyStockPicker
@@ -635,10 +635,10 @@ function BuilderContent() {
           {/* C. Technical Indicators Pipeline */}
           <div
             id="section-indicators"
-            className="border border-[#252A31] bg-[#101318] rounded-[2px] p-4 space-y-3"
+            className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-4 space-y-3"
           >
-            <div className="border-b border-[#252A31] pb-2 flex items-center justify-between">
-              <span className="font-bold text-xs text-[#38BDF8] tracking-wider uppercase">
+            <div className="border-b border-[#1e293b] pb-2 flex items-center justify-between">
+              <span className="font-bold text-xs text-[#3b82f6] tracking-wider uppercase">
                 3. TECHNICAL INDICATOR PIPELINE ({strategy.indicators.length})
               </span>
 
@@ -651,7 +651,7 @@ function BuilderContent() {
                       e.target.value = "";
                     }
                   }}
-                  className="bg-[#0B0D10] border border-[#252A31] rounded-[2px] px-2 py-1 text-xs text-[#38BDF8] focus:outline-none"
+                  className="bg-[#080d1a] border border-[#1e293b] rounded-[2px] px-2 py-1 text-xs text-[#3b82f6] focus:outline-none"
                   defaultValue=""
                 >
                   <option value="" disabled>
@@ -667,7 +667,7 @@ function BuilderContent() {
             </div>
 
             {strategy.indicators.length === 0 ? (
-              <div className="p-4 border border-dashed border-[#252A31] text-center text-xs text-[#59616B]">
+              <div className="p-4 border border-dashed border-[#1e293b] text-center text-xs text-[#64748b]">
                 No indicators added yet. Add an indicator above or rules will operate on raw Price series.
               </div>
             ) : (
@@ -675,11 +675,11 @@ function BuilderContent() {
                 {strategy.indicators.map((ind) => (
                   <div
                     key={ind.id}
-                    className="p-2.5 border border-[#252A31] bg-[#0B0D10] rounded-[2px] flex flex-wrap items-center justify-between gap-3 text-xs"
+                    className="p-2.5 border border-[#1e293b] bg-[#080d1a] rounded-[2px] flex flex-wrap items-center justify-between gap-3 text-xs"
                   >
                     <div className="flex items-center space-x-2">
-                      <span className="font-bold text-[#D8DCE2]">{ind.name}</span>
-                      <span className="px-1.5 py-0.2 rounded-[2px] bg-[#141820] border border-[#252A31] text-[10px] text-[#89919C]">
+                      <span className="font-bold text-[#cbd5e1]">{ind.name}</span>
+                      <span className="px-1.5 py-0.2 rounded-[2px] bg-[#0b1222] border border-[#1e293b] text-[10px] text-[#94a3b8]">
                         ID: {ind.id}
                       </span>
                     </div>
@@ -688,7 +688,7 @@ function BuilderContent() {
                     <div className="flex flex-wrap items-center gap-2 text-[11px]">
                       {Object.entries(ind.params || {}).map(([paramKey, paramVal]) => (
                         <div key={paramKey} className="flex items-center space-x-1">
-                          <span className="text-[#59616B] uppercase text-[10px]">
+                          <span className="text-[#64748b] uppercase text-[10px]">
                             {paramKey}:
                           </span>
                           <input
@@ -701,7 +701,7 @@ function BuilderContent() {
                                 e.target.value
                               )
                             }
-                            className="w-16 px-1.5 py-0.5 bg-[#141820] border border-[#252A31] rounded-[2px] text-xs text-[#38BDF8] text-center focus:outline-none"
+                            className="w-16 px-1.5 py-0.5 bg-[#0b1222] border border-[#1e293b] rounded-[2px] text-xs text-[#3b82f6] text-center focus:outline-none"
                           />
                         </div>
                       ))}
@@ -709,7 +709,7 @@ function BuilderContent() {
                       <button
                         type="button"
                         onClick={() => handleRemoveIndicator(ind.id)}
-                        className="p-1 rounded text-[#59616B] hover:text-[#EF4444] transition-colors ml-2"
+                        className="p-1 rounded text-[#64748b] hover:text-[#EF4444] transition-colors ml-2"
                         title="Remove Indicator"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -724,9 +724,9 @@ function BuilderContent() {
           {/* D. Visual Entry Rule Builder */}
           <div
             id="section-entry"
-            className="border border-[#252A31] bg-[#101318] rounded-[2px] p-4 space-y-3"
+            className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-4 space-y-3"
           >
-            <div className="border-b border-[#252A31] pb-2 flex items-center justify-between">
+            <div className="border-b border-[#1e293b] pb-2 flex items-center justify-between">
               <span className="font-bold text-xs text-[#10B981] tracking-wider uppercase">
                 4. ENTRY SIGNAL CONDITIONS ({strategy.entry_rules.length})
               </span>
@@ -741,7 +741,7 @@ function BuilderContent() {
             </div>
 
             {strategy.entry_rules.length === 0 ? (
-              <div className="p-4 border border-dashed border-[#252A31] text-center text-xs text-[#EF4444]">
+              <div className="p-4 border border-dashed border-[#1e293b] text-center text-xs text-[#EF4444]">
                 ⚠ No entry conditions defined. At least one entry condition is required to generate buy signals.
               </div>
             ) : (
@@ -754,7 +754,7 @@ function BuilderContent() {
                   return (
                     <div
                       key={rule.id}
-                      className="p-3 border border-[#252A31] bg-[#0B0D10] rounded-[2px] space-y-2 text-xs"
+                      className="p-3 border border-[#1e293b] bg-[#080d1a] rounded-[2px] space-y-2 text-xs"
                     >
                       {/* Logical Operator header for secondary rules */}
                       {idx > 0 && (
@@ -769,7 +769,7 @@ function BuilderContent() {
                                 e.target.value
                               )
                             }
-                            className="bg-[#141820] border border-[#252A31] px-2 py-0.5 rounded-[2px] text-[10px] font-bold text-[#FF9900]"
+                            className="bg-[#0b1222] border border-[#1e293b] px-2 py-0.5 rounded-[2px] text-[10px] font-bold text-[#f59e0b]"
                           >
                             <option value="AND">AND (ALL MUST MATCH)</option>
                             <option value="OR">OR (ANY CAN MATCH)</option>
@@ -791,7 +791,7 @@ function BuilderContent() {
                                 e.target.value
                               )
                             }
-                            className="w-full px-2 py-1 bg-[#101318] border border-[#252A31] rounded-[2px] text-xs text-[#D8DCE2] focus:border-[#38BDF8]"
+                            className="w-full px-2 py-1 bg-[#0b1222] border border-[#1e293b] rounded-[2px] text-xs text-[#cbd5e1] focus:border-[#3b82f6]"
                           >
                             <option value="close">Close Price</option>
                             <option value="open">Open Price</option>
@@ -818,7 +818,7 @@ function BuilderContent() {
                                 e.target.value
                               )
                             }
-                            className="w-full px-2 py-1 bg-[#101318] border border-[#252A31] rounded-[2px] text-xs text-[#38BDF8] font-bold text-center focus:border-[#38BDF8]"
+                            className="w-full px-2 py-1 bg-[#0b1222] border border-[#1e293b] rounded-[2px] text-xs text-[#3b82f6] font-bold text-center focus:border-[#3b82f6]"
                           >
                             <option value=">">&gt; (Greater Than)</option>
                             <option value="<">&lt; (Less Than)</option>
@@ -846,7 +846,7 @@ function BuilderContent() {
                                     Number(e.target.value)
                                   )
                                 }
-                                className="w-full px-2 py-1 bg-[#101318] border border-[#252A31] rounded-[2px] text-xs text-[#D8DCE2] focus:border-[#38BDF8]"
+                                className="w-full px-2 py-1 bg-[#0b1222] border border-[#1e293b] rounded-[2px] text-xs text-[#cbd5e1] focus:border-[#3b82f6]"
                                 placeholder="Threshold value"
                               />
                               <button
@@ -860,7 +860,7 @@ function BuilderContent() {
                                     strategy.indicators[0]?.id || "close"
                                   );
                                 }}
-                                className="text-[10px] text-[#38BDF8] hover:underline whitespace-nowrap"
+                                className="text-[10px] text-[#3b82f6] hover:underline whitespace-nowrap"
                                 title="Switch to Indicator"
                               >
                                 [IND]
@@ -878,7 +878,7 @@ function BuilderContent() {
                                     e.target.value
                                   )
                                 }
-                                className="w-full px-2 py-1 bg-[#101318] border border-[#252A31] rounded-[2px] text-xs text-[#D8DCE2] focus:border-[#38BDF8]"
+                                className="w-full px-2 py-1 bg-[#0b1222] border border-[#1e293b] rounded-[2px] text-xs text-[#cbd5e1] focus:border-[#3b82f6]"
                               >
                                 <option value="close">Close Price</option>
                                 <option value="open">Open Price</option>
@@ -896,7 +896,7 @@ function BuilderContent() {
                                   handleUpdateRule("entry", rule.id, "indicator_b", null);
                                   handleUpdateRule("entry", rule.id, "threshold", 50);
                                 }}
-                                className="text-[10px] text-[#FF9900] hover:underline whitespace-nowrap"
+                                className="text-[10px] text-[#f59e0b] hover:underline whitespace-nowrap"
                                 title="Switch to Numeric Value"
                               >
                                 [NUM]
@@ -910,7 +910,7 @@ function BuilderContent() {
                           <button
                             type="button"
                             onClick={() => handleRemoveRule("entry", rule.id)}
-                            className="p-1 text-[#59616B] hover:text-[#EF4444]"
+                            className="p-1 text-[#64748b] hover:text-[#EF4444]"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -918,7 +918,7 @@ function BuilderContent() {
                       </div>
 
                       {/* Live Human-Facing Translation */}
-                      <div className="text-[11px] text-[#89919C] pt-1 flex items-center space-x-1 font-mono">
+                      <div className="text-[11px] text-[#94a3b8] pt-1 flex items-center space-x-1 font-mono">
                         <span className="text-[#10B981] font-bold">TRANSLATION:</span>
                         <span>{readableText}</span>
                       </div>
@@ -932,9 +932,9 @@ function BuilderContent() {
           {/* E. Visual Exit Rule Builder */}
           <div
             id="section-exit"
-            className="border border-[#252A31] bg-[#101318] rounded-[2px] p-4 space-y-3"
+            className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-4 space-y-3"
           >
-            <div className="border-b border-[#252A31] pb-2 flex items-center justify-between">
+            <div className="border-b border-[#1e293b] pb-2 flex items-center justify-between">
               <span className="font-bold text-xs text-[#EF4444] tracking-wider uppercase">
                 5. EXIT SIGNAL CONDITIONS ({strategy.exit_rules.length})
               </span>
@@ -949,7 +949,7 @@ function BuilderContent() {
             </div>
 
             {strategy.exit_rules.length === 0 ? (
-              <div className="p-3 border border-[#252A31] bg-[#0B0D10] text-center text-xs text-[#89919C]">
+              <div className="p-3 border border-[#1e293b] bg-[#080d1a] text-center text-xs text-[#94a3b8]">
                 Exits will be triggered strictly by Stop Loss and Take Profit risk thresholds.
               </div>
             ) : (
@@ -962,7 +962,7 @@ function BuilderContent() {
                   return (
                     <div
                       key={rule.id}
-                      className="p-3 border border-[#252A31] bg-[#0B0D10] rounded-[2px] space-y-2 text-xs"
+                      className="p-3 border border-[#1e293b] bg-[#080d1a] rounded-[2px] space-y-2 text-xs"
                     >
                       {idx > 0 && (
                         <div className="flex items-center space-x-2 pb-1 border-b border-[#1E232B]">
@@ -976,7 +976,7 @@ function BuilderContent() {
                                 e.target.value
                               )
                             }
-                            className="bg-[#141820] border border-[#252A31] px-2 py-0.5 rounded-[2px] text-[10px] font-bold text-[#FF9900]"
+                            className="bg-[#0b1222] border border-[#1e293b] px-2 py-0.5 rounded-[2px] text-[10px] font-bold text-[#f59e0b]"
                           >
                             <option value="OR">OR (EITHER TRIGGERS EXIT)</option>
                             <option value="AND">AND (BOTH REQUIRED)</option>
@@ -996,7 +996,7 @@ function BuilderContent() {
                                 e.target.value
                               )
                             }
-                            className="w-full px-2 py-1 bg-[#101318] border border-[#252A31] rounded-[2px] text-xs text-[#D8DCE2] focus:border-[#38BDF8]"
+                            className="w-full px-2 py-1 bg-[#0b1222] border border-[#1e293b] rounded-[2px] text-xs text-[#cbd5e1] focus:border-[#3b82f6]"
                           >
                             <option value="close">Close Price</option>
                             <option value="open">Open Price</option>
@@ -1021,7 +1021,7 @@ function BuilderContent() {
                                 e.target.value
                               )
                             }
-                            className="w-full px-2 py-1 bg-[#101318] border border-[#252A31] rounded-[2px] text-xs text-[#EF4444] font-bold text-center focus:border-[#38BDF8]"
+                            className="w-full px-2 py-1 bg-[#0b1222] border border-[#1e293b] rounded-[2px] text-xs text-[#EF4444] font-bold text-center focus:border-[#3b82f6]"
                           >
                             <option value="<">&lt; (Less Than)</option>
                             <option value=">">&gt; (Greater Than)</option>
@@ -1047,7 +1047,7 @@ function BuilderContent() {
                                     Number(e.target.value)
                                   )
                                 }
-                                className="w-full px-2 py-1 bg-[#101318] border border-[#252A31] rounded-[2px] text-xs text-[#D8DCE2] focus:border-[#38BDF8]"
+                                className="w-full px-2 py-1 bg-[#0b1222] border border-[#1e293b] rounded-[2px] text-xs text-[#cbd5e1] focus:border-[#3b82f6]"
                               />
                               <button
                                 type="button"
@@ -1060,7 +1060,7 @@ function BuilderContent() {
                                     strategy.indicators[0]?.id || "close"
                                   );
                                 }}
-                                className="text-[10px] text-[#38BDF8] hover:underline whitespace-nowrap"
+                                className="text-[10px] text-[#3b82f6] hover:underline whitespace-nowrap"
                               >
                                 [IND]
                               </button>
@@ -1077,7 +1077,7 @@ function BuilderContent() {
                                     e.target.value
                                   )
                                 }
-                                className="w-full px-2 py-1 bg-[#101318] border border-[#252A31] rounded-[2px] text-xs text-[#D8DCE2] focus:border-[#38BDF8]"
+                                className="w-full px-2 py-1 bg-[#0b1222] border border-[#1e293b] rounded-[2px] text-xs text-[#cbd5e1] focus:border-[#3b82f6]"
                               >
                                 <option value="close">Close Price</option>
                                 <option value="open">Open Price</option>
@@ -1095,7 +1095,7 @@ function BuilderContent() {
                                   handleUpdateRule("exit", rule.id, "indicator_b", null);
                                   handleUpdateRule("exit", rule.id, "threshold", 40);
                                 }}
-                                className="text-[10px] text-[#FF9900] hover:underline whitespace-nowrap"
+                                className="text-[10px] text-[#f59e0b] hover:underline whitespace-nowrap"
                               >
                                 [NUM]
                               </button>
@@ -1107,14 +1107,14 @@ function BuilderContent() {
                           <button
                             type="button"
                             onClick={() => handleRemoveRule("exit", rule.id)}
-                            className="p-1 text-[#59616B] hover:text-[#EF4444]"
+                            className="p-1 text-[#64748b] hover:text-[#EF4444]"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
                         </div>
                       </div>
 
-                      <div className="text-[11px] text-[#89919C] pt-1 flex items-center space-x-1 font-mono">
+                      <div className="text-[11px] text-[#94a3b8] pt-1 flex items-center space-x-1 font-mono">
                         <span className="text-[#EF4444] font-bold">TRANSLATION:</span>
                         <span>{readableText}</span>
                       </div>
@@ -1128,18 +1128,18 @@ function BuilderContent() {
           {/* F. Risk Management Controls */}
           <div
             id="section-risk"
-            className="border border-[#252A31] bg-[#101318] rounded-[2px] p-4 space-y-3"
+            className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-4 space-y-3"
           >
-            <div className="border-b border-[#252A31] pb-2 flex items-center justify-between">
-              <span className="font-bold text-xs text-[#FF9900] tracking-wider uppercase">
+            <div className="border-b border-[#1e293b] pb-2 flex items-center justify-between">
+              <span className="font-bold text-xs text-[#f59e0b] tracking-wider uppercase">
                 6. RISK MANAGEMENT LIMITS
               </span>
-              <span className="text-[10px] text-[#59616B]">Portfolio Protection</span>
+              <span className="text-[10px] text-[#64748b]">Portfolio Protection</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
               <div>
-                <label className="text-[10px] text-[#59616B] uppercase block mb-1">
+                <label className="text-[10px] text-[#64748b] uppercase block mb-1">
                   STOP LOSS (%)
                 </label>
                 <input
@@ -1155,13 +1155,13 @@ function BuilderContent() {
                       },
                     })
                   }
-                  className="w-full px-3 py-1.5 bg-[#0B0D10] border border-[#252A31] rounded-[2px] text-xs text-[#EF4444] font-bold focus:outline-none"
+                  className="w-full px-3 py-1.5 bg-[#080d1a] border border-[#1e293b] rounded-[2px] text-xs text-[#EF4444] font-bold focus:outline-none"
                   placeholder="e.g. 2.0"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] text-[#59616B] uppercase block mb-1">
+                <label className="text-[10px] text-[#64748b] uppercase block mb-1">
                   TAKE PROFIT (%)
                 </label>
                 <input
@@ -1177,13 +1177,13 @@ function BuilderContent() {
                       },
                     })
                   }
-                  className="w-full px-3 py-1.5 bg-[#0B0D10] border border-[#252A31] rounded-[2px] text-xs text-[#10B981] font-bold focus:outline-none"
+                  className="w-full px-3 py-1.5 bg-[#080d1a] border border-[#1e293b] rounded-[2px] text-xs text-[#10B981] font-bold focus:outline-none"
                   placeholder="e.g. 6.0"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] text-[#59616B] uppercase block mb-1">
+                <label className="text-[10px] text-[#64748b] uppercase block mb-1">
                   POSITION SIZE (%)
                 </label>
                 <input
@@ -1199,12 +1199,12 @@ function BuilderContent() {
                       },
                     })
                   }
-                  className="w-full px-3 py-1.5 bg-[#0B0D10] border border-[#252A31] rounded-[2px] text-xs text-[#D8DCE2] font-bold focus:outline-none"
+                  className="w-full px-3 py-1.5 bg-[#080d1a] border border-[#1e293b] rounded-[2px] text-xs text-[#cbd5e1] font-bold focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] text-[#59616B] uppercase block mb-1">
+                <label className="text-[10px] text-[#64748b] uppercase block mb-1">
                   MAX CONCURRENT POSITIONS
                 </label>
                 <input
@@ -1219,12 +1219,12 @@ function BuilderContent() {
                       },
                     })
                   }
-                  className="w-full px-3 py-1.5 bg-[#0B0D10] border border-[#252A31] rounded-[2px] text-xs text-[#D8DCE2] focus:outline-none"
+                  className="w-full px-3 py-1.5 bg-[#080d1a] border border-[#1e293b] rounded-[2px] text-xs text-[#cbd5e1] focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] text-[#59616B] uppercase block mb-1">
+                <label className="text-[10px] text-[#64748b] uppercase block mb-1">
                   TRAILING STOP (%)
                 </label>
                 <input
@@ -1241,7 +1241,7 @@ function BuilderContent() {
                     })
                   }
                   placeholder="Optional"
-                  className="w-full px-3 py-1.5 bg-[#0B0D10] border border-[#252A31] rounded-[2px] text-xs text-[#D8DCE2] focus:outline-none"
+                  className="w-full px-3 py-1.5 bg-[#080d1a] border border-[#1e293b] rounded-[2px] text-xs text-[#cbd5e1] focus:outline-none"
                 />
               </div>
             </div>
@@ -1250,18 +1250,18 @@ function BuilderContent() {
           {/* G. Execution Friction & Timing */}
           <div
             id="section-execution"
-            className="border border-[#252A31] bg-[#101318] rounded-[2px] p-4 space-y-3"
+            className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-4 space-y-3"
           >
-            <div className="border-b border-[#252A31] pb-2 flex items-center justify-between">
-              <span className="font-bold text-xs text-[#FF9900] tracking-wider uppercase">
+            <div className="border-b border-[#1e293b] pb-2 flex items-center justify-between">
+              <span className="font-bold text-xs text-[#f59e0b] tracking-wider uppercase">
                 7. EXECUTION FRICTION & TIMING
               </span>
-              <span className="text-[10px] text-[#38BDF8]">Realistic Quant Simulation</span>
+              <span className="text-[10px] text-[#3b82f6]">Realistic Quant Simulation</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
               <div>
-                <label className="text-[10px] text-[#59616B] uppercase block mb-1">
+                <label className="text-[10px] text-[#64748b] uppercase block mb-1">
                   INITIAL CAPITAL ($)
                 </label>
                 <input
@@ -1276,12 +1276,12 @@ function BuilderContent() {
                       },
                     })
                   }
-                  className="w-full px-3 py-1.5 bg-[#0B0D10] border border-[#252A31] rounded-[2px] text-xs text-[#D8DCE2] focus:outline-none"
+                  className="w-full px-3 py-1.5 bg-[#080d1a] border border-[#1e293b] rounded-[2px] text-xs text-[#cbd5e1] focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] text-[#59616B] uppercase block mb-1">
+                <label className="text-[10px] text-[#64748b] uppercase block mb-1">
                   COMMISSION (%)
                 </label>
                 <input
@@ -1297,12 +1297,12 @@ function BuilderContent() {
                       },
                     })
                   }
-                  className="w-full px-3 py-1.5 bg-[#0B0D10] border border-[#252A31] rounded-[2px] text-xs text-[#D8DCE2] focus:outline-none"
+                  className="w-full px-3 py-1.5 bg-[#080d1a] border border-[#1e293b] rounded-[2px] text-xs text-[#cbd5e1] focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] text-[#59616B] uppercase block mb-1">
+                <label className="text-[10px] text-[#64748b] uppercase block mb-1">
                   SLIPPAGE (%)
                 </label>
                 <input
@@ -1318,7 +1318,7 @@ function BuilderContent() {
                       },
                     })
                   }
-                  className="w-full px-3 py-1.5 bg-[#0B0D10] border border-[#252A31] rounded-[2px] text-xs text-[#D8DCE2] focus:outline-none"
+                  className="w-full px-3 py-1.5 bg-[#080d1a] border border-[#1e293b] rounded-[2px] text-xs text-[#cbd5e1] focus:outline-none"
                 />
               </div>
             </div>
@@ -1328,23 +1328,23 @@ function BuilderContent() {
         {/* =================================================================== */}
         {/* COLUMN 3: RIGHT LIVE STRATEGY SUMMARY & PRE-FLIGHT (Col 9-12)       */}
         {/* =================================================================== */}
-        <div className="lg:col-span-4 border-l border-[#252A31] bg-[#0B0D10] p-4 flex flex-col justify-between overflow-y-auto space-y-4">
+        <div className="lg:col-span-4 border-l border-[#1e293b] bg-[#080d1a] p-4 flex flex-col justify-between overflow-y-auto space-y-4">
           <div className="space-y-4">
             {/* Header */}
-            <div className="border-b border-[#252A31] pb-2 flex items-center justify-between">
-              <span className="font-bold text-xs text-[#38BDF8] tracking-wider uppercase">
+            <div className="border-b border-[#1e293b] pb-2 flex items-center justify-between">
+              <span className="font-bold text-xs text-[#3b82f6] tracking-wider uppercase">
                 STRATEGY SUMMARY
               </span>
-              <span className="text-[10px] text-[#59616B]">Live Blueprint</span>
+              <span className="text-[10px] text-[#64748b]">Live Blueprint</span>
             </div>
 
             {/* Model Card */}
-            <div className="p-3 border border-[#252A31] bg-[#101318] rounded-[2px] space-y-2 text-xs">
-              <div className="font-bold text-sm text-[#D8DCE2]">
+            <div className="p-3 border border-[#1e293b] bg-[#0b1222] rounded-[2px] space-y-2 text-xs">
+              <div className="font-bold text-sm text-[#cbd5e1]">
                 {strategy.name || "Untitled Strategy"}
               </div>
-              <div className="flex items-center space-x-2 text-[11px] text-[#89919C]">
-                <span className="font-bold text-[#38BDF8]">{strategy.asset}</span>
+              <div className="flex items-center space-x-2 text-[11px] text-[#94a3b8]">
+                <span className="font-bold text-[#3b82f6]">{strategy.asset}</span>
                 <span>·</span>
                 <span>{strategy.timeframe}</span>
                 <span>·</span>
@@ -1353,18 +1353,18 @@ function BuilderContent() {
             </div>
 
             {/* Indicators summary */}
-            <div className="border border-[#252A31] bg-[#101318] rounded-[2px] p-3 space-y-1.5 text-xs">
-              <span className="text-[10px] text-[#59616B] uppercase font-bold tracking-wider block">
+            <div className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-3 space-y-1.5 text-xs">
+              <span className="text-[10px] text-[#64748b] uppercase font-bold tracking-wider block">
                 INDICATORS ({strategy.indicators.length})
               </span>
               {strategy.indicators.length === 0 ? (
-                <span className="text-[11px] text-[#59616B]">None defined</span>
+                <span className="text-[11px] text-[#64748b]">None defined</span>
               ) : (
                 <div className="flex flex-wrap gap-1">
                   {strategy.indicators.map((ind) => (
                     <span
                       key={ind.id}
-                      className="px-1.5 py-0.5 rounded-[2px] bg-[#141820] border border-[#252A31] text-[10px] text-[#D8DCE2]"
+                      className="px-1.5 py-0.5 rounded-[2px] bg-[#0b1222] border border-[#1e293b] text-[10px] text-[#cbd5e1]"
                     >
                       {ind.name}
                     </span>
@@ -1374,12 +1374,12 @@ function BuilderContent() {
             </div>
 
             {/* Entry & Exit Rules Live Translation */}
-            <div className="border border-[#252A31] bg-[#101318] rounded-[2px] p-3 space-y-2 text-xs">
+            <div className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-3 space-y-2 text-xs">
               <div>
                 <span className="text-[10px] text-[#10B981] uppercase font-bold tracking-wider block">
                   ENTRY SIGNALS
                 </span>
-                <p className="text-[11px] text-[#D8DCE2] mt-0.5 font-mono">
+                <p className="text-[11px] text-[#cbd5e1] mt-0.5 font-mono">
                   {formatRuleSet(strategy.entry_rules, strategy.indicators)}
                 </p>
               </div>
@@ -1388,7 +1388,7 @@ function BuilderContent() {
                 <span className="text-[10px] text-[#EF4444] uppercase font-bold tracking-wider block">
                   EXIT SIGNALS
                 </span>
-                <p className="text-[11px] text-[#D8DCE2] mt-0.5 font-mono">
+                <p className="text-[11px] text-[#cbd5e1] mt-0.5 font-mono">
                   {strategy.exit_rules.length > 0
                     ? formatRuleSet(strategy.exit_rules, strategy.indicators)
                     : "Managed by Stop Loss & Take Profit limits"}
@@ -1397,26 +1397,26 @@ function BuilderContent() {
             </div>
 
             {/* Risk & Friction Specs */}
-            <div className="border border-[#252A31] bg-[#101318] rounded-[2px] p-3 space-y-1 text-xs font-mono">
+            <div className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-3 space-y-1 text-xs font-mono">
               <div className="flex justify-between">
-                <span className="text-[#59616B]">STOP LOSS:</span>
+                <span className="text-[#64748b]">STOP LOSS:</span>
                 <span className="text-[#EF4444] font-bold">
                   {strategy.risk.stop_loss_pct ? `-${strategy.risk.stop_loss_pct}%` : "None"}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#59616B]">TAKE PROFIT:</span>
+                <span className="text-[#64748b]">TAKE PROFIT:</span>
                 <span className="text-[#10B981] font-bold">
                   {strategy.risk.take_profit_pct ? `+${strategy.risk.take_profit_pct}%` : "None"}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#59616B]">POSITION SIZE:</span>
-                <span className="text-[#D8DCE2]">{strategy.risk.position_size_pct}%</span>
+                <span className="text-[#64748b]">POSITION SIZE:</span>
+                <span className="text-[#cbd5e1]">{strategy.risk.position_size_pct}%</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#59616B]">EXECUTION:</span>
-                <span className="text-[#38BDF8]">NEXT BAR OPEN (t+1)</span>
+                <span className="text-[#64748b]">EXECUTION:</span>
+                <span className="text-[#3b82f6]">NEXT BAR OPEN (t+1)</span>
               </div>
             </div>
 
@@ -1457,15 +1457,15 @@ function BuilderContent() {
           </div>
 
           {/* Bottom Pre-Flight Execution Launcher */}
-          <div className="pt-3 border-t border-[#252A31] space-y-2">
+          <div className="pt-3 border-t border-[#1e293b] space-y-2">
             <button
               type="button"
               onClick={handleSaveAndBacktest}
               disabled={!validation.isValid || saving}
               className={`w-full py-2.5 rounded-[2px] font-bold text-xs flex items-center justify-center space-x-2 transition-colors ${
                 validation.isValid
-                  ? "bg-[#38BDF8] hover:bg-[#0284C7] text-black shadow-md"
-                  : "bg-[#141820] text-[#59616B] border border-[#252A31] cursor-not-allowed"
+                  ? "bg-[#3b82f6] hover:bg-[#2563eb] text-black shadow-md"
+                  : "bg-[#0b1222] text-[#64748b] border border-[#1e293b] cursor-not-allowed"
               }`}
             >
               <Play className="h-3.5 w-3.5" />
@@ -1476,9 +1476,9 @@ function BuilderContent() {
               type="button"
               onClick={handleSaveStrategy}
               disabled={saving}
-              className="w-full py-1.5 rounded-[2px] border border-[#252A31] bg-[#101318] hover:bg-[#141820] text-[#D8DCE2] text-xs transition-colors flex items-center justify-center space-x-1"
+              className="w-full py-1.5 rounded-[2px] border border-[#1e293b] bg-[#0b1222] hover:bg-[#0b1222] text-[#cbd5e1] text-xs transition-colors flex items-center justify-center space-x-1"
             >
-              <Save className="h-3 w-3 text-[#38BDF8]" />
+              <Save className="h-3 w-3 text-[#3b82f6]" />
               <span>{saving ? "SAVING..." : "SAVE MODEL SPEC"}</span>
             </button>
           </div>
@@ -1488,15 +1488,15 @@ function BuilderContent() {
       {/* 3. PRESETS & TEMPLATES CHOOSER MODAL */}
       {showChooserModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4">
-          <div className="w-full max-w-2xl bg-[#101318] border border-[#252A31] rounded-[2px] flex flex-col overflow-hidden shadow-2xl">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-[#252A31] bg-[#0B0D10]">
-              <span className="font-bold text-xs text-[#D8DCE2] tracking-wider uppercase">
+          <div className="w-full max-w-2xl bg-[#0b1222] border border-[#1e293b] rounded-[2px] flex flex-col overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e293b] bg-[#080d1a]">
+              <span className="font-bold text-xs text-[#cbd5e1] tracking-wider uppercase">
                 STRATEGY CREATION PRESETS
               </span>
               <button
                 type="button"
                 onClick={() => setShowChooserModal(false)}
-                className="text-[#59616B] hover:text-[#D8DCE2]"
+                className="text-[#64748b] hover:text-[#cbd5e1]"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -1516,19 +1516,19 @@ function BuilderContent() {
                   });
                   setShowChooserModal(false);
                 }}
-                className="p-3 border border-[#252A31] bg-[#0B0D10] hover:border-[#38BDF8]/50 hover:bg-[#141820] cursor-pointer rounded-[2px] transition-colors"
+                className="p-3 border border-[#1e293b] bg-[#080d1a] hover:border-[#3b82f6]/50 hover:bg-[#0b1222] cursor-pointer rounded-[2px] transition-colors"
               >
-                <div className="font-semibold text-xs text-[#D8DCE2]">
+                <div className="font-semibold text-xs text-[#cbd5e1]">
                   [ BLANK STRATEGY CANVAS ]
                 </div>
-                <p className="text-[11px] text-[#59616B] mt-0.5">
+                <p className="text-[11px] text-[#64748b] mt-0.5">
                   Start completely from scratch with an empty indicator pipeline and custom rule slots.
                 </p>
               </div>
 
               {/* Option 2: Pre-built templates list */}
               <div className="pt-2">
-                <span className="text-[10px] font-bold text-[#FF9900] uppercase tracking-wider block mb-2">
+                <span className="text-[10px] font-bold text-[#f59e0b] uppercase tracking-wider block mb-2">
                   LOAD PRE-BUILT QUANTITATIVE TEMPLATE:
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -1543,12 +1543,12 @@ function BuilderContent() {
                         });
                         setShowChooserModal(false);
                       }}
-                      className="p-2.5 border border-[#252A31] bg-[#0B0D10] hover:border-[#38BDF8]/50 hover:bg-[#141820] cursor-pointer rounded-[2px] transition-colors"
+                      className="p-2.5 border border-[#1e293b] bg-[#080d1a] hover:border-[#3b82f6]/50 hover:bg-[#0b1222] cursor-pointer rounded-[2px] transition-colors"
                     >
-                      <div className="font-semibold text-xs text-[#D8DCE2]">
+                      <div className="font-semibold text-xs text-[#cbd5e1]">
                         {tpl.name}
                       </div>
-                      <div className="text-[10px] text-[#38BDF8] mt-0.5">
+                      <div className="text-[10px] text-[#3b82f6] mt-0.5">
                         {tpl.asset} · {tpl.strategy_type?.toUpperCase()}
                       </div>
                     </div>
@@ -1557,11 +1557,11 @@ function BuilderContent() {
               </div>
             </div>
 
-            <div className="px-4 py-2.5 border-t border-[#252A31] bg-[#0B0D10] flex justify-end">
+            <div className="px-4 py-2.5 border-t border-[#1e293b] bg-[#080d1a] flex justify-end">
               <button
                 type="button"
                 onClick={() => setShowChooserModal(false)}
-                className="px-3 py-1 border border-[#252A31] text-xs hover:bg-[#141820] rounded-[2px]"
+                className="px-3 py-1 border border-[#1e293b] text-xs hover:bg-[#0b1222] rounded-[2px]"
               >
                 CANCEL
               </button>
@@ -1585,15 +1585,15 @@ export default function StrategyBuilderPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#0B0D10] text-[#D8DCE2] flex flex-col items-center justify-center space-y-3 font-mono text-xs select-none">
+        <div className="min-h-screen bg-[#080d1a] text-[#cbd5e1] flex flex-col items-center justify-center space-y-3 font-mono text-xs select-none">
           <div className="relative w-8 h-8">
-            <div className="w-8 h-8 border-2 border-[#252A31] rounded-full" />
-            <div className="w-8 h-8 border-2 border-[#38BDF8] border-t-transparent rounded-full animate-spin absolute top-0 left-0" />
+            <div className="w-8 h-8 border-2 border-[#1e293b] rounded-full" />
+            <div className="w-8 h-8 border-2 border-[#3b82f6] border-t-transparent rounded-full animate-spin absolute top-0 left-0" />
           </div>
           <span className="tracking-wider uppercase text-slate-300">
             INITIALIZING QUANTITATIVE STRATEGY BUILDER...
           </span>
-          <span className="text-[11px] text-[#59616B]">
+          <span className="text-[11px] text-[#64748b]">
             Loading execution rules, universe definitions & indicators
           </span>
         </div>

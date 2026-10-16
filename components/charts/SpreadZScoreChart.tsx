@@ -59,7 +59,7 @@ export default function SpreadZScoreChart({
       <div style={{ width: "100%", height }}>
         <ResponsiveContainer>
           <ComposedChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-            <CartesianGrid stroke="#1c263b" strokeDasharray="3 3" vertical={false} />
+            <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="date"
               stroke="#64748b"
@@ -98,7 +98,7 @@ export default function SpreadZScoreChart({
             <Line
               type="monotone"
               dataKey="z_score"
-              stroke="#2962FF"
+              stroke="#2563eb"
               strokeWidth={1.8}
               dot={false}
               isAnimationActive={false}

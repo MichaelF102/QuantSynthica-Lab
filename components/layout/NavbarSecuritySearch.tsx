@@ -80,6 +80,13 @@ export default function NavbarSecuritySearch() {
         target.tagName === "SELECT" ||
         target.isContentEditable;
 
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        inputRef.current?.focus();
+        setIsOpen(true);
+        return;
+      }
+
       if (e.key === "/" && !isInput) {
         e.preventDefault();
         inputRef.current?.focus();
@@ -270,7 +277,7 @@ export default function NavbarSecuritySearch() {
                 ? "Search NSE/BSE (e.g. RELIANCE)..."
                 : "Search US (e.g. AAPL, NVDA)..."
             }
-            className="h-8 w-full rounded-lg border border-border bg-[#131722] py-1 pl-8 pr-16 text-[12px] text-[#d1d4dc] placeholder-[#787b86] outline-none transition-colors focus:border-[#2962FF] sm:text-[13px] sm:pr-20"
+            className="h-8 w-full rounded-lg border border-slate-700/50 bg-[#0F172A]/70 py-1 pl-8 pr-16 text-[12px] text-slate-100 placeholder:text-slate-500 outline-none transition-colors focus:border-blue-500 sm:text-[13px] sm:pr-20"
           />
 
           {/* Right badges: clear X or active symbol badge + '/' shortcut */}
@@ -295,8 +302,8 @@ export default function NavbarSecuritySearch() {
                 {activeSymbol}
               </span>
             ) : (
-              <span className="rounded border border-border/80 bg-surface-muted px-1.5 py-0.5 font-mono text-[9px] text-slate-500">
-                /
+              <span className="hidden rounded border border-slate-700 bg-slate-800/40 px-1.5 py-0.5 font-mono text-[9px] text-slate-400 sm:inline">
+                Ctrl K
               </span>
             )}
           </div>
@@ -307,7 +314,7 @@ export default function NavbarSecuritySearch() {
           <div className="absolute left-0 z-50 mt-1.5 flex w-80 sm:w-96 max-w-[calc(100vw-24px)] flex-col overflow-hidden rounded-lg border border-border bg-surface-elevated/95 font-mono text-xs shadow-panel backdrop-blur-xl">
             <div className="flex items-center justify-between border-b border-border bg-background/60 px-3 py-1.5 text-[10px] text-slate-400">
               <div className="flex items-center gap-1.5">
-                <span className="font-medium text-stone-200">
+                <span className="font-medium text-slate-200">
                   {country === "India" ? "India (NSE / BSE)" : "United States (NYSE / NASDAQ)"}
                 </span>
               </div>
@@ -317,7 +324,7 @@ export default function NavbarSecuritySearch() {
             <div className="max-h-80 divide-y divide-border/60 overflow-y-auto">
               {loading ? (
                 <div className="p-4 text-center text-xs text-slate-400">
-                  <span className="text-stone-400">Searching securities…</span>
+                  <span className="text-slate-400">Searching securities…</span>
                 </div>
               ) : results.length === 0 ? (
                 <div className="p-4 text-center text-xs text-slate-400">
@@ -348,7 +355,7 @@ export default function NavbarSecuritySearch() {
                           <span className="block text-sm font-bold text-slate-100">
                             {stock.symbol}
                           </span>
-                          <span className="block text-[9px] text-stone-500">
+                          <span className="block text-[9px] text-slate-500">
                             {stock.exchange || (isIndia ? "NSE" : "US")}
                           </span>
                         </div>
@@ -399,14 +406,14 @@ export default function NavbarSecuritySearch() {
       </div>
 
       {/* Country Selector: US / INDIA (Moved to the right) */}
-      <div className="flex shrink-0 items-center rounded-lg border border-border bg-[#131722] p-0.5 text-[11px] select-none">
+      <div className="flex shrink-0 items-center rounded-lg border border-slate-700/50 bg-[#0F172A]/70 p-0.5 text-[11px] select-none">
         <button
           type="button"
           onClick={() => handleCountryChange("US")}
           className={`flex items-center gap-1 rounded px-2 py-0.5 transition-all ${
             country === "US"
               ? "bg-surface-active font-semibold text-brand-amber"
-              : "text-stone-500 hover:text-stone-200"
+              : "text-slate-500 hover:text-slate-200"
           }`}
           title="Filter US Equities (NYSE, NASDAQ)"
         >
@@ -419,7 +426,7 @@ export default function NavbarSecuritySearch() {
           className={`flex items-center gap-1 rounded px-2 py-0.5 transition-all ${
             country === "India"
               ? "bg-surface-active font-semibold text-brand-amber"
-              : "text-stone-500 hover:text-stone-200"
+              : "text-slate-500 hover:text-slate-200"
           }`}
           title="Filter Indian Equities (NSE, BSE)"
         >

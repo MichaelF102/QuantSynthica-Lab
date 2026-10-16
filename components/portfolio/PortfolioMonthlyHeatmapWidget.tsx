@@ -94,9 +94,9 @@ export default function PortfolioMonthlyHeatmapWidget() {
   const [selectedYear, setSelectedYear] = useState<string>("2023");
 
   return (
-    <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3.5 flex flex-col justify-between">
+    <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 flex flex-col justify-between">
       {/* 1. Header & Year Dropdown */}
-      <div className="flex items-center justify-between pb-2 border-b border-[#1A2230]">
+      <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
         <div className="flex items-center space-x-2">
           <h2 className="text-sm font-bold text-white tracking-tight font-sans">
             Monthly Returns Heatmap (%)
@@ -115,7 +115,7 @@ export default function PortfolioMonthlyHeatmapWidget() {
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.target.value)}
-            className="appearance-none bg-[#111722] border border-[#1F2B3E] text-slate-200 pl-2.5 pr-6 py-1 rounded text-xs focus:outline-none focus:border-[#38BDF8] cursor-pointer font-mono"
+            className="appearance-none bg-[#0b1222] border border-[#1e293b] text-slate-200 pl-2.5 pr-6 py-1 rounded text-xs focus:outline-none focus:border-[#3b82f6] cursor-pointer font-mono"
           >
             <option value="2023">2023</option>
             <option value="2024">2024</option>
@@ -168,7 +168,7 @@ export default function PortfolioMonthlyHeatmapWidget() {
 
       {/* 3. Bottom Gradient Color Scale Bar */}
       <div className="pt-4 flex flex-col items-center justify-center space-y-1">
-        <div className="w-64 sm:w-80 h-1.5 rounded-full bg-gradient-to-r from-[#EF4444] via-[#090D14] to-[#10B981]" />
+        <div className="w-64 sm:w-80 h-1.5 rounded-full bg-gradient-to-r from-[#EF4444] via-[#080d1a] to-[#10B981]" />
         <div className="w-64 sm:w-80 flex items-center justify-between text-[10px] font-mono text-slate-500">
           <span className="text-[#F87171]">-10%</span>
           <span className="text-slate-400">0%</span>

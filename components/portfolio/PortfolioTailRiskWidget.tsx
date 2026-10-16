@@ -34,9 +34,9 @@ export default function PortfolioTailRiskWidget({
   const customLoss = (equityShock * 0.78 - (volSpike / 100) * 2.5).toFixed(1);
 
   return (
-    <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3.5 flex flex-col justify-between h-full">
+    <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 flex flex-col justify-between h-full">
       {/* Header & Tabs */}
-      <div className="space-y-2 pb-2 border-b border-[#1A2230]">
+      <div className="space-y-2 pb-2 border-b border-[#1e293b]">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <h2 className="text-sm font-bold text-white tracking-tight font-sans">
@@ -53,7 +53,7 @@ export default function PortfolioTailRiskWidget({
         </div>
 
         {/* Mode Tabs */}
-        <div className="flex items-center space-x-1 overflow-x-auto bg-[#111722] border border-[#1F2B3E] rounded p-0.5 text-[11px] font-mono scrollbar-none">
+        <div className="flex items-center space-x-1 overflow-x-auto bg-[#0b1222] border border-[#1e293b] rounded p-0.5 text-[11px] font-mono scrollbar-none">
           {(
             [
               "Historical Scenarios",
@@ -68,7 +68,7 @@ export default function PortfolioTailRiskWidget({
               onClick={() => setActiveTab(t)}
               className={`px-2 py-0.5 rounded whitespace-nowrap transition-all ${
                 activeTab === t
-                  ? "bg-[#0284C7] text-white font-bold shadow-sm"
+                  ? "bg-[#2563eb] text-white font-bold shadow-sm"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -149,15 +149,15 @@ export default function PortfolioTailRiskWidget({
         </div>
       ) : (
         <div className="pt-3 text-xs text-slate-400 space-y-2">
-          <div className="flex justify-between py-1 border-b border-[#1A2230]">
+          <div className="flex justify-between py-1 border-b border-[#1e293b]">
             <span>Parametric VaR (99%, 10-day)</span>
             <span className="font-mono font-bold text-red-400">-5.82%</span>
           </div>
-          <div className="flex justify-between py-1 border-b border-[#1A2230]">
+          <div className="flex justify-between py-1 border-b border-[#1e293b]">
             <span>Historical VaR (99%, 10-day)</span>
             <span className="font-mono font-bold text-red-400">-6.14%</span>
           </div>
-          <div className="flex justify-between py-1 border-b border-[#1A2230]">
+          <div className="flex justify-between py-1 border-b border-[#1e293b]">
             <span>Expected Shortfall (CVaR 99%)</span>
             <span className="font-mono font-bold text-red-400">-8.45%</span>
           </div>

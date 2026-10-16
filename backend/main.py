@@ -1,3 +1,4 @@
+import os
 import sys
 import logging
 from datetime import datetime, timezone
@@ -48,11 +49,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Enable CORS for Next.js frontend
+# CORS: set CORS_ORIGINS to a comma-separated list in production. The wildcard default is
+# only valid without credentials, so credentials are enabled only for an explicit list.
+_origins_env = os.getenv("CORS_ORIGINS", "").strip()
+_origins = [o.strip() for o in _origins_env.split(",") if o.strip()] or ["*"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=_origins,
+    allow_credentials=_origins != ["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )

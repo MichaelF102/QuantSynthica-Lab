@@ -96,9 +96,9 @@ export default function PortfolioCorrelationMatrixWidget({
   }, [allocations]);
 
   return (
-    <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3.5 flex flex-col justify-between h-full">
+    <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 flex flex-col justify-between h-full">
       {/* Header */}
-      <div className="flex items-center space-x-2 pb-2 border-b border-[#1A2230]">
+      <div className="flex items-center space-x-2 pb-2 border-b border-[#1e293b]">
         <h2 className="text-sm font-bold text-white tracking-tight font-sans">
           Correlation Matrix
         </h2>
@@ -140,7 +140,7 @@ export default function PortfolioCorrelationMatrixWidget({
                         <div
                           onMouseEnter={() => setHoveredPair({ a: rowAsset, b: colAsset, val })}
                           onMouseLeave={() => setHoveredPair(null)}
-                          className={`rounded py-1 px-1 transition-all border border-[#1E2B3E]/30 cursor-pointer ${style.bg} ${style.text} hover:scale-105 hover:border-[#38BDF8]`}
+                          className={`rounded py-1 px-1 transition-all border border-[#1e293b]/30 cursor-pointer ${style.bg} ${style.text} hover:scale-105 hover:border-[#3b82f6]`}
                         >
                           {val.toFixed(2)}
                         </div>
@@ -155,7 +155,7 @@ export default function PortfolioCorrelationMatrixWidget({
 
         {/* Vertical Color Scale Bar on Right */}
         <div className="flex items-center space-x-1 pl-1 shrink-0">
-          <div className="h-36 w-2 rounded-full bg-gradient-to-b from-[#10B981] via-[#090D14] to-[#EF4444]" />
+          <div className="h-36 w-2 rounded-full bg-gradient-to-b from-[#10B981] via-[#080d1a] to-[#EF4444]" />
           <div className="h-36 flex flex-col justify-between text-[10px] font-mono text-slate-400 py-0.5">
             <span className="text-[#34D399]">1.0</span>
             <span className="text-slate-400">0.0</span>

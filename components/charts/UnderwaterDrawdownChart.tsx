@@ -84,23 +84,23 @@ export default function UnderwaterDrawdownChart({
   if (!analysis || analysis.chartData.length === 0) return null;
 
   return (
-    <div className={`bg-[#101318] ${hideBorder ? "" : "border border-[#252A31] rounded-[2px]"}`}>
+    <div className={`bg-[#0b1222] ${hideBorder ? "" : "border border-[#1e293b] rounded-[2px]"}`}>
       {!hideHeader && (
-        <div className="flex flex-wrap items-center justify-between px-3 py-1.5 border-b border-[#252A31] bg-[#0B0D10] text-xs font-mono gap-2">
-          <span className="font-semibold text-[#D8DCE2] uppercase tracking-wider text-[11px]">
+        <div className="flex flex-wrap items-center justify-between px-3 py-1.5 border-b border-[#1e293b] bg-[#080d1a] text-xs font-mono gap-2">
+          <span className="font-semibold text-[#cbd5e1] uppercase tracking-wider text-[11px]">
             Underwater Drawdown Profile
           </span>
           <div className="flex items-center space-x-3 text-[10px]">
             <div>
-              <span className="text-[#59616B]">PEAK: </span>
-              <span className="text-[#89919C]">{analysis.peakDate}</span>
+              <span className="text-[#64748b]">PEAK: </span>
+              <span className="text-[#94a3b8]">{analysis.peakDate}</span>
             </div>
             <div>
-              <span className="text-[#59616B]">TROUGH: </span>
-              <span className="text-[#89919C]">{analysis.troughDate}</span>
+              <span className="text-[#64748b]">TROUGH: </span>
+              <span className="text-[#94a3b8]">{analysis.troughDate}</span>
             </div>
             <div>
-              <span className="text-[#59616B]">STATUS: </span>
+              <span className="text-[#64748b]">STATUS: </span>
               <span className={analysis.isRecovered ? "text-[#10B981] font-semibold" : "text-[#EF4444] font-semibold"}>
                 {analysis.isRecovered ? "RECOVERED" : "NOT RECOVERED"}
               </span>
@@ -121,17 +121,17 @@ export default function UnderwaterDrawdownChart({
                 <stop offset="95%" stopColor="#EF4444" stopOpacity={0.0} />
               </linearGradient>
             </defs>
-            <CartesianGrid stroke="#1E232B" strokeDasharray="1 1" vertical={false} />
+            <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="date"
-              stroke="#59616B"
+              stroke="#64748b"
               fontSize={10}
               tickLine={false}
-              axisLine={{ stroke: "#252A31" }}
+              axisLine={{ stroke: "#1e293b" }}
               tickFormatter={(v) => v.slice(5)}
             />
             <YAxis
-              stroke="#59616B"
+              stroke="#64748b"
               fontSize={10}
               tickLine={false}
               axisLine={false}
@@ -140,13 +140,13 @@ export default function UnderwaterDrawdownChart({
             />
             <Tooltip
               isAnimationActive={false}
-              cursor={{ stroke: "#59616B", strokeWidth: 1, strokeDasharray: "2 2" }}
+              cursor={{ stroke: "#64748b", strokeWidth: 1, strokeDasharray: "2 2" }}
               content={({ active, payload }) => {
                 if (!active || !payload || !payload.length) return null;
                 const d = payload[0].payload;
                 return (
-                  <div className="rounded-[2px] border border-[#252A31] bg-[#101318] p-1.5 font-mono text-[11px] shadow-none">
-                    <div className="text-[#89919C]">{d.date}</div>
+                  <div className="rounded-[2px] border border-[#1e293b] bg-[#0b1222] p-1.5 font-mono text-[11px] shadow-none">
+                    <div className="text-[#94a3b8]">{d.date}</div>
                     <div className="text-[#EF4444] font-bold">
                       DRAWDOWN: {d.drawdown.toFixed(2)}%
                     </div>

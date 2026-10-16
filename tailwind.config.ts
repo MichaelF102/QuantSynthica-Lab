@@ -1,5 +1,15 @@
 import type { Config } from "tailwindcss";
 
+/**
+ * Theme tokens are CSS variables (see app/globals.css). The helper below keeps
+ * Tailwind opacity modifiers (e.g. `border-border/80`) working with var() colours.
+ */
+const token = (name: string): string =>
+  (({ opacityValue }: { opacityValue?: string }) =>
+    opacityValue === undefined || opacityValue === "1"
+      ? `var(${name})`
+      : `color-mix(in srgb, var(${name}) ${Number(opacityValue) * 100}%, transparent)`) as unknown as string;
+
 const config: Config = {
   darkMode: "class",
   content: [
@@ -10,54 +20,53 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#131722",
+        // DESIGN.md §4.1 semantic tokens
+        canvas: token("--bg-canvas"),
         surface: {
-          DEFAULT: "#1e222d",
-          muted: "#2a2e39",
-          hover: "#2a2e39",
-          active: "#363a45",
-          elevated: "#1e222d",
+          DEFAULT: token("--bg-surface"),
+          // legacy aliases kept so existing class names resolve to the navy palette
+          muted: token("--hover-bg"),
+          hover: token("--hover-bg"),
+          active: "#16213a",
+          elevated: token("--bg-surface"),
         },
         border: {
-          subtle: "#1e222d",
-          DEFAULT: "#2a2e39",
-          strong: "#434651",
+          DEFAULT: token("--border-color"),
+          subtle: token("--border-color"),
+          strong: "#334155",
         },
+        primary: token("--text-primary"),
+        secondary: token("--text-secondary"),
+        accent: {
+          DEFAULT: token("--accent-color"),
+          hover: "#1D4ED8",
+          subtle: token("--accent-subtle-color"),
+        },
+        positive: { DEFAULT: token("--positive-color"), subtle: token("--positive-subtle-color") },
+        negative: { DEFAULT: token("--negative-color"), subtle: token("--negative-subtle-color") },
+        warning: { DEFAULT: token("--warning-color"), subtle: token("--warning-subtle-color") },
+        background: token("--bg-canvas"),
+        // legacy brand/market aliases mapped onto the one-accent-per-meaning palette
         brand: {
-          blue: "#2962FF",
-          cyan: "#2962FF",
-          emerald: "#089981",
-          rose: "#f23645",
-          amber: "#2962FF",
-          purple: "#ab47bc",
+          blue: "#2563EB",
+          cyan: "#3B82F6",
+          emerald: "#10B981",
+          rose: "#F43F5E",
+          amber: "#F59E0B",
+          purple: "#A855F7",
         },
         market: {
-          up: "#089981",
-          down: "#f23645",
-          neutral: "#787b86",
+          up: "#10B981",
+          down: "#F43F5E",
+          neutral: "#94A3B8",
         },
       },
       fontFamily: {
-        sans: [
-          "var(--font-sans)",
-          "Trebuchet MS",
-          "Arial",
-          "sans-serif",
-        ],
-        serif: [
-          "var(--font-sans)",
-          "Trebuchet MS",
-          "sans-serif",
-        ],
-        mono: [
-          "var(--font-mono)",
-          "ui-monospace",
-          "Consolas",
-          "monospace",
-        ],
+        sans: ["Inter", "system-ui", "sans-serif"],
+        mono: ["IBM Plex Mono", "monospace"],
       },
       boxShadow: {
-        panel: "0 2px 4px rgba(0,0,0,0.35)",
+        panel: "0 10px 15px -3px rgba(0,0,0,0.2)",
       },
       keyframes: {
         "qs-fade-up": {

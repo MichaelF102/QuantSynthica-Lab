@@ -279,9 +279,9 @@ export default function EasyStockPicker({
   return (
     <div className={`space-y-3.5 font-mono text-xs ${className}`}>
       {/* 1. MARKET SWITCHER & CONTROLS HEADER */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 pb-2.5 border-b border-[#252A31]">
+      <div className="flex flex-wrap items-center justify-between gap-2.5 pb-2.5 border-b border-[#1e293b]">
         {/* Market Switcher Tabs */}
-        <div className="inline-flex rounded-[2px] p-0.5 bg-[#0B0D10] border border-[#252A31]">
+        <div className="inline-flex rounded-[2px] p-0.5 bg-[#080d1a] border border-[#1e293b]">
           <button
             type="button"
             onClick={() => {
@@ -291,7 +291,7 @@ export default function EasyStockPicker({
             className={`flex items-center space-x-1.5 px-3 py-1 text-xs font-bold rounded-[2px] transition-all cursor-pointer ${
               activeMarket === "India"
                 ? "bg-[#10B981] text-black shadow-sm"
-                : "text-[#89919C] hover:text-[#D8DCE2] hover:bg-[#141820]"
+                : "text-[#94a3b8] hover:text-[#cbd5e1] hover:bg-[#0b1222]"
             }`}
           >
             <span>🇮🇳</span>
@@ -305,8 +305,8 @@ export default function EasyStockPicker({
             }}
             className={`flex items-center space-x-1.5 px-3 py-1 text-xs font-bold rounded-[2px] transition-all cursor-pointer ${
               activeMarket === "US"
-                ? "bg-[#38BDF8] text-black shadow-sm"
-                : "text-[#89919C] hover:text-[#D8DCE2] hover:bg-[#141820]"
+                ? "bg-[#3b82f6] text-black shadow-sm"
+                : "text-[#94a3b8] hover:text-[#cbd5e1] hover:bg-[#0b1222]"
             }`}
           >
             <span>🇺🇸</span>
@@ -319,9 +319,9 @@ export default function EasyStockPicker({
           <button
             type="button"
             onClick={() => setIsBrowseModalOpen(true)}
-            className="flex items-center space-x-1.5 px-2.5 py-1 rounded-[2px] border border-[#252A31] bg-[#141820] text-[#D8DCE2] hover:border-[#38BDF8]/60 hover:text-white transition-colors cursor-pointer text-xs"
+            className="flex items-center space-x-1.5 px-2.5 py-1 rounded-[2px] border border-[#1e293b] bg-[#0b1222] text-[#cbd5e1] hover:border-[#3b82f6]/60 hover:text-white transition-colors cursor-pointer text-xs"
           >
-            <Layers className="h-3 w-3 text-[#38BDF8]" />
+            <Layers className="h-3 w-3 text-[#3b82f6]" />
             <span>Browse 18,500+ Stocks Universe</span>
           </button>
         )}
@@ -329,10 +329,10 @@ export default function EasyStockPicker({
 
       {/* 2. ACTIVE TERMINAL STOCK QUICK SHORTCUT BANNER */}
       {terminalActiveTicker && terminalActiveTicker !== selectedAsset && (
-        <div className="flex items-center justify-between p-2 rounded-[2px] bg-[#141820] border border-[#38BDF8]/30 text-xs">
+        <div className="flex items-center justify-between p-2 rounded-[2px] bg-[#0b1222] border border-[#3b82f6]/30 text-xs">
           <div className="flex items-center space-x-2">
             <Zap className="h-3.5 w-3.5 text-[#F59E0B] animate-pulse" />
-            <span className="text-[#89919C]">
+            <span className="text-[#94a3b8]">
               Active in Terminal Search:{" "}
               <strong className="text-white font-mono">{terminalActiveTicker}</strong>{" "}
               ({terminalCountry === "India" ? "🇮🇳 India NSE/BSE" : "🇺🇸 US"})
@@ -344,7 +344,7 @@ export default function EasyStockPicker({
               setActiveMarket(terminalCountry);
               handlePickStock(terminalActiveTicker);
             }}
-            className="px-2 py-0.5 rounded-[2px] bg-[#38BDF8] hover:bg-sky-400 text-black font-bold text-[11px] transition-colors cursor-pointer"
+            className="px-2 py-0.5 rounded-[2px] bg-[#3b82f6] hover:bg-sky-400 text-black font-bold text-[11px] transition-colors cursor-pointer"
           >
             Use {terminalActiveTicker} for Backtest →
           </button>
@@ -352,24 +352,24 @@ export default function EasyStockPicker({
       )}
 
       {/* 3. CURRENT SELECTED ASSET STATUS STRIP */}
-      <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-[2px] bg-[#0B0D10] border border-[#252A31]">
+      <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-[2px] bg-[#080d1a] border border-[#1e293b]">
         <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-1.5">
-            <span className="text-[10px] text-[#59616B] uppercase">Selected Stock:</span>
-            <span className="px-2 py-0.5 rounded-[2px] bg-[#38BDF8]/20 border border-[#38BDF8] text-[#38BDF8] font-bold text-xs font-mono">
+            <span className="text-[10px] text-[#64748b] uppercase">Selected Stock:</span>
+            <span className="px-2 py-0.5 rounded-[2px] bg-[#3b82f6]/20 border border-[#3b82f6] text-[#3b82f6] font-bold text-xs font-mono">
               {selectedAsset || "NONE"}
             </span>
           </div>
-          <span className="text-[#59616B]">│</span>
+          <span className="text-[#64748b]">│</span>
           <div className="flex items-center space-x-1 text-[11px]">
-            <span className="text-[#89919C]">Market:</span>
-            <span className="font-semibold text-[#D8DCE2]">
+            <span className="text-[#94a3b8]">Market:</span>
+            <span className="font-semibold text-[#cbd5e1]">
               {isIndianSymbol ? "🇮🇳 India (NSE)" : "🇺🇸 US (NYSE/NASDAQ)"}
             </span>
           </div>
-          <span className="text-[#59616B]">│</span>
+          <span className="text-[#64748b]">│</span>
           <div className="flex items-center space-x-1 text-[11px]">
-            <span className="text-[#89919C]">Currency:</span>
+            <span className="text-[#94a3b8]">Currency:</span>
             <span className="font-semibold text-[#10B981]">
               {isIndianSymbol ? "₹ INR" : "$ USD"}
             </span>
@@ -378,8 +378,8 @@ export default function EasyStockPicker({
 
         {/* Benchmark Auto-Alignment Notification */}
         <div className="flex items-center space-x-1.5 text-[11px] font-mono">
-          <span className="text-[#59616B]">Benchmark:</span>
-          <span className="px-1.5 py-0.5 rounded-[2px] bg-[#141820] border border-[#252A31] text-[#38BDF8] font-bold">
+          <span className="text-[#64748b]">Benchmark:</span>
+          <span className="px-1.5 py-0.5 rounded-[2px] bg-[#0b1222] border border-[#1e293b] text-[#3b82f6] font-bold">
             {selectedBenchmark || (isIndianSymbol ? "^NSEI (NIFTY 50)" : "SPY (S&P 500)")}
           </span>
           <span className="text-[10px] text-[#10B981]">✓ Aligned</span>
@@ -388,7 +388,7 @@ export default function EasyStockPicker({
 
       {/* 4. SEARCH BOX & AUTOCOMPLETE */}
       <div>
-        <label className="block text-[10px] text-[#89919C] uppercase font-bold mb-1 tracking-wider">
+        <label className="block text-[10px] text-[#94a3b8] uppercase font-bold mb-1 tracking-wider">
           Search Any Stock (18,500+ Listed Equities in India & US):
         </label>
         <StockSearchInput
@@ -411,10 +411,10 @@ export default function EasyStockPicker({
       {/* 5. SECTOR / THEME CATEGORY TABS */}
       <div className="space-y-2 pt-1">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] text-[#89919C] uppercase font-bold tracking-wider">
+          <span className="text-[10px] text-[#94a3b8] uppercase font-bold tracking-wider">
             Quick-Select Institutional Baskets ({activeMarket}):
           </span>
-          <span className="text-[10px] text-[#59616B]">1-Click to Test</span>
+          <span className="text-[10px] text-[#64748b]">1-Click to Test</span>
         </div>
 
         <div className="flex flex-wrap gap-1.5">
@@ -429,8 +429,8 @@ export default function EasyStockPicker({
                   isActive
                     ? activeMarket === "India"
                       ? "bg-[#10B981] text-black font-bold"
-                      : "bg-[#38BDF8] text-black font-bold"
-                    : "bg-[#0B0D10] border border-[#252A31] text-[#89919C] hover:text-white hover:bg-[#141820]"
+                      : "bg-[#3b82f6] text-black font-bold"
+                    : "bg-[#080d1a] border border-[#1e293b] text-[#94a3b8] hover:text-white hover:bg-[#0b1222]"
                 }`}
               >
                 {cat.label}
@@ -450,28 +450,28 @@ export default function EasyStockPicker({
                 onClick={() => handlePickStock(stock.symbol, stock.name, stock.sector)}
                 className={`p-2 rounded-[2px] border text-left flex flex-col justify-between transition-all cursor-pointer group ${
                   isSelected
-                    ? "bg-[#141820] border-[#38BDF8] shadow-[0_0_12px_rgba(56,189,248,0.25)] ring-1 ring-[#38BDF8]"
-                    : "bg-[#0E1116] border-[#252A31] hover:border-[#38BDF8]/60 hover:bg-[#12161E]"
+                    ? "bg-[#0b1222] border-[#3b82f6] shadow-[0_0_12px_rgba(56,189,248,0.25)] ring-1 ring-[#3b82f6]"
+                    : "bg-[#0E1116] border-[#1e293b] hover:border-[#3b82f6]/60 hover:bg-[#12161E]"
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <span
                     className={`font-mono font-bold text-xs ${
-                      isSelected ? "text-[#38BDF8]" : "text-white group-hover:text-[#38BDF8]"
+                      isSelected ? "text-[#3b82f6]" : "text-white group-hover:text-[#3b82f6]"
                     }`}
                   >
                     {stock.symbol}
                   </span>
                   {isSelected && (
-                    <span className="h-3.5 w-3.5 rounded-full bg-[#38BDF8] text-black flex items-center justify-center text-[9px] font-bold">
+                    <span className="h-3.5 w-3.5 rounded-full bg-[#3b82f6] text-black flex items-center justify-center text-[9px] font-bold">
                       ✓
                     </span>
                   )}
                 </div>
-                <div className="text-[10px] text-[#89919C] truncate mt-0.5" title={stock.name}>
+                <div className="text-[10px] text-[#94a3b8] truncate mt-0.5" title={stock.name}>
                   {stock.name}
                 </div>
-                <div className="text-[9px] text-[#59616B] truncate mt-1">
+                <div className="text-[9px] text-[#64748b] truncate mt-1">
                   {stock.sector}
                 </div>
               </button>
@@ -485,37 +485,37 @@ export default function EasyStockPicker({
       {/* ========================================================================= */}
       {isBrowseModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0E1116] border border-[#252A31] rounded-[2px] w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+          <div className="bg-[#0E1116] border border-[#1e293b] rounded-[2px] w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
             {/* Modal Header */}
-            <div className="p-4 border-b border-[#252A31] flex items-center justify-between bg-[#0B0D10]">
+            <div className="p-4 border-b border-[#1e293b] flex items-center justify-between bg-[#080d1a]">
               <div className="flex items-center space-x-2">
-                <Globe2 className="h-4 w-4 text-[#38BDF8]" />
+                <Globe2 className="h-4 w-4 text-[#3b82f6]" />
                 <span className="font-bold text-sm text-white tracking-wide uppercase">
                   Institutional Security Universe (18,500+ Equities)
                 </span>
-                <span className="text-[10px] px-2 py-0.5 bg-[#141820] text-[#38BDF8] rounded border border-[#252A31]">
+                <span className="text-[10px] px-2 py-0.5 bg-[#0b1222] text-[#3b82f6] rounded border border-[#1e293b]">
                   {activeMarket === "India" ? "🇮🇳 National & Bombay Stock Exchanges" : "🇺🇸 NYSE & NASDAQ"}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setIsBrowseModalOpen(false)}
-                className="text-[#89919C] hover:text-white p-1"
+                className="text-[#94a3b8] hover:text-white p-1"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
             {/* Filter controls */}
-            <div className="p-3 border-b border-[#252A31] bg-[#12161E] grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="p-3 border-b border-[#1e293b] bg-[#12161E] grid grid-cols-1 sm:grid-cols-3 gap-2">
               <div className="relative">
-                <Search className="h-3.5 w-3.5 absolute left-2.5 top-2 text-[#59616B]" />
+                <Search className="h-3.5 w-3.5 absolute left-2.5 top-2 text-[#64748b]" />
                 <input
                   type="text"
                   placeholder="Filter by symbol, company name..."
                   value={browseQuery}
                   onChange={(e) => setBrowseQuery(e.target.value)}
-                  className="w-full pl-8 pr-2 py-1 bg-[#0B0D10] border border-[#252A31] rounded-[2px] text-xs text-white placeholder-[#59616B] focus:outline-none focus:border-[#38BDF8]"
+                  className="w-full pl-8 pr-2 py-1 bg-[#080d1a] border border-[#1e293b] rounded-[2px] text-xs text-white placeholder-[#64748b] focus:outline-none focus:border-[#3b82f6]"
                 />
               </div>
 
@@ -523,7 +523,7 @@ export default function EasyStockPicker({
                 <select
                   value={browseSector}
                   onChange={(e) => setBrowseSector(e.target.value)}
-                  className="w-full px-2 py-1 bg-[#0B0D10] border border-[#252A31] rounded-[2px] text-xs text-[#D8DCE2] focus:outline-none focus:border-[#38BDF8]"
+                  className="w-full px-2 py-1 bg-[#080d1a] border border-[#1e293b] rounded-[2px] text-xs text-[#cbd5e1] focus:outline-none focus:border-[#3b82f6]"
                 >
                   <option value="ALL">All Sectors ({sectorsList.length})</option>
                   {sectorsList.map((sec) => (
@@ -539,7 +539,7 @@ export default function EasyStockPicker({
                   type="button"
                   onClick={() => setActiveMarket("India")}
                   className={`flex-1 py-1 rounded-[2px] text-xs font-bold text-center ${
-                    activeMarket === "India" ? "bg-[#10B981] text-black" : "bg-[#0B0D10] text-[#89919C]"
+                    activeMarket === "India" ? "bg-[#10B981] text-black" : "bg-[#080d1a] text-[#94a3b8]"
                   }`}
                 >
                   🇮🇳 India
@@ -548,7 +548,7 @@ export default function EasyStockPicker({
                   type="button"
                   onClick={() => setActiveMarket("US")}
                   className={`flex-1 py-1 rounded-[2px] text-xs font-bold text-center ${
-                    activeMarket === "US" ? "bg-[#38BDF8] text-black" : "bg-[#0B0D10] text-[#89919C]"
+                    activeMarket === "US" ? "bg-[#3b82f6] text-black" : "bg-[#080d1a] text-[#94a3b8]"
                   }`}
                 >
                   🇺🇸 US
@@ -559,13 +559,13 @@ export default function EasyStockPicker({
             {/* Results Table */}
             <div className="flex-1 overflow-y-auto p-2">
               {browseLoading ? (
-                <div className="p-8 text-center text-[#89919C]">Searching 18,500+ listed equities...</div>
+                <div className="p-8 text-center text-[#94a3b8]">Searching 18,500+ listed equities...</div>
               ) : browseResults.length === 0 ? (
-                <div className="p-8 text-center text-[#89919C]">No securities matched your criteria.</div>
+                <div className="p-8 text-center text-[#94a3b8]">No securities matched your criteria.</div>
               ) : (
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-[#252A31] text-[10px] text-[#59616B] uppercase">
+                    <tr className="border-b border-[#1e293b] text-[10px] text-[#64748b] uppercase">
                       <th className="py-2 px-3">Symbol</th>
                       <th className="py-2 px-3">Company Name</th>
                       <th className="py-2 px-3">Sector</th>
@@ -574,22 +574,22 @@ export default function EasyStockPicker({
                       <th className="py-2 px-3 text-center">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#252A31]/50 text-xs">
+                  <tbody className="divide-y divide-[#1e293b]/50 text-xs">
                     {browseResults.map((s) => {
                       const isSelected = s.symbol === selectedAsset;
                       const isInd = s.market === "India" || s.currency === "INR";
                       return (
                         <tr
                           key={`${s.market}-${s.symbol}`}
-                          className={`hover:bg-[#141820] transition-colors ${
-                            isSelected ? "bg-[#141820] font-bold" : ""
+                          className={`hover:bg-[#0b1222] transition-colors ${
+                            isSelected ? "bg-[#0b1222] font-bold" : ""
                           }`}
                         >
-                          <td className="py-2 px-3 font-mono text-[#38BDF8]">{s.symbol}</td>
-                          <td className="py-2 px-3 text-[#D8DCE2]">{s.name}</td>
-                          <td className="py-2 px-3 text-[#89919C] text-[11px]">{s.sector || "—"}</td>
-                          <td className="py-2 px-3 text-[#59616B] text-[11px]">{s.exchange}</td>
-                          <td className="py-2 px-3 text-right font-mono text-[#D8DCE2]">
+                          <td className="py-2 px-3 font-mono text-[#3b82f6]">{s.symbol}</td>
+                          <td className="py-2 px-3 text-[#cbd5e1]">{s.name}</td>
+                          <td className="py-2 px-3 text-[#94a3b8] text-[11px]">{s.sector || "—"}</td>
+                          <td className="py-2 px-3 text-[#64748b] text-[11px]">{s.exchange}</td>
+                          <td className="py-2 px-3 text-right font-mono text-[#cbd5e1]">
                             {s.price !== undefined && s.price !== null
                               ? `${isInd ? "₹" : "$"}${Number(s.price).toFixed(2)}`
                               : "—"}
@@ -604,7 +604,7 @@ export default function EasyStockPicker({
                               className={`px-2.5 py-1 rounded-[2px] text-xs font-bold transition-colors ${
                                 isSelected
                                   ? "bg-[#10B981] text-black"
-                                  : "bg-[#38BDF8] hover:bg-sky-400 text-black cursor-pointer"
+                                  : "bg-[#3b82f6] hover:bg-sky-400 text-black cursor-pointer"
                               }`}
                             >
                               {isSelected ? "Selected" : "Select Stock"}
@@ -619,12 +619,12 @@ export default function EasyStockPicker({
             </div>
 
             {/* Footer */}
-            <div className="p-3 border-t border-[#252A31] bg-[#0B0D10] flex items-center justify-between text-[11px] text-[#59616B]">
+            <div className="p-3 border-t border-[#1e293b] bg-[#080d1a] flex items-center justify-between text-[11px] text-[#64748b]">
               <span>Showing up to 50 results matching filter</span>
               <button
                 type="button"
                 onClick={() => setIsBrowseModalOpen(false)}
-                className="px-3 py-1 bg-[#141820] hover:bg-[#1C222C] text-[#D8DCE2] rounded-[2px]"
+                className="px-3 py-1 bg-[#0b1222] hover:bg-[#1C222C] text-[#cbd5e1] rounded-[2px]"
               >
                 Close
               </button>

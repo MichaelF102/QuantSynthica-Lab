@@ -125,7 +125,7 @@ export default function MarketCandleChart({
 
   if (!bars || bars.length === 0) {
     return (
-      <div className="flex h-72 items-center justify-center border border-[#252A31] bg-[#101318] text-[#89919C] font-mono text-xs">
+      <div className="flex h-72 items-center justify-center border border-[#1e293b] bg-[#0b1222] text-[#94a3b8] font-mono text-xs">
         NO OHLCV BARS AVAILABLE FOR {ticker}
       </div>
     );
@@ -148,31 +148,31 @@ export default function MarketCandleChart({
 
   return (
     <div
-      className={`flex flex-col bg-[#101318] overflow-hidden ${
-        hideBorder ? "" : "border border-[#252A31]"
+      className={`flex flex-col bg-[#0b1222] overflow-hidden ${
+        hideBorder ? "" : "border border-[#1e293b]"
       }`}
     >
       {/* 1. TOP TERMINAL READOUT HEADER */}
       {!hideHeader && (
-        <div className="flex flex-wrap items-center justify-between px-3 py-1.5 border-b border-[#252A31] bg-[#0B0D10] text-xs font-mono select-none">
+        <div className="flex flex-wrap items-center justify-between px-3 py-1.5 border-b border-[#1e293b] bg-[#080d1a] text-xs font-mono select-none">
           {/* Synchronized OHLCV Readout */}
           <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px]">
-            <span className="font-bold text-[#D8DCE2]">{ticker}</span>
-            <span className="text-[#59616B]">{displayBar.date}</span>
-            <span className="text-[#89919C]">
-              O <span className="text-[#D8DCE2]">{displayBar.open.toFixed(2)}</span>
+            <span className="font-bold text-[#cbd5e1]">{ticker}</span>
+            <span className="text-[#64748b]">{displayBar.date}</span>
+            <span className="text-[#94a3b8]">
+              O <span className="text-[#cbd5e1]">{displayBar.open.toFixed(2)}</span>
             </span>
-            <span className="text-[#89919C]">
+            <span className="text-[#94a3b8]">
               H <span className="text-[#10B981]">{displayBar.high.toFixed(2)}</span>
             </span>
-            <span className="text-[#89919C]">
+            <span className="text-[#94a3b8]">
               L <span className="text-[#EF4444]">{displayBar.low.toFixed(2)}</span>
             </span>
-            <span className="text-[#89919C]">
+            <span className="text-[#94a3b8]">
               C <span className="text-white font-bold">{displayBar.close.toFixed(2)}</span>
             </span>
-            <span className="text-[#89919C] hidden md:inline">
-              V <span className="text-[#D8DCE2]">{formatNumber(displayBar.volume)}</span>
+            <span className="text-[#94a3b8] hidden md:inline">
+              V <span className="text-[#cbd5e1]">{formatNumber(displayBar.volume)}</span>
             </span>
             {pinnedBar && (
               <button
@@ -190,10 +190,10 @@ export default function MarketCandleChart({
             <button
               type="button"
               onClick={() => setChartType("candlestick")}
-              className={`px-2 py-0.5 border border-[#252A31] transition-colors ${
+              className={`px-2 py-0.5 border border-[#1e293b] transition-colors ${
                 chartType === "candlestick"
-                  ? "bg-[#141820] text-[#2962FF] font-bold border-[#2962FF]/40"
-                  : "text-[#89919C] hover:text-[#D8DCE2]"
+                  ? "bg-[#0b1222] text-[#2563eb] font-bold border-[#2563eb]/40"
+                  : "text-[#94a3b8] hover:text-[#cbd5e1]"
               }`}
             >
               CANDLES
@@ -201,10 +201,10 @@ export default function MarketCandleChart({
             <button
               type="button"
               onClick={() => setChartType("line")}
-              className={`px-2 py-0.5 border border-[#252A31] transition-colors ${
+              className={`px-2 py-0.5 border border-[#1e293b] transition-colors ${
                 chartType === "line"
-                  ? "bg-[#141820] text-[#2962FF] font-bold border-[#2962FF]/40"
-                  : "text-[#89919C] hover:text-[#D8DCE2]"
+                  ? "bg-[#0b1222] text-[#2563eb] font-bold border-[#2563eb]/40"
+                  : "text-[#94a3b8] hover:text-[#cbd5e1]"
               }`}
             >
               LINE
@@ -212,10 +212,10 @@ export default function MarketCandleChart({
             <button
               type="button"
               onClick={() => setChartType("area")}
-              className={`px-2 py-0.5 border border-[#252A31] transition-colors ${
+              className={`px-2 py-0.5 border border-[#1e293b] transition-colors ${
                 chartType === "area"
-                  ? "bg-[#141820] text-[#2962FF] font-bold border-[#2962FF]/40"
-                  : "text-[#89919C] hover:text-[#D8DCE2]"
+                  ? "bg-[#0b1222] text-[#2563eb] font-bold border-[#2563eb]/40"
+                  : "text-[#94a3b8] hover:text-[#cbd5e1]"
               }`}
             >
               AREA
@@ -247,20 +247,20 @@ export default function MarketCandleChart({
           >
             <defs>
               <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#2962FF" stopOpacity={0.2} />
-                <stop offset="95%" stopColor="#2962FF" stopOpacity={0.0} />
+                <stop offset="5%" stopColor="#2563eb" stopOpacity={0.2} />
+                <stop offset="95%" stopColor="#2563eb" stopOpacity={0.0} />
               </linearGradient>
             </defs>
 
-            <CartesianGrid stroke="#1E232B" strokeDasharray="1 1" vertical={false} />
+            <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
 
             <XAxis
               xAxisId="price"
               dataKey="date"
-              stroke="#59616B"
+              stroke="#64748b"
               fontSize={10}
               tickLine={false}
-              axisLine={{ stroke: "#252A31" }}
+              axisLine={{ stroke: "#1e293b" }}
               tickFormatter={(v) => v.slice(5)}
             />
             <XAxis
@@ -271,7 +271,7 @@ export default function MarketCandleChart({
 
             <YAxis
               yAxisId="price"
-              stroke="#59616B"
+              stroke="#64748b"
               fontSize={10}
               domain={[minPrice - padding, maxPrice + padding]}
               tickLine={false}
@@ -292,34 +292,34 @@ export default function MarketCandleChart({
 
             <Tooltip
               isAnimationActive={false}
-              cursor={{ stroke: "#59616B", strokeWidth: 1, strokeDasharray: "2 2" }}
+              cursor={{ stroke: "#64748b", strokeWidth: 1, strokeDasharray: "2 2" }}
               content={({ active, payload }) => {
                 if (!active || !payload || !payload.length) return null;
                 const d = payload[0].payload as MarketBar;
                 return (
-                  <div className="rounded-[2px] border border-[#252A31] bg-[#101318] p-2 font-mono text-xs shadow-none min-w-[160px]">
-                    <div className="text-[#89919C] pb-1 border-b border-[#252A31] mb-1 font-bold flex justify-between">
+                  <div className="rounded-[2px] border border-[#1e293b] bg-[#0b1222] p-2 font-mono text-xs shadow-none min-w-[160px]">
+                    <div className="text-[#94a3b8] pb-1 border-b border-[#1e293b] mb-1 font-bold flex justify-between">
                       <span>{d.date}</span>
-                      <span className="text-[#D8DCE2]">{ticker}</span>
+                      <span className="text-[#cbd5e1]">{ticker}</span>
                     </div>
                     <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[10px]">
                       <div>
-                        <span className="text-[#59616B]">O:</span>{" "}
-                        <span className="text-[#D8DCE2]">{d.open.toFixed(2)}</span>
+                        <span className="text-[#64748b]">O:</span>{" "}
+                        <span className="text-[#cbd5e1]">{d.open.toFixed(2)}</span>
                       </div>
                       <div>
-                        <span className="text-[#59616B]">H:</span>{" "}
+                        <span className="text-[#64748b]">H:</span>{" "}
                         <span className="text-[#10B981]">{d.high.toFixed(2)}</span>
                       </div>
                       <div>
-                        <span className="text-[#59616B]">L:</span>{" "}
+                        <span className="text-[#64748b]">L:</span>{" "}
                         <span className="text-[#EF4444]">{d.low.toFixed(2)}</span>
                       </div>
                       <div>
-                        <span className="text-[#59616B]">C:</span>{" "}
+                        <span className="text-[#64748b]">C:</span>{" "}
                         <span className="text-white font-bold">{d.close.toFixed(2)}</span>
                       </div>
-                      <div className="col-span-2 pt-1 border-t border-[#252A31] text-[9px] text-[#89919C] flex justify-between">
+                      <div className="col-span-2 pt-1 border-t border-[#1e293b] text-[9px] text-[#94a3b8] flex justify-between">
                         <span>VOL: {formatNumber(d.volume)}</span>
                         {d.return !== undefined && (
                           <span className={d.return >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}>
@@ -366,7 +366,7 @@ export default function MarketCandleChart({
                 yAxisId="price"
                 type="monotone"
                 dataKey="close"
-                stroke="#2962FF"
+                stroke="#2563eb"
                 strokeWidth={1.5}
                 dot={false}
                 isAnimationActive={false}
@@ -380,7 +380,7 @@ export default function MarketCandleChart({
                 yAxisId="price"
                 type="monotone"
                 dataKey="close"
-                stroke="#2962FF"
+                stroke="#2563eb"
                 strokeWidth={1.5}
                 fill="url(#areaGradient)"
                 dot={false}
@@ -431,7 +431,7 @@ export default function MarketCandleChart({
                 yAxisId="price"
                 type="monotone"
                 dataKey="bb_upper"
-                stroke="#2962FF"
+                stroke="#2563eb"
                 strokeWidth={1}
                 strokeDasharray="2 2"
                 dot={false}
@@ -444,7 +444,7 @@ export default function MarketCandleChart({
                 yAxisId="price"
                 type="monotone"
                 dataKey="bb_lower"
-                stroke="#2962FF"
+                stroke="#2563eb"
                 strokeWidth={1}
                 strokeDasharray="2 2"
                 dot={false}
@@ -457,7 +457,7 @@ export default function MarketCandleChart({
                 yAxisId="price"
                 type="monotone"
                 dataKey="vwap"
-                stroke="#2962FF"
+                stroke="#2563eb"
                 strokeWidth={1}
                 dot={false}
                 isAnimationActive={false}
@@ -468,7 +468,7 @@ export default function MarketCandleChart({
       </div>
 
       {/* 3. BOTTOM CONTROL BAR: 1D 5D 1M 3M 6M YTD 1Y 3Y ALL + INDICATOR METRICS */}
-      <div className="flex flex-wrap items-center justify-between px-3 py-1.5 border-t border-[#252A31] bg-[#0B0D10] text-[11px] font-mono shrink-0">
+      <div className="flex flex-wrap items-center justify-between px-3 py-1.5 border-t border-[#1e293b] bg-[#080d1a] text-[11px] font-mono shrink-0">
         {/* Left: Window Slicers */}
         <div className="flex items-center space-x-1">
           {(["1D", "5D", "1M", "3M", "6M", "YTD", "1Y", "3Y", "ALL"] as const).map((r) => (
@@ -478,8 +478,8 @@ export default function MarketCandleChart({
               onClick={() => handleRangeClick(r)}
               className={`px-1.5 py-0.5 rounded-[2px] transition-colors ${
                 activeRange === r
-                  ? "bg-[#141820] text-[#2962FF] font-bold border border-[#252A31]"
-                  : "text-[#59616B] hover:text-[#D8DCE2]"
+                  ? "bg-[#0b1222] text-[#2563eb] font-bold border border-[#1e293b]"
+                  : "text-[#64748b] hover:text-[#cbd5e1]"
               }`}
             >
               {r}
@@ -489,7 +489,7 @@ export default function MarketCandleChart({
             <button
               type="button"
               onClick={() => setActiveRange("ALL")}
-              className="text-[10px] text-[#59616B] hover:text-[#D8DCE2] pl-1 border-l border-[#252A31]"
+              className="text-[10px] text-[#64748b] hover:text-[#cbd5e1] pl-1 border-l border-[#1e293b]"
             >
               RESET
             </button>
@@ -497,7 +497,7 @@ export default function MarketCandleChart({
         </div>
 
         {/* Right: Active Indicator Values */}
-        <div className="flex flex-wrap items-center gap-x-3 text-[10px] text-[#89919C]">
+        <div className="flex flex-wrap items-center gap-x-3 text-[10px] text-[#94a3b8]">
           {activeIndicators.includes("sma_20") && latestBar.sma_20 && (
             <div className="flex items-center space-x-1">
               <span className="h-1.5 w-1.5 bg-[#F59E0B]" />
@@ -518,13 +518,13 @@ export default function MarketCandleChart({
           )}
           {activeIndicators.includes("bb_upper") && latestBar.bb_upper && (
             <div className="flex items-center space-x-1">
-              <span className="h-1.5 w-1.5 bg-[#2962FF]" />
+              <span className="h-1.5 w-1.5 bg-[#2563eb]" />
               <span>BB: {latestBar.bb_upper.toFixed(1)}/{latestBar.bb_lower?.toFixed(1)}</span>
             </div>
           )}
           {activeIndicators.includes("vwap") && latestBar.vwap && (
             <div className="flex items-center space-x-1">
-              <span className="h-1.5 w-1.5 bg-[#2962FF]" />
+              <span className="h-1.5 w-1.5 bg-[#2563eb]" />
               <span>VWAP: {latestBar.vwap.toFixed(2)}</span>
             </div>
           )}

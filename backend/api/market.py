@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from typing import Optional, List
 from fastapi import APIRouter, Query, HTTPException
-from ..engine.data import MarketDataEngine
+from ..engine.data import MarketDataEngine, MarketDataUnavailable
 from ..engine.signals import compute_indicators
 from ..engine.stocks_universe import universe_manager
 from ..engine.fundamentals import fundamental_engine
@@ -89,8 +89,13 @@ def get_market_data(
         start_date = (now - timedelta(days=365)).strftime("%Y-%m-%d")
     try:
         df, is_synthetic = data_engine.fetch_ohlcv(ticker, start_date, end_date, interval="1d")
+    except MarketDataUnavailable as e:
+        raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to fetch market data: {str(e)}")
+
+    if df is None or len(df) < 2:
+        raise HTTPException(status_code=404, detail=f"No price history for {ticker} in the requested range")
 
     stock_profile = universe_manager.get_stock(ticker)
 
@@ -101,7 +106,7 @@ def get_market_data(
             raw_inds = json.loads(indicators)
             ind_configs = [IndicatorConfig.model_validate(x) for x in raw_inds]
         except Exception:
-            pass
+            raise HTTPException(status_code=422, detail="`indicators` must be a JSON list of indicator configs")
 
     # Add default basic indicators if none provided
     if not ind_configs:
@@ -119,11 +124,13 @@ def get_market_data(
     df_calc = compute_indicators(df, ind_configs)
 
     # Benchmark comparison
+    # If the benchmark is unavailable, beta/correlation are reported as null, never faked.
+    bench_ret = None
     try:
         bench_df, _ = data_engine.fetch_ohlcv(benchmark, start_date, end_date)
         bench_ret = bench_df["close"].pct_change().reindex(df_calc.index).fillna(0.0)
     except Exception:
-        bench_ret = df_calc["close"].pct_change().fillna(0.0)
+        pass
 
     asset_ret = df_calc["close"].pct_change().fillna(0.0)
 
@@ -133,9 +140,14 @@ def get_market_data(
     rolling_vol = (asset_ret.rolling(window=20, min_periods=5).std() * np.sqrt(252.0) * 100.0).fillna(0.0)
 
     # Beta & Correlation
-    cov = np.cov(asset_ret, bench_ret)
-    beta = float(cov[0, 1] / cov[1, 1]) if cov[1, 1] > 1e-6 else 1.0
-    corr = float(asset_ret.corr(bench_ret)) if not np.isnan(asset_ret.corr(bench_ret)) else 0.0
+    beta = None
+    corr = None
+    if bench_ret is not None:
+        cov = np.cov(asset_ret, bench_ret)
+        if cov[1, 1] > 1e-12:
+            beta = float(cov[0, 1] / cov[1, 1])
+        c = asset_ret.corr(bench_ret)
+        corr = None if np.isnan(c) else float(c)
 
     # Build response series
     bars = []
@@ -159,18 +171,15 @@ def get_market_data(
 
     # Calculate multi-window performance statistics
     def calc_window_perf(window_bars: int):
-        if len(df_calc) < 2:
-            base_p = float(df_calc["close"].iloc[-1]) if len(df_calc) > 0 else 100.0
-            return {"asset": 0.0, "benchmark": 0.0, "alpha": 0.0, "high": base_p, "low": base_p, "win_rate": 50.0}
         w = min(len(df_calc), max(1, window_bars))
         sub_df = df_calc.iloc[-w:]
-        sub_bench = bench_ret.iloc[-w:]
+        sub_bench = bench_ret.iloc[-w:] if bench_ret is not None else None
         start_price = float(df_calc["close"].iloc[-w-1]) if len(df_calc) > w else float(sub_df["open"].iloc[0])
         end_price = float(sub_df["close"].iloc[-1])
-        asset_gain = round(((end_price - start_price) / start_price) * 100.0, 2) if start_price > 0 else 0.0
+        asset_gain = round(((end_price - start_price) / start_price) * 100.0, 2) if start_price > 0 else None
 
-        bench_gain = round(float((np.prod(1.0 + sub_bench) - 1.0) * 100.0), 2)
-        alpha_val = round(asset_gain - bench_gain, 2)
+        bench_gain = round(float((np.prod(1.0 + sub_bench) - 1.0) * 100.0), 2) if sub_bench is not None else None
+        alpha_val = round(asset_gain - bench_gain, 2) if bench_gain is not None else None
 
         sub_high = round(float(sub_df["high"].max()), 2)
         sub_low = round(float(sub_df["low"].min()), 2)
@@ -188,9 +197,9 @@ def get_market_data(
     cur_year = now.year
     try:
         ytd_bars = df_calc[df_calc.index.year == cur_year]
-        ytd_len = len(ytd_bars) if len(ytd_bars) > 0 else 180
+        ytd_len = max(1, len(ytd_bars))
     except Exception:
-        ytd_len = 180
+        ytd_len = 1
 
     perf_summary = {
         "1D": calc_window_perf(1),
@@ -204,9 +213,9 @@ def get_market_data(
     }
 
     w52_bars = df_calc.iloc[-min(len(df_calc), 252):]
-    high_52w = round(float(w52_bars["high"].max()), 2) if len(w52_bars) > 0 else 0.0
-    low_52w = round(float(w52_bars["low"].min()), 2) if len(w52_bars) > 0 else 0.0
-    vol_30d = int(df_calc["volume"].iloc[-min(len(df_calc), 30):].mean()) if len(df_calc) > 0 else 0
+    high_52w = round(float(w52_bars["high"].max()), 2)
+    low_52w = round(float(w52_bars["low"].min()), 2)
+    vol_30d = int(df_calc["volume"].iloc[-min(len(df_calc), 30):].mean())
 
     summary = {
         "ticker": ticker.upper(),
@@ -214,12 +223,12 @@ def get_market_data(
         "end_date": end_date,
         "is_synthetic": is_synthetic,
         "total_bars": len(bars),
-        "last_price": bars[-1]["close"] if bars else 0.0,
-        "total_return": round(float((bars[-1]["close"] - bars[0]["open"]) / bars[0]["open"] * 100.0), 2) if bars else 0.0,
+        "last_price": bars[-1]["close"],
+        "total_return": round(float((bars[-1]["close"] - bars[0]["open"]) / bars[0]["open"] * 100.0), 2) if bars[0]["open"] else None,
         "annualized_volatility": round(float(asset_ret.std() * np.sqrt(252.0) * 100.0), 2),
         "max_drawdown": round(float(abs(drawdown.min())), 2),
-        "beta": round(beta, 2),
-        "correlation": round(corr, 2),
+        "beta": round(beta, 2) if beta is not None else None,
+        "correlation": round(corr, 2) if corr is not None else None,
         "benchmark": benchmark.upper(),
         "profile": stock_profile,
         "perf_summary": perf_summary,

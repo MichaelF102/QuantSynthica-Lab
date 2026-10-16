@@ -21,15 +21,15 @@ export default function MonthlyReturnsTable({ data, backtestId, hideHeader = fal
 
   if (!data || data.length === 0) {
     return (
-      <div className="border border-[#252A31] bg-[#101318] p-4 text-center text-xs font-mono text-[#89919C]">
+      <div className="border border-[#1e293b] bg-[#0b1222] p-4 text-center text-xs font-mono text-[#94a3b8]">
         DATA NOT AVAILABLE FOR THIS RUN
       </div>
     );
   }
 
   const getBgColor = (val: number | undefined) => {
-    if (val === undefined || val === null) return "text-[#59616B]";
-    if (val === 0) return "text-[#89919C]";
+    if (val === undefined || val === null) return "text-[#64748b]";
+    if (val === 0) return "text-[#94a3b8]";
     if (val > 0) {
       return "text-[#10B981] bg-[#10B981]/[0.08] hover:bg-[#10B981]/20 font-semibold";
     } else {
@@ -38,18 +38,18 @@ export default function MonthlyReturnsTable({ data, backtestId, hideHeader = fal
   };
 
   return (
-    <div className="border border-[#252A31] bg-[#101318] rounded-[2px] p-3 select-none">
+    <div className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-3 select-none">
       {!hideHeader && (
-        <div className="flex items-center justify-between pb-2 border-b border-[#252A31] mb-2.5 font-mono text-xs">
+        <div className="flex items-center justify-between pb-2 border-b border-[#1e293b] mb-2.5 font-mono text-xs">
           <div className="flex items-center space-x-2">
-            <span className="font-bold text-[#D8DCE2] uppercase tracking-wider text-[11px]">
+            <span className="font-bold text-[#cbd5e1] uppercase tracking-wider text-[11px]">
               MONTHLY RETURNS ATTRIBUTION MATRIX (%)
             </span>
-            <span className="text-[10px] text-[#59616B]">Net of fees & slippage</span>
+            <span className="text-[10px] text-[#64748b]">Net of fees & slippage</span>
           </div>
           {hoveredCell && (
-            <div className="text-[11px] text-[#D8DCE2] bg-[#0B0D10] px-2 py-0.5 border border-[#252A31] rounded-[2px]">
-              <span className="text-[#89919C]">{hoveredCell.month} {hoveredCell.year}: </span>
+            <div className="text-[11px] text-[#cbd5e1] bg-[#080d1a] px-2 py-0.5 border border-[#1e293b] rounded-[2px]">
+              <span className="text-[#94a3b8]">{hoveredCell.month} {hoveredCell.year}: </span>
               <span className={hoveredCell.val >= 0 ? "text-[#10B981] font-bold" : "text-[#EF4444] font-bold"}>
                 {formatPercent(hoveredCell.val)}
               </span>
@@ -61,22 +61,22 @@ export default function MonthlyReturnsTable({ data, backtestId, hideHeader = fal
       <div className="overflow-x-auto">
         <table className="w-full font-mono text-[11px] text-right border-collapse">
           <thead>
-            <tr className="border-b border-[#252A31] text-[#89919C] text-[10px] uppercase">
-              <th className="py-1.5 px-2 text-left font-medium text-[#59616B]">YEAR</th>
+            <tr className="border-b border-[#1e293b] text-[#94a3b8] text-[10px] uppercase">
+              <th className="py-1.5 px-2 text-left font-medium text-[#64748b]">YEAR</th>
               {MONTHS.map((m) => (
                 <th key={m} className="py-1.5 px-1.5 font-medium">
                   {m}
                 </th>
               ))}
-              <th className="py-1.5 px-2.5 font-bold text-[#D8DCE2] border-l border-[#252A31]">
+              <th className="py-1.5 px-2.5 font-bold text-[#cbd5e1] border-l border-[#1e293b]">
                 YTD
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#252A31]/50">
+          <tbody className="divide-y divide-[#1e293b]/50">
             {data.map((row) => (
-              <tr key={row.year} className="hover:bg-[#141820]/40 transition-colors">
-                <td className="py-1.5 px-2 text-left font-bold text-[#D8DCE2]">{row.year}</td>
+              <tr key={row.year} className="hover:bg-[#0b1222]/40 transition-colors">
+                <td className="py-1.5 px-2 text-left font-bold text-[#cbd5e1]">{row.year}</td>
                 {MONTHS.map((m) => {
                   const val = row[m];
                   return (
@@ -91,7 +91,7 @@ export default function MonthlyReturnsTable({ data, backtestId, hideHeader = fal
                   );
                 })}
                 <td
-                  className={`py-1.5 px-2.5 font-bold border-l border-[#252A31] ${getBgColor(
+                  className={`py-1.5 px-2.5 font-bold border-l border-[#1e293b] ${getBgColor(
                     row.YTD
                   )}`}
                 >

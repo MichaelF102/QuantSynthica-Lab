@@ -137,9 +137,9 @@ export default function BacktestTerminalPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[80vh] items-center justify-center font-mono text-xs text-[#89919C] select-none">
-        <div className="flex items-center space-x-2 border border-[#252A31] bg-[#101318] p-4 rounded-[2px]">
-          <div className="h-3 w-3 rounded-full border-2 border-[#38BDF8] border-t-transparent animate-spin"></div>
+      <div className="flex h-[80vh] items-center justify-center font-mono text-xs text-[#94a3b8] select-none">
+        <div className="flex items-center space-x-2 border border-[#1e293b] bg-[#0b1222] p-4 rounded-[2px]">
+          <div className="h-3 w-3 rounded-full border-2 border-[#3b82f6] border-t-transparent animate-spin"></div>
           <span>LOADING BACKTEST WORKSTATION [{id}]...</span>
         </div>
       </div>
@@ -152,7 +152,7 @@ export default function BacktestTerminalPage() {
         <div className="text-[#EF4444] border border-[#EF4444]/30 bg-[#EF4444]/10 p-3 max-w-lg mx-auto rounded-[2px]">
           Backtest simulation not found: {error || backtest?.error}
         </div>
-        <Link href="/backtests" className="text-[#38BDF8] hover:underline inline-block text-xs">
+        <Link href="/backtests" className="text-[#3b82f6] hover:underline inline-block text-xs">
           &larr; Return to Backtest Directory
         </Link>
       </div>
@@ -172,38 +172,38 @@ export default function BacktestTerminalPage() {
   const shortsCount = backtest.trades.filter((t) => t.direction.includes("SHORT")).length || 0;
 
   return (
-    <div className="min-h-screen bg-[#0B0D10] text-[#D8DCE2] font-mono text-xs flex flex-col select-none">
+    <div className="min-h-screen bg-[#080d1a] text-[#cbd5e1] font-mono text-xs flex flex-col select-none">
       {/* ============================================================ */}
       {/* 1. TOP HEADER                                                */}
       {/* ============================================================ */}
-      <div className="border-b border-[#252A31] bg-[#101318] px-4 py-2.5">
+      <div className="border-b border-[#1e293b] bg-[#0b1222] px-4 py-2.5">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 max-w-[1920px] mx-auto">
           {/* Breadcrumb & Strategy Title */}
           <div className="flex flex-wrap items-center space-x-3">
             <Link
               href="/backtests"
-              className="text-[11px] text-[#89919C] hover:text-[#D8DCE2] flex items-center space-x-1"
+              className="text-[11px] text-[#94a3b8] hover:text-[#cbd5e1] flex items-center space-x-1"
             >
               <ArrowLeft className="h-3 w-3" />
               <span>Backtests</span>
             </Link>
-            <span className="text-[#59616B]">/</span>
+            <span className="text-[#64748b]">/</span>
             <span className="font-bold text-sm text-white tracking-wide uppercase">
               {backtest.strategy_name}
             </span>
 
             <div className="flex items-center space-x-2 text-[10px]">
-              <span className="bg-[#141820] border border-[#252A31] px-1.5 py-0.5 rounded-[2px] text-[#89919C]">
+              <span className="bg-[#0b1222] border border-[#1e293b] px-1.5 py-0.5 rounded-[2px] text-[#94a3b8]">
                 {backtest.ticker || "AAPL"} vs {backtest.benchmark || "SPY"}
               </span>
-              <span className="text-[#59616B] hidden sm:inline">
+              <span className="text-[#64748b] hidden sm:inline">
                 {backtest.start_date} &rarr; {backtest.end_date}
               </span>
               <span className="px-1.5 py-0.5 rounded-[2px] bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 font-bold uppercase text-[9px]">
                 Completed
               </span>
-              <span className="text-[#59616B]">Run ID: <span className="text-[#89919C]">{backtest.id}</span></span>
-              <span className="text-[#59616B] hidden md:inline">Jan 16, 2024 14:41 UTC</span>
+              <span className="text-[#64748b]">Run ID: <span className="text-[#94a3b8]">{backtest.id}</span></span>
+              <span className="text-[#64748b] hidden md:inline">Jan 16, 2024 14:41 UTC</span>
             </div>
           </div>
 
@@ -215,7 +215,7 @@ export default function BacktestTerminalPage() {
                 setShareCopied(true);
                 setTimeout(() => setShareCopied(false), 2000);
               }}
-              className="flex items-center space-x-1 px-2.5 py-1 rounded-[2px] border border-[#252A31] bg-[#141820] hover:bg-[#252A31] text-[#89919C] hover:text-[#D8DCE2]"
+              className="flex items-center space-x-1 px-2.5 py-1 rounded-[2px] border border-[#1e293b] bg-[#0b1222] hover:bg-[#1e293b] text-[#94a3b8] hover:text-[#cbd5e1]"
             >
               <Share2 className="h-3 w-3" />
               <span>{shareCopied ? "Copied" : "Share"}</span>
@@ -223,7 +223,7 @@ export default function BacktestTerminalPage() {
 
             <button
               onClick={() => setShowCompareModal(true)}
-              className="flex items-center space-x-1 px-2.5 py-1 rounded-[2px] border border-[#252A31] bg-[#141820] hover:bg-[#252A31] text-[#89919C] hover:text-[#D8DCE2]"
+              className="flex items-center space-x-1 px-2.5 py-1 rounded-[2px] border border-[#1e293b] bg-[#0b1222] hover:bg-[#1e293b] text-[#94a3b8] hover:text-[#cbd5e1]"
             >
               <BarChart2 className="h-3 w-3" />
               <span>Compare</span>
@@ -232,7 +232,7 @@ export default function BacktestTerminalPage() {
             <div className="relative">
               <button
                 onClick={() => setShowDownloadMenu(!showDownloadMenu)}
-                className="flex items-center space-x-1 px-2.5 py-1 rounded-[2px] border border-[#252A31] bg-[#141820] hover:bg-[#252A31] text-[#89919C] hover:text-[#D8DCE2]"
+                className="flex items-center space-x-1 px-2.5 py-1 rounded-[2px] border border-[#1e293b] bg-[#0b1222] hover:bg-[#1e293b] text-[#94a3b8] hover:text-[#cbd5e1]"
               >
                 <Download className="h-3 w-3" />
                 <span>Download</span>
@@ -240,18 +240,18 @@ export default function BacktestTerminalPage() {
               </button>
 
               {showDownloadMenu && (
-                <div className="absolute right-0 mt-1 w-52 border border-[#252A31] bg-[#101318] rounded-[2px] shadow-2xl z-50 py-1 text-[11px]">
+                <div className="absolute right-0 mt-1 w-52 border border-[#1e293b] bg-[#0b1222] rounded-[2px] shadow-2xl z-50 py-1 text-[11px]">
                   <a
                     href={api.getExportTradesUrl(backtest.id)}
                     download
-                    className="block px-3 py-1.5 hover:bg-[#141820] text-[#D8DCE2]"
+                    className="block px-3 py-1.5 hover:bg-[#0b1222] text-[#cbd5e1]"
                   >
                     Trade Log CSV
                   </a>
                   <a
                     href={api.getExportEquityUrl(backtest.id)}
                     download
-                    className="block px-3 py-1.5 hover:bg-[#141820] text-[#D8DCE2]"
+                    className="block px-3 py-1.5 hover:bg-[#0b1222] text-[#cbd5e1]"
                   >
                     Equity Curve CSV
                   </a>
@@ -260,7 +260,7 @@ export default function BacktestTerminalPage() {
                       setShowDownloadMenu(false);
                       setShowReportModal(true);
                     }}
-                    className="w-full text-left px-3 py-1.5 hover:bg-[#141820] text-[#38BDF8] border-t border-[#252A31]"
+                    className="w-full text-left px-3 py-1.5 hover:bg-[#0b1222] text-[#3b82f6] border-t border-[#1e293b]"
                   >
                     Tear Sheet Report
                   </button>
@@ -270,7 +270,7 @@ export default function BacktestTerminalPage() {
 
             <button
               onClick={() => setShowReRunModal(true)}
-              className="flex items-center space-x-1 px-3 py-1 rounded-[2px] bg-[#38BDF8] hover:bg-sky-500 text-[#0B0D10] font-bold transition-colors"
+              className="flex items-center space-x-1 px-3 py-1 rounded-[2px] bg-[#3b82f6] hover:bg-sky-500 text-[#080d1a] font-bold transition-colors"
             >
               <RotateCcw className="h-3 w-3" />
               <span>Re-run Backtest</span>
@@ -282,7 +282,7 @@ export default function BacktestTerminalPage() {
       {/* ============================================================ */}
       {/* 2. SUB-NAVIGATION TABS                                        */}
       {/* ============================================================ */}
-      <div className="border-b border-[#252A31] bg-[#0B0D10] px-4 overflow-x-auto">
+      <div className="border-b border-[#1e293b] bg-[#080d1a] px-4 overflow-x-auto">
         <div className="flex space-x-1 max-w-[1920px] mx-auto text-[11px] font-bold">
           {[
             { id: "overview", label: "Overview" },
@@ -301,8 +301,8 @@ export default function BacktestTerminalPage() {
               onClick={() => setActiveTab(tab.id as AnalyticalTab)}
               className={`px-3 py-2 border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === tab.id
-                  ? "border-[#38BDF8] text-[#38BDF8] bg-[#101318]"
-                  : "border-transparent text-[#89919C] hover:text-[#D8DCE2] hover:bg-[#141820]/40"
+                  ? "border-[#3b82f6] text-[#3b82f6] bg-[#0b1222]"
+                  : "border-transparent text-[#94a3b8] hover:text-[#cbd5e1] hover:bg-[#0b1222]/40"
               }`}
             >
               {tab.label}
@@ -318,10 +318,10 @@ export default function BacktestTerminalPage() {
         {/* ============================================================ */}
         {/* LEFT SIDEBAR: STRATEGY & CONTROLS                            */}
         {/* ============================================================ */}
-        <div className="w-64 border-r border-[#252A31] bg-[#101318] flex flex-col shrink-0 overflow-y-auto p-3 space-y-4">
+        <div className="w-64 border-r border-[#1e293b] bg-[#0b1222] flex flex-col shrink-0 overflow-y-auto p-3 space-y-4">
           {/* Strategy Section */}
           <div className="space-y-1">
-            <span className="text-[10px] text-[#59616B] uppercase font-bold tracking-wider block mb-1">
+            <span className="text-[10px] text-[#64748b] uppercase font-bold tracking-wider block mb-1">
               STRATEGY
             </span>
 
@@ -338,8 +338,8 @@ export default function BacktestTerminalPage() {
                 onClick={() => setLeftNavTab(item.id as any)}
                 className={`w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-[2px] text-left text-[11px] transition-colors ${
                   leftNavTab === item.id
-                    ? "bg-[#141820] text-[#38BDF8] font-bold border border-[#38BDF8]/30"
-                    : "text-[#89919C] hover:text-[#D8DCE2] hover:bg-[#141820]"
+                    ? "bg-[#0b1222] text-[#3b82f6] font-bold border border-[#3b82f6]/30"
+                    : "text-[#94a3b8] hover:text-[#cbd5e1] hover:bg-[#0b1222]"
                 }`}
               >
                 <span>{item.label}</span>
@@ -348,51 +348,51 @@ export default function BacktestTerminalPage() {
           </div>
 
           {/* Backtest Controls Section */}
-          <div className="border-t border-[#252A31] pt-3 space-y-2.5">
-            <span className="text-[10px] text-[#59616B] uppercase font-bold tracking-wider block">
+          <div className="border-t border-[#1e293b] pt-3 space-y-2.5">
+            <span className="text-[10px] text-[#64748b] uppercase font-bold tracking-wider block">
               BACKTEST CONTROLS
             </span>
 
             <div>
-              <label className="block text-[10px] text-[#89919C] mb-1">Date Range</label>
+              <label className="block text-[10px] text-[#94a3b8] mb-1">Date Range</label>
               <div className="space-y-1">
-                <div className="flex items-center border border-[#252A31] bg-[#0B0D10] px-2 py-1 rounded-[2px]">
-                  <Calendar className="h-3 w-3 text-[#59616B] mr-1.5" />
+                <div className="flex items-center border border-[#1e293b] bg-[#080d1a] px-2 py-1 rounded-[2px]">
+                  <Calendar className="h-3 w-3 text-[#64748b] mr-1.5" />
                   <input
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="bg-transparent text-[10px] text-[#D8DCE2] focus:outline-none w-full"
+                    className="bg-transparent text-[10px] text-[#cbd5e1] focus:outline-none w-full"
                   />
                 </div>
-                <div className="flex items-center border border-[#252A31] bg-[#0B0D10] px-2 py-1 rounded-[2px]">
-                  <Calendar className="h-3 w-3 text-[#59616B] mr-1.5" />
+                <div className="flex items-center border border-[#1e293b] bg-[#080d1a] px-2 py-1 rounded-[2px]">
+                  <Calendar className="h-3 w-3 text-[#64748b] mr-1.5" />
                   <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="bg-transparent text-[10px] text-[#D8DCE2] focus:outline-none w-full"
+                    className="bg-transparent text-[10px] text-[#cbd5e1] focus:outline-none w-full"
                   />
                 </div>
               </div>
             </div>
 
             <div>
-              <label className="block text-[10px] text-[#89919C] mb-1">Initial Capital ($)</label>
+              <label className="block text-[10px] text-[#94a3b8] mb-1">Initial Capital ($)</label>
               <input
                 type="text"
                 value={initialCapital}
                 onChange={(e) => setInitialCapital(e.target.value)}
-                className="w-full border border-[#252A31] bg-[#0B0D10] px-2.5 py-1 rounded-[2px] text-[11px] text-[#D8DCE2] focus:outline-none"
+                className="w-full border border-[#1e293b] bg-[#080d1a] px-2.5 py-1 rounded-[2px] text-[11px] text-[#cbd5e1] focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-[10px] text-[#89919C] mb-1">Benchmark</label>
+              <label className="block text-[10px] text-[#94a3b8] mb-1">Benchmark</label>
               <select
                 value={benchmark}
                 onChange={(e) => setBenchmark(e.target.value)}
-                className="w-full border border-[#252A31] bg-[#0B0D10] px-2 py-1 rounded-[2px] text-[11px] text-[#D8DCE2] focus:outline-none"
+                className="w-full border border-[#1e293b] bg-[#080d1a] px-2 py-1 rounded-[2px] text-[11px] text-[#cbd5e1] focus:outline-none"
               >
                 <option value="SPY">SPY</option>
                 <option value="QQQ">QQQ</option>
@@ -403,7 +403,7 @@ export default function BacktestTerminalPage() {
 
             <button
               onClick={() => setShowReRunModal(true)}
-              className="w-full flex items-center justify-center space-x-1.5 py-1.5 rounded-[2px] bg-[#38BDF8] hover:bg-sky-500 text-black font-bold text-xs transition-colors"
+              className="w-full flex items-center justify-center space-x-1.5 py-1.5 rounded-[2px] bg-[#3b82f6] hover:bg-sky-500 text-black font-bold text-xs transition-colors"
             >
               <Play className="h-3 w-3 fill-current" />
               <span>Run Backtest</span>
@@ -411,47 +411,47 @@ export default function BacktestTerminalPage() {
 
             <button
               onClick={() => setShowReRunModal(true)}
-              className="w-full text-center py-1 text-[10px] text-[#89919C] hover:text-[#D8DCE2] border border-[#252A31] bg-[#0B0D10] rounded-[2px]"
+              className="w-full text-center py-1 text-[10px] text-[#94a3b8] hover:text-[#cbd5e1] border border-[#1e293b] bg-[#080d1a] rounded-[2px]"
             >
               More Options &rsaquo;
             </button>
           </div>
 
           {/* Saved Backtests Section */}
-          <div className="border-t border-[#252A31] pt-3 space-y-2">
-            <span className="text-[10px] text-[#59616B] uppercase font-bold tracking-wider block">
+          <div className="border-t border-[#1e293b] pt-3 space-y-2">
+            <span className="text-[10px] text-[#64748b] uppercase font-bold tracking-wider block">
               SAVED BACKTESTS
             </span>
 
             <div className="space-y-1 text-[11px]">
-              <div className="p-2 rounded-[2px] bg-[#141820] border-l-2 border-[#38BDF8] space-y-0.5">
-                <div className="font-bold text-[#D8DCE2] flex items-center space-x-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#38BDF8] inline-block"></span>
+              <div className="p-2 rounded-[2px] bg-[#0b1222] border-l-2 border-[#3b82f6] space-y-0.5">
+                <div className="font-bold text-[#cbd5e1] flex items-center space-x-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#3b82f6] inline-block"></span>
                   <span>AAPL &bull; 2022–2024</span>
                 </div>
-                <div className="text-[10px] text-[#59616B]">Jan 16, 2024 14:41</div>
+                <div className="text-[10px] text-[#64748b]">Jan 16, 2024 14:41</div>
               </div>
 
-              <div className="p-2 rounded-[2px] bg-[#0B0D10] border border-[#252A31] space-y-0.5 opacity-80 hover:opacity-100 cursor-pointer">
-                <div className="text-[#89919C] flex items-center space-x-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#59616B] inline-block"></span>
+              <div className="p-2 rounded-[2px] bg-[#080d1a] border border-[#1e293b] space-y-0.5 opacity-80 hover:opacity-100 cursor-pointer">
+                <div className="text-[#94a3b8] flex items-center space-x-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#64748b] inline-block"></span>
                   <span>AAPL &bull; 2020–2023</span>
                 </div>
-                <div className="text-[10px] text-[#59616B]">Jan 10, 2024</div>
+                <div className="text-[10px] text-[#64748b]">Jan 10, 2024</div>
               </div>
 
-              <div className="p-2 rounded-[2px] bg-[#0B0D10] border border-[#252A31] space-y-0.5 opacity-80 hover:opacity-100 cursor-pointer">
-                <div className="text-[#89919C] flex items-center space-x-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#59616B] inline-block"></span>
+              <div className="p-2 rounded-[2px] bg-[#080d1a] border border-[#1e293b] space-y-0.5 opacity-80 hover:opacity-100 cursor-pointer">
+                <div className="text-[#94a3b8] flex items-center space-x-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#64748b] inline-block"></span>
                   <span>NVDA &bull; 2021–2024</span>
                 </div>
-                <div className="text-[10px] text-[#59616B]">Jan 08, 2024</div>
+                <div className="text-[10px] text-[#64748b]">Jan 08, 2024</div>
               </div>
             </div>
 
             <Link
               href="/backtests"
-              className="text-[10px] text-[#38BDF8] hover:underline flex items-center space-x-1 pt-1"
+              className="text-[10px] text-[#3b82f6] hover:underline flex items-center space-x-1 pt-1"
             >
               <span>View All Backtests</span>
               <ArrowRight className="h-2.5 w-2.5" />
@@ -462,17 +462,17 @@ export default function BacktestTerminalPage() {
         {/* ============================================================ */}
         {/* MAIN CONTENT AREA: WORKSTATION DASHBOARD                     */}
         {/* ============================================================ */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#0B0D10]">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#080d1a]">
           {activeTab === "overview" && (
             <>
               {/* Top Institutional Performance KPI Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
-                <div className="border border-[#252A31] bg-[#101318] p-2.5 rounded-[2px] space-y-1">
-                  <span className="text-[10px] text-[#89919C] block">Total Return</span>
+                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-[2px] space-y-1">
+                  <span className="text-[10px] text-[#94a3b8] block">Total Return</span>
                   <div className={`text-base font-bold ${m.total_return >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
                     {formatPercent(m.total_return)}
                   </div>
-                  <div className="text-[9px] text-[#59616B] space-y-0.5">
+                  <div className="text-[9px] text-[#64748b] space-y-0.5">
                     <div className="flex justify-between">
                       <span>Buy & Hold (AAPL)</span>
                       <span className="text-[#10B981]">+{bhReturn.toFixed(2)}%</span>
@@ -484,54 +484,54 @@ export default function BacktestTerminalPage() {
                   </div>
                 </div>
 
-                <div className="border border-[#252A31] bg-[#101318] p-2.5 rounded-[2px] space-y-1">
-                  <span className="text-[10px] text-[#89919C] block">CAGR</span>
+                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-[2px] space-y-1">
+                  <span className="text-[10px] text-[#94a3b8] block">CAGR</span>
                   <div className={`text-base font-bold ${m.cagr >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
                     {formatPercent(m.cagr)}
                   </div>
-                  <span className="text-[9px] text-[#59616B] block">Annualized</span>
+                  <span className="text-[9px] text-[#64748b] block">Annualized</span>
                 </div>
 
-                <div className="border border-[#252A31] bg-[#101318] p-2.5 rounded-[2px] space-y-1">
-                  <span className="text-[10px] text-[#89919C] block">Sharpe Ratio</span>
+                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-[2px] space-y-1">
+                  <span className="text-[10px] text-[#94a3b8] block">Sharpe Ratio</span>
                   <div className="text-base font-bold text-white">
                     {formatRatio(m.sharpe_ratio)}
                   </div>
-                  <span className="text-[9px] text-[#59616B] block">Risk-adjusted</span>
+                  <span className="text-[9px] text-[#64748b] block">Risk-adjusted</span>
                 </div>
 
-                <div className="border border-[#252A31] bg-[#101318] p-2.5 rounded-[2px] space-y-1">
-                  <span className="text-[10px] text-[#89919C] block">Sortino Ratio</span>
+                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-[2px] space-y-1">
+                  <span className="text-[10px] text-[#94a3b8] block">Sortino Ratio</span>
                   <div className="text-base font-bold text-white">
                     {formatRatio(m.sortino_ratio)}
                   </div>
-                  <span className="text-[9px] text-[#59616B] block">Downside risk</span>
+                  <span className="text-[9px] text-[#64748b] block">Downside risk</span>
                 </div>
 
-                <div className="border border-[#252A31] bg-[#101318] p-2.5 rounded-[2px] space-y-1">
-                  <span className="text-[10px] text-[#89919C] block">Max Drawdown</span>
+                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-[2px] space-y-1">
+                  <span className="text-[10px] text-[#94a3b8] block">Max Drawdown</span>
                   <div className="text-base font-bold text-[#EF4444]">
                     -{m.max_drawdown.toFixed(1)}%
                   </div>
-                  <span className="text-[9px] text-[#59616B] block">Peak to trough</span>
+                  <span className="text-[9px] text-[#64748b] block">Peak to trough</span>
                 </div>
 
-                <div className="border border-[#252A31] bg-[#101318] p-2.5 rounded-[2px] space-y-1">
-                  <span className="text-[10px] text-[#89919C] block">Win Rate</span>
-                  <div className="text-base font-bold text-[#D8DCE2]">
+                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-[2px] space-y-1">
+                  <span className="text-[10px] text-[#94a3b8] block">Win Rate</span>
+                  <div className="text-base font-bold text-[#cbd5e1]">
                     {m.win_rate.toFixed(1)}%
                   </div>
-                  <span className="text-[9px] text-[#59616B] block">
+                  <span className="text-[9px] text-[#64748b] block">
                     Profit Factor: <span className="text-[#EF4444] font-bold">{m.profit_factor.toFixed(2)}</span>
                   </span>
                 </div>
 
-                <div className="border border-[#252A31] bg-[#101318] p-2.5 rounded-[2px] space-y-1">
-                  <span className="text-[10px] text-[#89919C] block">Volatility (Ann.)</span>
-                  <div className="text-base font-bold text-[#D8DCE2]">
+                <div className="border border-[#1e293b] bg-[#0b1222] p-2.5 rounded-[2px] space-y-1">
+                  <span className="text-[10px] text-[#94a3b8] block">Volatility (Ann.)</span>
+                  <div className="text-base font-bold text-[#cbd5e1]">
                     {m.annualized_volatility.toFixed(1)}%
                   </div>
-                  <span className="text-[9px] text-[#38BDF8] block">
+                  <span className="text-[9px] text-[#3b82f6] block">
                     Total Trades: <span className="font-bold">{m.num_trades}</span>
                   </span>
                 </div>
@@ -585,9 +585,9 @@ export default function BacktestTerminalPage() {
                   />
                 </div>
 
-                <div className="lg:col-span-4 border border-[#252A31] bg-[#101318] rounded-[2px] p-3 space-y-2">
-                  <div className="flex items-center justify-between pb-1.5 border-b border-[#252A31]">
-                    <span className="font-bold text-[#D8DCE2] uppercase tracking-wider text-[11px]">
+                <div className="lg:col-span-4 border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-3 space-y-2">
+                  <div className="flex items-center justify-between pb-1.5 border-b border-[#1e293b]">
+                    <span className="font-bold text-[#cbd5e1] uppercase tracking-wider text-[11px]">
                       Strategy vs Benchmark Metrics
                     </span>
                   </div>
@@ -595,73 +595,73 @@ export default function BacktestTerminalPage() {
                   <div className="overflow-x-auto">
                     <table className="w-full font-mono text-[10px] text-right border-collapse">
                       <thead>
-                        <tr className="border-b border-[#252A31] text-[#89919C] uppercase">
+                        <tr className="border-b border-[#1e293b] text-[#94a3b8] uppercase">
                           <th className="py-1 px-2 text-left">Metric</th>
-                          <th className="py-1 px-2 text-[#38BDF8]">Strategy</th>
+                          <th className="py-1 px-2 text-[#3b82f6]">Strategy</th>
                           <th className="py-1 px-2 text-[#818CF8]">Buy & Hold (AAPL)</th>
-                          <th className="py-1 px-2 text-[#D8DCE2]">SPY</th>
+                          <th className="py-1 px-2 text-[#cbd5e1]">SPY</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-[#252A31]/50">
+                      <tbody className="divide-y divide-[#1e293b]/50">
                         <tr>
-                          <td className="py-1 px-2 text-left text-[#89919C]">Total Return</td>
+                          <td className="py-1 px-2 text-left text-[#94a3b8]">Total Return</td>
                           <td className="py-1 px-2 text-[#EF4444] font-bold">-0.45%</td>
                           <td className="py-1 px-2 text-[#10B981] font-bold">+38.21%</td>
                           <td className="py-1 px-2 text-[#10B981] font-bold">+24.17%</td>
                         </tr>
                         <tr>
-                          <td className="py-1 px-2 text-left text-[#89919C]">CAGR</td>
+                          <td className="py-1 px-2 text-left text-[#94a3b8]">CAGR</td>
                           <td className="py-1 px-2 text-[#EF4444] font-bold">-0.23%</td>
                           <td className="py-1 px-2 text-[#10B981]">+17.39%</td>
                           <td className="py-1 px-2 text-[#10B981]">+11.62%</td>
                         </tr>
                         <tr>
-                          <td className="py-1 px-2 text-left text-[#89919C]">Sharpe Ratio</td>
+                          <td className="py-1 px-2 text-left text-[#94a3b8]">Sharpe Ratio</td>
                           <td className="py-1 px-2 text-white font-bold">-1.45</td>
-                          <td className="py-1 px-2 text-[#D8DCE2]">1.12</td>
-                          <td className="py-1 px-2 text-[#D8DCE2]">0.85</td>
+                          <td className="py-1 px-2 text-[#cbd5e1]">1.12</td>
+                          <td className="py-1 px-2 text-[#cbd5e1]">0.85</td>
                         </tr>
                         <tr>
-                          <td className="py-1 px-2 text-left text-[#89919C]">Sortino Ratio</td>
-                          <td className="py-1 px-2 text-[#D8DCE2]">-0.99</td>
-                          <td className="py-1 px-2 text-[#D8DCE2]">1.87</td>
-                          <td className="py-1 px-2 text-[#D8DCE2]">1.32</td>
+                          <td className="py-1 px-2 text-left text-[#94a3b8]">Sortino Ratio</td>
+                          <td className="py-1 px-2 text-[#cbd5e1]">-0.99</td>
+                          <td className="py-1 px-2 text-[#cbd5e1]">1.87</td>
+                          <td className="py-1 px-2 text-[#cbd5e1]">1.32</td>
                         </tr>
                         <tr>
-                          <td className="py-1 px-2 text-left text-[#89919C]">Max Drawdown</td>
+                          <td className="py-1 px-2 text-left text-[#94a3b8]">Max Drawdown</td>
                           <td className="py-1 px-2 text-[#EF4444] font-bold">-2.2%</td>
                           <td className="py-1 px-2 text-[#EF4444]">-27.3%</td>
                           <td className="py-1 px-2 text-[#EF4444]">-25.1%</td>
                         </tr>
                         <tr>
-                          <td className="py-1 px-2 text-left text-[#89919C]">Volatility (Ann.)</td>
-                          <td className="py-1 px-2 text-[#D8DCE2]">1.5%</td>
-                          <td className="py-1 px-2 text-[#D8DCE2]">20.8%</td>
-                          <td className="py-1 px-2 text-[#D8DCE2]">18.4%</td>
+                          <td className="py-1 px-2 text-left text-[#94a3b8]">Volatility (Ann.)</td>
+                          <td className="py-1 px-2 text-[#cbd5e1]">1.5%</td>
+                          <td className="py-1 px-2 text-[#cbd5e1]">20.8%</td>
+                          <td className="py-1 px-2 text-[#cbd5e1]">18.4%</td>
                         </tr>
                         <tr>
-                          <td className="py-1 px-2 text-left text-[#89919C]">Calmar Ratio</td>
-                          <td className="py-1 px-2 text-[#D8DCE2]">-0.10</td>
-                          <td className="py-1 px-2 text-[#D8DCE2]">0.64</td>
-                          <td className="py-1 px-2 text-[#D8DCE2]">0.46</td>
+                          <td className="py-1 px-2 text-left text-[#94a3b8]">Calmar Ratio</td>
+                          <td className="py-1 px-2 text-[#cbd5e1]">-0.10</td>
+                          <td className="py-1 px-2 text-[#cbd5e1]">0.64</td>
+                          <td className="py-1 px-2 text-[#cbd5e1]">0.46</td>
                         </tr>
                         <tr>
-                          <td className="py-1 px-2 text-left text-[#89919C]">Win Rate</td>
-                          <td className="py-1 px-2 text-[#D8DCE2]">42.9%</td>
-                          <td className="py-1 px-2 text-[#D8DCE2]">55.1%</td>
-                          <td className="py-1 px-2 text-[#D8DCE2]">53.3%</td>
+                          <td className="py-1 px-2 text-left text-[#94a3b8]">Win Rate</td>
+                          <td className="py-1 px-2 text-[#cbd5e1]">42.9%</td>
+                          <td className="py-1 px-2 text-[#cbd5e1]">55.1%</td>
+                          <td className="py-1 px-2 text-[#cbd5e1]">53.3%</td>
                         </tr>
                         <tr>
-                          <td className="py-1 px-2 text-left text-[#89919C]">Profit Factor</td>
-                          <td className="py-1 px-2 text-[#D8DCE2]">0.84</td>
-                          <td className="py-1 px-2 text-[#D8DCE2]">1.68</td>
-                          <td className="py-1 px-2 text-[#D8DCE2]">1.42</td>
+                          <td className="py-1 px-2 text-left text-[#94a3b8]">Profit Factor</td>
+                          <td className="py-1 px-2 text-[#cbd5e1]">0.84</td>
+                          <td className="py-1 px-2 text-[#cbd5e1]">1.68</td>
+                          <td className="py-1 px-2 text-[#cbd5e1]">1.42</td>
                         </tr>
                         <tr>
-                          <td className="py-1 px-2 text-left text-[#89919C]">Avg Trade P&L</td>
+                          <td className="py-1 px-2 text-left text-[#94a3b8]">Avg Trade P&L</td>
                           <td className="py-1 px-2 text-[#EF4444]">-0.31%</td>
-                          <td className="py-1 px-2 text-[#59616B]">—</td>
-                          <td className="py-1 px-2 text-[#59616B]">—</td>
+                          <td className="py-1 px-2 text-[#64748b]">—</td>
+                          <td className="py-1 px-2 text-[#64748b]">—</td>
                         </tr>
                       </tbody>
                     </table>
@@ -707,28 +707,28 @@ export default function BacktestTerminalPage() {
       {/* ============================================================ */}
       {/* 4. BOTTOM STATUS BAR                                         */}
       {/* ============================================================ */}
-      <div className="border-t border-[#252A31] bg-[#05070A] px-4 py-1.5 flex flex-wrap items-center justify-between text-[11px] text-[#59616B] font-mono select-none">
+      <div className="border-t border-[#1e293b] bg-[#05070A] px-4 py-1.5 flex flex-wrap items-center justify-between text-[11px] text-[#64748b] font-mono select-none">
         <div className="flex items-center space-x-4">
           <span className="flex items-center space-x-1">
-            <span className="text-[#89919C] font-semibold">DATA:</span>
-            <span className="text-[#D8DCE2]">18,547 EQUITIES (US & INDIA)</span>
+            <span className="text-[#94a3b8] font-semibold">DATA:</span>
+            <span className="text-[#cbd5e1]">18,547 EQUITIES (US & INDIA)</span>
           </span>
-          <span className="text-[#252A31]">│</span>
+          <span className="text-[#1e293b]">│</span>
           <span className="flex items-center space-x-1">
-            <span className="text-[#89919C] font-semibold">ENGINE:</span>
+            <span className="text-[#94a3b8] font-semibold">ENGINE:</span>
             <span className="text-[#10B981] font-bold">READY</span>
           </span>
-          <span className="text-[#252A31]">│</span>
+          <span className="text-[#1e293b]">│</span>
           <span className="flex items-center space-x-1">
-            <span className="text-[#89919C] font-semibold">LOOKAHEAD:</span>
-            <span className="text-[#D8DCE2]">ZERO BIAS (t+1 FILLS)</span>
+            <span className="text-[#94a3b8] font-semibold">LOOKAHEAD:</span>
+            <span className="text-[#cbd5e1]">ZERO BIAS (t+1 FILLS)</span>
           </span>
         </div>
 
         <div className="flex items-center space-x-4">
-          <span className="text-[#59616B]">LATENCY: ~1.2ms</span>
-          <span className="text-[#252A31]">│</span>
-          <span className="text-[#89919C]">14:41:01 UTC</span>
+          <span className="text-[#64748b]">LATENCY: ~1.2ms</span>
+          <span className="text-[#1e293b]">│</span>
+          <span className="text-[#94a3b8]">14:41:01 UTC</span>
         </div>
       </div>
 

@@ -1,7 +1,9 @@
 import os
 import json
+import logging
+import tempfile
 import threading
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from ..models.schemas import StrategyConfig, BacktestResult
 from ..strategies.templates import get_template_strategies
 
@@ -10,12 +12,28 @@ STRATEGIES_FILE = os.path.join(DATA_DIR, "strategies.json")
 BACKTESTS_FILE = os.path.join(DATA_DIR, "backtests.json")
 SETTINGS_FILE = os.path.join(DATA_DIR, "settings.json")
 
+logger = logging.getLogger("quantsynthica.storage")
+
+
+def _atomic_write_json(path: str, payload) -> None:
+    """Write via temp file + rename so a crash never leaves a truncated JSON file."""
+    fd, tmp = tempfile.mkstemp(dir=os.path.dirname(path), suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w") as f:
+            json.dump(payload, f, indent=2)
+        os.replace(tmp, path)
+    except Exception:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        raise
+
+
 class StorageRepository:
     def __init__(self):
         self._lock = threading.Lock()
         self._strategies: Dict[str, StrategyConfig] = {}
         self._backtests: Dict[str, BacktestResult] = {}
-        self._settings: Dict[str, any] = {}
+        self._settings: Dict[str, Any] = {}
         self._load_strategies()
         self._load_backtests()
         self._load_settings()
@@ -34,12 +52,11 @@ class StorageRepository:
                             cfg = StrategyConfig.model_validate(item)
                             self._strategies[cfg.id] = cfg
                 except Exception:
-                    pass
+                    logger.exception("Could not load %s; keeping templates only", STRATEGIES_FILE)
 
     def _save_strategies(self):
         # Persist custom strategies (and updated templates)
-        with open(STRATEGIES_FILE, "w") as f:
-            json.dump([s.model_dump() for s in self._strategies.values()], f, indent=2)
+        _atomic_write_json(STRATEGIES_FILE, [s.model_dump() for s in self._strategies.values()])
 
     def _load_backtests(self):
         if os.path.exists(BACKTESTS_FILE):
@@ -50,13 +67,13 @@ class StorageRepository:
                         res = BacktestResult.model_validate(item)
                         self._backtests[res.id] = res
             except Exception:
-                pass
+                logger.exception("Could not load %s", BACKTESTS_FILE)
 
     def _save_backtests(self):
-        with open(BACKTESTS_FILE, "w") as f:
-            # Save recent 100 backtests
-            recent = list(self._backtests.values())[-100:]
-            json.dump([b.model_dump() for b in recent], f, indent=2)
+        # Keep (and persist) only the most recent 100 backtests so memory and disk stay bounded.
+        while len(self._backtests) > 100:
+            del self._backtests[next(iter(self._backtests))]
+        _atomic_write_json(BACKTESTS_FILE, [b.model_dump(mode="json") for b in self._backtests.values()])
 
     def _load_settings(self):
         if os.path.exists(SETTINGS_FILE):
@@ -64,11 +81,11 @@ class StorageRepository:
                 with open(SETTINGS_FILE, "r") as f:
                     self._settings = json.load(f)
             except Exception:
+                logger.exception("Could not load %s", SETTINGS_FILE)
                 self._settings = {}
 
     def _save_settings(self):
-        with open(SETTINGS_FILE, "w") as f:
-            json.dump(self._settings, f, indent=2)
+        _atomic_write_json(SETTINGS_FILE, self._settings)
 
     def list_strategies(self) -> List[StrategyConfig]:
         with self._lock:
@@ -114,11 +131,11 @@ class StorageRepository:
                 return True
             return False
 
-    def get_settings(self) -> Dict[str, any]:
+    def get_settings(self) -> Dict[str, Any]:
         with self._lock:
             return dict(self._settings)
 
-    def save_settings(self, settings: Dict[str, any]) -> Dict[str, any]:
+    def save_settings(self, settings: Dict[str, Any]) -> Dict[str, Any]:
         with self._lock:
             self._settings = dict(settings)
             self._save_settings()

@@ -47,7 +47,7 @@ export default function ReturnDistributionChart({
       <div style={{ width: "100%", height }}>
         <ResponsiveContainer>
           <ComposedChart data={distribution} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-            <CartesianGrid stroke="#1c263b" strokeDasharray="3 3" vertical={false} />
+            <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="return_pct"
               stroke="#64748b"
@@ -89,7 +89,7 @@ export default function ReturnDistributionChart({
             <Line
               type="monotone"
               dataKey="normal_fit"
-              stroke="#2962FF"
+              stroke="#2563eb"
               strokeWidth={1.5}
               dot={false}
               isAnimationActive={false}

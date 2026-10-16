@@ -195,11 +195,11 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-[calc(100vh-6.5rem)] pb-28 text-slate-100">
-      <div className="mx-auto max-w-[1720px] animate-fade-up space-y-3.5 px-4 py-4">
+      <div className="app-container animate-fade-up space-y-4 py-6">
         <div className="flex flex-col justify-between gap-3 border-b border-border/80 pb-3 md:flex-row md:items-center">
           <div>
             <h1 className="qs-title text-[1.4rem]">Settings</h1>
-            <p className="mt-1 text-sm text-stone-500">
+            <p className="mt-1 text-sm text-slate-500">
               Defaults for data, execution, and the desk.
             </p>
           </div>
@@ -209,7 +209,7 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={expandAllSections}
-              className="flex items-center space-x-1 bg-[#0F141D] hover:bg-[#151C28] border border-[#202C3F] px-2.5 py-1.5 rounded text-slate-400 hover:text-white text-xs font-mono transition-colors"
+              className="flex items-center space-x-1 bg-[#0b1222] hover:bg-[#0b1222] border border-[#1e293b] px-2.5 py-1.5 rounded text-slate-400 hover:text-white text-xs font-mono transition-colors"
               title="Expand all sections"
             >
               <Maximize2 className="w-3.5 h-3.5" />
@@ -219,7 +219,7 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={collapseAllSections}
-              className="flex items-center space-x-1 bg-[#0F141D] hover:bg-[#151C28] border border-[#202C3F] px-2.5 py-1.5 rounded text-slate-400 hover:text-white text-xs font-mono transition-colors"
+              className="flex items-center space-x-1 bg-[#0b1222] hover:bg-[#0b1222] border border-[#1e293b] px-2.5 py-1.5 rounded text-slate-400 hover:text-white text-xs font-mono transition-colors"
               title="Collapse all sections"
             >
               <Minimize2 className="w-3.5 h-3.5" />
@@ -229,7 +229,7 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={() => setShowImportExportModal(true)}
-              className="flex items-center space-x-1.5 bg-[#0F141D] hover:bg-[#151C28] border border-[#202C3F] px-3 py-1.5 rounded text-slate-200 hover:text-white text-xs font-mono transition-colors"
+              className="flex items-center space-x-1.5 bg-[#0b1222] hover:bg-[#0b1222] border border-[#1e293b] px-3 py-1.5 rounded text-slate-200 hover:text-white text-xs font-mono transition-colors"
             >
               <Download className="w-3.5 h-3.5 text-slate-400" />
               <span>Export Config</span>
@@ -238,7 +238,7 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={() => setShowImportExportModal(true)}
-              className="flex items-center space-x-1.5 bg-[#0F141D] hover:bg-[#151C28] border border-[#202C3F] px-3 py-1.5 rounded text-slate-200 hover:text-white text-xs font-mono transition-colors"
+              className="flex items-center space-x-1.5 bg-[#0b1222] hover:bg-[#0b1222] border border-[#1e293b] px-3 py-1.5 rounded text-slate-200 hover:text-white text-xs font-mono transition-colors"
             >
               <Upload className="w-3.5 h-3.5 text-slate-400" />
               <span>Import Config</span>
@@ -247,7 +247,7 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={handleResetDefaults}
-              className="flex items-center space-x-1.5 bg-[#0F141D] hover:bg-[#151C28] border border-[#202C3F] px-3 py-1.5 rounded text-slate-300 hover:text-white text-xs font-mono transition-colors"
+              className="flex items-center space-x-1.5 bg-[#0b1222] hover:bg-[#0b1222] border border-[#1e293b] px-3 py-1.5 rounded text-slate-300 hover:text-white text-xs font-mono transition-colors"
             >
               <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
               <span>Reset Defaults</span>
@@ -259,7 +259,7 @@ export default function SettingsPage() {
               disabled={saving || !hasUnsavedChanges}
               className={`flex items-center space-x-1.5 px-4 py-1.5 rounded text-xs font-bold font-mono transition-all shadow-md ${
                 hasUnsavedChanges
-                  ? "bg-[#0284C7] hover:bg-[#0369A1] text-white cursor-pointer ring-2 ring-[#38BDF8]/40 animate-pulse"
+                  ? "bg-[#2563eb] hover:bg-[#1d4ed8] text-white cursor-pointer ring-2 ring-[#3b82f6]/40 animate-pulse"
                   : "bg-[#101724] border border-[#1F2C40] text-slate-400 cursor-not-allowed"
               }`}
             >
@@ -549,7 +549,7 @@ export default function SettingsPage() {
                   />
                 </SettingsField>
 
-                <div className="space-y-1 sm:col-span-2 pt-1 border-t border-[#161F2C]">
+                <div className="space-y-1 sm:col-span-2 pt-1 border-t border-[#0b1222]">
                   <SettingsToggle
                     label="Lookahead Bias Protection (Enforce t+1 next-bar open fills)"
                     checked={settings.backtest.lookaheadProtection}
@@ -701,7 +701,7 @@ export default function SettingsPage() {
                   />
                 </SettingsField>
 
-                <div className="space-y-1 sm:col-span-2 pt-1 border-t border-[#161F2C]">
+                <div className="space-y-1 sm:col-span-2 pt-1 border-t border-[#0b1222]">
                   <SettingsToggle
                     label="Long Only (Enforce non-negative weights)"
                     checked={settings.optimization.longOnly}
@@ -769,7 +769,7 @@ export default function SettingsPage() {
                 </SettingsField>
 
                 {/* Supported factors list */}
-                <div className="sm:col-span-2 pt-2 border-t border-[#161F2C] space-y-1.5">
+                <div className="sm:col-span-2 pt-2 border-t border-[#0b1222] space-y-1.5">
                   <span className="text-[11px] font-mono text-slate-400 block">Supported Factor Outputs:</span>
                   <div className="flex flex-wrap gap-1.5">
                     {settings.factorModel.supportedFactors.map((f) => (
@@ -831,7 +831,7 @@ export default function SettingsPage() {
                   />
                 </div>
 
-                <div className="space-y-1 sm:col-span-2 pt-1 border-t border-[#161F2C]">
+                <div className="space-y-1 sm:col-span-2 pt-1 border-t border-[#0b1222]">
                   <SettingsToggle
                     label="Market Impact (Square-root volume law)"
                     checked={settings.execution.marketImpact}
@@ -870,7 +870,7 @@ export default function SettingsPage() {
                   <button
                     type="button"
                     onClick={loadDiagnostics}
-                    className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-[#101724] hover:bg-[#162030] text-[#38BDF8] border border-[#1E2B3E] text-xs font-mono font-medium transition-colors"
+                    className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-[#101724] hover:bg-[#162030] text-[#3b82f6] border border-[#1e293b] text-xs font-mono font-medium transition-colors"
                   >
                     <RefreshCw className="w-3 h-3" />
                     <span>Ping API</span>
@@ -878,7 +878,7 @@ export default function SettingsPage() {
                   <button
                     type="button"
                     onClick={() => setShowDiagnosticsModal(true)}
-                    className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-[#0284C7]/20 hover:bg-[#0284C7]/30 text-[#38BDF8] border border-[#38BDF8]/40 text-xs font-mono font-medium transition-colors"
+                    className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-[#2563eb]/20 hover:bg-[#2563eb]/30 text-[#3b82f6] border border-[#3b82f6]/40 text-xs font-mono font-medium transition-colors"
                   >
                     <Terminal className="w-3 h-3" />
                     <span>Run Diagnostics</span>
@@ -939,28 +939,28 @@ export default function SettingsPage() {
               <div className="space-y-3 font-mono text-xs">
                 {/* 4 Stat Cards */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-                  <div className="bg-[#111722] p-2.5 rounded border border-[#1E2B3E]">
+                  <div className="bg-[#0b1222] p-2.5 rounded border border-[#1e293b]">
                     <div className="text-base font-bold text-white">18,546</div>
                     <div className="text-[10px] text-slate-500 uppercase mt-0.5">Securities</div>
                   </div>
-                  <div className="bg-[#111722] p-2.5 rounded border border-[#1E2B3E]">
+                  <div className="bg-[#0b1222] p-2.5 rounded border border-[#1e293b]">
                     <div className="text-base font-bold text-white">4.8M</div>
                     <div className="text-[10px] text-slate-500 uppercase mt-0.5">Records</div>
                   </div>
-                  <div className="bg-[#111722] p-2.5 rounded border border-[#1E2B3E]">
+                  <div className="bg-[#0b1222] p-2.5 rounded border border-[#1e293b]">
                     <div className="text-base font-bold text-slate-200">
                       {diagnosticsData?.cache?.cache_size_str || "0 KB"}
                     </div>
                     <div className="text-[10px] text-slate-500 uppercase mt-0.5">Cache</div>
                   </div>
-                  <div className="bg-[#111722] p-2.5 rounded border border-[#1E2B3E]">
+                  <div className="bg-[#0b1222] p-2.5 rounded border border-[#1e293b]">
                     <div className="text-base font-bold text-[#10B981]">ONLINE</div>
                     <div className="text-[10px] text-slate-500 uppercase mt-0.5">Cache Status</div>
                   </div>
                 </div>
 
                 {/* Destructive / Management Actions */}
-                <div className="pt-2 border-t border-[#1A2230] flex flex-wrap items-center gap-2">
+                <div className="pt-2 border-t border-[#1e293b] flex flex-wrap items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setShowClearCacheModal(true)}
@@ -973,7 +973,7 @@ export default function SettingsPage() {
                   <button
                     type="button"
                     onClick={loadDiagnostics}
-                    className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-[#101724] hover:bg-[#162030] text-slate-200 border border-[#1E2B3E] text-xs font-mono transition-colors"
+                    className="flex items-center space-x-1.5 px-3 py-1.5 rounded bg-[#101724] hover:bg-[#162030] text-slate-200 border border-[#1e293b] text-xs font-mono transition-colors"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>Rebuild Security Index</span>
@@ -1041,7 +1041,7 @@ export default function SettingsPage() {
                   />
                 </div>
 
-                <div className="space-y-1 sm:col-span-2 pt-1 border-t border-[#161F2C]">
+                <div className="space-y-1 sm:col-span-2 pt-1 border-t border-[#0b1222]">
                   <SettingsToggle
                     label="Show Terminal Footer Status Bar"
                     checked={settings.appearance.showTerminalFooter}
@@ -1087,7 +1087,7 @@ export default function SettingsPage() {
                       className="flex items-center justify-between p-2 rounded bg-[#101622] border border-[#1A2536]"
                     >
                       <span className="text-slate-300 font-sans text-[11px]">{s.action}</span>
-                      <kbd className="px-1.5 py-0.5 rounded bg-[#182335] text-[#38BDF8] border border-[#23354E] font-bold text-[10px]">
+                      <kbd className="px-1.5 py-0.5 rounded bg-[#182335] text-[#3b82f6] border border-[#23354E] font-bold text-[10px]">
                         {s.key}
                       </kbd>
                     </div>
@@ -1125,7 +1125,7 @@ export default function SettingsPage() {
                   />
                 </SettingsField>
 
-                <div className="space-y-1 sm:col-span-2 pt-1 border-t border-[#161F2C]">
+                <div className="space-y-1 sm:col-span-2 pt-1 border-t border-[#0b1222]">
                   <SettingsToggle
                     label="API Gateway Failure Notification"
                     checked={settings.alerts.apiFailure}
@@ -1197,7 +1197,7 @@ export default function SettingsPage() {
               </div>
 
               {/* Architecture Specifications */}
-              <div className="pt-2 border-t border-[#161F2C] grid grid-cols-2 sm:grid-cols-6 gap-2 text-[11px]">
+              <div className="pt-2 border-t border-[#0b1222] grid grid-cols-2 sm:grid-cols-6 gap-2 text-[11px]">
                 <div className="bg-[#101622] p-2 rounded border border-[#1A2536]">
                   <span className="text-slate-500 block text-[9px]">FRONTEND</span>
                   <span className="text-white font-bold">Next.js 15 App Router</span>
@@ -1229,7 +1229,7 @@ export default function SettingsPage() {
                 <button
                   type="button"
                   onClick={() => setShowDiagnosticsModal(true)}
-                  className="flex items-center space-x-2 px-4 py-2 rounded bg-[#0284C7] hover:bg-[#0369A1] text-white font-mono font-bold text-xs shadow-md transition-all"
+                  className="flex items-center space-x-2 px-4 py-2 rounded bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-mono font-bold text-xs shadow-md transition-all"
                 >
                   <Terminal className="w-4 h-4" />
                   <span>Run Full System Diagnostics</span>
@@ -1241,7 +1241,7 @@ export default function SettingsPage() {
       </div>
 
       {/* 4. Sticky Bottom Save Bar */}
-      <div className="fixed bottom-6 left-0 right-0 z-30 bg-[#080C14]/95 backdrop-blur-md border-t border-[#1E2530] px-4 py-2.5 shadow-2xl flex items-center justify-between">
+      <div className="fixed bottom-6 left-0 right-0 z-30 bg-[#080C14]/95 backdrop-blur-md border-t border-[#1e293b] px-4 py-2.5 shadow-2xl flex items-center justify-between">
         <div className="max-w-[1720px] mx-auto w-full flex items-center justify-between">
           <div className="flex items-center space-x-2 font-mono text-xs">
             <span
@@ -1272,7 +1272,7 @@ export default function SettingsPage() {
               disabled={saving || !hasUnsavedChanges}
               className={`flex items-center space-x-1.5 px-4 py-1.5 rounded text-xs font-bold font-mono transition-all shadow-md ${
                 hasUnsavedChanges
-                  ? "bg-[#0284C7] hover:bg-[#0369A1] text-white cursor-pointer ring-2 ring-[#38BDF8]/50"
+                  ? "bg-[#2563eb] hover:bg-[#1d4ed8] text-white cursor-pointer ring-2 ring-[#3b82f6]/50"
                   : "bg-[#101724] border border-[#1F2C40] text-slate-500 cursor-not-allowed"
               }`}
             >

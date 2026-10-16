@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
 import { Info, Sliders } from "lucide-react";
 
+import { TOOLTIP_STYLE } from "@/lib/chartTheme";
 export interface AssetAllocation {
   ticker: string;
   weight: number;
@@ -22,7 +23,7 @@ interface PortfolioAllocationWidgetProps {
 }
 
 const DEFAULT_ALLOCATIONS: AssetAllocation[] = [
-  { ticker: "AAPL", weight: 20.0, value: 24468, color: "#38BDF8", targetWeight: 18.4, drift: 1.6 },
+  { ticker: "AAPL", weight: 20.0, value: 24468, color: "#3b82f6", targetWeight: 18.4, drift: 1.6 },
   { ticker: "MSFT", weight: 20.0, value: 24468, color: "#F59E0B", targetWeight: 16.7, drift: 3.3 },
   { ticker: "NVDA", weight: 20.0, value: 24468, color: "#EC4899", targetWeight: 28.2, drift: -8.2 },
   { ticker: "SPY", weight: 20.0, value: 24468, color: "#8B5CF6", targetWeight: 22.1, drift: -2.1 },
@@ -55,9 +56,9 @@ export default function PortfolioAllocationWidget({
   }));
 
   return (
-    <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3.5 flex flex-col justify-between h-full">
+    <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 flex flex-col justify-between h-full">
       {/* Header & Tabs */}
-      <div className="space-y-2 pb-2 border-b border-[#1A2230]">
+      <div className="space-y-2 pb-2 border-b border-[#1e293b]">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <h2 className="text-sm font-bold text-white tracking-tight font-sans">
@@ -67,7 +68,7 @@ export default function PortfolioAllocationWidget({
               <button
                 type="button"
                 onClick={onEditBasket}
-                className="flex items-center space-x-1 px-2 py-0.5 rounded bg-[#0284C7]/20 hover:bg-[#0284C7]/30 border border-[#0284C7]/50 text-[#38BDF8] text-[10px] font-semibold transition-colors cursor-pointer"
+                className="flex items-center space-x-1 px-2 py-0.5 rounded bg-[#2563eb]/20 hover:bg-[#2563eb]/30 border border-[#2563eb]/50 text-[#3b82f6] text-[10px] font-semibold transition-colors cursor-pointer"
                 title="Configure constituent stocks and weights"
               >
                 <Sliders className="w-3 h-3" />
@@ -84,13 +85,13 @@ export default function PortfolioAllocationWidget({
           </div>
 
           {/* Mode Tabs */}
-          <div className="flex items-center bg-[#111722] border border-[#1F2B3E] rounded p-0.5 text-[11px] font-mono">
+          <div className="flex items-center bg-[#0b1222] border border-[#1e293b] rounded p-0.5 text-[11px] font-mono">
             <button
               type="button"
               onClick={() => setActiveTab("Current")}
               className={`px-2 py-0.5 rounded transition-all ${
                 activeTab === "Current"
-                  ? "bg-[#0284C7] text-white font-bold shadow-sm"
+                  ? "bg-[#2563eb] text-white font-bold shadow-sm"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -101,7 +102,7 @@ export default function PortfolioAllocationWidget({
               onClick={() => setActiveTab("Target")}
               className={`px-2 py-0.5 rounded transition-all ${
                 activeTab === "Target"
-                  ? "bg-[#0284C7] text-white font-bold shadow-sm"
+                  ? "bg-[#2563eb] text-white font-bold shadow-sm"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -112,7 +113,7 @@ export default function PortfolioAllocationWidget({
               onClick={() => setActiveTab("Drift")}
               className={`px-2 py-0.5 rounded transition-all ${
                 activeTab === "Drift"
-                  ? "bg-[#0284C7] text-white font-bold shadow-sm"
+                  ? "bg-[#2563eb] text-white font-bold shadow-sm"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -136,7 +137,7 @@ export default function PortfolioAllocationWidget({
                 outerRadius={72}
                 paddingAngle={3}
                 dataKey="displayWeight"
-                stroke="#090D14"
+                stroke="#080d1a"
                 strokeWidth={2}
               >
                 {displayData.map((entry, index) => (
@@ -144,13 +145,7 @@ export default function PortfolioAllocationWidget({
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={{
-                  backgroundColor: "#0C1017",
-                  borderColor: "#202C3F",
-                  borderRadius: "6px",
-                  fontSize: "11px",
-                  color: "#E2E8F0",
-                }}
+                contentStyle={TOOLTIP_STYLE}
                 formatter={(value: any, name: any, item: any) => [
                   `${value.toFixed(1)}% (${currSymbol}${item.payload.displayValue.toLocaleString()})`,
                   item.payload.ticker,

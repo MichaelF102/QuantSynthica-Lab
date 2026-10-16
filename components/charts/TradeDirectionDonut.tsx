@@ -22,9 +22,9 @@ export default function TradeDirectionDonut({
   ];
 
   return (
-    <div className="border border-[#252A31] bg-[#101318] rounded-[2px] p-3 flex flex-col justify-between select-none font-mono text-xs">
-      <div className="flex items-center justify-between pb-1.5 border-b border-[#252A31]">
-        <span className="font-bold text-[#D8DCE2] uppercase tracking-wider text-[11px]">
+    <div className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-3 flex flex-col justify-between select-none font-mono text-xs">
+      <div className="flex items-center justify-between pb-1.5 border-b border-[#1e293b]">
+        <span className="font-bold text-[#cbd5e1] uppercase tracking-wider text-[11px]">
           Trade Direction
         </span>
       </div>
@@ -53,7 +53,7 @@ export default function TradeDirectionDonut({
           </ResponsiveContainer>
           <div className="absolute flex flex-col items-center justify-center pointer-events-none text-center">
             <span className="text-sm font-bold text-white">{total}</span>
-            <span className="text-[9px] text-[#89919C]">Trades</span>
+            <span className="text-[9px] text-[#94a3b8]">Trades</span>
           </div>
         </div>
 
@@ -61,13 +61,13 @@ export default function TradeDirectionDonut({
         <div className="space-y-2 text-[11px]">
           <div className="flex items-center space-x-2">
             <span className="w-2.5 h-2.5 rounded-[1px] bg-[#10B981] inline-block"></span>
-            <span className="text-[#D8DCE2]">Long</span>
-            <span className="text-[#89919C]">{longs} ({longPct}%)</span>
+            <span className="text-[#cbd5e1]">Long</span>
+            <span className="text-[#94a3b8]">{longs} ({longPct}%)</span>
           </div>
           <div className="flex items-center space-x-2">
             <span className="w-2.5 h-2.5 rounded-[1px] bg-[#EF4444] inline-block"></span>
-            <span className="text-[#D8DCE2]">Short</span>
-            <span className="text-[#89919C]">{shorts} ({shortPct}%)</span>
+            <span className="text-[#cbd5e1]">Short</span>
+            <span className="text-[#94a3b8]">{shorts} ({shortPct}%)</span>
           </div>
         </div>
       </div>

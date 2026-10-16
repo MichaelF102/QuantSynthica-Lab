@@ -25,7 +25,7 @@ export default function ResearchSearchLanding() {
         <div className="mt-5 space-y-1">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
             <span className="text-white drop-shadow-sm">Quant</span>
-            <span className="bg-gradient-to-r from-[#38BDF8] via-[#818CF8] to-[#C084FC] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(129,140,248,0.35)]">
+            <span className="bg-gradient-to-r from-[#3b82f6] via-[#818CF8] to-[#C084FC] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(129,140,248,0.35)]">
               Synthica
             </span>
           </h1>

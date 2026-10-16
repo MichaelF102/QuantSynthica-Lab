@@ -268,7 +268,7 @@ export default function StrategiesPage() {
           {/* Title & Description */}
           <div>
             <h1 className="qs-title text-[1.4rem]">Strategies</h1>
-            <p className="mt-1 text-sm text-stone-500">
+            <p className="mt-1 text-sm text-slate-500">
               Models you can backtest. Nothing here is routed live.
             </p>
           </div>
@@ -302,7 +302,7 @@ export default function StrategiesPage() {
         {/* ============================================================ */}
         {/* COLUMN 1: LEFT FILTERS & REPOSITORIES SIDEBAR                */}
         {/* ============================================================ */}
-        <div className="w-56 border-r border-[#252A31] bg-[#0B0D10] flex flex-col shrink-0 p-3 space-y-4 overflow-y-auto">
+        <div className="w-56 border-r border-[#1e293b] bg-[#080d1a] flex flex-col shrink-0 p-3 space-y-4 overflow-y-auto">
           {/* Categories Navigation */}
           <div className="space-y-0.5">
             {categoriesList.map((cat) => {
@@ -317,65 +317,65 @@ export default function StrategiesPage() {
                   }}
                   className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-[2px] text-left transition-colors ${
                     isSelected
-                      ? "bg-[#141820] text-[#38BDF8] font-bold"
-                      : "text-[#89919C] hover:text-[#D8DCE2] hover:bg-[#101318]"
+                      ? "bg-[#0b1222] text-[#3b82f6] font-bold"
+                      : "text-[#94a3b8] hover:text-[#cbd5e1] hover:bg-[#0b1222]"
                   }`}
                 >
                   <span className="text-[11px]">{cat.label}</span>
-                  <span className="text-[10px] text-[#59616B]">{count}</span>
+                  <span className="text-[10px] text-[#64748b]">{count}</span>
                 </button>
               );
             })}
           </div>
 
-          <div className="border-t border-[#252A31] pt-3 space-y-0.5">
+          <div className="border-t border-[#1e293b] pt-3 space-y-0.5">
             <button
               onClick={() => setSelectedNav("templates")}
               className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-[2px] text-left transition-colors ${
-                selectedNav === "templates" ? "bg-[#141820] text-[#38BDF8] font-bold" : "text-[#89919C] hover:text-[#D8DCE2]"
+                selectedNav === "templates" ? "bg-[#0b1222] text-[#3b82f6] font-bold" : "text-[#94a3b8] hover:text-[#cbd5e1]"
               }`}
             >
               <div className="flex items-center space-x-2">
-                <Layers className="h-3 w-3 text-[#59616B]" />
+                <Layers className="h-3 w-3 text-[#64748b]" />
                 <span className="text-[11px]">Templates</span>
               </div>
-              <span className="text-[10px] text-[#59616B]">29</span>
+              <span className="text-[10px] text-[#64748b]">29</span>
             </button>
 
             <button
               onClick={() => setSelectedNav("my")}
               className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-[2px] text-left transition-colors ${
-                selectedNav === "my" ? "bg-[#141820] text-[#38BDF8] font-bold" : "text-[#89919C] hover:text-[#D8DCE2]"
+                selectedNav === "my" ? "bg-[#0b1222] text-[#3b82f6] font-bold" : "text-[#94a3b8] hover:text-[#cbd5e1]"
               }`}
             >
               <div className="flex items-center space-x-2">
-                <Star className="h-3 w-3 text-[#59616B]" />
+                <Star className="h-3 w-3 text-[#64748b]" />
                 <span className="text-[11px]">My Strategies</span>
               </div>
-              <span className="text-[10px] text-[#59616B]">{categoryCounts.CUSTOM}</span>
+              <span className="text-[10px] text-[#64748b]">{categoryCounts.CUSTOM}</span>
             </button>
 
             <button
               onClick={() => setSelectedNav("shared")}
               className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-[2px] text-left transition-colors ${
-                selectedNav === "shared" ? "bg-[#141820] text-[#38BDF8] font-bold" : "text-[#89919C] hover:text-[#D8DCE2]"
+                selectedNav === "shared" ? "bg-[#0b1222] text-[#3b82f6] font-bold" : "text-[#94a3b8] hover:text-[#cbd5e1]"
               }`}
             >
               <div className="flex items-center space-x-2">
-                <Users className="h-3 w-3 text-[#59616B]" />
+                <Users className="h-3 w-3 text-[#64748b]" />
                 <span className="text-[11px]">Shared with Me</span>
               </div>
-              <span className="text-[10px] text-[#59616B]">3</span>
+              <span className="text-[10px] text-[#64748b]">3</span>
             </button>
           </div>
 
           {/* Asset Filter Checkboxes */}
-          <div className="border-t border-[#252A31] pt-3 space-y-2">
+          <div className="border-t border-[#1e293b] pt-3 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-[#59616B] uppercase font-bold tracking-wider">
+              <span className="text-[10px] text-[#64748b] uppercase font-bold tracking-wider">
                 ASSET FILTER
               </span>
-              <span className={`text-[9px] px-1 py-0.2 rounded font-bold ${activeCountry === "India" ? "text-[#10B981] bg-[#10B981]/15" : "text-[#38BDF8] bg-[#38BDF8]/15"}`}>
+              <span className={`text-[9px] px-1 py-0.2 rounded font-bold ${activeCountry === "India" ? "text-[#10B981] bg-[#10B981]/15" : "text-[#3b82f6] bg-[#3b82f6]/15"}`}>
                 {activeCountry === "India" ? "🇮🇳 INDIA" : "🇺🇸 US"}
               </span>
             </div>
@@ -383,15 +383,15 @@ export default function StrategiesPage() {
             <div className="space-y-1 text-[11px]">
               <label
                 onClick={() => setSelectedAsset("ALL")}
-                className="flex items-center justify-between cursor-pointer py-0.5 text-[#D8DCE2]"
+                className="flex items-center justify-between cursor-pointer py-0.5 text-[#cbd5e1]"
               >
                 <div className="flex items-center space-x-2">
-                  <div className={`w-3 h-3 rounded-[1px] border flex items-center justify-center ${selectedAsset === "ALL" ? "border-[#38BDF8] bg-[#38BDF8] text-black" : "border-[#59616B]"}`}>
+                  <div className={`w-3 h-3 rounded-[1px] border flex items-center justify-center ${selectedAsset === "ALL" ? "border-[#3b82f6] bg-[#3b82f6] text-black" : "border-[#64748b]"}`}>
                     {selectedAsset === "ALL" && <Check className="h-2.5 w-2.5 stroke-[3]" />}
                   </div>
                   <span>All Assets</span>
                 </div>
-                <span className="text-[10px] text-[#59616B]">{strategies.length}</span>
+                <span className="text-[10px] text-[#64748b]">{strategies.length}</span>
               </label>
 
               {(activeCountry === "India"
@@ -409,15 +409,15 @@ export default function StrategiesPage() {
                         setSelectedStockForRun(asset);
                       }
                     }}
-                    className="flex items-center justify-between cursor-pointer py-0.5 text-[#89919C] hover:text-[#D8DCE2]"
+                    className="flex items-center justify-between cursor-pointer py-0.5 text-[#94a3b8] hover:text-[#cbd5e1]"
                   >
                     <div className="flex items-center space-x-2">
-                      <div className={`w-3 h-3 rounded-[1px] border flex items-center justify-center ${isChecked ? "border-[#38BDF8] bg-[#38BDF8] text-black" : "border-[#59616B]"}`}>
+                      <div className={`w-3 h-3 rounded-[1px] border flex items-center justify-center ${isChecked ? "border-[#3b82f6] bg-[#3b82f6] text-black" : "border-[#64748b]"}`}>
                         {isChecked && <Check className="h-2.5 w-2.5 stroke-[3]" />}
                       </div>
                       <span className="font-mono">{asset}</span>
                     </div>
-                    <span className="text-[9px] text-[#38BDF8] hover:underline">Test &rarr;</span>
+                    <span className="text-[9px] text-[#3b82f6] hover:underline">Test &rarr;</span>
                   </label>
                 );
               })}
@@ -425,48 +425,48 @@ export default function StrategiesPage() {
           </div>
 
           {/* Status Filter */}
-          <div className="border-t border-[#252A31] pt-3 space-y-2">
-            <span className="text-[10px] text-[#59616B] uppercase font-bold tracking-wider block">
+          <div className="border-t border-[#1e293b] pt-3 space-y-2">
+            <span className="text-[10px] text-[#64748b] uppercase font-bold tracking-wider block">
               STATUS
             </span>
             <div className="space-y-1 text-[11px]">
               <label
                 onClick={() => setSelectedStatus("ALL")}
-                className="flex items-center justify-between cursor-pointer py-0.5 text-[#D8DCE2]"
+                className="flex items-center justify-between cursor-pointer py-0.5 text-[#cbd5e1]"
               >
                 <div className="flex items-center space-x-2">
-                  <div className={`w-3 h-3 rounded-[1px] border flex items-center justify-center ${selectedStatus === "ALL" ? "border-[#38BDF8] bg-[#38BDF8] text-black" : "border-[#59616B]"}`}>
+                  <div className={`w-3 h-3 rounded-[1px] border flex items-center justify-center ${selectedStatus === "ALL" ? "border-[#3b82f6] bg-[#3b82f6] text-black" : "border-[#64748b]"}`}>
                     {selectedStatus === "ALL" && <Check className="h-2.5 w-2.5 stroke-[3]" />}
                   </div>
                   <span>All</span>
                 </div>
-                <span className="text-[10px] text-[#59616B]">{strategies.length}</span>
+                <span className="text-[10px] text-[#64748b]">{strategies.length}</span>
               </label>
 
               <label
                 onClick={() => setSelectedStatus("READY")}
-                className="flex items-center justify-between cursor-pointer py-0.5 text-[#89919C] hover:text-[#D8DCE2]"
+                className="flex items-center justify-between cursor-pointer py-0.5 text-[#94a3b8] hover:text-[#cbd5e1]"
               >
                 <div className="flex items-center space-x-2">
-                  <div className={`w-3 h-3 rounded-[1px] border flex items-center justify-center ${selectedStatus === "READY" ? "border-[#38BDF8] bg-[#38BDF8] text-black" : "border-[#59616B]"}`}>
+                  <div className={`w-3 h-3 rounded-[1px] border flex items-center justify-center ${selectedStatus === "READY" ? "border-[#3b82f6] bg-[#3b82f6] text-black" : "border-[#64748b]"}`}>
                     {selectedStatus === "READY" && <Check className="h-2.5 w-2.5 stroke-[3]" />}
                   </div>
                   <span>Ready</span>
                 </div>
-                <span className="text-[10px] text-[#59616B]">{strategies.length - categoryCounts.CUSTOM}</span>
+                <span className="text-[10px] text-[#64748b]">{strategies.length - categoryCounts.CUSTOM}</span>
               </label>
 
               <label
                 onClick={() => setSelectedStatus("DRAFT")}
-                className="flex items-center justify-between cursor-pointer py-0.5 text-[#89919C] hover:text-[#D8DCE2]"
+                className="flex items-center justify-between cursor-pointer py-0.5 text-[#94a3b8] hover:text-[#cbd5e1]"
               >
                 <div className="flex items-center space-x-2">
-                  <div className={`w-3 h-3 rounded-[1px] border flex items-center justify-center ${selectedStatus === "DRAFT" ? "border-[#38BDF8] bg-[#38BDF8] text-black" : "border-[#59616B]"}`}>
+                  <div className={`w-3 h-3 rounded-[1px] border flex items-center justify-center ${selectedStatus === "DRAFT" ? "border-[#3b82f6] bg-[#3b82f6] text-black" : "border-[#64748b]"}`}>
                     {selectedStatus === "DRAFT" && <Check className="h-2.5 w-2.5 stroke-[3]" />}
                   </div>
                   <span>Draft</span>
                 </div>
-                <span className="text-[10px] text-[#59616B]">{categoryCounts.CUSTOM}</span>
+                <span className="text-[10px] text-[#64748b]">{categoryCounts.CUSTOM}</span>
               </label>
             </div>
           </div>
@@ -475,19 +475,19 @@ export default function StrategiesPage() {
         {/* ============================================================ */}
         {/* COLUMN 2: CENTER TABLE / GRID CATALOG VIEW                   */}
         {/* ============================================================ */}
-        <div className="flex-1 flex flex-col overflow-hidden bg-[#0B0D10]">
+        <div className="flex-1 flex flex-col overflow-hidden bg-[#080d1a]">
           {/* Sub-navigation tabs & Filter controls bar */}
-          <div className="border-b border-[#252A31] bg-[#101318] px-4 py-2 flex flex-wrap items-center justify-between gap-3">
+          <div className="border-b border-[#1e293b] bg-[#0b1222] px-4 py-2 flex flex-wrap items-center justify-between gap-3">
             {/* Nav Tabs */}
-            <div className="flex items-center space-x-1 border border-[#252A31] bg-[#0B0D10] p-0.5 rounded-[2px]">
+            <div className="flex items-center space-x-1 border border-[#1e293b] bg-[#080d1a] p-0.5 rounded-[2px]">
               {(["strategies", "performance", "templates", "compare"] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`px-3 py-1 rounded-[2px] font-bold uppercase text-[10px] transition-colors ${
                     activeTab === tab
-                      ? "bg-[#252A31] text-[#38BDF8]"
-                      : "text-[#89919C] hover:text-[#D8DCE2]"
+                      ? "bg-[#1e293b] text-[#3b82f6]"
+                      : "text-[#94a3b8] hover:text-[#cbd5e1]"
                   }`}
                 >
                   {tab}
@@ -498,38 +498,38 @@ export default function StrategiesPage() {
             {/* View Mode & Sorter */}
             <div className="flex items-center space-x-2">
               <div className="relative">
-                <Search className="h-3.5 w-3.5 absolute left-2 top-1.5 text-[#59616B]" />
+                <Search className="h-3.5 w-3.5 absolute left-2 top-1.5 text-[#64748b]" />
                 <input
                   ref={searchInputRef}
                   type="text"
                   placeholder="Search strategies, indicators, assets..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-7 pr-3 py-1 bg-[#0B0D10] border border-[#252A31] rounded-[2px] text-xs text-[#D8DCE2] placeholder-[#59616B] w-52 focus:outline-none focus:border-[#38BDF8]"
+                  className="pl-7 pr-3 py-1 bg-[#080d1a] border border-[#1e293b] rounded-[2px] text-xs text-[#cbd5e1] placeholder-[#64748b] w-52 focus:outline-none focus:border-[#3b82f6]"
                 />
               </div>
 
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value)}
-                className="bg-[#0B0D10] border border-[#252A31] rounded-[2px] px-2 py-1 text-[11px] text-[#89919C] focus:outline-none"
+                className="bg-[#080d1a] border border-[#1e293b] rounded-[2px] px-2 py-1 text-[11px] text-[#94a3b8] focus:outline-none"
               >
                 <option value="name_asc">Sort: Name (A &rarr; Z)</option>
                 <option value="name_desc">Sort: Name (Z &rarr; A)</option>
                 <option value="asset">Sort: Asset</option>
               </select>
 
-              <div className="flex items-center rounded-[2px] border border-[#252A31] bg-[#0B0D10] p-0.5">
+              <div className="flex items-center rounded-[2px] border border-[#1e293b] bg-[#080d1a] p-0.5">
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`p-1 rounded-[2px] ${viewMode === "list" ? "bg-[#252A31] text-[#38BDF8]" : "text-[#59616B] hover:text-[#D8DCE2]"}`}
+                  className={`p-1 rounded-[2px] ${viewMode === "list" ? "bg-[#1e293b] text-[#3b82f6]" : "text-[#64748b] hover:text-[#cbd5e1]"}`}
                   title="List View"
                 >
                   <List className="h-3.5 w-3.5" />
                 </button>
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-1 rounded-[2px] ${viewMode === "grid" ? "bg-[#252A31] text-[#38BDF8]" : "text-[#59616B] hover:text-[#D8DCE2]"}`}
+                  className={`p-1 rounded-[2px] ${viewMode === "grid" ? "bg-[#1e293b] text-[#3b82f6]" : "text-[#64748b] hover:text-[#cbd5e1]"}`}
                   title="Grid View"
                 >
                   <LayoutGrid className="h-3.5 w-3.5" />
@@ -542,7 +542,7 @@ export default function StrategiesPage() {
           <div className="flex-1 overflow-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-[#252A31] bg-[#0B0D10] text-[10px] text-[#89919C] uppercase tracking-wider sticky top-0 z-10">
+                <tr className="border-b border-[#1e293b] bg-[#080d1a] text-[10px] text-[#94a3b8] uppercase tracking-wider sticky top-0 z-10">
                   <th className="py-2.5 px-3 w-8 text-center">#</th>
                   <th className="py-2.5 px-3">Strategy Name</th>
                   <th className="py-2.5 px-3">Asset</th>
@@ -553,7 +553,7 @@ export default function StrategiesPage() {
                   <th className="py-2.5 px-3 text-center">Status</th>
                   <th className="py-2.5 px-3 text-right">Actions</th>
                 </tr>
-                <tr className="border-b border-[#252A31] bg-[#0B0D10] text-[9px] text-[#59616B] uppercase">
+                <tr className="border-b border-[#1e293b] bg-[#080d1a] text-[9px] text-[#64748b] uppercase">
                   <th colSpan={5}></th>
                   <th className="py-1 px-2 text-center">Trend</th>
                   <th className="py-1 px-2 text-right">Return</th>
@@ -561,7 +561,7 @@ export default function StrategiesPage() {
                   <th colSpan={3}></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#252A31]/50 font-mono">
+              <tbody className="divide-y divide-[#1e293b]/50 font-mono">
                 {paginatedStrategies.map((s, idx) => {
                   const isSelected = s.id === selectedStrategyId;
                   const rowNum = (currentPage - 1) * pageSize + idx + 1;
@@ -575,27 +575,27 @@ export default function StrategiesPage() {
                       onClick={() => setSelectedStrategyId(s.id)}
                       className={`cursor-pointer transition-colors ${
                         isSelected
-                          ? "bg-[#141820] border-l-2 border-[#38BDF8]"
-                          : "hover:bg-[#101318] border-l-2 border-transparent"
+                          ? "bg-[#0b1222] border-l-2 border-[#3b82f6]"
+                          : "hover:bg-[#0b1222] border-l-2 border-transparent"
                       }`}
                     >
-                      <td className="py-2 px-3 text-center text-[10px] text-[#59616B]">{rowNum}</td>
+                      <td className="py-2 px-3 text-center text-[10px] text-[#64748b]">{rowNum}</td>
                       <td className="py-2 px-3">
-                        <div className="font-bold text-[#D8DCE2]">{s.name}</div>
-                        <div className="text-[10px] text-[#59616B] truncate max-w-[200px]">
+                        <div className="font-bold text-[#cbd5e1]">{s.name}</div>
+                        <div className="text-[10px] text-[#64748b] truncate max-w-[200px]">
                           {s.description || "Systematic rules-based alpha"}
                         </div>
                       </td>
                       <td className="py-2 px-3">
-                        <span className="font-bold text-[#D8DCE2]">{s.asset}</span>
-                        <span className="text-[10px] text-[#59616B] ml-1">{s.timeframe}</span>
+                        <span className="font-bold text-[#cbd5e1]">{s.asset}</span>
+                        <span className="text-[10px] text-[#64748b] ml-1">{s.timeframe}</span>
                       </td>
                       <td className="py-2 px-3">
-                        <span className="px-1.5 py-0.5 rounded-[2px] bg-[#0B0D10] border border-[#252A31] text-[9px] text-[#89919C] uppercase">
+                        <span className="px-1.5 py-0.5 rounded-[2px] bg-[#080d1a] border border-[#1e293b] text-[9px] text-[#94a3b8] uppercase">
                           {(s.strategy_type || "trend").replace(/_/g, " ")}
                         </span>
                       </td>
-                      <td className="py-2 px-3 text-[11px] text-[#89919C] truncate max-w-[240px]">
+                      <td className="py-2 px-3 text-[11px] text-[#94a3b8] truncate max-w-[240px]">
                         {ruleSnippet}
                       </td>
                       <td className="py-2 px-2 text-center">
@@ -604,10 +604,10 @@ export default function StrategiesPage() {
                       <td className={`py-2 px-2 text-right font-bold tabular-nums ${isPositive ? "text-[#10B981]" : "text-[#EF4444]"}`}>
                         {formatPercent(perf.ret)}
                       </td>
-                      <td className="py-2 px-2 text-right text-[#D8DCE2] tabular-nums">
+                      <td className="py-2 px-2 text-right text-[#cbd5e1] tabular-nums">
                         {perf.sharpe.toFixed(2)}
                       </td>
-                      <td className="py-2 px-3 text-center text-[#89919C] tabular-nums">
+                      <td className="py-2 px-3 text-center text-[#94a3b8] tabular-nums">
                         {perf.trades}
                       </td>
                       <td className="py-2 px-3 text-center">
@@ -624,7 +624,7 @@ export default function StrategiesPage() {
                               setStrategyToTest(s);
                               setTestModalOpen(true);
                             }}
-                            className="flex items-center space-x-1 px-2 py-0.5 rounded-[2px] bg-[#0284C7]/15 hover:bg-[#0284C7]/30 border border-[#0284C7]/40 hover:border-[#38BDF8] text-[#38BDF8] text-[10px] font-bold transition-all cursor-pointer shadow-xs"
+                            className="flex items-center space-x-1 px-2 py-0.5 rounded-[2px] bg-[#2563eb]/15 hover:bg-[#2563eb]/30 border border-[#2563eb]/40 hover:border-[#3b82f6] text-[#3b82f6] text-[10px] font-bold transition-all cursor-pointer shadow-xs"
                             title={`Test ${s.name} on any stock (India or US)`}
                           >
                             <Play className="h-2.5 w-2.5 fill-current" />
@@ -632,7 +632,7 @@ export default function StrategiesPage() {
                           </button>
                           <button
                             onClick={(e) => handleDelete(e, s.id)}
-                            className="p-1 rounded-[2px] text-[#59616B] hover:text-[#EF4444]"
+                            className="p-1 rounded-[2px] text-[#64748b] hover:text-[#EF4444]"
                             title="Options"
                           >
                             <MoreVertical className="h-3 w-3" />
@@ -647,7 +647,7 @@ export default function StrategiesPage() {
           </div>
 
           {/* Table Pagination Footer */}
-          <div className="border-t border-[#252A31] bg-[#101318] px-4 py-2 flex items-center justify-between text-[11px] text-[#89919C]">
+          <div className="border-t border-[#1e293b] bg-[#0b1222] px-4 py-2 flex items-center justify-between text-[11px] text-[#94a3b8]">
             <span>
               Showing {(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, filteredStrategies.length)} of {filteredStrategies.length} strategies
             </span>
@@ -655,17 +655,17 @@ export default function StrategiesPage() {
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                className="px-2 py-0.5 rounded-[2px] border border-[#252A31] bg-[#0B0D10] disabled:opacity-30"
+                className="px-2 py-0.5 rounded-[2px] border border-[#1e293b] bg-[#080d1a] disabled:opacity-30"
               >
                 &lsaquo;
               </button>
-              <span className="px-2 py-0.5 text-white font-bold bg-[#252A31] rounded-[2px]">
+              <span className="px-2 py-0.5 text-white font-bold bg-[#1e293b] rounded-[2px]">
                 {currentPage}
               </span>
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                className="px-2 py-0.5 rounded-[2px] border border-[#252A31] bg-[#0B0D10] disabled:opacity-30"
+                className="px-2 py-0.5 rounded-[2px] border border-[#1e293b] bg-[#080d1a] disabled:opacity-30"
               >
                 &rsaquo;
               </button>
@@ -676,7 +676,7 @@ export default function StrategiesPage() {
                   setPageSize(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="bg-[#0B0D10] border border-[#252A31] rounded-[2px] px-2 py-0.5 text-[10px] text-[#89919C] focus:outline-none ml-2"
+                className="bg-[#080d1a] border border-[#1e293b] rounded-[2px] px-2 py-0.5 text-[10px] text-[#94a3b8] focus:outline-none ml-2"
               >
                 <option value={15}>15 / page</option>
                 <option value={25}>25 / page</option>
@@ -690,30 +690,30 @@ export default function StrategiesPage() {
         {/* COLUMN 3: RIGHT STRATEGY INSPECTION DRAWER PANEL            */}
         {/* ============================================================ */}
         {currentStrategy && (
-          <div className="w-80 border-l border-[#252A31] bg-[#101318] flex flex-col shrink-0 overflow-y-auto">
+          <div className="w-80 border-l border-[#1e293b] bg-[#0b1222] flex flex-col shrink-0 overflow-y-auto">
             {/* Header */}
-            <div className="p-4 border-b border-[#252A31] bg-[#0B0D10] space-y-1">
+            <div className="p-4 border-b border-[#1e293b] bg-[#080d1a] space-y-1">
               <div className="flex items-center justify-between">
                 <h2 className="font-bold text-sm text-white">{currentStrategy.name}</h2>
                 <span className="px-1.5 py-0.5 rounded-[2px] bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 text-[9px] font-bold">
                   READY
                 </span>
               </div>
-              <p className="text-[11px] text-[#89919C]">
+              <p className="text-[11px] text-[#94a3b8]">
                 {currentStrategy.description || "Classic trend-following strategy"}
               </p>
             </div>
 
             {/* Drawer Analytical Tabs */}
-            <div className="flex border-b border-[#252A31] bg-[#0B0D10] text-[10px] font-bold">
+            <div className="flex border-b border-[#1e293b] bg-[#080d1a] text-[10px] font-bold">
               {(["overview", "rules", "performance", "backtests"] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setDetailTab(tab)}
                   className={`flex-1 py-2 text-center uppercase transition-colors border-b-2 ${
                     detailTab === tab
-                      ? "border-[#38BDF8] text-[#38BDF8] bg-[#101318]"
-                      : "border-transparent text-[#89919C] hover:text-[#D8DCE2]"
+                      ? "border-[#3b82f6] text-[#3b82f6] bg-[#0b1222]"
+                      : "border-transparent text-[#94a3b8] hover:text-[#cbd5e1]"
                   }`}
                 >
                   {tab}
@@ -727,47 +727,47 @@ export default function StrategiesPage() {
                 <>
                   {/* Strategy Description */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] font-bold text-[#89919C] uppercase tracking-wider block">
+                    <span className="text-[10px] font-bold text-[#94a3b8] uppercase tracking-wider block">
                       Strategy Description
                     </span>
-                    <p className="text-[#89919C] text-[10px] leading-relaxed">
+                    <p className="text-[#94a3b8] text-[10px] leading-relaxed">
                       {currentStrategy.description ||
                         "Classic trend-following strategy that goes long when the short moving average crosses above the long moving average and exits when it crosses below."}
                     </p>
 
                     <div className="pt-2 grid grid-cols-2 gap-2 text-[10px]">
                       <div>
-                        <span className="text-[#59616B] block">Asset Class</span>
-                        <span className="text-[#D8DCE2] font-semibold">Equity (US)</span>
+                        <span className="text-[#64748b] block">Asset Class</span>
+                        <span className="text-[#cbd5e1] font-semibold">Equity (US)</span>
                       </div>
                       <div>
-                        <span className="text-[#59616B] block">Default Asset</span>
-                        <span className="text-[#D8DCE2] font-semibold">{currentStrategy.asset}</span>
+                        <span className="text-[#64748b] block">Default Asset</span>
+                        <span className="text-[#cbd5e1] font-semibold">{currentStrategy.asset}</span>
                       </div>
                       <div>
-                        <span className="text-[#59616B] block">Timeframe</span>
-                        <span className="text-[#D8DCE2] font-semibold">{currentStrategy.timeframe}</span>
+                        <span className="text-[#64748b] block">Timeframe</span>
+                        <span className="text-[#cbd5e1] font-semibold">{currentStrategy.timeframe}</span>
                       </div>
                       <div>
-                        <span className="text-[#59616B] block">Category</span>
-                        <span className="text-[#D8DCE2] font-semibold capitalize">
+                        <span className="text-[#64748b] block">Category</span>
+                        <span className="text-[#cbd5e1] font-semibold capitalize">
                           {(currentStrategy.strategy_type || "trend").replace(/_/g, " ")}
                         </span>
                       </div>
                       <div>
-                        <span className="text-[#59616B] block">Tags</span>
-                        <span className="text-[#38BDF8]">#moving-average #trend</span>
+                        <span className="text-[#64748b] block">Tags</span>
+                        <span className="text-[#3b82f6]">#moving-average #trend</span>
                       </div>
                       <div>
-                        <span className="text-[#59616B] block">Created</span>
-                        <span className="text-[#D8DCE2]">Jan 12, 2024</span>
+                        <span className="text-[#64748b] block">Created</span>
+                        <span className="text-[#cbd5e1]">Jan 12, 2024</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Quick Stats */}
-                  <div className="border border-[#252A31] bg-[#0B0D10] p-3 rounded-[2px] space-y-2">
-                    <span className="text-[10px] font-bold text-[#89919C] uppercase tracking-wider block">
+                  <div className="border border-[#1e293b] bg-[#080d1a] p-3 rounded-[2px] space-y-2">
+                    <span className="text-[10px] font-bold text-[#94a3b8] uppercase tracking-wider block">
                       Quick Stats ({currentStrategy.asset}, 1Y)
                     </span>
 
@@ -776,30 +776,30 @@ export default function StrategiesPage() {
                       return (
                         <div className="grid grid-cols-3 gap-2 text-center text-[10px]">
                           <div>
-                            <span className="text-[#59616B] block">Return</span>
+                            <span className="text-[#64748b] block">Return</span>
                             <span className={`font-bold ${p.ret >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
                               {formatPercent(p.ret)}
                             </span>
                           </div>
                           <div>
-                            <span className="text-[#59616B] block">Sharpe</span>
+                            <span className="text-[#64748b] block">Sharpe</span>
                             <span className="text-white font-bold">{p.sharpe.toFixed(2)}</span>
                           </div>
                           <div>
-                            <span className="text-[#59616B] block">Max Drawdown</span>
+                            <span className="text-[#64748b] block">Max Drawdown</span>
                             <span className="text-[#EF4444] font-bold">-{p.maxDd}%</span>
                           </div>
                           <div>
-                            <span className="text-[#59616B] block">Trades</span>
-                            <span className="text-[#38BDF8] font-bold">{p.trades}</span>
+                            <span className="text-[#64748b] block">Trades</span>
+                            <span className="text-[#3b82f6] font-bold">{p.trades}</span>
                           </div>
                           <div>
-                            <span className="text-[#59616B] block">Win Rate</span>
-                            <span className="text-[#D8DCE2] font-bold">{p.winRate}%</span>
+                            <span className="text-[#64748b] block">Win Rate</span>
+                            <span className="text-[#cbd5e1] font-bold">{p.winRate}%</span>
                           </div>
                           <div>
-                            <span className="text-[#59616B] block">Profit Factor</span>
-                            <span className="text-[#D8DCE2] font-bold">{p.pf}</span>
+                            <span className="text-[#64748b] block">Profit Factor</span>
+                            <span className="text-[#cbd5e1] font-bold">{p.pf}</span>
                           </div>
                         </div>
                       );
@@ -807,8 +807,8 @@ export default function StrategiesPage() {
                   </div>
 
                   {/* Signal Logic Card */}
-                  <div className="border border-[#252A31] bg-[#0B0D10] p-3 rounded-[2px] space-y-2">
-                    <span className="text-[10px] font-bold text-[#89919C] uppercase tracking-wider block">
+                  <div className="border border-[#1e293b] bg-[#080d1a] p-3 rounded-[2px] space-y-2">
+                    <span className="text-[10px] font-bold text-[#94a3b8] uppercase tracking-wider block">
                       Signal Logic
                     </span>
                     <div className="space-y-1.5 text-[10px]">
@@ -816,7 +816,7 @@ export default function StrategiesPage() {
                         <span className="px-1 py-0.2 rounded-[2px] bg-[#10B981]/15 text-[#10B981] font-bold">
                           ENTRY
                         </span>
-                        <span className="text-[#D8DCE2]">
+                        <span className="text-[#cbd5e1]">
                           {formatRuleSet(currentStrategy.entry_rules, currentStrategy.indicators)}
                         </span>
                       </div>
@@ -824,7 +824,7 @@ export default function StrategiesPage() {
                         <span className="px-1 py-0.2 rounded-[2px] bg-[#EF4444]/15 text-[#EF4444] font-bold">
                           EXIT
                         </span>
-                        <span className="text-[#D8DCE2]">
+                        <span className="text-[#cbd5e1]">
                           {currentStrategy.exit_rules.length > 0
                             ? formatRuleSet(currentStrategy.exit_rules, currentStrategy.indicators)
                             : "Risk stop / take profit bounds"}
@@ -837,25 +837,25 @@ export default function StrategiesPage() {
 
               {detailTab === "rules" && (
                 <div className="space-y-3">
-                  <span className="text-[10px] font-bold text-[#89919C] uppercase tracking-wider block">
+                  <span className="text-[10px] font-bold text-[#94a3b8] uppercase tracking-wider block">
                     Execution Rules
                   </span>
-                  <div className="border border-[#252A31] bg-[#0B0D10] p-3 rounded-[2px] space-y-2 text-[10px]">
+                  <div className="border border-[#1e293b] bg-[#080d1a] p-3 rounded-[2px] space-y-2 text-[10px]">
                     <div className="text-[#10B981] font-bold">ENTRY CONDITIONS:</div>
                     {currentStrategy.entry_rules.map((r, i) => (
-                      <div key={i} className="text-[#D8DCE2]">
+                      <div key={i} className="text-[#cbd5e1]">
                         &bull; {formatConditionRule(r, currentStrategy.indicators)}
                       </div>
                     ))}
-                    <div className="text-[#EF4444] font-bold pt-2 border-t border-[#252A31]">EXIT CONDITIONS:</div>
+                    <div className="text-[#EF4444] font-bold pt-2 border-t border-[#1e293b]">EXIT CONDITIONS:</div>
                     {currentStrategy.exit_rules.length > 0 ? (
                       currentStrategy.exit_rules.map((r, i) => (
-                        <div key={i} className="text-[#D8DCE2]">
+                        <div key={i} className="text-[#cbd5e1]">
                           &bull; {formatConditionRule(r, currentStrategy.indicators)}
                         </div>
                       ))
                     ) : (
-                      <div className="text-[#59616B]">No explicit reversal rules; managed by stops.</div>
+                      <div className="text-[#64748b]">No explicit reversal rules; managed by stops.</div>
                     )}
                   </div>
                 </div>
@@ -863,29 +863,29 @@ export default function StrategiesPage() {
 
               {detailTab === "performance" && (
                 <div className="space-y-3">
-                  <span className="text-[10px] font-bold text-[#89919C] uppercase tracking-wider block">
+                  <span className="text-[10px] font-bold text-[#94a3b8] uppercase tracking-wider block">
                     Risk & Sizing Parameters
                   </span>
-                  <div className="border border-[#252A31] bg-[#0B0D10] p-3 rounded-[2px] space-y-1 text-[10px]">
+                  <div className="border border-[#1e293b] bg-[#080d1a] p-3 rounded-[2px] space-y-1 text-[10px]">
                     <div className="flex justify-between">
-                      <span className="text-[#59616B]">Stop Loss:</span>
+                      <span className="text-[#64748b]">Stop Loss:</span>
                       <span className="text-[#EF4444]">
                         {currentStrategy.risk.stop_loss_pct ? `-${currentStrategy.risk.stop_loss_pct}%` : "None"}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-[#59616B]">Take Profit:</span>
+                      <span className="text-[#64748b]">Take Profit:</span>
                       <span className="text-[#10B981]">
                         {currentStrategy.risk.take_profit_pct ? `+${currentStrategy.risk.take_profit_pct}%` : "None"}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-[#59616B]">Position Size:</span>
-                      <span className="text-[#D8DCE2]">{currentStrategy.risk.position_size_pct}%</span>
+                      <span className="text-[#64748b]">Position Size:</span>
+                      <span className="text-[#cbd5e1]">{currentStrategy.risk.position_size_pct}%</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-[#59616B]">Max Concurrent:</span>
-                      <span className="text-[#D8DCE2]">{currentStrategy.risk.max_positions}</span>
+                      <span className="text-[#64748b]">Max Concurrent:</span>
+                      <span className="text-[#cbd5e1]">{currentStrategy.risk.max_positions}</span>
                     </div>
                   </div>
                 </div>
@@ -893,22 +893,22 @@ export default function StrategiesPage() {
 
               {detailTab === "backtests" && (
                 <div className="space-y-2">
-                  <span className="text-[10px] font-bold text-[#89919C] uppercase tracking-wider block">
+                  <span className="text-[10px] font-bold text-[#94a3b8] uppercase tracking-wider block">
                     Historical Simulations
                   </span>
-                  <div className="border border-[#252A31] bg-[#0B0D10] p-3 rounded-[2px] text-center text-[#59616B]">
+                  <div className="border border-[#1e293b] bg-[#080d1a] p-3 rounded-[2px] text-center text-[#64748b]">
                     Click &quot;Run Backtest&quot; below to launch a zero-lookahead backtest for this model.
                   </div>
                 </div>
               )}
 
               {/* Target Stock for Testing */}
-              <div className="p-3 rounded-[2px] bg-[#0B0D10] border border-[#252A31] space-y-2">
+              <div className="p-3 rounded-[2px] bg-[#080d1a] border border-[#1e293b] space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-[#89919C] uppercase font-bold">
+                  <span className="text-[10px] text-[#94a3b8] uppercase font-bold">
                     Test on Selected Stock
                   </span>
-                  <span className={`text-[9px] px-1 py-0.2 rounded font-bold ${activeCountry === "India" ? "text-[#10B981] bg-[#10B981]/15" : "text-[#38BDF8] bg-[#38BDF8]/15"}`}>
+                  <span className={`text-[9px] px-1 py-0.2 rounded font-bold ${activeCountry === "India" ? "text-[#10B981] bg-[#10B981]/15" : "text-[#3b82f6] bg-[#3b82f6]/15"}`}>
                     {activeCountry === "India" ? "🇮🇳 INDIA" : "🇺🇸 US"}
                   </span>
                 </div>
@@ -919,7 +919,7 @@ export default function StrategiesPage() {
                     value={selectedStockForRun}
                     onChange={(e) => setSelectedStockForRun(e.target.value.toUpperCase())}
                     placeholder="e.g. GENUSPOWER, RELIANCE..."
-                    className="flex-1 bg-[#101318] border border-[#252A31] rounded-[2px] px-2 py-1 text-xs font-mono font-bold text-white focus:outline-none focus:border-[#38BDF8]"
+                    className="flex-1 bg-[#0b1222] border border-[#1e293b] rounded-[2px] px-2 py-1 text-xs font-mono font-bold text-white focus:outline-none focus:border-[#3b82f6]"
                   />
                   <button
                     type="button"
@@ -927,7 +927,7 @@ export default function StrategiesPage() {
                       setStrategyToTest(currentStrategy);
                       setTestModalOpen(true);
                     }}
-                    className="px-2 py-1 rounded-[2px] bg-[#141820] hover:bg-[#252A31] text-[#38BDF8] text-[10px] font-bold border border-[#252A31] transition-colors cursor-pointer"
+                    className="px-2 py-1 rounded-[2px] bg-[#0b1222] hover:bg-[#1e293b] text-[#3b82f6] text-[10px] font-bold border border-[#1e293b] transition-colors cursor-pointer"
                     title="Change settings / market"
                   >
                     Configure
@@ -936,7 +936,7 @@ export default function StrategiesPage() {
 
                 {/* Quick Chips */}
                 <div className="flex items-center space-x-1 flex-wrap gap-y-1 text-[9px]">
-                  <span className="text-[#59616B]">Quick:</span>
+                  <span className="text-[#64748b]">Quick:</span>
                   {(activeCountry === "India"
                     ? ["GENUSPOWER", "RELIANCE", "TCS", "INFY", "HDFCBANK"]
                     : ["AAPL", "NVDA", "TSLA", "MSFT", "SPY"]
@@ -949,8 +949,8 @@ export default function StrategiesPage() {
                         selectedStockForRun === stk
                           ? activeCountry === "India"
                             ? "bg-[#10B981]/20 border-[#10B981] text-[#10B981] font-bold"
-                            : "bg-[#38BDF8]/20 border-[#38BDF8] text-[#38BDF8] font-bold"
-                          : "bg-[#101318] border-[#252A31] text-[#89919C] hover:text-white"
+                            : "bg-[#3b82f6]/20 border-[#3b82f6] text-[#3b82f6] font-bold"
+                          : "bg-[#0b1222] border-[#1e293b] text-[#94a3b8] hover:text-white"
                       }`}
                     >
                       {stk}
@@ -970,7 +970,7 @@ export default function StrategiesPage() {
                   className={`w-full flex items-center justify-center space-x-1.5 py-2 rounded-[2px] font-bold text-xs transition-colors cursor-pointer shadow-sm ${
                     activeCountry === "India"
                       ? "bg-[#10B981] hover:bg-[#059669] text-black"
-                      : "bg-[#38BDF8] hover:bg-sky-500 text-black"
+                      : "bg-[#3b82f6] hover:bg-sky-500 text-black"
                   }`}
                 >
                   <Play className="h-3.5 w-3.5 fill-current" />
@@ -980,13 +980,13 @@ export default function StrategiesPage() {
                 <div className="grid grid-cols-2 gap-2">
                   <Link
                     href={`/strategies/builder?clone=${currentStrategy.id}`}
-                    className="flex items-center justify-center space-x-1 py-1.5 rounded-[2px] border border-[#252A31] bg-[#0B0D10] hover:bg-[#141820] text-[#D8DCE2] text-[11px] font-semibold transition-colors"
+                    className="flex items-center justify-center space-x-1 py-1.5 rounded-[2px] border border-[#1e293b] bg-[#080d1a] hover:bg-[#0b1222] text-[#cbd5e1] text-[11px] font-semibold transition-colors"
                   >
                     <span>Edit Strategy</span>
                   </Link>
                   <Link
                     href={`/strategies/builder?clone=${currentStrategy.id}`}
-                    className="flex items-center justify-center space-x-1 py-1.5 rounded-[2px] border border-[#252A31] bg-[#0B0D10] hover:bg-[#141820] text-[#D8DCE2] text-[11px] font-semibold transition-colors"
+                    className="flex items-center justify-center space-x-1 py-1.5 rounded-[2px] border border-[#1e293b] bg-[#080d1a] hover:bg-[#0b1222] text-[#cbd5e1] text-[11px] font-semibold transition-colors"
                   >
                     <span>Duplicate</span>
                   </Link>

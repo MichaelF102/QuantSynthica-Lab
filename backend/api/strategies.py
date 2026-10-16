@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 from fastapi import APIRouter, HTTPException
 from ..models.schemas import StrategyConfig
@@ -22,7 +22,7 @@ def get_strategy(strategy_id: str):
 def create_strategy(strategy: StrategyConfig):
     if not strategy.id:
         strategy.id = f"strat_{uuid.uuid4().hex[:8]}"
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
     strategy.created_at = now
     strategy.updated_at = now
     return storage.save_strategy(strategy)
@@ -34,7 +34,7 @@ def update_strategy(strategy_id: str, strategy: StrategyConfig):
         raise HTTPException(status_code=404, detail="Strategy not found")
     strategy.id = strategy_id
     strategy.created_at = existing.created_at
-    strategy.updated_at = datetime.utcnow().isoformat()
+    strategy.updated_at = datetime.now(timezone.utc).isoformat()
     return storage.save_strategy(strategy)
 
 @router.delete("/{strategy_id}")

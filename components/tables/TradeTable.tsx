@@ -124,71 +124,71 @@ export default function TradeTable({
 
   if (!trades || trades.length === 0) {
     return (
-      <div className="border border-[#252A31] bg-[#101318] p-6 text-center text-xs font-mono text-[#89919C] rounded-[2px]">
+      <div className="border border-[#1e293b] bg-[#0b1222] p-6 text-center text-xs font-mono text-[#94a3b8] rounded-[2px]">
         NO TRADES: No entry conditions were triggered during the selected backtest period.
       </div>
     );
   }
 
   return (
-    <div className="border border-[#252A31] bg-[#101318] rounded-[2px] p-3 space-y-3 select-none">
+    <div className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-3 space-y-3 select-none">
       {/* Institutional Trade KPI Strip */}
       {summary && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 border border-[#252A31] bg-[#0B0D10] divide-x divide-y sm:divide-y-0 divide-[#252A31] text-[11px] font-mono">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 border border-[#1e293b] bg-[#080d1a] divide-x divide-y sm:divide-y-0 divide-[#1e293b] text-[11px] font-mono">
           <div className="p-2">
-            <span className="text-[10px] text-[#59616B] block uppercase">WIN RATE</span>
-            <span className="font-bold text-[#D8DCE2] text-xs">
+            <span className="text-[10px] text-[#64748b] block uppercase">WIN RATE</span>
+            <span className="font-bold text-[#cbd5e1] text-xs">
               {summary.winRate.toFixed(1)}%
             </span>
-            <span className="text-[9px] text-[#89919C] block">
+            <span className="text-[9px] text-[#94a3b8] block">
               {summary.winsCount}W / {summary.lossesCount}L
             </span>
           </div>
 
           <div className="p-2">
-            <span className="text-[10px] text-[#59616B] block uppercase">NET P&L</span>
+            <span className="text-[10px] text-[#64748b] block uppercase">NET P&L</span>
             <span className={`font-bold text-xs ${summary.netPnl >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
               {formatCurrency(summary.netPnl)}
             </span>
-            <span className="text-[9px] text-[#89919C] block">
+            <span className="text-[9px] text-[#94a3b8] block">
               Fees: {formatCurrency(summary.totalFees)}
             </span>
           </div>
 
           <div className="p-2">
-            <span className="text-[10px] text-[#59616B] block uppercase">AVG TRADE</span>
+            <span className="text-[10px] text-[#64748b] block uppercase">AVG TRADE</span>
             <span className={`font-bold text-xs ${summary.avg >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
               {formatPercent(summary.avg)}
             </span>
-            <span className="text-[9px] text-[#89919C] block">
+            <span className="text-[9px] text-[#94a3b8] block">
               Median: {formatPercent(summary.median)}
             </span>
           </div>
 
           <div className="p-2">
-            <span className="text-[10px] text-[#59616B] block uppercase">BEST TRADE</span>
+            <span className="text-[10px] text-[#64748b] block uppercase">BEST TRADE</span>
             <span className="font-bold text-xs text-[#10B981]">
               {formatPercent(summary.best)}
             </span>
           </div>
 
           <div className="p-2">
-            <span className="text-[10px] text-[#59616B] block uppercase">WORST TRADE</span>
+            <span className="text-[10px] text-[#64748b] block uppercase">WORST TRADE</span>
             <span className="font-bold text-xs text-[#EF4444]">
               {formatPercent(summary.worst)}
             </span>
           </div>
 
           <div className="p-2">
-            <span className="text-[10px] text-[#59616B] block uppercase">AVG HOLDING</span>
-            <span className="font-bold text-xs text-[#D8DCE2]">
+            <span className="text-[10px] text-[#64748b] block uppercase">AVG HOLDING</span>
+            <span className="font-bold text-xs text-[#cbd5e1]">
               {summary.avgHolding.toFixed(1)} bars
             </span>
           </div>
 
           <div className="p-2">
-            <span className="text-[10px] text-[#59616B] block uppercase">TOTAL TRADES</span>
-            <span className="font-bold text-xs text-[#38BDF8]">
+            <span className="text-[10px] text-[#64748b] block uppercase">TOTAL TRADES</span>
+            <span className="font-bold text-xs text-[#3b82f6]">
               {trades.length}
             </span>
           </div>
@@ -198,7 +198,7 @@ export default function TradeTable({
       {/* Filter Tabs & Search Ribbon */}
       <div className="flex flex-wrap items-center justify-between gap-2 pb-1 font-mono text-xs">
         {/* Direction / Outcome Tabs */}
-        <div className="flex items-center rounded-[2px] border border-[#252A31] bg-[#0B0D10] p-0.5">
+        <div className="flex items-center rounded-[2px] border border-[#1e293b] bg-[#080d1a] p-0.5">
           {(["ALL", "LONG", "SHORT", "WINNERS", "LOSERS"] as const).map((tab) => (
             <button
               key={tab}
@@ -208,8 +208,8 @@ export default function TradeTable({
               }}
               className={`px-2 py-0.5 text-[10px] font-bold rounded-[2px] transition-colors ${
                 activeTab === tab
-                  ? "bg-[#252A31] text-[#38BDF8]"
-                  : "text-[#89919C] hover:text-[#D8DCE2]"
+                  ? "bg-[#1e293b] text-[#3b82f6]"
+                  : "text-[#94a3b8] hover:text-[#cbd5e1]"
               }`}
             >
               {tab}
@@ -220,7 +220,7 @@ export default function TradeTable({
         {/* Right side search & export */}
         <div className="flex items-center space-x-2">
           <div className="relative flex items-center">
-            <Search className="h-3 w-3 text-[#59616B] absolute left-2 pointer-events-none" />
+            <Search className="h-3 w-3 text-[#64748b] absolute left-2 pointer-events-none" />
             <input
               type="text"
               placeholder="Search trades... (/)"
@@ -229,13 +229,13 @@ export default function TradeTable({
                 setSearchQuery(e.target.value);
                 setCurrentPage(1);
               }}
-              className="pl-7 pr-2 py-1 text-[11px] bg-[#0B0D10] border border-[#252A31] rounded-[2px] text-[#D8DCE2] placeholder-[#59616B] focus:outline-none focus:border-[#38BDF8]"
+              className="pl-7 pr-2 py-1 text-[11px] bg-[#080d1a] border border-[#1e293b] rounded-[2px] text-[#cbd5e1] placeholder-[#64748b] focus:outline-none focus:border-[#3b82f6]"
             />
           </div>
 
           <button
             onClick={handleExportCsv}
-            className="flex items-center space-x-1 px-2 py-1 rounded-[2px] border border-[#252A31] bg-[#0B0D10] hover:bg-[#141820] text-[11px] text-[#89919C] hover:text-[#D8DCE2] transition-colors"
+            className="flex items-center space-x-1 px-2 py-1 rounded-[2px] border border-[#1e293b] bg-[#080d1a] hover:bg-[#0b1222] text-[11px] text-[#94a3b8] hover:text-[#cbd5e1] transition-colors"
           >
             <Download className="h-3 w-3" />
             <span>EXPORT CSV</span>
@@ -244,22 +244,22 @@ export default function TradeTable({
       </div>
 
       {/* Main Table */}
-      <div className="overflow-x-auto border border-[#252A31]">
+      <div className="overflow-x-auto border border-[#1e293b]">
         <table className="w-full font-mono text-[11px] text-right border-collapse">
           <thead>
-            <tr className="border-b border-[#252A31] bg-[#0B0D10] text-[#89919C] text-[10px] uppercase">
+            <tr className="border-b border-[#1e293b] bg-[#080d1a] text-[#94a3b8] text-[10px] uppercase">
               <th className="py-2 px-2 text-left">#</th>
               <th className="py-2 px-2 text-left">TICKER</th>
               <th className="py-2 px-2 text-center">SIDE</th>
               <th
                 onClick={() => handleSort("entry_date")}
-                className="py-2 px-2 text-left cursor-pointer hover:text-[#D8DCE2]"
+                className="py-2 px-2 text-left cursor-pointer hover:text-[#cbd5e1]"
               >
                 ENTRY {sortField === "entry_date" && (sortAsc ? "▲" : "▼")}
               </th>
               <th
                 onClick={() => handleSort("exit_date")}
-                className="py-2 px-2 text-left cursor-pointer hover:text-[#D8DCE2]"
+                className="py-2 px-2 text-left cursor-pointer hover:text-[#cbd5e1]"
               >
                 EXIT {sortField === "exit_date" && (sortAsc ? "▲" : "▼")}
               </th>
@@ -268,38 +268,38 @@ export default function TradeTable({
               <th className="py-2 px-2">QTY</th>
               <th
                 onClick={() => handleSort("net_pnl")}
-                className="py-2 px-2 cursor-pointer hover:text-[#D8DCE2]"
+                className="py-2 px-2 cursor-pointer hover:text-[#cbd5e1]"
               >
                 P&L ($) {sortField === "net_pnl" && (sortAsc ? "▲" : "▼")}
               </th>
               <th
                 onClick={() => handleSort("return_pct")}
-                className="py-2 px-2 cursor-pointer hover:text-[#D8DCE2]"
+                className="py-2 px-2 cursor-pointer hover:text-[#cbd5e1]"
               >
                 RETURN % {sortField === "return_pct" && (sortAsc ? "▲" : "▼")}
               </th>
               <th
                 onClick={() => handleSort("holding_period_bars")}
-                className="py-2 px-2 cursor-pointer hover:text-[#D8DCE2]"
+                className="py-2 px-2 cursor-pointer hover:text-[#cbd5e1]"
               >
                 BARS {sortField === "holding_period_bars" && (sortAsc ? "▲" : "▼")}
               </th>
               <th
                 onClick={() => handleSort("mae")}
-                className="py-2 px-2 cursor-pointer hover:text-[#D8DCE2]"
+                className="py-2 px-2 cursor-pointer hover:text-[#cbd5e1]"
               >
                 MAE % {sortField === "mae" && (sortAsc ? "▲" : "▼")}
               </th>
               <th
                 onClick={() => handleSort("mfe")}
-                className="py-2 px-2 cursor-pointer hover:text-[#D8DCE2]"
+                className="py-2 px-2 cursor-pointer hover:text-[#cbd5e1]"
               >
                 MFE % {sortField === "mfe" && (sortAsc ? "▲" : "▼")}
               </th>
               <th className="py-2 px-2 text-left">REASON</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#252A31]/50">
+          <tbody className="divide-y divide-[#1e293b]/50">
             {paginatedTrades.map((t, idx) => {
               const rowNum = (currentPage - 1) * pageSize + idx + 1;
               const isSelected = t.id === selectedTradeId;
@@ -309,12 +309,12 @@ export default function TradeTable({
                   onClick={() => onSelectTrade && onSelectTrade(t)}
                   className={`cursor-pointer transition-colors ${
                     isSelected
-                      ? "bg-[#38BDF8]/10 border-l-2 border-[#38BDF8]"
-                      : "hover:bg-[#141820]/60"
+                      ? "bg-[#3b82f6]/10 border-l-2 border-[#3b82f6]"
+                      : "hover:bg-[#0b1222]/60"
                   }`}
                 >
-                  <td className="py-1.5 px-2 text-left text-[#59616B]">{rowNum}</td>
-                  <td className="py-1.5 px-2 text-left font-bold text-[#D8DCE2]">{t.ticker}</td>
+                  <td className="py-1.5 px-2 text-left text-[#64748b]">{rowNum}</td>
+                  <td className="py-1.5 px-2 text-left font-bold text-[#cbd5e1]">{t.ticker}</td>
                   <td className="py-1.5 px-2 text-center">
                     <span
                       className={`px-1 py-0.5 text-[9px] font-bold rounded-[2px] ${
@@ -326,11 +326,11 @@ export default function TradeTable({
                       {t.direction}
                     </span>
                   </td>
-                  <td className="py-1.5 px-2 text-left text-[#89919C]">{t.entry_date}</td>
-                  <td className="py-1.5 px-2 text-left text-[#89919C]">{t.exit_date}</td>
-                  <td className="py-1.5 px-2 text-[#D8DCE2]">{formatCurrency(t.entry_price)}</td>
-                  <td className="py-1.5 px-2 text-[#D8DCE2]">{formatCurrency(t.exit_price)}</td>
-                  <td className="py-1.5 px-2 text-[#89919C]">{t.quantity.toFixed(2)}</td>
+                  <td className="py-1.5 px-2 text-left text-[#94a3b8]">{t.entry_date}</td>
+                  <td className="py-1.5 px-2 text-left text-[#94a3b8]">{t.exit_date}</td>
+                  <td className="py-1.5 px-2 text-[#cbd5e1]">{formatCurrency(t.entry_price)}</td>
+                  <td className="py-1.5 px-2 text-[#cbd5e1]">{formatCurrency(t.exit_price)}</td>
+                  <td className="py-1.5 px-2 text-[#94a3b8]">{t.quantity.toFixed(2)}</td>
                   <td
                     className={`py-1.5 px-2 font-bold ${
                       t.net_pnl >= 0 ? "text-[#10B981]" : "text-[#EF4444]"
@@ -345,7 +345,7 @@ export default function TradeTable({
                   >
                     {formatPercent(t.return_pct)}
                   </td>
-                  <td className="py-1.5 px-2 text-[#89919C]">{t.holding_period_bars}</td>
+                  <td className="py-1.5 px-2 text-[#94a3b8]">{t.holding_period_bars}</td>
                   <td className="py-1.5 px-2 text-[#EF4444]">
                     {t.mae !== undefined ? `-${Math.abs(t.mae).toFixed(1)}%` : "—"}
                   </td>
@@ -353,7 +353,7 @@ export default function TradeTable({
                     {t.mfe !== undefined ? `+${Math.abs(t.mfe).toFixed(1)}%` : "—"}
                   </td>
                   <td className="py-1.5 px-2 text-left">
-                    <span className="text-[10px] text-[#89919C] px-1 py-0.5 rounded-[2px] bg-[#0B0D10] border border-[#252A31]">
+                    <span className="text-[10px] text-[#94a3b8] px-1 py-0.5 rounded-[2px] bg-[#080d1a] border border-[#1e293b]">
                       {t.exit_reason}
                     </span>
                   </td>
@@ -365,7 +365,7 @@ export default function TradeTable({
       </div>
 
       {/* Pagination Footer */}
-      <div className="flex items-center justify-between text-xs font-mono text-[#89919C] pt-1">
+      <div className="flex items-center justify-between text-xs font-mono text-[#94a3b8] pt-1">
         <span className="text-[11px]">
           Showing {(currentPage - 1) * pageSize + 1} to{" "}
           {Math.min(currentPage * pageSize, filteredTrades.length)} of {filteredTrades.length}{" "}
@@ -375,17 +375,17 @@ export default function TradeTable({
           <button
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            className="px-2 py-0.5 rounded-[2px] border border-[#252A31] bg-[#0B0D10] disabled:opacity-30 hover:bg-[#141820]"
+            className="px-2 py-0.5 rounded-[2px] border border-[#1e293b] bg-[#080d1a] disabled:opacity-30 hover:bg-[#0b1222]"
           >
             PREV
           </button>
-          <span className="px-2 py-0.5 text-[#D8DCE2]">
+          <span className="px-2 py-0.5 text-[#cbd5e1]">
             {currentPage} / {totalPages}
           </span>
           <button
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            className="px-2 py-0.5 rounded-[2px] border border-[#252A31] bg-[#0B0D10] disabled:opacity-30 hover:bg-[#141820]"
+            className="px-2 py-0.5 rounded-[2px] border border-[#1e293b] bg-[#080d1a] disabled:opacity-30 hover:bg-[#0b1222]"
           >
             NEXT
           </button>

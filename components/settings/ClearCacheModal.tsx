@@ -39,9 +39,9 @@ export default function ClearCacheModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-[#090D14] border border-[#DC2626]/50 rounded-lg shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
+      <div className="bg-[#080d1a] border border-[#DC2626]/50 rounded-lg shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[#1E2530] bg-[#140A0F]">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e293b] bg-[#140A0F]">
           <div className="flex items-center space-x-2">
             <AlertTriangle className="w-4 h-4 text-[#EF4444]" />
             <h3 className="text-xs font-bold font-mono text-white tracking-wide uppercase">
@@ -75,7 +75,7 @@ export default function ClearCacheModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end space-x-2 px-4 py-3 border-t border-[#1E2530] bg-[#0C111A]">
+        <div className="flex items-center justify-end space-x-2 px-4 py-3 border-t border-[#1e293b] bg-[#0C111A]">
           <button
             type="button"
             onClick={onClose}

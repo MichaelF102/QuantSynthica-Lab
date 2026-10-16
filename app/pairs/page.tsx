@@ -52,12 +52,12 @@ export default function PairsTradingPage() {
   };
 
   return (
-    <div className="mx-auto max-w-[1600px] animate-fade-up space-y-6 p-5">
+    <div className="app-container animate-fade-up space-y-6 py-6">
       {/* Header */}
       <div className="flex flex-col justify-between gap-4 border-b border-border/80 pb-5 sm:flex-row sm:items-end">
         <div>
           <h1 className="qs-title">Pairs</h1>
-          <p className="mt-1.5 max-w-lg text-sm text-stone-500">
+          <p className="mt-1.5 max-w-lg text-sm text-slate-500">
             Two names, a hedge ratio, and a z-score band. Useful as a lab, not a black box.
           </p>
         </div>

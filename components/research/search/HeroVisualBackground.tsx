@@ -23,7 +23,7 @@ export default function HeroVisualBackground() {
         className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]"
         style={{
           backgroundImage:
-            "linear-gradient(#38BDF8 1px, transparent 1px), linear-gradient(90deg, #38BDF8 1px, transparent 1px)",
+            "linear-gradient(#3b82f6 1px, transparent 1px), linear-gradient(90deg, #3b82f6 1px, transparent 1px)",
           backgroundSize: "60px 60px",
         }}
       />
@@ -46,7 +46,7 @@ export default function HeroVisualBackground() {
             </linearGradient>
             <linearGradient id="neonCyan" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#06B6D4" stopOpacity="0.2" />
-              <stop offset="50%" stopColor="#38BDF8" stopOpacity="0.8" />
+              <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.8" />
               <stop offset="100%" stopColor="#818CF8" stopOpacity="0.3" />
             </linearGradient>
             <linearGradient id="candleUp" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -82,7 +82,7 @@ export default function HeroVisualBackground() {
           />
           <path
             d="M -20 400 Q 120 290 220 330 T 420 250 T 520 400"
-            stroke="#38BDF8"
+            stroke="#3b82f6"
             strokeWidth="1"
             strokeOpacity="0.4"
           />
@@ -115,7 +115,7 @@ export default function HeroVisualBackground() {
           {/* Moving average curve through candles */}
           <path
             d="M 30 260 Q 95 210 170 180 T 260 130 T 360 110"
-            stroke="#38BDF8"
+            stroke="#3b82f6"
             strokeWidth="2.5"
             strokeLinecap="round"
             fill="none"
@@ -142,7 +142,7 @@ export default function HeroVisualBackground() {
               <stop offset="100%" stopColor="#020617" stopOpacity="0" />
             </radialGradient>
             <linearGradient id="orbitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.7" />
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.7" />
               <stop offset="50%" stopColor="#818CF8" stopOpacity="0.4" />
               <stop offset="100%" stopColor="#C084FC" stopOpacity="0.1" />
             </linearGradient>
@@ -153,13 +153,13 @@ export default function HeroVisualBackground() {
           <circle cx="280" cy="270" r="190" stroke="#1E293B" strokeWidth="1" strokeDasharray="3 3" />
 
           {/* Latitude Lines */}
-          <ellipse cx="280" cy="270" rx="190" ry="60" stroke="#38BDF8" strokeOpacity="0.25" strokeWidth="1" />
-          <ellipse cx="280" cy="220" rx="175" ry="50" stroke="#38BDF8" strokeOpacity="0.18" strokeWidth="1" />
-          <ellipse cx="280" cy="320" rx="175" ry="50" stroke="#38BDF8" strokeOpacity="0.18" strokeWidth="1" />
+          <ellipse cx="280" cy="270" rx="190" ry="60" stroke="#3b82f6" strokeOpacity="0.25" strokeWidth="1" />
+          <ellipse cx="280" cy="220" rx="175" ry="50" stroke="#3b82f6" strokeOpacity="0.18" strokeWidth="1" />
+          <ellipse cx="280" cy="320" rx="175" ry="50" stroke="#3b82f6" strokeOpacity="0.18" strokeWidth="1" />
           <ellipse cx="280" cy="170" rx="135" ry="40" stroke="#818CF8" strokeOpacity="0.15" strokeWidth="1" />
 
           {/* Longitude Arcs */}
-          <ellipse cx="280" cy="270" rx="60" ry="190" stroke="#38BDF8" strokeOpacity="0.25" strokeWidth="1" />
+          <ellipse cx="280" cy="270" rx="60" ry="190" stroke="#3b82f6" strokeOpacity="0.25" strokeWidth="1" />
           <ellipse cx="230" cy="270" rx="110" ry="190" stroke="#818CF8" strokeOpacity="0.2" strokeWidth="1" />
           <ellipse cx="330" cy="270" rx="110" ry="190" stroke="#818CF8" strokeOpacity="0.2" strokeWidth="1" />
 
@@ -173,8 +173,8 @@ export default function HeroVisualBackground() {
 
           {/* Active Capital / Financial Center Nodes (Glowing Dots) */}
           {/* Mumbai / India */}
-          <circle cx="270" cy="255" r="5" fill="#38BDF8" />
-          <circle cx="270" cy="255" r="12" stroke="#38BDF8" strokeOpacity="0.4" strokeWidth="1.5" />
+          <circle cx="270" cy="255" r="5" fill="#3b82f6" />
+          <circle cx="270" cy="255" r="12" stroke="#3b82f6" strokeOpacity="0.4" strokeWidth="1.5" />
 
           {/* New York / Wall Street */}
           <circle cx="160" cy="215" r="4.5" fill="#818CF8" />
@@ -190,8 +190,8 @@ export default function HeroVisualBackground() {
 
           {/* Connecting Data Rays to Floating Cards */}
           {/* Ray to NIFTY 50 */}
-          <line x1="270" y1="255" x2="380" y2="120" stroke="#38BDF8" strokeOpacity="0.5" strokeDasharray="3 3" />
-          <circle cx="380" cy="120" r="2.5" fill="#38BDF8" />
+          <line x1="270" y1="255" x2="380" y2="120" stroke="#3b82f6" strokeOpacity="0.5" strokeDasharray="3 3" />
+          <circle cx="380" cy="120" r="2.5" fill="#3b82f6" />
 
           {/* Ray to RELIANCE */}
           <line x1="270" y1="255" x2="430" y2="280" stroke="#34D399" strokeOpacity="0.5" strokeDasharray="3 3" />

@@ -23,6 +23,7 @@ import {
 } from "recharts";
 import { BacktestResult } from "@/types";
 
+import { TOOLTIP_STYLE } from "@/lib/chartTheme";
 interface AnalyticsRegimesTabProps {
   selectedBacktests: BacktestResult[];
   benchmark: string;
@@ -105,11 +106,11 @@ export default function AnalyticsRegimesTab({
 
   // Function to calculate cell background color based on correlation value
   const getCorrelationColor = (val: number, isDiag = false) => {
-    if (isDiag) return "bg-[#06B6D4]/30 text-[#38BDF8] font-bold";
+    if (isDiag) return "bg-[#06B6D4]/30 text-[#3b82f6] font-bold";
     if (val >= 0.8) return "bg-[#10B981]/50 text-white font-semibold";
     if (val >= 0.5) return "bg-[#10B981]/30 text-emerald-200";
     if (val >= 0.3) return "bg-[#10B981]/15 text-slate-200";
-    if (val >= 0) return "bg-[#1E2530]/40 text-slate-400";
+    if (val >= 0) return "bg-[#1e293b]/40 text-slate-400";
     if (val >= -0.2) return "bg-[#EF4444]/20 text-rose-300";
     return "bg-[#EF4444]/40 text-white font-semibold";
   };
@@ -177,9 +178,9 @@ export default function AnalyticsRegimesTab({
     const parts = String(payload?.value || "").split("\n");
     return (
       <g transform={`translate(${x},${y})`}>
-        <text x={0} y={0} dy={8} textAnchor="middle" fill="#89919C" fontSize={9} fontFamily="sans-serif">
+        <text x={0} y={0} dy={8} textAnchor="middle" fill="#94a3b8" fontSize={9} fontFamily="sans-serif">
           <tspan x={0} dy="0.71em">{parts[0]}</tspan>
-          {parts[1] && <tspan x={0} dy="1.15em" fill="#59616B">{parts[1]}</tspan>}
+          {parts[1] && <tspan x={0} dy="1.15em" fill="#64748b">{parts[1]}</tspan>}
         </text>
       </g>
     );
@@ -187,13 +188,17 @@ export default function AnalyticsRegimesTab({
 
   return (
     <div className="space-y-4">
+      <div role="note" className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300">
+        <span className="font-mono font-bold uppercase tracking-wider">Illustrative</span>
+        <span>Regime, factor, correlation and rolling charts below are a layout preview, not computed from your backtests.</span>
+      </div>
       {/* ========================================================
           1. TOP ROW: MARKET REGIME ANALYSIS & REGIME PERFORMANCE
           ======================================================== */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Left Card (~68%): Market Regime Analysis Chart */}
-        <div className="lg:col-span-8 bg-[#090D14] border border-[#1E2530] rounded-lg p-4 space-y-3">
-          <div className="flex flex-wrap items-center justify-between pb-2 border-b border-[#1E2530] gap-2">
+        <div className="lg:col-span-8 bg-[#080d1a] border border-[#1e293b] rounded-lg p-4 space-y-3">
+          <div className="flex flex-wrap items-center justify-between pb-2 border-b border-[#1e293b] gap-2">
             <div>
               <div className="flex items-center space-x-1.5">
                 <span className="font-semibold text-white text-xs tracking-tight">
@@ -201,14 +206,14 @@ export default function AnalyticsRegimesTab({
                 </span>
                 <Info className="w-3.5 h-3.5 text-slate-500 cursor-pointer" />
               </div>
-              <p className="text-[11px] text-[#89919C]">
+              <p className="text-[11px] text-[#94a3b8]">
                 Strategy performance across different market regimes
               </p>
             </div>
 
             <div className="flex items-center space-x-2">
               {/* Price | Returns Toggle */}
-              <div className="flex items-center space-x-1 bg-[#111622] p-0.5 rounded border border-[#202C3F] text-[11px]">
+              <div className="flex items-center space-x-1 bg-[#0b1222] p-0.5 rounded border border-[#1e293b] text-[11px]">
                 {(["Price", "Returns"] as RegimeChartMode[]).map((m) => (
                   <button
                     key={m}
@@ -216,7 +221,7 @@ export default function AnalyticsRegimesTab({
                     onClick={() => setChartMode(m)}
                     className={`px-2.5 py-0.5 rounded transition-all font-medium ${
                       chartMode === m
-                        ? "bg-[#0284C7] text-white font-semibold"
+                        ? "bg-[#2563eb] text-white font-semibold"
                         : "text-slate-400 hover:text-white"
                     }`}
                   >
@@ -230,7 +235,7 @@ export default function AnalyticsRegimesTab({
                 <select
                   value={selectedBenchmark}
                   onChange={(e) => setSelectedBenchmark(e.target.value)}
-                  className="appearance-none bg-[#111622] border border-[#202C3F] text-slate-200 pl-2.5 pr-6 py-1 rounded text-xs focus:outline-none focus:border-[#38BDF8] cursor-pointer font-sans"
+                  className="appearance-none bg-[#0b1222] border border-[#1e293b] text-slate-200 pl-2.5 pr-6 py-1 rounded text-xs focus:outline-none focus:border-[#3b82f6] cursor-pointer font-sans"
                 >
                   <option value="SPY">SPY (Benchmark)</option>
                   <option value="QQQ">QQQ (Nasdaq 100)</option>
@@ -248,7 +253,7 @@ export default function AnalyticsRegimesTab({
                 data={regimeCurveData}
                 margin={{ top: 15, right: 20, left: 10, bottom: 5 }}
               >
-                <CartesianGrid stroke="#18202C" strokeDasharray="2 2" vertical={false} />
+                <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
 
                 {/* Shaded vertical regime areas matching Screenshot 1 */}
                 <ReferenceArea x1={0} x2={25} fill="#10B981" fillOpacity={0.16} />
@@ -267,7 +272,7 @@ export default function AnalyticsRegimesTab({
                   stroke="#485362"
                   fontSize={10}
                   tickLine={false}
-                  axisLine={{ stroke: "#1E2530" }}
+                  axisLine={{ stroke: "#1e293b" }}
                   tickFormatter={(val) => {
                     const item = regimeCurveData.find((d) => d.step === val);
                     return item?.date || "";
@@ -284,13 +289,7 @@ export default function AnalyticsRegimesTab({
                   tickFormatter={(v) => (chartMode === "Price" ? `$${v}` : `${v}%`)}
                 />
                 <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#0C1017",
-                    borderColor: "#202C3F",
-                    fontSize: "11px",
-                    fontFamily: "monospace",
-                    borderRadius: "6px",
-                  }}
+                  contentStyle={TOOLTIP_STYLE}
                   formatter={(val: any) => [
                     chartMode === "Price" ? `$${val}` : `${val}%`,
                     "Strategy Value",
@@ -305,7 +304,7 @@ export default function AnalyticsRegimesTab({
                 <Line
                   type="monotone"
                   dataKey={chartMode === "Price" ? "price" : "returns"}
-                  stroke="#38BDF8"
+                  stroke="#3b82f6"
                   strokeWidth={2}
                   dot={false}
                   isAnimationActive={false}
@@ -315,7 +314,7 @@ export default function AnalyticsRegimesTab({
           </div>
 
           {/* Regime Legend */}
-          <div className="flex justify-center space-x-6 text-[11px] pt-2 border-t border-[#1E2530]">
+          <div className="flex justify-center space-x-6 text-[11px] pt-2 border-t border-[#1e293b]">
             <div className="flex items-center space-x-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
               <span className="text-slate-300">Bull</span>
@@ -336,9 +335,9 @@ export default function AnalyticsRegimesTab({
         </div>
 
         {/* Right Card (~32%): Regime Performance Table + Lightbulb Callout */}
-        <div className="lg:col-span-4 bg-[#090D14] border border-[#1E2530] rounded-lg p-4 flex flex-col justify-between">
+        <div className="lg:col-span-4 bg-[#080d1a] border border-[#1e293b] rounded-lg p-4 flex flex-col justify-between">
           <div className="space-y-3">
-            <div className="pb-2 border-b border-[#1E2530]">
+            <div className="pb-2 border-b border-[#1e293b]">
               <span className="font-semibold text-white text-xs tracking-tight">
                 Regime Performance
               </span>
@@ -348,14 +347,14 @@ export default function AnalyticsRegimesTab({
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs font-mono">
                 <thead>
-                  <tr className="border-b border-[#1E2530] text-[10px] text-slate-400 uppercase font-sans">
+                  <tr className="border-b border-[#1e293b] text-[10px] text-slate-400 uppercase font-sans">
                     <th className="py-2">Regime</th>
                     <th className="py-2 text-right">Occurrence</th>
                     <th className="py-2 text-right">Avg Return</th>
                     <th className="py-2 text-right">Sharpe</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#1E2530]/50">
+                <tbody className="divide-y divide-[#1e293b]/50">
                   <tr>
                     <td className="py-2.5 font-medium text-slate-200 font-sans flex items-center space-x-2">
                       <span className="w-2 h-2 rounded-full bg-[#10B981]" />
@@ -398,7 +397,7 @@ export default function AnalyticsRegimesTab({
           </div>
 
           {/* Yellow Lightbulb Insight Callout */}
-          <div className="bg-[#131822] border border-[#252E3E] rounded-lg p-3 flex items-start space-x-2.5 mt-4">
+          <div className="bg-[#0b1222] border border-[#1e293b] rounded-lg p-3 flex items-start space-x-2.5 mt-4">
             <span className="text-amber-400 text-sm mt-0.5">💡</span>
             <p className="text-[11px] text-slate-300 leading-relaxed font-sans">
               Strategy performs best in Bull markets with <span className="text-[#10B981] font-semibold">1.42 Sharpe ratio</span>, but shows weakness during high volatility regimes.
@@ -412,8 +411,8 @@ export default function AnalyticsRegimesTab({
           ======================================================== */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Left: Factor Exposure Analysis */}
-        <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-4 space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-[#1E2530]">
+        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-4 space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
             <div>
               <div className="flex items-center space-x-1.5">
                 <span className="font-semibold text-white text-xs tracking-tight">
@@ -421,7 +420,7 @@ export default function AnalyticsRegimesTab({
                 </span>
                 <Info className="w-3.5 h-3.5 text-slate-500 cursor-pointer" />
               </div>
-              <p className="text-[11px] text-[#89919C]">
+              <p className="text-[11px] text-[#94a3b8]">
                 Strategy sensitivity to common risk factors (vs SPY)
               </p>
             </div>
@@ -429,7 +428,7 @@ export default function AnalyticsRegimesTab({
             {/* Legend */}
             <div className="flex items-center space-x-3 text-xs">
               <div className="flex items-center space-x-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#0284C7]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#2563eb]" />
                 <span className="text-slate-300 text-[11px]">Strategy</span>
               </div>
               <div className="flex items-center space-x-1.5">
@@ -446,7 +445,7 @@ export default function AnalyticsRegimesTab({
                 data={factorExposureData}
                 margin={{ top: 25, right: 10, left: -20, bottom: 20 }}
               >
-                <CartesianGrid stroke="#18202C" strokeDasharray="2 2" vertical={false} />
+                <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
                 <XAxis
                   dataKey="factor"
                   stroke="#485362"
@@ -462,15 +461,10 @@ export default function AnalyticsRegimesTab({
                   tickFormatter={(v) => v.toFixed(1)}
                 />
                 <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#0C1017",
-                    borderColor: "#202C3F",
-                    fontSize: "11px",
-                    fontFamily: "monospace",
-                  }}
+                  contentStyle={TOOLTIP_STYLE}
                 />
                 <ReferenceLine y={0} stroke="#2E384D" />
-                <Bar dataKey="strategy" fill="#0284C7" isAnimationActive={false} label={renderBarLabel as any} />
+                <Bar dataKey="strategy" fill="#2563eb" isAnimationActive={false} label={renderBarLabel as any} />
                 <Bar dataKey="benchmark" fill="#64748B" isAnimationActive={false} label={renderBarLabel as any} />
               </BarChart>
             </ResponsiveContainer>
@@ -478,8 +472,8 @@ export default function AnalyticsRegimesTab({
         </div>
 
         {/* Right: Asset Correlation Matrix (Heatmap) */}
-        <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-4 space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-[#1E2530]">
+        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-4 space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
             <div>
               <div className="flex items-center space-x-1.5">
                 <span className="font-semibold text-white text-xs tracking-tight">
@@ -487,7 +481,7 @@ export default function AnalyticsRegimesTab({
                 </span>
                 <Info className="w-3.5 h-3.5 text-slate-500 cursor-pointer" />
               </div>
-              <p className="text-[11px] text-[#89919C]">
+              <p className="text-[11px] text-[#94a3b8]">
                 Correlation of strategy returns with key assets
               </p>
             </div>
@@ -509,7 +503,7 @@ export default function AnalyticsRegimesTab({
                     <th className="py-1">Gold</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#1E2530]/40">
+                <tbody className="divide-y divide-[#1e293b]/40">
                   {correlationMatrix.map((row) => (
                     <tr key={row.asset}>
                       <td className="py-1.5 text-left font-sans text-slate-300 font-medium pl-1 text-[11px]">
@@ -545,7 +539,7 @@ export default function AnalyticsRegimesTab({
             {/* Vertical Color Scale Legend */}
             <div className="flex flex-col items-center justify-between h-48 py-1 text-[9px] font-mono text-slate-400">
               <span>1.0</span>
-              <div className="w-2 flex-1 my-1 rounded bg-gradient-to-b from-[#10B981] via-[#1E2530] to-[#EF4444]" />
+              <div className="w-2 flex-1 my-1 rounded bg-gradient-to-b from-[#10B981] via-[#1e293b] to-[#EF4444]" />
               <span>0.5</span>
               <span>0.0</span>
               <span>-0.5</span>
@@ -560,8 +554,8 @@ export default function AnalyticsRegimesTab({
           ======================================================== */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Left: Rolling Metrics */}
-        <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-4 space-y-3">
-          <div className="flex flex-wrap items-center justify-between pb-2 border-b border-[#1E2530] gap-2">
+        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-4 space-y-3">
+          <div className="flex flex-wrap items-center justify-between pb-2 border-b border-[#1e293b] gap-2">
             <div className="flex items-center space-x-1.5">
               <span className="font-semibold text-white text-xs tracking-tight">
                 Rolling Metrics
@@ -570,7 +564,7 @@ export default function AnalyticsRegimesTab({
             </div>
 
             {/* Metric Pills */}
-            <div className="flex items-center space-x-1 bg-[#111622] p-0.5 rounded border border-[#202C3F] text-[11px]">
+            <div className="flex items-center space-x-1 bg-[#0b1222] p-0.5 rounded border border-[#1e293b] text-[11px]">
               {(["Rolling Sharpe", "Rolling Sortino", "Rolling Beta", "Rolling Volatility"] as RollingMetricType[]).map(
                 (m) => (
                   <button
@@ -579,7 +573,7 @@ export default function AnalyticsRegimesTab({
                     onClick={() => setRollingMetric(m)}
                     className={`px-2 py-0.5 rounded transition-all font-medium ${
                       rollingMetric === m
-                        ? "bg-[#0284C7] text-white font-semibold"
+                        ? "bg-[#2563eb] text-white font-semibold"
                         : "text-slate-400 hover:text-white"
                     }`}
                   >
@@ -598,7 +592,7 @@ export default function AnalyticsRegimesTab({
                   onClick={() => setRollingRange(r)}
                   className={`px-1.5 py-0.5 rounded transition-all ${
                     rollingRange === r
-                      ? "bg-[#252E3E] text-[#38BDF8] font-bold"
+                      ? "bg-[#1e293b] text-[#3b82f6] font-bold"
                       : "text-slate-500 hover:text-slate-300"
                   }`}
                 >
@@ -612,22 +606,17 @@ export default function AnalyticsRegimesTab({
           <div className="h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={rollingData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid stroke="#18202C" strokeDasharray="2 2" vertical={false} />
+                <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="date" stroke="#485362" fontSize={10} />
                 <YAxis stroke="#485362" fontSize={10} domain={[-3.0, 3.0]} ticks={[-3, -1.5, 0, 1.5, 3]} />
                 <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#0C1017",
-                    borderColor: "#202C3F",
-                    fontSize: "11px",
-                    fontFamily: "monospace",
-                  }}
+                  contentStyle={TOOLTIP_STYLE}
                 />
                 <ReferenceLine y={0} stroke="#475569" strokeDasharray="3 3" />
                 <Line
                   type="monotone"
                   dataKey="Strategy"
-                  stroke="#38BDF8"
+                  stroke="#3b82f6"
                   strokeWidth={2}
                   dot={false}
                   isAnimationActive={false}
@@ -645,9 +634,9 @@ export default function AnalyticsRegimesTab({
           </div>
 
           {/* Legend */}
-          <div className="flex justify-center space-x-6 text-[11px] pt-2 border-t border-[#1E2530]">
+          <div className="flex justify-center space-x-6 text-[11px] pt-2 border-t border-[#1e293b]">
             <div className="flex items-center space-x-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#38BDF8]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#3b82f6]" />
               <span className="text-slate-300">Strategy</span>
             </div>
             <div className="flex items-center space-x-1.5">
@@ -662,8 +651,8 @@ export default function AnalyticsRegimesTab({
         </div>
 
         {/* Right: Top & Bottom Contributors */}
-        <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-4 space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-[#1E2530]">
+        <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-4 space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
             <div className="flex items-center space-x-1.5">
               <span className="font-semibold text-white text-xs tracking-tight">
                 Top & Bottom Contributors
@@ -676,7 +665,7 @@ export default function AnalyticsRegimesTab({
               <select
                 value={contributorMetric}
                 onChange={(e) => setContributorMetric(e.target.value as any)}
-                className="appearance-none bg-[#111622] border border-[#202C3F] text-slate-200 pl-2.5 pr-6 py-0.5 rounded text-[11px] focus:outline-none focus:border-[#38BDF8] cursor-pointer"
+                className="appearance-none bg-[#0b1222] border border-[#1e293b] text-slate-200 pl-2.5 pr-6 py-0.5 rounded text-[11px] focus:outline-none focus:border-[#3b82f6] cursor-pointer"
               >
                 <option value="By Total Return">By Total Return</option>
                 <option value="By Sharpe Contribution">By Sharpe Contribution</option>
@@ -689,7 +678,7 @@ export default function AnalyticsRegimesTab({
           <div className="grid grid-cols-2 gap-4 text-xs font-mono">
             {/* Top 5 Contributors */}
             <div className="space-y-1.5">
-              <div className="text-[10px] text-[#10B981] font-semibold font-sans uppercase tracking-wider pb-1 border-b border-[#1E2530]/40">
+              <div className="text-[10px] text-[#10B981] font-semibold font-sans uppercase tracking-wider pb-1 border-b border-[#1e293b]/40">
                 Top 5 Contributors
               </div>
               <div className="space-y-1">
@@ -707,8 +696,8 @@ export default function AnalyticsRegimesTab({
             </div>
 
             {/* Bottom 5 Contributors */}
-            <div className="space-y-1.5 border-l border-[#1E2530] pl-4">
-              <div className="text-[10px] text-[#EF4444] font-semibold font-sans uppercase tracking-wider pb-1 border-b border-[#1E2530]/40">
+            <div className="space-y-1.5 border-l border-[#1e293b] pl-4">
+              <div className="text-[10px] text-[#EF4444] font-semibold font-sans uppercase tracking-wider pb-1 border-b border-[#1e293b]/40">
                 Bottom 5 Contributors
               </div>
               <div className="space-y-1">

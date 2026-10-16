@@ -133,7 +133,7 @@ export default function EquityCurveChart({
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex h-72 items-center justify-center border border-[#252A31] bg-[#101318] text-[#89919C] font-mono text-xs">
+      <div className="flex h-72 items-center justify-center border border-[#1e293b] bg-[#0b1222] text-[#94a3b8] font-mono text-xs">
         DATA NOT AVAILABLE FOR THIS RUN
       </div>
     );
@@ -144,18 +144,18 @@ export default function EquityCurveChart({
   const bhKey = viewMode === "EQUITY" ? "bh_val" : "bh_return";
 
   return (
-    <div className="border border-[#252A31] bg-[#101318] rounded-[2px] p-3 select-none">
+    <div className="border border-[#1e293b] bg-[#0b1222] rounded-[2px] p-3 select-none">
       {/* Institutional Top Control Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#252A31] mb-2.5 text-xs font-mono">
+      <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#1e293b] mb-2.5 text-xs font-mono">
         {/* Left: View Mode & Scale Controls */}
         <div className="flex items-center space-x-2">
-          <div className="flex rounded-[2px] border border-[#252A31] bg-[#0B0D10] p-0.5">
+          <div className="flex rounded-[2px] border border-[#1e293b] bg-[#080d1a] p-0.5">
             <button
               onClick={() => setViewMode("EQUITY")}
               className={`px-2 py-0.5 text-[11px] font-bold rounded-[2px] transition-colors ${
                 viewMode === "EQUITY"
-                  ? "bg-[#252A31] text-[#D8DCE2]"
-                  : "text-[#89919C] hover:text-[#D8DCE2]"
+                  ? "bg-[#1e293b] text-[#cbd5e1]"
+                  : "text-[#94a3b8] hover:text-[#cbd5e1]"
               }`}
             >
               EQUITY ($)
@@ -164,8 +164,8 @@ export default function EquityCurveChart({
               onClick={() => setViewMode("RETURN")}
               className={`px-2 py-0.5 text-[11px] font-bold rounded-[2px] transition-colors ${
                 viewMode === "RETURN"
-                  ? "bg-[#252A31] text-[#D8DCE2]"
-                  : "text-[#89919C] hover:text-[#D8DCE2]"
+                  ? "bg-[#1e293b] text-[#cbd5e1]"
+                  : "text-[#94a3b8] hover:text-[#cbd5e1]"
               }`}
             >
               RETURN (%)
@@ -176,8 +176,8 @@ export default function EquityCurveChart({
             onClick={() => setIsLogScale(!isLogScale)}
             className={`px-2 py-1 text-[10px] font-bold uppercase rounded-[2px] border transition-colors ${
               isLogScale
-                ? "bg-[#2962FF]/10 text-[#2962FF] border-[#2962FF]/40"
-                : "border-[#252A31] text-[#89919C] hover:border-[#2962FF]/30"
+                ? "bg-[#2563eb]/10 text-[#2563eb] border-[#2563eb]/40"
+                : "border-[#1e293b] text-[#94a3b8] hover:border-[#2563eb]/30"
             }`}
             title="Toggle Logarithmic Y-axis"
           >
@@ -189,7 +189,7 @@ export default function EquityCurveChart({
             className={`px-2 py-1 text-[10px] font-bold uppercase rounded-[2px] border transition-colors ${
               showTradeMarkers
                 ? "bg-[#10B981]/10 text-[#10B981] border-[#10B981]/40"
-                : "border-[#252A31] text-[#89919C] hover:border-[#10B981]/30"
+                : "border-[#1e293b] text-[#94a3b8] hover:border-[#10B981]/30"
             }`}
             title="Toggle Trade Entry/Exit Markers"
           >
@@ -200,8 +200,8 @@ export default function EquityCurveChart({
         {/* Center: Comparison Legend Toggles */}
         <div className="flex items-center space-x-3 text-[11px]">
           <div className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-0.5 bg-[#2962FF] inline-block"></span>
-            <span className="text-[#D8DCE2] font-semibold">STRATEGY</span>
+            <span className="w-2.5 h-0.5 bg-[#2563eb] inline-block"></span>
+            <span className="text-[#cbd5e1] font-semibold">STRATEGY</span>
             <span className={`text-[10px] ${stratReturn >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
               {formatPercent(stratReturn)}
             </span>
@@ -214,7 +214,7 @@ export default function EquityCurveChart({
             }`}
           >
             <span className="w-2.5 h-0.5 bg-[#818CF8] inline-block"></span>
-            <span className="text-[#89919C]">B&H ({assetSymbol})</span>
+            <span className="text-[#94a3b8]">B&H ({assetSymbol})</span>
           </button>
 
           <button
@@ -223,21 +223,21 @@ export default function EquityCurveChart({
               showBenchmark ? "opacity-100" : "opacity-40 line-through"
             }`}
           >
-            <span className="w-2.5 h-0.5 bg-[#59616B] inline-block border-t border-dashed"></span>
-            <span className="text-[#89919C]">{benchmarkSymbol}</span>
+            <span className="w-2.5 h-0.5 bg-[#64748b] inline-block border-t border-dashed"></span>
+            <span className="text-[#94a3b8]">{benchmarkSymbol}</span>
           </button>
         </div>
 
         {/* Right: Time Range Slicers */}
-        <div className="flex items-center rounded-[2px] border border-[#252A31] bg-[#0B0D10] p-0.5">
+        <div className="flex items-center rounded-[2px] border border-[#1e293b] bg-[#080d1a] p-0.5">
           {(["1M", "3M", "6M", "1Y", "ALL"] as const).map((r) => (
             <button
               key={r}
               onClick={() => setRange(r)}
               className={`px-2 py-0.5 text-[10px] font-bold rounded-[2px] transition-colors ${
                 range === r
-                  ? "bg-[#252A31] text-[#2962FF]"
-                  : "text-[#89919C] hover:text-[#D8DCE2]"
+                  ? "bg-[#1e293b] text-[#2563eb]"
+                  : "text-[#94a3b8] hover:text-[#cbd5e1]"
               }`}
             >
               {r}
@@ -253,19 +253,19 @@ export default function EquityCurveChart({
             data={chartData}
             margin={{ top: 12, right: 12, left: -10, bottom: 0 }}
           >
-            <CartesianGrid stroke="#1E232B" strokeDasharray="1 1" vertical={false} />
+            <CartesianGrid stroke="var(--border-color)" strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="date"
-              stroke="#59616B"
+              stroke="#64748b"
               fontSize={10}
               tickLine={false}
-              axisLine={{ stroke: "#252A31" }}
+              axisLine={{ stroke: "#1e293b" }}
               tickFormatter={(v) => v.slice(5)}
             />
             <YAxis
               scale={isLogScale ? "log" : "auto"}
               domain={["auto", "auto"]}
-              stroke="#59616B"
+              stroke="#64748b"
               fontSize={10}
               tickLine={false}
               axisLine={false}
@@ -277,7 +277,7 @@ export default function EquityCurveChart({
             />
             <Tooltip
               isAnimationActive={false}
-              cursor={{ stroke: "#59616B", strokeWidth: 1, strokeDasharray: "2 2" }}
+              cursor={{ stroke: "#64748b", strokeWidth: 1, strokeDasharray: "2 2" }}
               content={({ active, payload }) => {
                 if (!active || !payload || !payload.length) return null;
                 const d = payload[0].payload;
@@ -287,13 +287,13 @@ export default function EquityCurveChart({
                 const deltaPct = d.strat_return - d.bench_return;
 
                 return (
-                  <div className="border border-[#252A31] bg-[#101318] p-2 font-mono text-[11px] shadow-lg rounded-[2px] space-y-1 min-w-[200px]">
-                    <div className="text-[#89919C] text-[10px] pb-1 border-b border-[#252A31]">
+                  <div className="border border-[#1e293b] bg-[#0b1222] p-2 font-mono text-[11px] shadow-lg rounded-[2px] space-y-1 min-w-[200px]">
+                    <div className="text-[#94a3b8] text-[10px] pb-1 border-b border-[#1e293b]">
                       {d.date}
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-[#2962FF]">STRATEGY:</span>
-                      <span className="font-bold text-[#D8DCE2]">
+                      <span className="text-[#2563eb]">STRATEGY:</span>
+                      <span className="font-bold text-[#cbd5e1]">
                         {viewMode === "EQUITY" ? formatCurrency(stratVal) : formatPercent(d.strat_return)}
                       </span>
                     </div>
@@ -306,15 +306,15 @@ export default function EquityCurveChart({
                       </div>
                     )}
                     {showBenchmark && (
-                      <div className="flex justify-between items-center text-[#89919C]">
+                      <div className="flex justify-between items-center text-[#94a3b8]">
                         <span>{benchmarkSymbol}:</span>
                         <span>
                           {viewMode === "EQUITY" ? formatCurrency(benchVal) : formatPercent(d.bench_return)}
                         </span>
                       </div>
                     )}
-                    <div className="pt-1 border-t border-[#252A31] flex justify-between items-center text-[10px]">
-                      <span className="text-[#59616B]">DIFFERENCE:</span>
+                    <div className="pt-1 border-t border-[#1e293b] flex justify-between items-center text-[10px]">
+                      <span className="text-[#64748b]">DIFFERENCE:</span>
                       <span className={delta >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}>
                         {viewMode === "EQUITY"
                           ? `${delta >= 0 ? "+" : ""}${formatCurrency(delta)}`
@@ -322,7 +322,7 @@ export default function EquityCurveChart({
                       </span>
                     </div>
                     <div className="flex justify-between items-center text-[10px] text-[#EF4444]">
-                      <span className="text-[#59616B]">UNDERWATER DD:</span>
+                      <span className="text-[#64748b]">UNDERWATER DD:</span>
                       <span>-{Math.abs(d.drawdown).toFixed(2)}%</span>
                     </div>
                   </div>
@@ -336,7 +336,7 @@ export default function EquityCurveChart({
                 type="monotone"
                 dataKey={benchKey}
                 name={benchmarkSymbol}
-                stroke="#59616B"
+                stroke="#64748b"
                 strokeWidth={1.2}
                 strokeDasharray="3 3"
                 dot={false}
@@ -362,7 +362,7 @@ export default function EquityCurveChart({
               type="monotone"
               dataKey={stratKey}
               name="Strategy"
-              stroke="#2962FF"
+              stroke="#2563eb"
               strokeWidth={2}
               dot={false}
               isAnimationActive={false}
@@ -379,10 +379,10 @@ export default function EquityCurveChart({
                   m.type === "ENTRY"
                     ? "#10B981"
                     : m.isWin
-                    ? "#2962FF"
+                    ? "#2563eb"
                     : "#EF4444"
                 }
-                stroke={m.isSelected ? "#FFFFFF" : "#0B0D10"}
+                stroke={m.isSelected ? "#FFFFFF" : "#080d1a"}
                 strokeWidth={1.5}
                 className="cursor-pointer hover:opacity-80"
                 onClick={() => onSelectTrade && onSelectTrade(m.trade)}

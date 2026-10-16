@@ -48,11 +48,11 @@ export default function DiagnosticsModal({ isOpen, onClose }: DiagnosticsModalPr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-[#090D14] border border-[#1E2C40] rounded-lg shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[85vh]">
+      <div className="bg-[#080d1a] border border-[#1E2C40] rounded-lg shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[85vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[#1E2530] bg-[#0C111A]">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e293b] bg-[#0C111A]">
           <div className="flex items-center space-x-2">
-            <Terminal className="w-4 h-4 text-[#38BDF8]" />
+            <Terminal className="w-4 h-4 text-[#3b82f6]" />
             <h3 className="text-xs font-bold font-mono text-white tracking-wide uppercase">
               Full System Telemetry &amp; Diagnostics
             </h3>
@@ -60,7 +60,7 @@ export default function DiagnosticsModal({ isOpen, onClose }: DiagnosticsModalPr
           <button
             type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded hover:bg-[#151C28]"
+            className="text-slate-400 hover:text-white p-1 rounded hover:bg-[#0b1222]"
           >
             <X className="w-4 h-4" />
           </button>
@@ -70,25 +70,25 @@ export default function DiagnosticsModal({ isOpen, onClose }: DiagnosticsModalPr
         <div className="p-4 overflow-y-auto space-y-4 font-mono text-xs text-slate-200">
           {/* Top telemetry bar */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
-            <div className="bg-[#111722] p-2.5 rounded border border-[#1E2B3E]">
+            <div className="bg-[#0b1222] p-2.5 rounded border border-[#1e293b]">
               <span className="text-slate-500 block text-[10px]">ENGINE STATUS</span>
               <span className="text-[#10B981] font-bold">
                 {diagData?.status === "online" ? "● ACTIVE" : "● OFFLINE"}
               </span>
             </div>
-            <div className="bg-[#111722] p-2.5 rounded border border-[#1E2B3E]">
+            <div className="bg-[#0b1222] p-2.5 rounded border border-[#1e293b]">
               <span className="text-slate-500 block text-[10px]">API LATENCY</span>
-              <span className="text-[#38BDF8] font-bold">
+              <span className="text-[#3b82f6] font-bold">
                 {latencyMs !== null ? `~${latencyMs} ms` : "—"}
               </span>
             </div>
-            <div className="bg-[#111722] p-2.5 rounded border border-[#1E2B3E]">
+            <div className="bg-[#0b1222] p-2.5 rounded border border-[#1e293b]">
               <span className="text-slate-500 block text-[10px]">PYTHON RUNTIME</span>
               <span className="text-slate-200 font-bold">
                 {diagData?.python_version ? `v${diagData.python_version}` : "Python 3.12"}
               </span>
             </div>
-            <div className="bg-[#111722] p-2.5 rounded border border-[#1E2B3E]">
+            <div className="bg-[#0b1222] p-2.5 rounded border border-[#1e293b]">
               <span className="text-slate-500 block text-[10px]">PLATFORM</span>
               <span className="text-slate-200 font-bold uppercase">
                 {diagData?.platform || "Linux x86_64"}
@@ -141,20 +141,20 @@ export default function DiagnosticsModal({ isOpen, onClose }: DiagnosticsModalPr
               Equities Universe &amp; Cache Storage
             </div>
             <div className="space-y-1.5 text-xs">
-              <div className="flex justify-between py-1 border-b border-[#161F2C]">
+              <div className="flex justify-between py-1 border-b border-[#0b1222]">
                 <span className="text-slate-400">Indexed Securities (CSV Universe)</span>
                 <span className="font-bold text-white">
                   {diagData?.universe?.total_securities?.toLocaleString() || "18,546"} equities
                 </span>
               </div>
-              <div className="flex justify-between py-1 border-b border-[#161F2C]">
+              <div className="flex justify-between py-1 border-b border-[#0b1222]">
                 <span className="text-slate-400">US Equities / India Equities</span>
                 <span className="text-slate-300">
                   {diagData?.universe?.us_equities?.toLocaleString() || "10,936"} /{" "}
                   {diagData?.universe?.india_equities?.toLocaleString() || "7,610"}
                 </span>
               </div>
-              <div className="flex justify-between py-1 border-b border-[#161F2C]">
+              <div className="flex justify-between py-1 border-b border-[#0b1222]">
                 <span className="text-slate-400">Parquet Cache Directory</span>
                 <span className="text-slate-400 font-mono text-[10px] truncate max-w-xs">
                   {diagData?.cache?.directory || "backend/data/cache"}
@@ -171,12 +171,12 @@ export default function DiagnosticsModal({ isOpen, onClose }: DiagnosticsModalPr
         </div>
 
         {/* Footer actions */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-[#1E2530] bg-[#0C111A]">
+        <div className="flex items-center justify-between px-4 py-3 border-t border-[#1e293b] bg-[#0C111A]">
           <button
             type="button"
             onClick={runDiagnostics}
             disabled={running}
-            className="flex items-center space-x-1.5 text-xs text-[#38BDF8] hover:text-white px-3 py-1.5 rounded bg-[#38BDF8]/10 hover:bg-[#38BDF8]/20 border border-[#38BDF8]/30 transition-colors disabled:opacity-50"
+            className="flex items-center space-x-1.5 text-xs text-[#3b82f6] hover:text-white px-3 py-1.5 rounded bg-[#3b82f6]/10 hover:bg-[#3b82f6]/20 border border-[#3b82f6]/30 transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${running ? "animate-spin" : ""}`} />
             <span>{running ? "Scanning..." : "Re-Run Diagnostics"}</span>
@@ -186,7 +186,7 @@ export default function DiagnosticsModal({ isOpen, onClose }: DiagnosticsModalPr
             <button
               type="button"
               onClick={handleCopy}
-              className="flex items-center space-x-1.5 text-xs text-slate-300 hover:text-white px-3 py-1.5 rounded bg-[#16202E] hover:bg-[#1E2B3E] border border-[#233348] transition-colors"
+              className="flex items-center space-x-1.5 text-xs text-slate-300 hover:text-white px-3 py-1.5 rounded bg-[#16202E] hover:bg-[#1e293b] border border-[#233348] transition-colors"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-[#10B981]" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copied ? "Copied" : "Copy JSON"}</span>
@@ -194,7 +194,7 @@ export default function DiagnosticsModal({ isOpen, onClose }: DiagnosticsModalPr
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-1.5 text-xs bg-[#0284C7] hover:bg-[#0369A1] text-white font-medium rounded transition-colors"
+              className="px-3.5 py-1.5 text-xs bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium rounded transition-colors"
             >
               Close
             </button>

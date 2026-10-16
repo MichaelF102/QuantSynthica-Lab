@@ -62,25 +62,25 @@ export default function MoreMetricsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="bg-[#0A0D14] border border-[#202C3F] rounded-xl shadow-2xl max-w-4xl w-full p-6 space-y-6 max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#080d1a] border border-[#1e293b] rounded-xl shadow-2xl max-w-4xl w-full p-6 space-y-6 max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#1E2530]">
+        <div className="flex items-center justify-between pb-3 border-b border-[#1e293b]">
           <div>
             <div className="flex items-center space-x-2">
-              <Activity className="w-5 h-5 text-[#38BDF8]" />
+              <Activity className="w-5 h-5 text-[#3b82f6]" />
               <h2 className="text-base font-bold text-white tracking-tight">
                 Comprehensive Quantitative Metric Suite
               </h2>
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
               Extended statistical performance, downside tail risk, and factor characteristics for{" "}
-              <span className="text-[#38BDF8] font-semibold">{strategyName}</span>
+              <span className="text-[#3b82f6] font-semibold">{strategyName}</span>
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded hover:bg-[#131822]"
+            className="text-slate-400 hover:text-white p-1 rounded hover:bg-[#0b1222]"
           >
             <X className="w-5 h-5" />
           </button>
@@ -89,8 +89,8 @@ export default function MoreMetricsModal({
         {/* 4 Category Grids */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
           {/* Return Metrics */}
-          <div className="bg-[#0F141D] border border-[#1E2530] rounded-lg p-4 space-y-3">
-            <div className="flex items-center space-x-2 text-white font-semibold pb-1 border-b border-[#1E2530]">
+          <div className="bg-[#0b1222] border border-[#1e293b] rounded-lg p-4 space-y-3">
+            <div className="flex items-center space-x-2 text-white font-semibold pb-1 border-b border-[#1e293b]">
               <TrendingUp className="w-4 h-4 text-[#10B981]" />
               <span>Return Performance Profile</span>
             </div>
@@ -105,9 +105,9 @@ export default function MoreMetricsModal({
           </div>
 
           {/* Risk-Adjusted Ratios */}
-          <div className="bg-[#0F141D] border border-[#1E2530] rounded-lg p-4 space-y-3">
-            <div className="flex items-center space-x-2 text-white font-semibold pb-1 border-b border-[#1E2530]">
-              <BarChart3 className="w-4 h-4 text-[#38BDF8]" />
+          <div className="bg-[#0b1222] border border-[#1e293b] rounded-lg p-4 space-y-3">
+            <div className="flex items-center space-x-2 text-white font-semibold pb-1 border-b border-[#1e293b]">
+              <BarChart3 className="w-4 h-4 text-[#3b82f6]" />
               <span>Risk-Adjusted Efficiency</span>
             </div>
             <div className="space-y-2 font-mono">
@@ -121,8 +121,8 @@ export default function MoreMetricsModal({
           </div>
 
           {/* Volatility & Downside Risk */}
-          <div className="bg-[#0F141D] border border-[#1E2530] rounded-lg p-4 space-y-3">
-            <div className="flex items-center space-x-2 text-white font-semibold pb-1 border-b border-[#1E2530]">
+          <div className="bg-[#0b1222] border border-[#1e293b] rounded-lg p-4 space-y-3">
+            <div className="flex items-center space-x-2 text-white font-semibold pb-1 border-b border-[#1e293b]">
               <ShieldAlert className="w-4 h-4 text-[#F59E0B]" />
               <span>Tail Risk & Volatility Metrics</span>
             </div>
@@ -137,8 +137,8 @@ export default function MoreMetricsModal({
           </div>
 
           {/* Drawdown Profile */}
-          <div className="bg-[#0F141D] border border-[#1E2530] rounded-lg p-4 space-y-3">
-            <div className="flex items-center space-x-2 text-white font-semibold pb-1 border-b border-[#1E2530]">
+          <div className="bg-[#0b1222] border border-[#1e293b] rounded-lg p-4 space-y-3">
+            <div className="flex items-center space-x-2 text-white font-semibold pb-1 border-b border-[#1e293b]">
               <Activity className="w-4 h-4 text-[#EF4444]" />
               <span>Drawdown & Recovery Profile</span>
             </div>
@@ -154,11 +154,11 @@ export default function MoreMetricsModal({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end pt-3 border-t border-[#1E2530]">
+        <div className="flex justify-end pt-3 border-t border-[#1e293b]">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold rounded"
+            className="px-4 py-1.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-semibold rounded"
           >
             Close
           </button>

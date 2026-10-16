@@ -4,13 +4,14 @@ import React, { useMemo } from "react";
 import { Info } from "lucide-react";
 import { AssetAllocation } from "@/components/portfolio/PortfolioAllocationWidget";
 
+import { SERIES_COLORS } from "@/lib/chartTheme";
 interface RiskContributionItem {
   asset: string;
   pctOfRisk: number;
   barColor: string;
 }
 
-const PALETTE = ["#EF4444", "#38BDF8", "#F59E0B", "#10B981", "#8B5CF6", "#EC4899", "#06B6D4", "#EAB308"];
+const PALETTE = [...SERIES_COLORS];
 
 // Estimated baseline volatilities for common institutional securities
 const VOLATILITY_MAP: Record<string, number> = {
@@ -45,7 +46,7 @@ function getAssetVol(symbol: string): number {
 
 const DEFAULT_RISK_CONTRIBUTIONS: RiskContributionItem[] = [
   { asset: "NVDA", pctOfRisk: 34.7, barColor: "#EF4444" },
-  { asset: "AAPL", pctOfRisk: 17.8, barColor: "#38BDF8" },
+  { asset: "AAPL", pctOfRisk: 17.8, barColor: "#3b82f6" },
   { asset: "MSFT", pctOfRisk: 14.2, barColor: "#F59E0B" },
   { asset: "TLT", pctOfRisk: 12.5, barColor: "#8B5CF6" },
   { asset: "SPY", pctOfRisk: 10.8, barColor: "#10B981" },
@@ -84,9 +85,9 @@ export default function PortfolioRiskContributionWidget({
     return items || DEFAULT_RISK_CONTRIBUTIONS;
   }, [allocations, items]);
   return (
-    <div className="bg-[#090D14] border border-[#1E2530] rounded-lg p-3.5 flex flex-col justify-between h-full">
+    <div className="bg-[#080d1a] border border-[#1e293b] rounded-lg p-3.5 flex flex-col justify-between h-full">
       {/* Header */}
-      <div className="flex items-center space-x-2 pb-2 border-b border-[#1A2230]">
+      <div className="flex items-center space-x-2 pb-2 border-b border-[#1e293b]">
         <h2 className="text-sm font-bold text-white tracking-tight font-sans">
           Risk Contribution (Euler Decomposition)
         </h2>
