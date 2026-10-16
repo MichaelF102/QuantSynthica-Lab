@@ -11,6 +11,8 @@ from ..engine.fundamentals import fundamental_engine
 from ..models.schemas import IndicatorConfig
 
 router = APIRouter(prefix="/market", tags=["Market Data"])
+
+RESEARCH_KINDS = {"analyst", "news", "ownership", "filings", "corporate", "peers"}
 data_engine = MarketDataEngine()
 
 @router.get("/search")
@@ -307,3 +309,19 @@ def get_universe_macro():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch macro data: {str(e)}")
 
+
+
+# ==============================================================================
+# Research feeds (provider-backed; `available: false` when a feed has nothing)
+# ==============================================================================
+
+@router.get("/research/{symbol}/{kind}")
+def get_research_feed(symbol: str, kind: str):
+    """analyst | news | ownership | filings | corporate | peers for a symbol."""
+    if kind not in RESEARCH_KINDS:
+        raise HTTPException(status_code=404, detail=f"Unknown research feed '{kind}'")
+    from ..services import research_data as rd
+    try:
+        return getattr(rd, kind)(symbol)
+    except Exception as e:  # never fail the page because one feed failed
+        return {"symbol": symbol.upper(), "available": False, "reason": f"Feed temporarily unavailable: {e}"}

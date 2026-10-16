@@ -136,3 +136,54 @@ def test_fetch_ohlcv_tries_sibling_exchange_listing(monkeypatch):
     df, synthetic = MarketDataEngine(use_cache=False).fetch_ohlcv("ZZTEST", "2023-01-02", "2023-02-27")
     assert seen[:2] == ["ZZTEST.BO", "ZZTEST.NS"]
     assert not synthetic and len(df) >= 5
+
+
+def test_dividend_yield_normalisation():
+    from backend.engine.fundamentals import normalize_dividend_yield as n
+
+    assert n(0.49, 0.0) == 0.49  # percent convention (current yfinance), Indian stock with no trailing yield
+    assert abs(n(0.32, 0.0030615814) - 0.32) < 1e-9  # percent convention confirmed by the trailing fraction
+    assert abs(n(0.0032, 0.0030615814) - 0.32) < 1e-9  # legacy fraction convention is converted to percent
+    assert n(None, 0.01) is None
+
+
+def test_research_feed_unknown_kind_and_unavailable(monkeypatch):
+    assert client.get("/market/research/AAPL/nonsense").status_code == 404
+    import backend.services.research_data as rd
+
+    class Empty:
+        analyst_price_targets = None
+        recommendations_summary = None
+        info = {}
+
+    monkeypatch.setattr(rd.yf, "Ticker", lambda *_a, **_k: Empty())
+    rd._CACHE.clear()
+    body = client.get("/market/research/ZZTESTX/analyst").json()
+    assert body["available"] is False and body["reason"]
+
+
+def test_research_news_normalises_both_provider_shapes(monkeypatch):
+    import backend.services.research_data as rd
+
+    new_shape = {"content": {"title": "New shape", "pubDate": "2026-01-02T00:00:00Z", "provider": {"displayName": "Wire"}, "canonicalUrl": {"url": "https://x/1"}, "summary": "s"}}
+    old_shape = {"title": "Old shape", "publisher": "Desk", "link": "https://x/2", "providerPublishTime": 1700000000}
+    a, b = rd._norm_news(new_shape), rd._norm_news(old_shape)
+    assert (a["title"], a["publisher"], a["link"]) == ("New shape", "Wire", "https://x/1")
+    assert (b["title"], b["publisher"], b["link"]) == ("Old shape", "Desk", "https://x/2") and b["published"].startswith("2023-")
+    assert rd._norm_news({"content": {}}) is None
+
+
+def test_research_peers_uses_universe_only():
+    body = client.get("/market/research/RELIANCE/peers").json()
+    assert body["available"] and 0 < len(body["peers"]) <= 8
+    assert all(p["symbol"] != "RELIANCE" for p in body["peers"])
+    caps = [p["market_cap"] for p in body["peers"]]
+    assert caps == sorted(caps, reverse=True)
+
+
+def test_research_peers_have_no_duplicate_symbols():
+    for sym in ("RELIANCE", "TCS", "AAPL"):
+        body = client.get(f"/market/research/{sym}/peers").json()
+        if body.get("available"):
+            symbols = [p["symbol"] for p in body["peers"]]
+            assert len(symbols) == len(set(symbols)), f"duplicate peers for {sym}: {symbols}"

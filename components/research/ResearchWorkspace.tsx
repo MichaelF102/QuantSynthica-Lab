@@ -1,1310 +1,173 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Search, X, AlertTriangle } from "lucide-react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { AlertTriangle, Search } from "lucide-react";
 import { api } from "@/lib/api";
-import { MarketDataResponse, MarketBar, StockFundamentals } from "@/types";
-import { BENCHMARKS } from "@/lib/constants";
-import { loadSystemSettings } from "@/lib/settings";
-import MarketCandleChart, { ChartType } from "@/components/charts/MarketCandleChart";
-import UnderwaterDrawdownChart from "@/components/charts/UnderwaterDrawdownChart";
-import TechnicalOscillators from "@/components/charts/TechnicalOscillators";
-import DrawdownWorkstation from "@/components/research/DrawdownWorkstation";
-import MarketRegimeTimeline from "@/components/research/MarketRegimeTimeline";
-import FactorAttributionRiskGrid from "@/components/research/FactorAttributionRiskGrid";
-import StrategyExecutionBanner from "@/components/research/StrategyExecutionBanner";
-import ResearchCompanyHeader from "@/components/research/ResearchCompanyHeader";
-import ResearchHeroKpiBar from "@/components/research/ResearchHeroKpiBar";
-import ResearchSubNav from "@/components/research/ResearchSubNav";
-import ResearchFourCardsGrid from "@/components/research/ResearchFourCardsGrid";
-import ResearchPriceChartWidget from "@/components/research/ResearchPriceChartWidget";
-import InstitutionalFundamentals from "@/components/research/InstitutionalFundamentals";
+import { MarketBar, MarketDataResponse, StockFundamentals } from "@/types";
+import { CardSkeleton } from "@/components/ui/Card";
+import { SelectField } from "@/components/risk/ui/controls";
+import { BENCHMARK_OPTIONS, MARKET_DEFAULTS } from "@/lib/risk/presets";
+import { isIndianTicker } from "@/lib/market";
+import { keyStats } from "@/lib/research/derive";
+import { Region } from "@/lib/research/format";
+import { ResearchProvider } from "./context";
+import ResearchHeader from "./ResearchHeader";
+import ResearchTabs, { RESEARCH_TABS, ResearchTabKey } from "./ResearchTabs";
+import OverviewTab from "./tabs/OverviewTab";
+import TechnicalsTab from "./tabs/TechnicalsTab";
+import FundamentalsTab from "./tabs/FundamentalsTab";
+import SentimentTab from "./tabs/SentimentTab";
+import OptionsTab from "./tabs/OptionsTab";
+import AnalystTab from "./tabs/AnalystTab";
+import NewsTab from "./tabs/NewsTab";
+import FilingsTab from "./tabs/FilingsTab";
+import CompetitorsTab from "./tabs/CompetitorsTab";
+import OwnershipTab from "./tabs/OwnershipTab";
+import EsgTab from "./tabs/EsgTab";
 
-type SubNavTab =
-  | "overview"
-  | "technicals"
-  | "risk"
-  | "fundamentals"
-  | "factors"
-  | "sentiment"
-  | "options"
-  | "analyst estimates"
-  | "news"
-  | "filings"
-  | "competitors"
-  | "ownership"
-  | "esg";
-
-const BACKEND_INDICATORS = [
-  { id: "sma_20", name: "SMA", params: { period: 20 } },
-  { id: "sma_50", name: "SMA", params: { period: 50 } },
-  { id: "ema_20", name: "EMA", params: { period: 20 } },
-  { id: "rsi_14", name: "RSI", params: { period: 14 } },
-  { id: "macd_line", name: "MACD_LINE", params: { fast_period: 12, slow_period: 26 } },
-  { id: "macd_signal", name: "MACD_SIGNAL", params: { fast_period: 12, slow_period: 26, signal_period: 9 } },
-  { id: "macd_hist", name: "MACD_HIST", params: { fast_period: 12, slow_period: 26, signal_period: 9 } },
-  { id: "bb_upper", name: "BB_UPPER", params: { period: 20, std_dev: 2.0 } },
-  { id: "bb_lower", name: "BB_LOWER", params: { period: 20, std_dev: 2.0 } },
-  { id: "atr_14", name: "ATR", params: { period: 14 } },
-  { id: "stoch_k", name: "STOCH_K", params: { k_period: 14 } },
-  { id: "stoch_d", name: "STOCH_D", params: { k_period: 14, d_period: 3 } },
-  { id: "vwap", name: "VWAP", params: {} },
-];
-
-const getTodayStr = () => new Date().toISOString().split("T")[0];
-const getOneYearAgoStr = () => {
-  const d = new Date();
-  d.setFullYear(d.getFullYear() - 1);
-  return d.toISOString().split("T")[0];
-};
+const iso = (d: Date) => d.toISOString().slice(0, 10);
+const yearsAgo = (n: number) => { const d = new Date(); d.setFullYear(d.getFullYear() - n); return iso(d); };
 
 export default function ResearchWorkspace() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const queryTicker = searchParams.get("ticker");
-  const queryCountry = searchParams.get("country");
+  const pathname = usePathname();
+  const sp = useSearchParams();
+  const ticker = (sp.get("ticker") ?? "").toUpperCase().trim();
+  const country = sp.get("country");
+  const region: Region = country === "India" || country === "US" ? country : isIndianTicker(ticker) ? "India" : "US";
+  const rawTab = sp.get("tab");
+  const tab: ResearchTabKey = RESEARCH_TABS.some((t) => t.key === rawTab) ? (rawTab as ResearchTabKey) : "overview";
 
-  // Navigation & Control States
-  const [ticker, setTicker] = useState(() => {
-    if (queryTicker) return queryTicker.toUpperCase().trim();
-    if (typeof window !== "undefined") {
-      const savedTicker = localStorage.getItem("algolab_active_ticker");
-      if (savedTicker) return savedTicker.toUpperCase();
-    }
-    return "AAPL";
-  });
-  const [activeCountry, setActiveCountry] = useState<"US" | "India">(() => {
-    if (queryCountry === "India" || queryCountry === "US") return queryCountry;
-    if (queryTicker) {
-      const sym = queryTicker.toUpperCase().trim();
-      const isIndia = sym.endsWith(".NS") || sym.endsWith(".BO") || ["RELIANCE", "TCS", "INFY", "HDFCBANK", "GENUSPOWER", "KAYNES"].includes(sym);
-      return isIndia ? "India" : "US";
-    }
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("algolab_active_country");
-      if (saved === "India" || saved === "US") return saved;
-    }
-    return "US";
-  });
-  const [startDate, setStartDate] = useState(getOneYearAgoStr);
-  const [endDate, setEndDate] = useState(getTodayStr);
-  const [benchmark, setBenchmark] = useState(() => {
-    if (typeof window !== "undefined") {
-      const cfg = loadSystemSettings();
-      return cfg.research.defaultBenchmark || "SPY";
-    }
-    return "SPY";
-  });
-  const [timeframe, setTimeframe] = useState("1D");
-  const [activeTab, setActiveTab] = useState<SubNavTab>("overview");
-  const [chartType, setChartType] = useState<ChartType>("candlestick");
-  const [chartRange, setChartRange] = useState<"1D" | "5D" | "1M" | "3M" | "6M" | "YTD" | "1Y" | "5Y" | "ALL">("1Y");
+  const [benchmark, setBenchmark] = useState<string>(MARKET_DEFAULTS[region].benchmark);
+  const [compareRequest, setCompareRequest] = useState(0);
+  useEffect(() => setBenchmark((b) => (BENCHMARK_OPTIONS[region].some((o) => o.symbol === b) ? b : MARKET_DEFAULTS[region].benchmark)), [region]);
 
-  // React to URL query parameter changes
-  useEffect(() => {
-    if (queryTicker) {
-      const sym = queryTicker.toUpperCase().trim();
-      setTicker(sym);
-      const isIndia = queryCountry === "India" || sym.endsWith(".NS") || sym.endsWith(".BO") || ["RELIANCE", "TCS", "INFY", "HDFCBANK", "GENUSPOWER", "KAYNES"].includes(sym);
-      const newCountry = queryCountry ? (queryCountry === "India" ? "India" : "US") : (isIndia ? "India" : "US");
-      setActiveCountry(newCountry);
-      if (typeof window !== "undefined") {
-        localStorage.setItem("algolab_active_ticker", sym);
-        localStorage.setItem("algolab_active_country", newCountry);
-      }
-    }
-  }, [queryTicker, queryCountry]);
-
-  // Synchronize ticker & country changes with navbar and browser URL
-  useEffect(() => {
-    const handleSecurityChange = (e: any) => {
-      if (e.detail?.symbol && e.detail.symbol !== ticker) {
-        setTicker(e.detail.symbol.toUpperCase());
-      }
-      if (e.detail?.country && (e.detail.country === "US" || e.detail.country === "India")) {
-        setActiveCountry(e.detail.country);
-      }
-    };
-
-    const handleCountryChange = (e: any) => {
-      if (e.detail?.country && (e.detail.country === "US" || e.detail.country === "India")) {
-        setActiveCountry(e.detail.country);
-      }
-    };
-
-    window.addEventListener("algolab:security-change", handleSecurityChange);
-    window.addEventListener("algolab:country-change", handleCountryChange);
-    return () => {
-      window.removeEventListener("algolab:security-change", handleSecurityChange);
-      window.removeEventListener("algolab:country-change", handleCountryChange);
-    };
-  }, [ticker]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && ticker) {
-      localStorage.setItem("algolab_active_ticker", ticker);
-      localStorage.setItem("algolab_active_country", activeCountry);
-      const url = new URL(window.location.href);
-      if (url.searchParams.get("ticker") !== ticker || url.searchParams.get("country") !== activeCountry) {
-        url.searchParams.set("ticker", ticker);
-        url.searchParams.set("country", activeCountry);
-        window.history.replaceState(null, "", url.toString());
-      }
-    }
-  }, [ticker, activeCountry]);
-
-  // Indicator Selection
-  const [activeIndicators, setActiveIndicators] = useState<string[]>([
-    "sma_20",
-    "sma_50",
-    "ema_20",
-    "bb_upper",
-    "vwap",
-    "rsi_14",
-    "macd",
-    "stochastic",
-    "atr_14",
-    "volume",
-  ]);
-  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
-  const [commandSearch, setCommandSearch] = useState("");
-  const [watchlistToast, setWatchlistToast] = useState<string | null>(null);
-
-  // Data States
-  const [marketData, setMarketData] = useState<MarketDataResponse | null>(null);
-  const [benchmarkData, setBenchmarkData] = useState<MarketDataResponse | null>(null);
+  const [data, setData] = useState<MarketDataResponse | null>(null);
+  const [benchData, setBenchData] = useState<MarketDataResponse | null>(null);
+  const [fundamentals, setFundamentals] = useState<StockFundamentals | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fLoading, setFLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Institutional Fundamentals state
-  const [fundamentals, setFundamentals] = useState<StockFundamentals | null>(null);
-  const [loadingFundamentals, setLoadingFundamentals] = useState(false);
+  const setParams = useCallback((patch: Record<string, string>) => {
+    const p = new URLSearchParams(sp.toString());
+    Object.entries(patch).forEach(([k, v]) => p.set(k, v));
+    router.replace(`${pathname}?${p.toString()}`, { scroll: false });
+  }, [router, pathname, sp]);
+  const setTab = useCallback((t: string) => setParams({ tab: t }), [setParams]);
 
-  const fetchFundamentals = async (sym: string, marketHint: string) => {
-    setLoadingFundamentals(true);
+  // Remember the active security for the rest of the app (navbar search, strategies, etc.).
+  useEffect(() => {
+    if (!ticker) return;
+    try { localStorage.setItem("algolab_active_ticker", ticker); localStorage.setItem("algolab_active_country", region); } catch { /* storage unavailable */ }
+  }, [ticker, region]);
+
+  // Recently viewed securities (landing page reads this).
+  useEffect(() => {
+    if (!ticker) return;
     try {
-      const fund = await api.getFundamentals(sym, marketHint);
-      setFundamentals(fund);
-    } catch (err) {
-      console.warn("Failed to fetch fundamentals:", err);
-    } finally {
-      setLoadingFundamentals(false);
-    }
-  };
+      const list: { ticker: string; region: Region }[] = JSON.parse(localStorage.getItem("algolab_recent") || "[]");
+      localStorage.setItem("algolab_recent", JSON.stringify([{ ticker, region }, ...list.filter((x) => x.ticker !== ticker)].slice(0, 8)));
+    } catch { /* storage unavailable */ }
+  }, [ticker, region]);
 
+  // Navbar search / market switch updates the URL, so the workspace follows it.
   useEffect(() => {
-    fetchFundamentals(ticker, activeCountry);
-  }, [ticker, activeCountry]);
-
-  // Keyboard Shortcuts Listener
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      const target = e.target as HTMLElement;
-      const isInput =
-        target.tagName === "INPUT" ||
-        target.tagName === "TEXTAREA" ||
-        target.tagName === "SELECT";
-
-      // CMD/CTRL + K: Command Palette
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setCommandPaletteOpen((prev) => !prev);
-        return;
-      }
-
-      // Escape: close overlays
-      if (e.key === "Escape") {
-        setCommandPaletteOpen(false);
-        return;
-      }
-
-      if (isInput) return;
-
-      // /: Focus search input
-      if (e.key === "/") {
-        e.preventDefault();
-        document.getElementById("stock-search-input")?.focus();
-        return;
-      }
-
-      // 1-5: Workspace tabs
-      if (e.key === "1") {
-        setActiveTab("overview");
-      } else if (e.key === "2" || e.key.toLowerCase() === "t") {
-        setActiveTab("technicals");
-      } else if (e.key === "3") {
-        setActiveTab("risk");
-      } else if (e.key === "4") {
-        setActiveTab("fundamentals");
-      } else if (e.key === "5") {
-        setActiveTab("factors");
-      } else if (e.key.toLowerCase() === "b") {
-        router.push(buildStrategyUrl);
-      } else if (e.key.toLowerCase() === "w") {
-        setWatchlistToast(`Security ${ticker} pinned to active workstation watch.`);
-        setTimeout(() => setWatchlistToast(null), 2500);
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [router, ticker, benchmark, startDate, endDate, timeframe, activeIndicators]);
-
-  // Fetch security data and benchmark data in parallel
-  const fetchMarketData = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [secRes, benchRes] = await Promise.all([
-        api.getMarketData({
-          ticker,
-          start_date: startDate,
-          end_date: endDate,
-          timeframe,
-          benchmark,
-          indicators: BACKEND_INDICATORS,
-        }),
-        api
-          .getMarketData({
-            ticker: benchmark,
-            start_date: startDate,
-            end_date: endDate,
-            timeframe,
-            benchmark,
-          })
-          .catch(() => null),
-      ]);
-      setMarketData(secRes);
-      setBenchmarkData(benchRes);
-    } catch (err: any) {
-      setError(err.message || "Failed to load security research data");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchMarketData();
-  }, [ticker, startDate, endDate, benchmark, timeframe]);
-
-  const toggleIndicator = (id: string) => {
-    setActiveIndicators((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
-  // Quick Date Range Presets
-  const setRangePreset = (preset: "1D" | "5D" | "1M" | "3M" | "6M" | "YTD" | "1Y" | "3Y" | "ALL") => {
-    if (preset === "3Y" || preset === "ALL") {
-      const now = new Date();
-      const start = new Date(now);
-      if (preset === "3Y") start.setFullYear(start.getFullYear() - 3);
-      else {
-        start.setFullYear(2020);
-        start.setMonth(0);
-        start.setDate(1);
-      }
-
-      const fmt = (d: Date) => d.toISOString().split("T")[0];
-      setStartDate(fmt(start));
-      setEndDate(fmt(now));
-      setChartRange(preset === "3Y" ? "5Y" : "ALL");
-    } else {
-      setChartRange(preset as any);
-    }
-  };
-
-  const profile = marketData?.summary?.profile;
-  const bars = marketData?.bars || [];
-  const latestBar = bars[bars.length - 1];
-  const summary = marketData?.summary;
-
-  // Currency & Denomination detection
-  const isINR =
-    activeCountry === "India" ||
-    profile?.market === "India" ||
-    profile?.currency === "INR" ||
-    ticker.endsWith(".NS") ||
-    ticker.endsWith(".BO");
-  const currencySymbol = isINR ? "₹" : "$";
-
-  // Auto-switch benchmark region if default
-  useEffect(() => {
-    if (isINR && benchmark === "SPY") {
-      setBenchmark("^NSEI");
-    } else if (!isINR && benchmark === "^NSEI") {
-      setBenchmark("SPY");
-    }
-  }, [isINR, benchmark]);
-
-  // Last Price & 1D Change
-  const lastPrice = latestBar?.close ?? summary?.last_price ?? profile?.price ?? 0;
-  const change1D = profile?.change_1d !== undefined && profile?.change_1d !== null
-    ? profile.change_1d
-    : latestBar?.return !== undefined
-      ? latestBar.return * 100
-      : 0;
-  const isPositive1D = change1D >= 0;
-
-  // Volume formatting
-  const volumeFormatted = useMemo(() => {
-    const vol = latestBar?.volume ?? profile?.volume_1d ?? 0;
-    if (vol >= 1e9) return `${(vol / 1e9).toFixed(2)}B`;
-    if (vol >= 1e6) return `${(vol / 1e6).toFixed(2)}M`;
-    if (vol >= 1e3) return `${(vol / 1e3).toFixed(1)}K`;
-    return vol.toLocaleString();
-  }, [latestBar, profile]);
-
-  // Market Cap formatting
-  const marketCapFormatted = useMemo(() => {
-    const mcap = profile?.market_cap;
-    if (!mcap) return "N/A";
-    if (isINR) {
-      const cr = Number(mcap) / 1e7;
-      return cr >= 1000 ? `₹${(Number(mcap) / 1e10).toFixed(1)}k Cr` : `₹${cr.toFixed(0)} Cr`;
-    }
-    if (Number(mcap) >= 1e12) return `$${(Number(mcap) / 1e12).toFixed(2)}T`;
-    if (Number(mcap) >= 1e9) return `$${(Number(mcap) / 1e9).toFixed(1)}B`;
-    return `$${(Number(mcap) / 1e6).toFixed(0)}M`;
-  }, [profile, isINR]);
-
-  // Period Return
-  const periodReturn = summary?.total_return ?? 0;
-  const isPositivePeriod = periodReturn >= 0;
-
-  // Drawdown Metadata Calculation
-  const drawdownMeta = useMemo(() => {
-    if (!bars || bars.length === 0) return null;
-    let minDd = 0;
-    let troughIdx = 0;
-
-    bars.forEach((b, idx) => {
-      const dd = b.drawdown !== undefined ? b.drawdown : 0;
-      if (dd < minDd) {
-        minDd = dd;
-        troughIdx = idx;
-      }
-    });
-
-    let peakIdx = 0;
-    for (let i = troughIdx; i >= 0; i--) {
-      if (Math.abs(bars[i].drawdown || 0) < 0.05) {
-        peakIdx = i;
-        break;
-      }
-    }
-
-    let recoveryIdx = -1;
-    for (let i = troughIdx; i < bars.length; i++) {
-      if (Math.abs(bars[i].drawdown || 0) < 0.05) {
-        recoveryIdx = i;
-        break;
-      }
-    }
-
-    const peakDate = bars[peakIdx]?.date || bars[0].date;
-    const troughDate = bars[troughIdx]?.date || bars[0].date;
-    const recoveryDate = recoveryIdx !== -1 ? bars[recoveryIdx].date : "UNRECOVERED";
-    const drawdownDuration = troughIdx - peakIdx;
-    const recoveryDuration = recoveryIdx !== -1 ? recoveryIdx - troughIdx : bars.length - 1 - troughIdx;
-
-    return {
-      maxDrawdown: Math.abs(minDd),
-      peakDate,
-      troughDate,
-      recoveryDate,
-      drawdownDuration,
-      recoveryDuration,
-      isRecovered: recoveryIdx !== -1,
+    const onChange = (e: any) => {
+      const d = e.detail ?? {};
+      const patch: Record<string, string> = {};
+      if (d.symbol && String(d.symbol).toUpperCase() !== ticker) patch.ticker = String(d.symbol).toUpperCase();
+      if ((d.country === "India" || d.country === "US") && d.country !== region) patch.country = d.country;
+      if (Object.keys(patch).length) setParams(patch);
     };
-  }, [bars]);
+    window.addEventListener("algolab:security-change", onChange);
+    return () => window.removeEventListener("algolab:security-change", onChange);
+  }, [ticker, region, setParams]);
 
-  // Multi-period Performance Table (1M, 3M, 6M, 1Y)
-  const performanceRows = useMemo(() => {
-    if (!bars || bars.length === 0) return [];
-    const totalBars = bars.length;
-    const endPrice = bars[totalBars - 1].close;
+  useEffect(() => {
+    if (!ticker) return;
+    let live = true;
+    setLoading(true); setError(null);
+    const args = { start_date: yearsAgo(5), end_date: iso(new Date()), benchmark };
+    Promise.all([api.getMarketData({ ticker, ...args }), api.getMarketData({ ticker: benchmark, ...args }).catch(() => null)])
+      .then(([sec, bench]) => { if (live) { setData(sec); setBenchData(bench && !bench.summary?.is_synthetic ? bench : null); } })
+      .catch((e) => live && setError(e?.message || "Failed to load market data"))
+      .finally(() => live && setLoading(false));
+    return () => { live = false; };
+  }, [ticker, benchmark]);
 
-    const bBars = benchmarkData?.bars || [];
-    const bTotal = bBars.length;
-    const bEndPrice = bTotal > 0 ? bBars[bTotal - 1].close : 0;
+  useEffect(() => {
+    if (!ticker) return;
+    let live = true;
+    setFLoading(true); setFundamentals(null);
+    api.getFundamentals(ticker, region).then((f) => live && setFundamentals(f)).catch(() => live && setFundamentals(null)).finally(() => live && setFLoading(false));
+    return () => { live = false; };
+  }, [ticker, region]);
 
-    const periods = [
-      { label: "1M", barCount: 21 },
-      { label: "3M", barCount: 63 },
-      { label: "6M", barCount: 126 },
-      { label: "1Y", barCount: 252 },
-    ];
+  const bars: MarketBar[] = data?.bars ?? [];
+  const stats = useMemo(() => keyStats(bars), [bars]);
+  const benchLabel = BENCHMARK_OPTIONS[region].find((o) => o.symbol === benchmark)?.label ?? benchmark;
+  // The fundamentals fallback in the client can fabricate a profile when the service is down; only trust a real one.
+  const realFundamentals = fundamentals && !fundamentals.data_sources?.some((d) => /simulated/i.test(d)) ? fundamentals : null;
 
-    return periods.map((p) => {
-      const sIdx = Math.max(0, totalBars - 1 - p.barCount);
-      const sStartPrice = bars[sIdx].close;
-      const sReturn = sStartPrice > 0 ? ((endPrice - sStartPrice) / sStartPrice) * 100 : 0;
+  if (loading && !data) {
+    return (
+      <main className="app-container min-h-screen space-y-4 py-6" aria-busy="true">
+        <CardSkeleton rows={2} className="h-40" />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">{Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={i} rows={5} />)}</div>
+      </main>
+    );
+  }
 
-      let bReturn = 0;
-      if (bTotal > 0) {
-        const bIdx = Math.max(0, bTotal - 1 - p.barCount);
-        const bStartPrice = bBars[bIdx].close;
-        bReturn = bStartPrice > 0 ? ((bEndPrice - bStartPrice) / bStartPrice) * 100 : 0;
-      } else {
-        bReturn = summary?.beta ? sReturn / summary.beta : sReturn;
-      }
+  if (error || !data || !stats) {
+    return (
+      <main className="app-container min-h-screen py-10">
+        <div role="alert" className="mx-auto max-w-md space-y-4 rounded-xl border border-rose-500/30 bg-[#0b1222]/95 p-8 text-center shadow-lg shadow-black/20">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-rose-500/20 bg-rose-500/10 text-rose-400"><AlertTriangle className="h-6 w-6" /></div>
+          <div><div className="text-base font-bold text-white">Could not load &ldquo;{ticker}&rdquo;</div>
+            <p className="mt-1 text-xs text-slate-400">{error ?? "No price history was returned."} Check the ticker, or that the market-data service is running.</p></div>
+          <Link href="/research" className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-blue-600/20 hover:bg-blue-500"><Search className="h-3.5 w-3.5" /> Search again</Link>
+        </div>
+      </main>
+    );
+  }
 
-      const excessReturn = sReturn - bReturn;
-
-      return {
-        period: p.label,
-        securityReturn: sReturn,
-        benchmarkReturn: bReturn,
-        excessReturn,
-      };
-    });
-  }, [bars, benchmarkData, summary]);
-
-  // Regime Heuristic from actual data
-  const regimeInfo = useMemo(() => {
-    if (!latestBar || !summary) return null;
-    const close = latestBar.close;
-    const sma50 = latestBar.sma_50;
-    const sma20 = latestBar.sma_20;
-    const vol = summary.annualized_volatility;
-    const rsi = latestBar.rsi_14 ?? 50;
-
-    let trend = "CONSOLIDATION / NEUTRAL";
-    let trendColor = "text-[#cbd5e1]";
-    const distSma50 = sma50 ? ((close - sma50) / sma50) * 100 : 0;
-
-    if (sma50 && close > sma50) {
-      trend = sma20 && close > sma20 ? "MODERATE BULLISH" : "MILD BULLISH";
-      trendColor = "text-[#10B981]";
-    } else if (sma50 && close < sma50) {
-      trend = sma20 && close < sma20 ? "BEARISH TREND" : "MILD BEARISH";
-      trendColor = "text-[#EF4444]";
+  const ctx = {
+    ticker, region, bars, bench: benchData?.bars ?? null, benchSymbol: benchmark, benchLabel, summary: data.summary,
+    fundamentals: realFundamentals, fundamentalsLoading: fLoading, stats, setTab, compareRequest,
+  };
+  const body = (() => {
+    switch (tab) {
+      case "overview": return <OverviewTab />;
+      case "technicals": return <TechnicalsTab />;
+      case "fundamentals": return <FundamentalsTab />;
+      case "sentiment": return <SentimentTab />;
+      case "options": return <OptionsTab />;
+      case "analyst": return <AnalystTab />;
+      case "news": return <NewsTab />;
+      case "filings": return <FilingsTab />;
+      case "competitors": return <CompetitorsTab />;
+      case "ownership": return <OwnershipTab />;
+      case "esg": return <EsgTab />;
     }
-
-    let volRegime = "MODERATE";
-    let volColor = "text-[#cbd5e1]";
-    if (vol < 16) {
-      volRegime = "LOW VOLATILITY";
-      volColor = "text-[#3b82f6]";
-    } else if (vol > 28) {
-      volRegime = "HIGH VOLATILITY";
-      volColor = "text-[#F59E0B]";
-    }
-
-    let momRegime = "NEUTRAL";
-    if (rsi > 70) momRegime = "OVERBOUGHT";
-    else if (rsi < 30) momRegime = "OVERSOLD";
-
-    return { trend, trendColor, volRegime, volColor, momRegime, distSma50, rsi, vol };
-  }, [latestBar, summary]);
-
-  // Strategy Builder Handoff URL
-  const buildStrategyUrl = useMemo(() => {
-    const q = new URLSearchParams({
-      asset: ticker,
-      benchmark,
-      startDate,
-      endDate,
-      timeframe,
-      indicators: activeIndicators.join(","),
-    });
-    return `/strategies/builder?${q.toString()}`;
-  }, [ticker, benchmark, startDate, endDate, timeframe, activeIndicators]);
+  })();
 
   return (
-    <div className="flex min-h-[calc(100vh-6.5rem)] flex-col text-slate-200">
-      {/* Toast Notification */}
-      {watchlistToast && (
-        <div className="fixed top-2 right-4 z-50 bg-[#0b1222] border border-[#f59e0b] px-3 py-1 text-xs text-[#f59e0b]">
-          {watchlistToast}
+    <ResearchProvider value={ctx}>
+      <main className="app-container min-h-screen animate-fade-up space-y-3 py-6 font-sans">
+        {data.summary.is_synthetic && (
+          <div role="note" className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300"><span className="mr-2 font-mono font-bold uppercase tracking-wider">Synthetic data</span>Live prices for {ticker} could not be fetched, so a generated series is shown. Treat every figure here as illustrative.</div>
+        )}
+        <ResearchHeader ticker={ticker} region={region} profile={data.summary.profile ?? undefined} fundamentals={realFundamentals} stats={stats} closes={bars.map((b) => b.close)} beta={data.summary.beta ?? null}
+          onChart={() => setTab("technicals")} onCompare={() => { setCompareRequest((n) => n + 1); setTab("technicals"); }} />
+        <div className="flex flex-col justify-between gap-2 lg:flex-row lg:items-center">
+          <ResearchTabs active={tab} onChange={(t) => setTab(t)} />
+          <SelectField label="Benchmark" value={benchmark} options={BENCHMARK_OPTIONS[region].map((o) => ({ value: o.symbol, label: o.label }))} onChange={setBenchmark} className="min-w-[170px] shrink-0" />
         </div>
-      )}
-
-      {/* ========================================================
-          RESEARCH COMPANY HEADER
-          ======================================================== */}
-      <ResearchCompanyHeader
-        ticker={ticker}
-        onTickerChange={setTicker}
-        profile={profile}
-        onOpenTerminal={() => setCommandPaletteOpen(true)}
-        isIndia={isINR}
-      />
-
-      {/* ========================================================
-          HERO PRICE & KPI RIBBON
-          ======================================================== */}
-      <ResearchHeroKpiBar
-        lastPrice={lastPrice}
-        change1D={change1D}
-        isPositive1D={isPositive1D}
-        volumeFormatted={volumeFormatted}
-        marketCapFormatted={marketCapFormatted}
-        profile={profile}
-        summary={summary}
-        bars={bars}
-        isIndia={isINR}
-        currencySymbol={currencySymbol}
-      />
-
-      {/* ========================================================
-          SUB-NAVIGATION TABS
-          ======================================================== */}
-      <ResearchSubNav
-        activeTab={activeTab}
-        onSelectTab={(tab) => {
-          setActiveTab(tab.toLowerCase() as SubNavTab);
-        }}
-      />
-
-      {/* ========================================================
-          MAIN WORKSTATION BODY
-          ======================================================== */}
-      <div className="app-container flex-1 py-6 space-y-4">
-        {loading ? (
-          <div className="py-24 text-center text-xs text-[#94a3b8]">
-            Loading Data For {ticker}...
-          </div>
-        ) : error ? (
-          <div className="my-16 max-w-md mx-auto p-8 rounded-2xl border border-rose-500/30 bg-[#0E131F]/90 text-center space-y-4 shadow-2xl backdrop-blur-xl">
-            <div className="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
-              <AlertTriangle className="h-6 w-6" />
-            </div>
-            <div>
-              <div className="text-base font-bold text-white">Security &quot;{ticker}&quot; Not Found</div>
-              <p className="mt-1 text-xs text-slate-400">
-                We could not load quantitative market data for this security. Please check the ticker symbol or search another company.
-              </p>
-            </div>
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={() => router.push("/research")}
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2.5 text-xs font-semibold text-white shadow-lg shadow-blue-500/20 hover:from-blue-500 hover:to-indigo-500 transition-all active:scale-95"
-              >
-                <Search className="h-3.5 w-3.5" />
-                <span>Search again</span>
-              </button>
-            </div>
-          </div>
-        ) : marketData && summary ? (
-          <>
-            {/* --------------------------------------------------------
-                TAB 1: OVERVIEW
-                -------------------------------------------------------- */}
-            {activeTab === "overview" && (
-              <div className="space-y-3">
-                {/* Four-Card Analytical Grid: Key Statistics, Performance, Analyst Consensus, Latest News */}
-                <ResearchFourCardsGrid
-                  lastPrice={lastPrice}
-                  profile={profile}
-                  summary={summary}
-                  bars={bars}
-                  ticker={ticker}
-                  isIndia={isINR}
-                  currencySymbol={currencySymbol}
-                  onTabChange={(t) => setActiveTab(t as SubNavTab)}
-                  onPresetSelect={setRangePreset}
-                  onRangeFilterChange={(r) => setChartRange(r as any)}
-                  benchmark={benchmark}
-                />
-
-                {/* Big Price Chart Widget (520px height) with Overlays Sidebar */}
-                <ResearchPriceChartWidget
-                  bars={bars}
-                  ticker={ticker}
-                  onPresetSelect={setRangePreset}
-                  selectedRange={chartRange}
-                  onRangeChange={(r) => setChartRange(r)}
-                  isIndia={isINR}
-                  currencySymbol={currencySymbol}
-                />
-
-                {/* Analytical Spread: Trailing Returns & Benchmark Relative */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                  {/* [9] Trailing Returns */}
-                  <div className="border border-[#1e293b] bg-[#080d1a]">
-                    <div className="px-3 py-1 border-b border-[#1e293b] bg-[#0E1117] flex items-center justify-between text-[11px]">
-                      <span className="font-bold text-[#f59e0b]">
-                        [9] Trailing Returns vs {benchmark} | COMP ▾
-                      </span>
-                      <span className="text-[#64748b]">Compounded Windows</span>
-                    </div>
-
-                    <table className="w-full text-left text-xs">
-                      <thead>
-                        <tr className="border-b border-[#1e293b] text-[10px] text-[#64748b] bg-[#080d1a]">
-                          <th className="py-1 px-3 font-semibold">WINDOW</th>
-                          <th className="py-1 px-3 text-right font-semibold">{ticker}</th>
-                          <th className="py-1 px-3 text-right font-semibold">{benchmark}</th>
-                          <th className="py-1 px-3 text-right font-semibold">EXCESS</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[#1e293b]/50">
-                        {performanceRows.map((row) => (
-                          <tr key={row.period} className="hover:bg-[#0b1222]">
-                            <td className="py-1 px-3 text-[#cbd5e1] font-bold">{row.period}</td>
-                            <td
-                              className={`py-1 px-3 text-right font-bold tabular-nums ${row.securityReturn >= 0 ? "text-[#10B981]" : "text-[#EF4444]"
-                                }`}
-                            >
-                              {row.securityReturn >= 0 ? "+" : ""}{row.securityReturn.toFixed(2)}%
-                            </td>
-                            <td className="py-1 px-3 text-right text-[#94a3b8] tabular-nums">
-                              {row.benchmarkReturn >= 0 ? "+" : ""}{row.benchmarkReturn.toFixed(2)}%
-                            </td>
-                            <td
-                              className={`py-1 px-3 text-right font-bold tabular-nums ${row.excessReturn >= 0 ? "text-[#10B981]" : "text-[#EF4444]"
-                                }`}
-                            >
-                              {row.excessReturn >= 0 ? "+" : ""}{row.excessReturn.toFixed(2)}%
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* Relative Benchmark Metrics */}
-                  <div className="border border-[#1e293b] bg-[#080d1a]">
-                    <div className="px-3 py-1 border-b border-[#1e293b] bg-[#0E1117] flex items-center justify-between text-[11px]">
-                      <span className="font-bold text-[#f59e0b]">
-                        Security vs Benchmark Metrics
-                      </span>
-                      <span className="text-[#64748b]">{startDate} to {endDate}</span>
-                    </div>
-
-                    <div className="p-3 space-y-2 text-xs">
-                      <div className="flex items-center justify-between pb-1 border-b border-[#1e293b]/60">
-                        <span className="text-[#94a3b8]">Total Return Spread</span>
-                        <div>
-                          <span className="text-white font-bold">{ticker}: {summary.total_return.toFixed(2)}%</span>
-                          <span className="text-[#64748b] mx-2">vs</span>
-                          <span className="text-[#cbd5e1]">
-                            {benchmarkData?.summary?.total_return
-                              ? `${benchmarkData.summary.total_return.toFixed(2)}%`
-                              : "N/A"}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between pb-1 border-b border-[#1e293b]/60">
-                        <span className="text-[#94a3b8]">Annualized Volatility</span>
-                        <div>
-                          <span className="text-white font-bold">{summary.annualized_volatility.toFixed(1)}%</span>
-                          <span className="text-[#64748b] mx-2">vs</span>
-                          <span className="text-[#cbd5e1]">
-                            {benchmarkData?.summary?.annualized_volatility
-                              ? `${benchmarkData.summary.annualized_volatility.toFixed(1)}%`
-                              : "N/A"}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between pb-1 border-b border-[#1e293b]/60">
-                        <span className="text-[#94a3b8]">Beta to {benchmark}</span>
-                        <span className="text-white font-bold">{summary.beta?.toFixed(2) ?? "—"}</span>
-                      </div>
-
-                      <div className="flex items-center justify-between pb-1 border-b border-[#1e293b]/60">
-                        <span className="text-[#94a3b8]">Correlation (Pearson r)</span>
-                        <span className="text-white font-bold">{summary.correlation?.toFixed(2) ?? "—"}</span>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <span className="text-[#94a3b8]">Excess Return (Alpha Proxy)</span>
-                        <span
-                          className={`font-bold ${summary.total_return - (benchmarkData?.summary?.total_return || 0) >= 0
-                              ? "text-[#10B981]"
-                              : "text-[#EF4444]"
-                            }`}
-                        >
-                          {(summary.total_return - (benchmarkData?.summary?.total_return || 0)).toFixed(2)}%
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Drawdown Analysis & Recovery Timeline */}
-                <DrawdownWorkstation bars={bars} ticker={ticker} />
-
-                {/* Market Regime Classification */}
-                <MarketRegimeTimeline bars={bars} ticker={ticker} />
-
-                {/* Three-Column Analytical Tier: Factor Exposure, Return Attribution, Key Risk Metrics */}
-                <FactorAttributionRiskGrid
-                  summary={summary}
-                  benchmarkSummary={benchmarkData?.summary}
-                  ticker={ticker}
-                  benchmark={benchmark}
-                />
-
-                {/* Research -> Strategy Execution */}
-                <StrategyExecutionBanner
-                  strategyUrl={buildStrategyUrl}
-                  ticker={ticker}
-                  benchmark={benchmark}
-                />
-              </div>
-            )}
-
-            {/* --------------------------------------------------------
-                TAB 2: TECHNICALS
-                -------------------------------------------------------- */}
-            {activeTab === "technicals" && (
-              <div className="space-y-3">
-                <MarketCandleChart
-                  bars={bars}
-                  ticker={ticker}
-                  activeIndicators={activeIndicators}
-                  chartType={chartType}
-                  onChartTypeChange={setChartType}
-                  onPresetSelect={setRangePreset}
-                  height={340}
-                />
-
-                <TechnicalOscillators
-                  bars={bars}
-                  activeOscillators={["rsi", "macd", "stochastic", "atr"]}
-                />
-
-                {/* Technical Matrix */}
-                <div className="border border-[#1e293b] bg-[#080d1a]">
-                  <div className="px-3 py-1 border-b border-[#1e293b] bg-[#0E1117] flex items-center justify-between text-[11px]">
-                    <span className="font-bold text-[#f59e0b]">
-                      Technical Indicator Signal Matrix
-                    </span>
-                    <span className="text-[#64748b]">Latest Bar Readout</span>
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-[#1e293b] text-xs">
-                    <div className="p-3">
-                      <span className="text-[10px] text-[#64748b] block">SMA 20</span>
-                      <span className="text-sm font-bold text-[#F59E0B]">
-                        {latestBar?.sma_20 ? latestBar.sma_20.toFixed(2) : "--"}
-                      </span>
-                      <span className="text-[10px] text-[#94a3b8] block mt-0.5">
-                        {latestBar?.sma_20 ? `${(((lastPrice - latestBar.sma_20) / latestBar.sma_20) * 100).toFixed(2)}% vs Price` : "--"}
-                      </span>
-                    </div>
-
-                    <div className="p-3">
-                      <span className="text-[10px] text-[#64748b] block">SMA 50</span>
-                      <span className="text-sm font-bold text-[#3B82F6]">
-                        {latestBar?.sma_50 ? latestBar.sma_50.toFixed(2) : "--"}
-                      </span>
-                      <span className="text-[10px] text-[#94a3b8] block mt-0.5">
-                        {latestBar?.sma_50 ? `${(((lastPrice - latestBar.sma_50) / latestBar.sma_50) * 100).toFixed(2)}% vs Price` : "--"}
-                      </span>
-                    </div>
-
-                    <div className="p-3">
-                      <span className="text-[10px] text-[#64748b] block">EMA 20</span>
-                      <span className="text-sm font-bold text-[#A855F7]">
-                        {latestBar?.ema_20 ? latestBar.ema_20.toFixed(2) : "--"}
-                      </span>
-                      <span className="text-[10px] text-[#94a3b8] block mt-0.5">
-                        {latestBar?.ema_20 ? `${(((lastPrice - latestBar.ema_20) / latestBar.ema_20) * 100).toFixed(2)}% vs Price` : "--"}
-                      </span>
-                    </div>
-
-                    <div className="p-3">
-                      <span className="text-[10px] text-[#64748b] block">VWAP</span>
-                      <span className="text-sm font-bold text-[#06B6D4]">
-                        {latestBar?.vwap ? latestBar.vwap.toFixed(2) : "--"}
-                      </span>
-                      <span className="text-[10px] text-[#94a3b8] block mt-0.5">
-                        {latestBar?.vwap ? `${(((lastPrice - latestBar.vwap) / latestBar.vwap) * 100).toFixed(2)}% vs Price` : "--"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* --------------------------------------------------------
-                TAB 3: RISK
-                -------------------------------------------------------- */}
-            {activeTab === "risk" && (
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 sm:grid-cols-5 border border-[#1e293b] divide-x divide-[#1e293b] bg-[#080d1a] text-xs">
-                  <div className="p-3">
-                    <span className="text-[10px] text-[#64748b] block">ANN. VOL</span>
-                    <span className="text-base font-bold text-white tabular-nums mt-0.5 block">
-                      {summary.annualized_volatility.toFixed(2)}%
-                    </span>
-                    <span className="text-[9px] text-[#64748b]">Daily std &times; &radic;252</span>
-                  </div>
-
-                  <div className="p-3">
-                    <span className="text-[10px] text-[#64748b] block">MAX DRAWDOWN</span>
-                    <span className="text-base font-bold text-[#EF4444] tabular-nums mt-0.5 block">
-                      -{summary.max_drawdown.toFixed(2)}%
-                    </span>
-                    <span className="text-[9px] text-[#64748b]">Peak-to-trough</span>
-                  </div>
-
-                  <div className="p-3">
-                    <span className="text-[10px] text-[#64748b] block">SHARPE PROXY</span>
-                    <span className="text-base font-bold text-white tabular-nums mt-0.5 block">
-                      {((summary.total_return - 3.5) / (summary.annualized_volatility || 1)).toFixed(2)}
-                    </span>
-                    <span className="text-[9px] text-[#64748b]">(Ret - 3.5%) / Vol</span>
-                  </div>
-
-                  <div className="p-3">
-                    <span className="text-[10px] text-[#64748b] block">BETA ({benchmark})</span>
-                    <span className="text-base font-bold text-white tabular-nums mt-0.5 block">
-                      {summary.beta?.toFixed(2) ?? "—"}
-                    </span>
-                    <span className="text-[9px] text-[#64748b]">Cov / Bench Var</span>
-                  </div>
-
-                  <div className="p-3">
-                    <span className="text-[10px] text-[#64748b] block">CORRELATION</span>
-                    <span className="text-base font-bold text-white tabular-nums mt-0.5 block">
-                      {summary.correlation?.toFixed(2) ?? "—"}
-                    </span>
-                    <span className="text-[9px] text-[#64748b]">Pearson coeff</span>
-                  </div>
-                </div>
-
-                {drawdownMeta && (
-                  <div className="border border-[#1e293b] bg-[#080d1a]">
-                    <div className="px-3 py-1 border-b border-[#1e293b] bg-[#0E1117] flex items-center justify-between text-[11px]">
-                      <span className="font-bold text-[#f59e0b]">
-                        Underwater Drawdown Profile
-                      </span>
-                      <span className="text-[#EF4444] font-bold">
-                        MAX DD -{drawdownMeta.maxDrawdown.toFixed(2)}%
-                      </span>
-                    </div>
-
-                    <div className="h-[200px] p-2">
-                      <UnderwaterDrawdownChart
-                        data={bars.map((b) => ({
-                          date: b.date,
-                          portfolio_value: b.close,
-                          cash: 0,
-                          drawdown: b.drawdown,
-                          benchmark_value: 0,
-                          returns: b.return,
-                          benchmark_returns: 0,
-                        }))}
-                        height={200}
-                        hideBorder
-                        hideHeader
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-4 border-t border-[#1e293b] divide-x divide-[#1e293b] text-xs text-center bg-[#080d1a]">
-                      <div className="py-2">
-                        <span className="text-[10px] text-[#64748b] block">PEAK DATE</span>
-                        <span className="text-[#cbd5e1] font-semibold">{drawdownMeta.peakDate}</span>
-                      </div>
-                      <div className="py-2">
-                        <span className="text-[10px] text-[#64748b] block">TROUGH DATE</span>
-                        <span className="text-[#EF4444] font-semibold">{drawdownMeta.troughDate}</span>
-                      </div>
-                      <div className="py-2">
-                        <span className="text-[10px] text-[#64748b] block">RECOVERY DATE</span>
-                        <span className="text-[#cbd5e1] font-semibold">{drawdownMeta.recoveryDate}</span>
-                      </div>
-                      <div className="py-2">
-                        <span className="text-[10px] text-[#64748b] block">DURATION</span>
-                        <span className="text-[#cbd5e1] font-semibold">{drawdownMeta.drawdownDuration} BARS</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* --------------------------------------------------------
-                TAB 4: FUNDAMENTALS
-                -------------------------------------------------------- */}
-            {activeTab === "fundamentals" && (
-              <InstitutionalFundamentals
-                fundamentals={fundamentals}
-                loading={loadingFundamentals}
-                onRefresh={() => fetchFundamentals(ticker, activeCountry)}
-              />
-            )}
-
-            {/* --------------------------------------------------------
-                TAB 5: FACTORS
-                -------------------------------------------------------- */}
-            {activeTab === "factors" && (
-              <div className="border border-[#1e293b] bg-[#080d1a]">
-                <div className="px-3 py-1 border-b border-[#1e293b] bg-[#0E1117] flex items-center justify-between text-[11px]">
-                  <span className="font-bold text-[#f59e0b]">
-                    Quantitative Feature Matrix
-                  </span>
-                  <span className="text-[#64748b]">Signal Extractors</span>
-                </div>
-
-                <div className="p-3 space-y-3 text-xs">
-                  <div>
-                    <span className="text-[10px] text-[#3b82f6] font-bold uppercase tracking-wider block mb-1">
-                      TREND FEATURES
-                    </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 border border-[#1e293b] divide-y sm:divide-y-0 sm:divide-x divide-[#1e293b] bg-[#080d1a]">
-                      <div className="p-2">
-                        <span className="text-[10px] text-[#64748b] block">SMA 20</span>
-                        <div className="flex justify-between mt-0.5">
-                          <span className="text-white font-bold">{latestBar?.sma_20 ? latestBar.sma_20.toFixed(2) : "--"}</span>
-                          <span className="text-[#94a3b8]">{latestBar?.sma_20 ? `${(((lastPrice - latestBar.sma_20) / latestBar.sma_20) * 100).toFixed(2)}%` : "--"}</span>
-                        </div>
-                      </div>
-                      <div className="p-2">
-                        <span className="text-[10px] text-[#64748b] block">SMA 50</span>
-                        <div className="flex justify-between mt-0.5">
-                          <span className="text-white font-bold">{latestBar?.sma_50 ? latestBar.sma_50.toFixed(2) : "--"}</span>
-                          <span className="text-[#94a3b8]">{latestBar?.sma_50 ? `${(((lastPrice - latestBar.sma_50) / latestBar.sma_50) * 100).toFixed(2)}%` : "--"}</span>
-                        </div>
-                      </div>
-                      <div className="p-2">
-                        <span className="text-[10px] text-[#64748b] block">EMA 20</span>
-                        <div className="flex justify-between mt-0.5">
-                          <span className="text-white font-bold">{latestBar?.ema_20 ? latestBar.ema_20.toFixed(2) : "--"}</span>
-                          <span className="text-[#94a3b8]">{latestBar?.ema_20 ? `${(((lastPrice - latestBar.ema_20) / latestBar.ema_20) * 100).toFixed(2)}%` : "--"}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <span className="text-[10px] text-[#F59E0B] font-bold uppercase tracking-wider block mb-1">
-                      MOMENTUM FEATURES
-                    </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 border border-[#1e293b] divide-y sm:divide-y-0 sm:divide-x divide-[#1e293b] bg-[#080d1a]">
-                      <div className="p-2">
-                        <span className="text-[10px] text-[#64748b] block">RSI (14)</span>
-                        <div className="flex justify-between mt-0.5">
-                          <span className="text-white font-bold">{latestBar?.rsi_14 ? latestBar.rsi_14.toFixed(2) : "--"}</span>
-                          <span className={latestBar?.rsi_14! > 70 ? "text-[#EF4444]" : latestBar?.rsi_14! < 30 ? "text-[#10B981]" : "text-[#94a3b8]"}>
-                            {latestBar?.rsi_14! > 70 ? "OB" : latestBar?.rsi_14! < 30 ? "OS" : "NEUTRAL"}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="p-2">
-                        <span className="text-[10px] text-[#64748b] block">MACD HISTOGRAM</span>
-                        <div className="flex justify-between mt-0.5">
-                          <span className="text-white font-bold">{latestBar?.macd_hist !== undefined ? latestBar.macd_hist.toFixed(2) : "--"}</span>
-                          <span className={latestBar?.macd_hist && latestBar.macd_hist >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}>
-                            {latestBar?.macd_hist && latestBar.macd_hist >= 0 ? "BULLISH" : "BEARISH"}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="p-2">
-                        <span className="text-[10px] text-[#64748b] block">STOCHASTIC %K / %D</span>
-                        <div className="flex justify-between mt-0.5">
-                          <span className="text-white font-bold">{latestBar?.stoch_k ? `${latestBar.stoch_k.toFixed(1)}/${latestBar.stoch_d?.toFixed(1)}` : "--"}</span>
-                          <span className="text-[#94a3b8]">OS 20 &bull; OB 80</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <span className="text-[10px] text-[#A855F7] font-bold uppercase tracking-wider block mb-1">
-                      VOLATILITY & MICROSTRUCTURE
-                    </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 border border-[#1e293b] divide-y sm:divide-y-0 sm:divide-x divide-[#1e293b] bg-[#080d1a]">
-                      <div className="p-2">
-                        <span className="text-[10px] text-[#64748b] block">ATR (14)</span>
-                        <div className="flex justify-between mt-0.5">
-                          <span className="text-white font-bold">${latestBar?.atr_14 ? latestBar.atr_14.toFixed(2) : "--"}</span>
-                          <span className="text-[#94a3b8]">{latestBar?.atr_14 ? `${((latestBar.atr_14 / lastPrice) * 100).toFixed(2)}%` : "--"}</span>
-                        </div>
-                      </div>
-                      <div className="p-2">
-                        <span className="text-[10px] text-[#64748b] block">BOLLINGER BANDWIDTH</span>
-                        <div className="flex justify-between mt-0.5">
-                          <span className="text-white font-bold">
-                            {latestBar?.bb_upper && latestBar?.bb_lower && latestBar?.sma_20
-                              ? `${(((latestBar.bb_upper - latestBar.bb_lower) / latestBar.sma_20) * 100).toFixed(2)}%`
-                              : "--"}
-                          </span>
-                          <span className="text-[#3b82f6]">2&sigma; Envelope</span>
-                        </div>
-                      </div>
-                      <div className="p-2">
-                        <span className="text-[10px] text-[#64748b] block">VWAP DELTA</span>
-                        <div className="flex justify-between mt-0.5">
-                          <span className="text-white font-bold">${latestBar?.vwap ? latestBar.vwap.toFixed(2) : "--"}</span>
-                          <span className={latestBar?.vwap && lastPrice >= latestBar.vwap ? "text-[#10B981]" : "text-[#EF4444]"}>
-                            {latestBar?.vwap ? `${(((lastPrice - latestBar.vwap) / latestBar.vwap) * 100).toFixed(2)}%` : "--"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* --------------------------------------------------------
-                TAB 6: ANALYST ESTIMATES
-                -------------------------------------------------------- */}
-            {activeTab === "analyst estimates" && (
-              <div className="border border-[#1e293b] bg-[#080d1a] text-xs">
-                <div className="px-3 py-1.5 border-b border-[#1e293b] bg-[#0E1117] flex items-center justify-between">
-                  <span className="font-bold text-[#f59e0b]">
-                    [ANALYST ESTIMATES] Consensus Price Targets & Institutional Coverage for {ticker}
-                  </span>
-                  <span className="text-[#64748b] font-mono">38 Brokerage Models</span>
-                </div>
-
-                <div className="p-3 space-y-4 font-mono">
-                  {/* KPI Target Cards */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="p-3 rounded bg-[#080d1a] border border-[#1e293b]">
-                      <span className="text-[10px] text-[#94a3b8] block">CURRENT PRICE</span>
-                      <span className="text-lg font-bold text-white mt-0.5 block">
-                        {currencySymbol}{lastPrice.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="p-3 rounded bg-[#080d1a] border border-[#1e293b]">
-                      <span className="text-[10px] text-[#94a3b8] block">MEAN TARGET (12M)</span>
-                      <span className="text-lg font-bold text-[#3b82f6] mt-0.5 block">
-                        {currencySymbol}{(lastPrice * 1.15).toFixed(2)}
-                      </span>
-                      <span className="text-[10px] text-[#10B981] font-semibold">+15.0% Potential Upside</span>
-                    </div>
-                    <div className="p-3 rounded bg-[#080d1a] border border-[#1e293b]">
-                      <span className="text-[10px] text-[#94a3b8] block">STREET HIGH TARGET</span>
-                      <span className="text-lg font-bold text-[#10B981] mt-0.5 block">
-                        {currencySymbol}{(lastPrice * 1.30).toFixed(2)}
-                      </span>
-                      <span className="text-[10px] text-[#94a3b8]">+30.0% Bull Case</span>
-                    </div>
-                    <div className="p-3 rounded bg-[#080d1a] border border-[#1e293b]">
-                      <span className="text-[10px] text-[#94a3b8] block">STREET LOW TARGET</span>
-                      <span className="text-lg font-bold text-[#EF4444] mt-0.5 block">
-                        {currencySymbol}{(lastPrice * 0.90).toFixed(2)}
-                      </span>
-                      <span className="text-[10px] text-[#94a3b8]">-10.0% Bear Case</span>
-                    </div>
-                  </div>
-
-                  {/* Institutional Desk Ratings Table */}
-                  <div>
-                    <span className="text-[10px] text-[#3b82f6] font-bold uppercase tracking-wider block mb-1">
-                      INSTITUTIONAL BROKERAGE ESTIMATES &amp; PRICE TARGETS
-                    </span>
-                    <table className="w-full text-left border border-[#1e293b]">
-                      <thead>
-                        <tr className="border-b border-[#1e293b] bg-[#080d1a] text-[10px] text-[#94a3b8]">
-                          <th className="py-2 px-3">DATE</th>
-                          <th className="py-2 px-3">BROKERAGE FIRM</th>
-                          <th className="py-2 px-3">RECOMMENDATION</th>
-                          <th className="py-2 px-3 text-right">TARGET PRICE</th>
-                          <th className="py-2 px-3 text-right">IMPLIED RETURN</th>
-                          <th className="py-2 px-3 text-right">ACTION</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[#1e293b] bg-[#080d1a]">
-                        {[
-                          { date: "Sep 12, 2026", firm: isINR ? "Kotak Institutional Equities" : "Morgan Stanley", rec: "BUY", target: lastPrice * 1.30, action: "Reiterated" },
-                          { date: "Aug 28, 2026", firm: isINR ? "ICICI Securities" : "Goldman Sachs", rec: "ACCUMULATE", target: lastPrice * 1.18, action: "Maintained" },
-                          { date: "Aug 15, 2026", firm: isINR ? "Motilal Oswal Financial" : "J.P. Morgan", rec: "HOLD", target: lastPrice * 1.05, action: "Revised Target" },
-                          { date: "Jul 22, 2026", firm: isINR ? "HDFC Securities" : "Bank of America", rec: "BUY", target: lastPrice * 1.25, action: "Upgraded" },
-                          { date: "Jun 30, 2026", firm: isINR ? "Axis Capital" : "Citigroup", rec: "BUY", target: lastPrice * 1.22, action: "Initiated Coverage" },
-                        ].map((row, idx) => {
-                          const impliedRet = (((row.target - lastPrice) / lastPrice) * 100).toFixed(1);
-                          return (
-                            <tr key={idx} className="hover:bg-[#0b1222]">
-                              <td className="py-2 px-3 text-[#94a3b8]">{row.date}</td>
-                              <td className="py-2 px-3 text-white font-bold">{row.firm}</td>
-                              <td className="py-2 px-3">
-                                <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${row.rec === "BUY" ? "bg-[#10B981]/20 text-[#10B981]" : "bg-[#F59E0B]/20 text-[#F59E0B]"
-                                  }`}>
-                                  {row.rec}
-                                </span>
-                              </td>
-                              <td className="py-2 px-3 text-right font-mono font-bold text-white">
-                                {currencySymbol}{row.target.toFixed(2)}
-                              </td>
-                              <td className={`py-2 px-3 text-right font-mono font-bold ${Number(impliedRet) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                                +{impliedRet}%
-                              </td>
-                              <td className="py-2 px-3 text-right text-[#94a3b8]">{row.action}</td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* --------------------------------------------------------
-                TAB 7: NEWS & FILINGS
-                -------------------------------------------------------- */}
-            {activeTab === "news" && (
-              <div className="border border-[#1e293b] bg-[#080d1a] text-xs">
-                <div className="px-3 py-1.5 border-b border-[#1e293b] bg-[#0E1117] flex items-center justify-between">
-                  <span className="font-bold text-[#f59e0b]">
-                    [INTELLIGENCE FEED] Real-time Market News & Regulatory Filings for {ticker}
-                  </span>
-                  <span className="text-[#64748b] font-mono">Verified Feeds</span>
-                </div>
-
-                <div className="p-3 space-y-3 font-mono">
-                  {[
-                    {
-                      time: "2 hours ago",
-                      title: `${profile?.name || ticker} reports resilient order execution and operational throughput`,
-                      publisher: isINR ? "Economic Times" : "Reuters",
-                      sentiment: "BULLISH",
-                      desc: "Quarterly operational disclosures highlight steady capacity utilization, favorable customer delivery schedules, and improved working capital metrics across core industrial segments.",
-                    },
-                    {
-                      time: "5 hours ago",
-                      title: `${ticker} institutional accumulation increases amid sector-wide momentum`,
-                      publisher: "Bloomberg",
-                      sentiment: "BULLISH",
-                      desc: "Trading desk volume monitors note notable increase in block deals and delivery percentages, with quantitative funds accumulating positions ahead of scheduled quarterly releases.",
-                    },
-                    {
-                      time: "1 day ago",
-                      title: `${profile?.name || ticker} details automated facility expansion & technological integration`,
-                      publisher: isINR ? "Mint" : "CNBC",
-                      sentiment: "NEUTRAL",
-                      desc: "Capital expenditure allocations targeting advanced automation and next-generation testing infrastructure remain on schedule to commence operations over the next two fiscal quarters.",
-                    },
-                    {
-                      time: "2 days ago",
-                      title: `Sector report: ${profile?.sector || "Industrial"} component supply chain and margin dynamics`,
-                      publisher: "Financial Times",
-                      sentiment: "NEUTRAL",
-                      desc: "Macroeconomic supply chain assessments confirm stabilizing input raw material costs, enabling manufacturers to protect operating margins through structured procurement contracts.",
-                    },
-                  ].map((news, i) => (
-                    <div key={i} className="p-3 rounded bg-[#080d1a] border border-[#1e293b] space-y-1.5 hover:border-[#3b82f6]/40 transition-colors">
-                      <div className="flex items-center justify-between text-[10px]">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-[#2563eb] font-bold">{news.publisher}</span>
-                          <span className="text-[#64748b]">&bull;</span>
-                          <span className="text-[#94a3b8]">{news.time}</span>
-                        </div>
-                        <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${news.sentiment === "BULLISH" ? "bg-[#10B981]/20 text-[#10B981]" : "bg-[#3b82f6]/20 text-[#3b82f6]"
-                          }`}>
-                          {news.sentiment}
-                        </span>
-                      </div>
-                      <h4 className="text-sm font-bold text-white leading-snug">{news.title}</h4>
-                      <p className="text-[11px] text-[#94a3b8] leading-relaxed">{news.desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* RESEARCH → STRATEGY EXECUTION (for non-overview tabs) */}
-            {activeTab !== "overview" && (
-              <StrategyExecutionBanner
-                strategyUrl={buildStrategyUrl}
-                ticker={ticker}
-                benchmark={benchmark}
-              />
-            )}
-          </>
-        ) : null}
-      </div>
-
-      {/* ========================================================
-          COMMAND PALETTE MODAL (CMD+K / CTRL+K)
-          ======================================================== */}
-      {commandPaletteOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 bg-black/70">
-          <div className="w-full max-w-lg border border-[#f59e0b]/40 bg-[#080d1a] p-0 text-xs overflow-hidden">
-            <div className="flex items-center px-3 py-2 border-b border-[#1e293b] bg-[#080d1a]">
-              <Search className="h-3.5 w-3.5 text-[#f59e0b] mr-2" />
-              <input
-                type="text"
-                autoFocus
-                value={commandSearch}
-                onChange={(e) => setCommandSearch(e.target.value)}
-                placeholder="Type command, ticker, or tab (1-5)..."
-                className="w-full bg-transparent text-[#cbd5e1] text-xs focus:outline-none placeholder-[#64748b]"
-              />
-              <button
-                type="button"
-                onClick={() => setCommandPaletteOpen(false)}
-                className="text-[#64748b] hover:text-[#cbd5e1]"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </div>
-
-            <div className="p-2 space-y-1 max-h-72 overflow-y-auto">
-              <div className="text-[9px] text-[#f59e0b] font-bold px-2 py-0.5 uppercase">
-                SWITCH WORKSPACE TAB
-              </div>
-              {[
-                { label: "Overview", tab: "overview", key: "1" },
-                { label: "Technicals", tab: "technicals", key: "2" },
-                { label: "Risk", tab: "risk", key: "3" },
-                { label: "Fundamentals", tab: "fundamentals", key: "4" },
-                { label: "Factors", tab: "factors", key: "5" },
-              ]
-                .filter((item) => item.label.toLowerCase().includes(commandSearch.toLowerCase()))
-                .map((item) => (
-                  <button
-                    key={item.tab}
-                    type="button"
-                    onClick={() => {
-                      setActiveTab(item.tab as SubNavTab);
-                      setCommandPaletteOpen(false);
-                    }}
-                    className="w-full flex items-center justify-between px-2 py-1 hover:bg-[#0b1222] text-left text-xs transition-colors"
-                  >
-                    <span className="text-[#cbd5e1]">{item.label}</span>
-                    <span className="text-[10px] text-[#f59e0b] border border-[#1e293b] px-1 py-0.2">
-                      {item.key}
-                    </span>
-                  </button>
-                ))}
-
-              <div className="text-[9px] text-[#f59e0b] font-bold px-2 py-0.5 pt-2 uppercase">
-                TERMINAL ACTIONS
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setCommandPaletteOpen(false);
-                  router.push(buildStrategyUrl);
-                }}
-                className="w-full flex items-center justify-between px-2 py-1 hover:bg-[#0b1222] text-left text-xs transition-colors"
-              >
-                <span className="text-[#3b82f6]">Launch Strategy Builder</span>
-                <span className="text-[10px] text-[#f59e0b] border border-[#1e293b] px-1 py-0.2">
-                  B
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setCommandPaletteOpen(false);
-                  document.getElementById("stock-search-input")?.focus();
-                }}
-                className="w-full flex items-center justify-between px-2 py-1 hover:bg-[#0b1222] text-left text-xs transition-colors"
-              >
-                <span className="text-[#cbd5e1]">Search 18,500+ Universe</span>
-                <span className="text-[10px] text-[#f59e0b] border border-[#1e293b] px-1 py-0.2">
-                  /
-                </span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+        <div key={tab} className="animate-fade-up">{body}</div>
+      </main>
+    </ResearchProvider>
   );
 }

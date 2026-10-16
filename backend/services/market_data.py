@@ -433,7 +433,7 @@ def get_option_chain_data(symbol: str, expiration: Optional[str] = None) -> Dict
     Fetches real option chain with Black-Scholes Greeks, Max Pain, and Put/Call Ratio.
     """
     sym = symbol.strip().upper()
-    cache_key = f"options_v2_{sym}_{expiration or 'first'}"
+    cache_key = f"options_v3_{sym}_{expiration or 'first'}"
     cached = _get_cache(cache_key, ttl_seconds=300)
     if cached:
         return cached
@@ -455,7 +455,16 @@ def get_option_chain_data(symbol: str, expiration: Optional[str] = None) -> Dict
             "puts": [],
         }
 
-    selected_exp = expiration if expiration in available_expirations else available_expirations[0]
+    # Default to the first expiry at least 5 days out: contracts expiring today/tomorrow have no meaningful
+    # bids, implied volatility or Greeks.
+    def _days(e: str) -> int:
+        try:
+            return (pd.to_datetime(e) - pd.to_datetime("today").normalize()).days
+        except Exception:
+            return 0
+
+    default_exp = next((e for e in available_expirations if _days(e) >= 5), available_expirations[0])
+    selected_exp = expiration if expiration in available_expirations else default_exp
 
     try:
         chain = ticker.option_chain(selected_exp)
@@ -525,8 +534,8 @@ def get_option_chain_data(symbol: str, expiration: Optional[str] = None) -> Dict
     total_call_oi = sum(c["openInterest"] for c in calls)
     total_put_oi = sum(p["openInterest"] for p in puts)
 
-    pcr_vol = round(total_put_vol / total_call_vol, 2) if total_call_vol > 0 else 1.0
-    pcr_oi = round(total_put_oi / total_call_oi, 2) if total_call_oi > 0 else 1.0
+    pcr_vol = round(total_put_vol / total_call_vol, 2) if total_call_vol > 0 else None  # None, not a neutral 1.0, when there is no volume
+    pcr_oi = round(total_put_oi / total_call_oi, 2) if total_call_oi > 0 else None
 
     # Max Pain Strike
     strikes = sorted(list(set([c["strike"] for c in calls] + [p["strike"] for p in puts])))

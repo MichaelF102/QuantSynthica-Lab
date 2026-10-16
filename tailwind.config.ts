@@ -1,14 +1,15 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Theme tokens are CSS variables (see app/globals.css). The helper below keeps
- * Tailwind opacity modifiers (e.g. `border-border/80`) working with var() colours.
+ * Theme tokens are CSS variables (see app/globals.css). The helper below keeps Tailwind opacity
+ * modifiers (`border-border/80`) and the implicit `--tw-*-opacity` variables working with var() colours.
  */
 const token = (name: string): string =>
   (({ opacityValue }: { opacityValue?: string }) =>
-    opacityValue === undefined || opacityValue === "1"
+    opacityValue === undefined
       ? `var(${name})`
-      : `color-mix(in srgb, var(${name}) ${Number(opacityValue) * 100}%, transparent)`) as unknown as string;
+      : // opacityValue is a number ("0.8"), "1", or a CSS variable such as "var(--tw-bg-opacity)", so keep it symbolic.
+        `color-mix(in srgb, var(${name}) calc(${opacityValue} * 100%), transparent)`) as unknown as string;
 
 const config: Config = {
   darkMode: "class",

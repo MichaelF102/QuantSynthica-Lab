@@ -13,6 +13,20 @@ except ImportError:
 
 from .stocks_universe import universe_manager
 
+def normalize_dividend_yield(dividend_yield, trailing_yield):
+    """Dividend yield in percent. Current yfinance returns `dividendYield` already in percent (0.32 = 0.32%) while
+    `trailingAnnualDividendYield` is a fraction; older releases returned a fraction for both. Use the fraction field
+    to decide which convention applies, so a 0.49% yield is never shown as 49%."""
+    if dividend_yield is None:
+        return None
+    dy = float(dividend_yield)
+    if trailing_yield:
+        tr_pct = float(trailing_yield) * 100
+        # whichever interpretation lands closer to the trailing yield wins
+        return dy * 100 if abs(dy * 100 - tr_pct) < abs(dy - tr_pct) else dy
+    return dy
+
+
 logger = logging.getLogger("quantsynthica.fundamentals")
 
 class FundamentalEngine:
@@ -182,13 +196,15 @@ class FundamentalEngine:
         eps_ttm = self._safe_float(tv_data.get("earnings_per_share_basic_ttm") or yf_info.get("trailingEps") or universe_stock.get("eps_ttm"))
 
         dividend_yield = self._safe_float(
-            yf_info.get("dividendYield", 0) * 100 if yf_info.get("dividendYield") else None or
-            universe_stock.get("dividend_yield")
+            normalize_dividend_yield(yf_info.get("dividendYield"), yf_info.get("trailingAnnualDividendYield"))
+            if yf_info.get("dividendYield") is not None
+            else universe_stock.get("dividend_yield")
         )
 
-        high_52w = self._safe_float(tv_data.get("price_52_week_high") or yf_info.get("fiftyTwoWeekHigh") or (price * 1.35 if price else None))
-        low_52w = self._safe_float(tv_data.get("price_52_week_low") or yf_info.get("fiftyTwoWeekLow") or (price * 0.75 if price else None))
-        beta = self._safe_float(tv_data.get("beta_1_year") or yf_info.get("beta") or 1.0)
+        # No invented fallbacks: a missing 52-week range or beta stays None and renders as an em dash.
+        high_52w = self._safe_float(tv_data.get("price_52_week_high") or yf_info.get("fiftyTwoWeekHigh"))
+        low_52w = self._safe_float(tv_data.get("price_52_week_low") or yf_info.get("fiftyTwoWeekLow"))
+        beta = self._safe_float(tv_data.get("beta_1_year") or yf_info.get("beta"))
 
         # Valuation Multiples
         forward_pe = self._safe_float(yf_info.get("forwardPE"))
