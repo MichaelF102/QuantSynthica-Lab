@@ -146,7 +146,7 @@ export default function RiskHeader() {
                     href="/risk"
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1769FF] text-white text-xs font-semibold"
                   >
-                    Open Live Risk Engine <ArrowRight className="w-3.5 h-3.5" />
+                    Open Risk Lab <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
               </div>

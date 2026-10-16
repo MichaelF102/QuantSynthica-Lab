@@ -217,15 +217,15 @@ export default function WorkflowSection() {
             <div className="flex items-center gap-2 rounded-lg bg-white dark:bg-[#0B1528] border border-slate-200/80 dark:border-slate-800 px-3 py-2 shadow-2xs">
               <Globe className="h-4 w-4 text-[#1769FF]" />
               <div>
-                <div className="text-xs font-bold text-[#0B1220] dark:text-white">1,000+</div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400">Assets (US + India)</div>
+                <div className="text-xs font-bold text-[#0B1220] dark:text-white">18,500+</div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400">Stocks (US + India)</div>
               </div>
             </div>
 
             <div className="flex items-center gap-2 rounded-lg bg-white dark:bg-[#0B1528] border border-slate-200/80 dark:border-slate-800 px-3 py-2 shadow-2xs">
               <BarChart3 className="h-4 w-4 text-[#1769FF]" />
               <div>
-                <div className="text-xs font-bold text-[#0B1220] dark:text-white">50+</div>
+                <div className="text-xs font-bold text-[#0B1220] dark:text-white">24</div>
                 <div className="text-[10px] text-slate-500 dark:text-slate-400">Technical Indicators</div>
               </div>
             </div>
@@ -233,8 +233,8 @@ export default function WorkflowSection() {
             <div className="flex items-center gap-2 rounded-lg bg-white dark:bg-[#0B1528] border border-slate-200/80 dark:border-slate-800 px-3 py-2 shadow-2xs">
               <Layers className="h-4 w-4 text-[#1769FF]" />
               <div>
-                <div className="text-xs font-bold text-[#0B1220] dark:text-white">10+</div>
-                <div className="text-[10px] text-slate-500 dark:text-slate-400">Workflow Modules</div>
+                <div className="text-xs font-bold text-[#0B1220] dark:text-white">11</div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400">Research Tabs</div>
               </div>
             </div>
           </div>

@@ -2,9 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, ExternalLink, Linkedin, Globe, Mail } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import QuantSynthicaLogo from "@/components/branding/QuantSynthicaLogo";
-import { LINKEDIN_URL, PORTFOLIO_URL, CONTACT_EMAIL } from "@/lib/profile";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -22,7 +21,6 @@ export default function Footer() {
     { label: "Research Engine", href: "/research" },
     { label: "Platform Resources", href: "/settings" },
     { label: "Documentation", href: "/docs" },
-    { label: "About Me", href: "/about", highlight: true },
   ];
 
   return (
@@ -32,7 +30,7 @@ export default function Footer() {
         <div className="mb-10 flex flex-col items-start justify-between gap-4 rounded-xl border border-slate-200 bg-white/70 p-5 backdrop-blur-sm sm:flex-row sm:items-center dark:border-slate-800/70 dark:bg-slate-900/40">
           <div>
             <div className="text-[11px] font-bold uppercase tracking-wider text-[#1769FF] dark:text-blue-400">
-              Institutional Intelligence
+              Research Platform
             </div>
             <p className="mt-0.5 text-sm font-semibold text-slate-900 dark:text-white">
               Explore the research platform.
@@ -51,14 +49,14 @@ export default function Footer() {
         </div>
 
         {/* 2. Structured Multi-Column Grid */}
-        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4">
           {/* Brand Identity & Mission (Takes 2 cols on lg) */}
           <div className="flex flex-col sm:col-span-2">
             <div className="mb-4">
               <QuantSynthicaLogo variant="full" size="default" />
             </div>
             <p className="max-w-sm text-xs leading-relaxed text-slate-600 dark:text-slate-400">
-              Quantitative research and analytics for modern markets. Empowering researchers and algorithmic traders with rigorous econometric backtesting and risk intelligence.
+              Quantitative research and analytics for modern markets. Empowering researchers and algorithmic traders with rigorous backtesting and risk analytics.
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-2 text-[11px] font-medium text-slate-500 dark:text-slate-400">
               <span className="rounded bg-slate-200/60 px-2 py-0.5 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
@@ -108,74 +106,12 @@ export default function Footer() {
                 <li key={link.href + link.label}>
                   <Link
                     href={link.href}
-                    className={`inline-flex items-center gap-1.5 transition-colors duration-150 ${
-                      link.highlight
-                        ? "font-semibold text-[#1769FF] hover:underline dark:text-blue-400"
-                        : "hover:text-[#1769FF] dark:hover:text-blue-400"
-                    }`}
+                    className="inline-block transition-colors duration-150 hover:text-[#1769FF] dark:hover:text-blue-400"
                   >
                     {link.label}
-                    {link.highlight && (
-                      <span className="rounded-full bg-blue-500/10 px-1.5 py-0.2 text-[10px] font-bold text-blue-600 dark:bg-blue-400/10 dark:text-blue-400">
-                        Profile
-                      </span>
-                    )}
                   </Link>
                 </li>
               ))}
-            </ul>
-          </div>
-
-          {/* Column 3: CONNECT */}
-          <div className="flex flex-col">
-            <h4 className="text-[12px] font-bold uppercase tracking-wider text-slate-900 dark:text-white">
-              Connect
-            </h4>
-            <ul className="mt-3.5 space-y-2.5 text-xs">
-              <li>
-                <a
-                  href={LINKEDIN_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Michael Fernandes LinkedIn Profile"
-                  className="inline-flex items-center gap-1.5 transition-colors duration-150 hover:text-[#1769FF] dark:hover:text-blue-400"
-                >
-                  <Linkedin className="h-3.5 w-3.5 text-[#0A66C2]" />
-                  <span>LinkedIn</span>
-                  <ExternalLink className="h-3 w-3 opacity-60" />
-                </a>
-              </li>
-              <li>
-                <a
-                  href={PORTFOLIO_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Michael Fernandes Portfolio"
-                  className="inline-flex items-center gap-1.5 transition-colors duration-150 hover:text-[#1769FF] dark:hover:text-blue-400"
-                >
-                  <Globe className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
-                  <span>Portfolio</span>
-                  <ExternalLink className="h-3 w-3 opacity-60" />
-                </a>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center gap-1.5 transition-colors duration-150 hover:text-[#1769FF] dark:hover:text-blue-400"
-                >
-                  <Mail className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
-                  <span>Contact</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/about"
-                  className="inline-flex items-center gap-1.5 text-slate-500 transition-colors duration-150 hover:text-[#1769FF] dark:text-slate-400 dark:hover:text-blue-400"
-                >
-                  <span>About Michael</span>
-                  <ArrowRight className="h-3 w-3" />
-                </Link>
-              </li>
             </ul>
           </div>
         </div>
@@ -185,38 +121,9 @@ export default function Footer() {
           <p className="text-[12px] text-slate-500 dark:text-slate-500">
             © {currentYear} <span className="font-semibold text-slate-700 dark:text-slate-300">QuantSynthicaLab</span>. Quantitative research and analytics for modern markets.
           </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-5 text-xs font-medium">
-            <a
-              href={LINKEDIN_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="LinkedIn"
-              className="inline-flex items-center gap-1 text-slate-500 transition-colors hover:text-[#0A66C2] dark:text-slate-400 dark:hover:text-blue-400"
-            >
-              <Linkedin className="h-3.5 w-3.5" />
-              <span>LinkedIn</span>
-            </a>
-            <span className="text-slate-300 dark:text-slate-700">·</span>
-            <a
-              href={PORTFOLIO_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Portfolio"
-              className="inline-flex items-center gap-1 text-slate-500 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
-            >
-              <Globe className="h-3.5 w-3.5" />
-              <span>Portfolio</span>
-            </a>
-            <span className="text-slate-300 dark:text-slate-700">·</span>
-            <Link
-              href="/contact"
-              className="inline-flex items-center gap-1 text-slate-500 transition-colors hover:text-[#1769FF] dark:text-slate-400 dark:hover:text-blue-400"
-            >
-              <Mail className="h-3.5 w-3.5" />
-              <span>Contact</span>
-            </Link>
-          </div>
+          <p className="max-w-md text-[11px] text-slate-500 dark:text-slate-500 sm:text-right">
+            A research and paper-trading tool. Market data may be delayed. Nothing here is investment advice.
+          </p>
         </div>
       </div>
     </footer>

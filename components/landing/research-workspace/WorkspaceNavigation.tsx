@@ -35,7 +35,7 @@ export const WORKSPACE_FEATURES: FeatureItem[] = [
   {
     id: "charts",
     title: "Charts",
-    description: "Advanced charting with 100+ indicators",
+    description: "Advanced charting with 24 indicators",
     icon: BarChart3,
   },
   {

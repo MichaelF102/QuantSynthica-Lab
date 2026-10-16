@@ -41,7 +41,7 @@ export const STAGES: StageData[] = [
     tag: "01 / DATA",
     headline: "Build the research universe.",
     description:
-      "Start with market, financial and economic data across US and Indian markets.",
+      "Start with market and financial data across US and Indian markets.",
     ctaText: "Explore market universe",
     ctaHref: "/research",
     highlights: [
@@ -59,11 +59,6 @@ export const STAGES: StageData[] = [
         icon: Activity,
         title: "Options data",
         detail: "Chains, Greeks and historical data",
-      },
-      {
-        icon: BarChart3,
-        title: "Economic data",
-        detail: "Macro indicators from global sources",
       },
     ],
   },
@@ -134,7 +129,7 @@ export const STAGES: StageData[] = [
     tag: "04 / BACKTEST",
     headline: "Test the idea before trusting it.",
     description:
-      "Evaluate strategy behaviour across historical periods with rigorous institutional simulation.",
+      "Evaluate strategy behaviour across historical periods with realistic simulation.",
     ctaText: "Run Backtest Engine",
     ctaHref: "/backtests",
     highlights: [
@@ -145,7 +140,7 @@ export const STAGES: StageData[] = [
       },
       {
         icon: Activity,
-        title: "Institutional friction",
+        title: "Trading friction",
         detail: "Slippage model and per-share commission drag",
       },
       {
@@ -156,7 +151,7 @@ export const STAGES: StageData[] = [
       {
         icon: LineChart,
         title: "Benchmark comparison",
-        detail: "Real-time alpha vs S&P 500 / NIFTY 50",
+        detail: "Alpha vs S&P 500 / NIFTY 50",
       },
     ],
   },

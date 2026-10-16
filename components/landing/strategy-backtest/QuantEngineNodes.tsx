@@ -4,7 +4,7 @@ import React, { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
-import { Code2, BarChart2, TrendingUp, Check, Coins, Layers, Activity, Database } from "lucide-react";
+import { Code2, BarChart2, TrendingUp, Check, Layers, Activity, Database } from "lucide-react";
 
 interface QuantEngineNodesProps {
   activeStage: number; // 1, 2, 3
@@ -43,14 +43,6 @@ const MARKET_NODES = [
     color: "#38BDF8",
   },
   // Right: Asset Classes
-  {
-    id: "crypto",
-    title: "Crypto",
-    type: "Digital Assets",
-    pos: [3.05, 1.1, -0.2] as [number, number, number],
-    color: "#F59E0B",
-    icon: Coins,
-  },
   {
     id: "commodities",
     title: "Commodities",

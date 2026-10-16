@@ -78,14 +78,14 @@ export default function WorkspaceBackground() {
           US MARKETS
         </div>
 
-        {/* 100+ Indicators Badge */}
+        {/* 24 Indicators Badge */}
         <div className="absolute top-20 right-[52%] rounded-full border border-slate-200/80 bg-white/75 px-3 py-1 text-[11px] font-medium text-slate-600 shadow-sm backdrop-blur-md">
-          100+ Indicators
+          24 Indicators
         </div>
 
-        {/* Real-time & Historical Data Badge */}
+        {/* Daily Historical Data Badge */}
         <div className="absolute top-8 right-[14%] rounded-full border border-blue-100 bg-white/75 px-3.5 py-1 text-[11px] font-semibold text-blue-700 shadow-sm backdrop-blur-md">
-          Real-time & Historical Data
+          Daily Historical Data
         </div>
 
         {/* Global Market Coverage Badge */}

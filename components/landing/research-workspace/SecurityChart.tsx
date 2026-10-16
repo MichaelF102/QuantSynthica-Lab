@@ -565,7 +565,7 @@ export default function SecurityChart({
                   Factor Exposure &amp; Performance Attribution
                 </div>
                 <div className="text-[10px] text-slate-400">
-                  Fama-French 5-Factor Decomposition &amp; Alpha Residuals
+                  Factor Exposure &amp; Alpha vs Proxy Factors
                 </div>
               </div>
 
@@ -641,7 +641,7 @@ export default function SecurityChart({
                   Multi-Asset Portfolio Construction &amp; Target Weights
                 </div>
                 <div className="text-[10px] text-slate-400">
-                  Mean-Variance &amp; Hierarchical Risk Parity (HRP) Allocation
+                  Mean-Variance &amp; Risk Parity Allocation
                 </div>
               </div>
 

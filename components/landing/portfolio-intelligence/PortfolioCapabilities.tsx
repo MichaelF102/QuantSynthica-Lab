@@ -7,21 +7,21 @@ export default function PortfolioCapabilities() {
   const capabilities = [
     {
       title: "Multi-Asset Support",
-      desc: "Equity, Options, ETFs, Futures",
+      desc: "Equities, ETFs, Indices",
       icon: Database,
       color: "text-[#1769FF] dark:text-blue-400",
       bg: "bg-blue-50/80 dark:bg-blue-950/40 border-blue-100 dark:border-blue-900/50",
     },
     {
       title: "Advanced Optimization",
-      desc: "Mean-Variance, Risk Parity, Factor",
+      desc: "Min Variance, Max Sharpe, Risk Parity",
       icon: Sliders,
       color: "text-[#6366F1] dark:text-indigo-400",
       bg: "bg-indigo-50/80 dark:bg-indigo-950/40 border-indigo-100 dark:border-indigo-900/50",
     },
     {
       title: "Risk-Aware Allocation",
-      desc: "Constraints, Hedging, Exposure",
+      desc: "Weights, Correlation, Risk Contribution",
       icon: BarChart3,
       color: "text-[#0284C7] dark:text-sky-400",
       bg: "bg-sky-50/80 dark:bg-sky-950/40 border-sky-100 dark:border-sky-900/50",

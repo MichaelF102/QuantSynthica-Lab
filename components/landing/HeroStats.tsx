@@ -4,9 +4,9 @@ import React from "react";
 import { motion } from "framer-motion";
 
 const STATS = [
-  { value: "1,000+", label: "Assets" },
-  { value: "50+", label: "Technical Indicators" },
-  { value: "10+", label: "Research Modules" },
+  { value: "18,500+", label: "Stocks" },
+  { value: "24", label: "Technical Indicators" },
+  { value: "11", label: "Research Tabs" },
   { value: "2", label: "Markets", sublabel: "US + India" },
 ];
 

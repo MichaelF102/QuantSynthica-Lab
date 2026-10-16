@@ -91,12 +91,12 @@ export default function PortfolioHeader() {
                 </p>
                 <div className="grid grid-cols-2 gap-3 pt-2">
                   <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#070D18] border border-slate-200/80 dark:border-slate-800">
-                    <div className="text-xs font-bold text-[#1769FF]">Efficient Frontier Solver</div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Markowitz convex quadratic solver with Ledoit-Wolf shrinkage covariance.</div>
+                    <div className="text-xs font-bold text-[#1769FF]">Min Variance & Max Sharpe</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Long-only optimisers built on the sample covariance matrix.</div>
                   </div>
                   <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#070D18] border border-slate-200/80 dark:border-slate-800">
-                    <div className="text-xs font-bold text-[#10B981]">Hierarchical Risk Parity</div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Machine learning tree-clustering risk parity without matrix inversion instability.</div>
+                    <div className="text-xs font-bold text-[#10B981]">Risk Parity</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Weights each holding by its contribution to portfolio risk.</div>
                   </div>
                 </div>
                 <div className="pt-4 flex justify-end">
@@ -104,7 +104,7 @@ export default function PortfolioHeader() {
                     href="/portfolio"
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1769FF] text-white text-xs font-semibold"
                   >
-                    Open Live Portfolio Lab <ArrowRight className="w-3.5 h-3.5" />
+                    Open Portfolio <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
               </div>

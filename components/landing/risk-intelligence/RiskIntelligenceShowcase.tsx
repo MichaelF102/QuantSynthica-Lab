@@ -44,12 +44,12 @@ const REGIMES: RiskRegime[] = [
     id: "crash",
     name: "Market Crash",
     badge: "Systemic Shock",
-    tagline: "-15% Equity Shock & Liquidity Plunge",
+    tagline: "-15% Equity Shock",
     icon: Shield,
     iconBg: "bg-rose-500/15 border-rose-500/30",
     iconColor: "text-rose-400",
     description:
-      "Simulate systemic multi-sigma equity sell-offs comparable to the March 2020 liquidity plunge. Evaluate portfolio correlation breakdown, margin calls, and extreme left-tail drawdown before committing live capital.",
+      "Replay market sell-offs such as March 2020 against your portfolio. Evaluate correlation breakdown and extreme left-tail drawdown before committing capital.",
     ctaText: "Explore Market Crash Simulator",
     ctaHref: "/risk",
     shockLabel: "-15% Systemic Equity Shock",
@@ -113,30 +113,6 @@ const REGIMES: RiskRegime[] = [
     ],
   },
   {
-    id: "liquidity",
-    name: "Liquidity Freeze",
-    badge: "Microstructure Shock",
-    tagline: "-20% Depth Drop & Spread Blowout",
-    icon: Droplets,
-    iconBg: "bg-cyan-500/15 border-cyan-500/30",
-    iconColor: "text-cyan-400",
-    description:
-      "Analyze market depth evaporations and bid-ask spread expansions during flash crashes. Quantify realistic execution slippage, market impact costs, and order queue depletion under severe institutional withdrawal.",
-    ctaText: "Simulate Liquidity Freeze",
-    ctaHref: "/risk",
-    shockLabel: "-20% Order Book Depth Drop",
-    simulatedLoss: "-9.8%",
-    maxDrawdown: "-13.5%",
-    volatilitySpike: "+32.1%",
-    var99: "-7.6%",
-    highlights: [
-      "Bid-ask spread expands from 2 bps to 48 bps",
-      "Market impact cost scaling with 6.4x multiplier",
-      "Limit order book depletion & slippage guard",
-      "Mid-cap & small-cap illiquidity penalty modeling",
-    ],
-  },
-  {
     id: "var",
     name: "Value at Risk (VaR)",
     badge: "Statistical Tail Risk",
@@ -145,7 +121,7 @@ const REGIMES: RiskRegime[] = [
     iconBg: "bg-blue-500/15 border-blue-500/30",
     iconColor: "text-blue-400",
     description:
-      "Compute institutional parametric, historical simulation, and Monte Carlo Value at Risk. Examine Expected Shortfall (CVaR) to understand average losses beyond the 99th percentile threshold with mathematical rigor.",
+      "Compute parametric, historical and Monte Carlo Value at Risk, plus Cornish-Fisher. Examine Expected Shortfall (CVaR) to understand average losses beyond the 99th percentile threshold with mathematical rigor.",
     ctaText: "Explore Value at Risk",
     ctaHref: "/risk",
     shockLabel: "99% VaR & Expected Shortfall",
@@ -154,10 +130,10 @@ const REGIMES: RiskRegime[] = [
     volatilitySpike: "+19.8%",
     var99: "-6.8%",
     highlights: [
-      "95% VaR: -3.2% | 99% VaR: -5.7% (1-Day Horizon)",
-      "Conditional VaR (Expected Shortfall): -6.8%",
+      "95% and 99% VaR at 1 to 20 day horizons",
+      "Conditional VaR (Expected Shortfall)",
       "10,000-path Monte Carlo probability distribution",
-      "Fat-tail Student's t and GARCH volatility models",
+      "Cornish-Fisher adjustment for skew and fat tails",
     ],
   },
   {
@@ -178,10 +154,10 @@ const REGIMES: RiskRegime[] = [
     volatilitySpike: "+22.1%",
     var99: "-5.2%",
     highlights: [
-      "Maximum historical drawdown: -11.4% (vs -28.4% benchmark)",
-      "Average drawdown duration: 18 trading days",
-      "Full recovery time: 33 calendar days",
-      "Calmar Ratio: 2.54 with underwater duration metrics",
+      "Maximum drawdown versus the benchmark",
+      "Drawdown episodes with depth and duration",
+      "Time to recover from each drawdown",
+      "Calmar ratio alongside underwater duration",
     ],
   },
 ];
@@ -200,8 +176,9 @@ export default function RiskIntelligenceShowcase() {
         </h2>
 
         <p className="mt-3.5 text-[15px] sm:text-[16px] text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto">
-          From liquidity freezes to volatility spikes, rate dislocations to systemic crashes—we bring non-linear quantitative stress models and institutional risk controls to safeguard your capital.
+          From volatility spikes to rate shocks and market crashes, review drawdowns, Value at Risk and historical market episodes before you commit capital.
         </p>
+        <p className="mt-2 text-[11px] text-slate-500 dark:text-slate-500">Figures in these panels are illustrative samples, not live results.</p>
       </div>
 
       {/* 2. MAIN SHOWCASE CONTAINER (2-Column Split: Left Info + Right Mockup) */}
@@ -305,7 +282,6 @@ export default function RiskIntelligenceShowcase() {
                 {activeRegime.id === "crash" && <CrashScenarioMockup />}
                 {activeRegime.id === "rates" && <RatesScenarioMockup />}
                 {activeRegime.id === "vol" && <VolScenarioMockup />}
-                {activeRegime.id === "liquidity" && <LiquidityScenarioMockup />}
                 {activeRegime.id === "var" && <VaRScenarioMockup />}
                 {activeRegime.id === "drawdown" && <DrawdownScenarioMockup />}
               </motion.div>
@@ -613,86 +589,6 @@ function VolScenarioMockup() {
   );
 }
 
-{/* ========================================================================= */}
-{/* 4. LIQUIDITY SCENARIO MOCKUP */}
-{/* ========================================================================= */}
-function LiquidityScenarioMockup() {
-  return (
-    <div className="w-full rounded-lg border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">
-      <div className="flex items-center justify-between px-4 py-3 bg-[#08101E] border-b border-slate-800">
-        <div className="flex items-center gap-2">
-          <div className="h-3 w-3 rounded-full bg-rose-500/80" />
-          <div className="h-3 w-3 rounded-full bg-amber-500/80" />
-          <div className="h-3 w-3 rounded-full bg-emerald-500/80" />
-          <span className="ml-2 text-[12px] font-mono text-slate-400 font-semibold truncate">
-            Order Book Evaporation: -20% Depth Shock
-          </span>
-        </div>
-        <span className="px-2 py-0.5 rounded-md bg-cyan-950/70 border border-cyan-500/40 text-[10px] font-mono font-bold text-cyan-400">
-          ● FLASH CRASH SLIPPAGE RISK
-        </span>
-      </div>
-
-      <div className="p-4 sm:p-5 space-y-4">
-        <div className="grid grid-cols-3 gap-2 p-2.5 rounded-md bg-slate-900/80 border border-slate-800 text-[11px] font-mono">
-          <div>
-            <span className="text-slate-500 block text-[9.5px]">BID-ASK SPREAD</span>
-            <span className="text-cyan-400 font-bold">2.1 bps → 48.6 bps</span>
-          </div>
-          <div>
-            <span className="text-slate-500 block text-[9.5px]">SLIPPAGE MULTIPLIER</span>
-            <span className="text-rose-400 font-bold">6.4x Standard</span>
-          </div>
-          <div>
-            <span className="text-slate-500 block text-[9.5px]">ORDER QUEUE FILL</span>
-            <span className="text-amber-400 font-bold">Partial 42%</span>
-          </div>
-        </div>
-
-        {/* Order Book Depth Depletion SVG */}
-        <div className="p-3.5 rounded-md bg-slate-950 border border-slate-800">
-          <div className="flex items-center justify-between text-[11px] font-mono mb-2">
-            <span className="text-slate-300 font-bold">Limit Order Depth (Normal vs Evaporated)</span>
-            <span className="text-cyan-400 font-bold">Liquidity Gap</span>
-          </div>
-
-          <div className="relative h-40 w-full flex items-center justify-center">
-            <svg className="w-full h-full overflow-visible" viewBox="0 0 500 140" preserveAspectRatio="none">
-              {/* Green Bids Area */}
-              <polygon points="0,135 180,135 180,90 140,70 80,40 0,40" fill="rgba(16, 185, 129, 0.2)" stroke="#10B981" strokeWidth="2" />
-              {/* Red Asks Area */}
-              <polygon points="320,135 500,135 500,40 420,40 360,70 320,90" fill="rgba(239, 68, 68, 0.2)" stroke="#EF4444" strokeWidth="2" />
-
-              {/* The Liquidity Void in Middle */}
-              <rect x="180" y="40" width="140" height="95" fill="rgba(6, 182, 212, 0.1)" stroke="#06B6D4" strokeDasharray="3 3" />
-            </svg>
-
-            <div className="absolute px-3 py-1 rounded bg-cyan-950 border border-cyan-400 text-[10px] font-mono text-cyan-300 shadow">
-              Liquidity Void: Spread Blowout (48.6 bps)
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 pt-1 border-t border-slate-900 mt-1">
-            <span>$95 (Bids)</span>
-            <span>$98</span>
-            <span>$100 Mid-Price</span>
-            <span>$102</span>
-            <span>$105 (Asks)</span>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between p-2.5 rounded-md bg-slate-900/60 border border-slate-800 text-[11px] font-mono">
-          <span className="text-slate-400">Adaptive TWAP / VWAP Router Execution: <strong className="text-white">Active</strong></span>
-          <span className="text-cyan-400 font-bold">Simulated Loss: -9.8%</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-{/* ========================================================================= */}
-{/* 5. VALUE AT RISK (VaR) SCENARIO MOCKUP */}
-{/* ========================================================================= */}
 function VaRScenarioMockup() {
   return (
     <div className="w-full rounded-lg border border-slate-700/80 bg-[#0B1528] shadow-2xl overflow-hidden select-none">

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Database, Globe, Layers, TrendingUp } from "lucide-react";
 
-const CATEGORIES = ["Equities", "ETFs", "Indices", "Options", "Economic Data"];
+const CATEGORIES = ["Equities", "ETFs", "Indices", "Options"];
 
 const US_NODES = [
   { id: "spy", sym: "SPY", name: "S&P 500", badgeBg: "bg-red-500", badgeText: "SS" },
@@ -38,7 +38,7 @@ export default function DataVisual() {
             Market Universe
           </div>
           <div className="text-xs font-medium text-slate-300">
-            Global and Indian markets — 1,000+ assets
+            Global and Indian markets — 18,500+ stocks
           </div>
         </div>
 
@@ -243,7 +243,7 @@ export default function DataVisual() {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-slate-300 font-medium">Real-Time Ingestion</span>
+            <span className="text-slate-300 font-medium">Market Data Ingestion</span>
           </div>
           <span className="text-slate-600">•</span>
           <span>US (NYSE/NASDAQ) & India (NSE/BSE)</span>
@@ -251,7 +251,7 @@ export default function DataVisual() {
 
         <div className="flex items-center gap-3">
           <span className="rounded bg-slate-800/90 px-2 py-0.5 font-mono text-[10px] text-blue-300 border border-slate-700">
-            1,000+ SYMBOLS
+            18,500+ SYMBOLS
           </span>
           <span className="rounded bg-slate-800/90 px-2 py-0.5 font-mono text-[10px] text-indigo-300 border border-slate-700">
             OHLCV + FINANCIALS

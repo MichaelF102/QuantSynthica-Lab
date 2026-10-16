@@ -6,22 +6,22 @@ import { Layers, BarChart3, LayoutGrid, Globe, ShieldCheck } from "lucide-react"
 export default function CTAStats() {
   const stats = [
     {
-      value: "1,000+",
-      label: "Assets",
-      detail: "Equities · ETFs · Options · Futures",
+      value: "18,500+",
+      label: "Stocks",
+      detail: "US and Indian equities · ETFs · Options",
       icon: Layers,
       color: "text-blue-400",
     },
     {
-      value: "50+",
+      value: "24",
       label: "Technical Indicators",
       detail: "Built for quantitative research",
       icon: BarChart3,
       color: "text-cyan-400",
     },
     {
-      value: "10+",
-      label: "Research Modules",
+      value: "11",
+      label: "Research Tabs",
       detail: "Strategies · Backtests · Risk · Portfolio",
       icon: LayoutGrid,
       color: "text-purple-400",

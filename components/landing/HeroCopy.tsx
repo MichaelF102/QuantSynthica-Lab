@@ -74,7 +74,7 @@ export default function HeroCopy() {
               Global + Indian Markets
             </div>
             <div className="text-[10.5px] text-[#526174] dark:text-slate-400 whitespace-nowrap mt-0.5">
-              US • India • 1,000+ Assets
+              US • India • 18,500+ Stocks
             </div>
           </div>
         </div>
@@ -132,7 +132,7 @@ export default function HeroCopy() {
               </div>
               <p className="font-semibold text-base">QuantSynthica Terminal Demo</p>
               <p className="text-xs text-slate-400 mt-1 max-w-md">
-                Tour charting, strategy backtesting with 0-lookahead bias, institutional fundamental analysis, and risk models.
+                Tour charting, strategy backtesting with 0-lookahead bias, fundamental analysis, and risk models.
               </p>
               <Link
                 href="/research"

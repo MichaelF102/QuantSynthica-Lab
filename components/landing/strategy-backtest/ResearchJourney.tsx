@@ -133,8 +133,7 @@ export default function ResearchJourney({
             <div className="space-y-0.5 text-slate-600 font-mono text-[9.5px]">
               <div>• Equities</div>
               <div>• Indices</div>
-              <div>• Forex</div>
-              <div>• Crypto</div>
+              <div>• Options</div>
             </div>
           </div>
 

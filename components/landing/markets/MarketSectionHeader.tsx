@@ -22,7 +22,7 @@ export default function MarketSectionHeader() {
 
           <p className="mt-4 text-[16px] sm:text-[17px] leading-[1.6] text-[#64748B] dark:text-slate-400 max-w-[680px]">
             Explore a comprehensive universe of global and Indian markets including equities, ETFs,
-            indices, options and economic data — all in one place.
+            indices and options — all in one place.
           </p>
         </div>
 
@@ -34,7 +34,7 @@ export default function MarketSectionHeader() {
               <Globe className="h-3.5 w-3.5" />
             </div>
             <div className="text-[12px] leading-tight">
-              <span className="font-bold text-[#0B1220] dark:text-white">1,000+ Assets</span>{" "}
+              <span className="font-bold text-[#0B1220] dark:text-white">18,500+ Stocks</span>{" "}
               <span className="text-[#64748B] dark:text-slate-400">Across US + Indian markets</span>
             </div>
           </div>
@@ -45,7 +45,7 @@ export default function MarketSectionHeader() {
             className="group inline-flex items-center gap-1.5 text-[14px] font-semibold text-[#1769FF] transition-all hover:text-[#1258db]"
           >
             <span className="underline-offset-4 group-hover:underline">
-              Browse complete 1,000+ asset universe
+              Browse the full stock universe
             </span>
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>

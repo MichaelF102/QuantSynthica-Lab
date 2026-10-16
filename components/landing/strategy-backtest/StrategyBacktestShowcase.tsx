@@ -44,35 +44,35 @@ interface ProductTab {
 const TABS: ProductTab[] = [
   {
     id: "strategy-studio",
-    tabLabel: "Strategy Studio™",
+    tabLabel: "Strategy Lab",
     badge: "Rule Synthesizer",
-    name: "Strategy Studio™",
-    tagline: "Visual & Programmatic Alpha Modeling",
+    name: "Strategy Lab",
+    tagline: "Visual Rule-Based Strategy Building",
     description:
-      "Strategy Studio™ is QuantSynthica's rule-based alpha modeling suite, empowering researchers to build multi-factor trading strategies without writing boilerplates. Combine 20+ technical indicators, define entry and exit triggers, and configure position sizing with mathematical precision.",
+      "The Strategy Lab is a visual rule builder. Combine technical indicators, define entry and exit conditions, and set stop loss, take profit and position sizing, with a plain-English reading of every rule.",
     pillColor: "bg-[#00c853] text-white",
     accentBg: "bg-emerald-500/10",
     accentBorder: "border-emerald-500/30",
     accentText: "text-emerald-400",
     btnBg: "bg-[#00c853]",
     btnHover: "hover:bg-[#00b047]",
-    ctaText: "Try Strategy Studio",
+    ctaText: "Open the Strategy Lab",
     ctaHref: "/strategies",
     highlights: [
-      "Visual block & Python code dual compositor",
-      "20+ institutional indicators (RSI, SMA, MACD, BB, ATR)",
+      "Visual rule builder with a plain-English readout",
+      "24 indicators (RSI, SMA, MACD, Bollinger, ATR and more)",
       "Explicit entry, exit, and stop-loss logic triggers",
-      "Instant formula syntax validation & parameter tuning",
+      "Live validation of rules, risk limits and the test window",
     ],
   },
   {
     id: "backtest-engine",
-    tabLabel: "Backtest Engine™",
+    tabLabel: "Backtest Engine",
     badge: "Simulation Matrix",
-    name: "Backtest Engine™",
-    tagline: "High-Throughput Vectorized Simulation Core",
+    name: "Backtest Engine",
+    tagline: "Daily-Bar Simulation with Realistic Costs",
     description:
-      "Backtest Engine™ is QuantSynthica's event-driven execution simulation matrix. It executes strategy logic against historical tick and daily bar datasets with realistic slippage, fee schedules, and next-open fills (t+1) to guarantee zero lookahead bias.",
+      "The Backtest Engine runs your rules against historical daily bars with configurable commissions, slippage and spread, and fills at the next bar's open (t+1) to avoid lookahead bias.",
     pillColor: "bg-[#00c853] text-white",
     accentBg: "bg-emerald-500/10",
     accentBorder: "border-emerald-500/30",
@@ -85,53 +85,53 @@ const TABS: ProductTab[] = [
       "Zero lookahead bias with next-open execution (t+1)",
       "Configurable commissions & market slippage modeling",
       "Dual-market coverage: US (NYSE/NASDAQ) & India (NSE)",
-      "Sub-50ms simulation across 10+ years of daily bars",
+      "Multi-year daily-bar histories for US and Indian stocks",
     ],
   },
   {
     id: "performance-lab",
-    tabLabel: "Performance Lab™",
-    badge: "Institutional Tear-Sheet",
-    name: "Performance Lab™",
-    tagline: "Institutional Analytics & Risk Observatory",
+    tabLabel: "Analytics",
+    badge: "Tear-Sheet",
+    name: "Performance Analytics",
+    tagline: "Analytics & Risk Observatory",
     description:
-      "Performance Lab™ transforms raw backtest trade logs into institutional tear-sheets. Analyze Sharpe, Sortino, Calmar ratios, maximum drawdowns, and value-at-risk (VaR) to verify if an edge survives real-world market stress.",
+      "Performance Analytics turns a backtest's equity curve and trade log into a tear sheet. Analyze Sharpe, Sortino, Calmar ratios, maximum drawdowns, and value-at-risk (VaR) to verify if an edge survives real-world market stress.",
     pillColor: "bg-[#00c853] text-white",
     accentBg: "bg-emerald-500/10",
     accentBorder: "border-emerald-500/30",
     accentText: "text-emerald-400",
     btnBg: "bg-[#00c853]",
     btnHover: "hover:bg-[#00b047]",
-    ctaText: "Explore Performance Lab",
+    ctaText: "Explore Analytics",
     ctaHref: "/analytics",
     highlights: [
-      "Comprehensive ratios: Sharpe (2.14), Sortino (2.89), Calmar (2.54)",
-      "6-axis spider radar risk profile (Alpha, Volatility, Liquidity)",
+      "Comprehensive ratios: Sharpe, Sortino and Calmar",
+      "Alpha, beta and benchmark-relative returns",
       "Underwater drawdown curves with recovery duration",
       "Monthly returns heatmap & tail-risk VaR distributions",
     ],
   },
   {
     id: "portfolio-desk",
-    tabLabel: "Portfolio Desk™",
+    tabLabel: "Portfolio",
     badge: "Cross-Market Allocation",
-    name: "Portfolio Desk™",
-    tagline: "Multi-Asset Allocation & Live Rebalancing",
+    name: "Portfolio Builder",
+    tagline: "Multi-Asset Allocation & Rebalancing",
     description:
-      "Portfolio Desk™ aggregates independent strategies into an institutional-grade multi-asset portfolio. Optimize risk parity, manage cash cushions, and orchestrate automated rebalancing across global and domestic asset classes.",
+      "The Portfolio Builder combines holdings into a multi-asset portfolio. Compare weighting methods, test rebalancing schedules and review risk before committing capital.",
     pillColor: "bg-[#00c853] text-white",
     accentBg: "bg-emerald-500/10",
     accentBorder: "border-emerald-500/30",
     accentText: "text-emerald-400",
     btnBg: "bg-[#00c853]",
     btnHover: "hover:bg-[#00b047]",
-    ctaText: "Open Portfolio Desk",
+    ctaText: "Open the Portfolio Builder",
     ctaHref: "/portfolio",
     highlights: [
       "Cross-border allocation: US Tech + Indian Blue-Chips",
-      "Dynamic risk-weighted position rebalancing",
-      "Slippage and transaction cost optimization",
-      "Automated drift detection and margin safeguard",
+      "Equal weight, inverse volatility, risk parity, min variance and max Sharpe",
+      "Rebalancing schedules with transaction costs",
+      "Correlation and risk contribution by holding",
     ],
   },
 ];
@@ -156,8 +156,9 @@ export default function StrategyBacktestShowcase() {
         </h2>
 
         <p className="mt-3.5 text-[15px] sm:text-[16px] text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto">
-          Turn quantitative ideas into measurable evidence. Define rule-based logic, simulate with institutional tick precision, and stress-test performance with zero lookahead bias.
+          Turn quantitative ideas into measurable evidence. Define rule-based logic, simulate with next-open fills and trading costs, and review performance with zero lookahead bias.
         </p>
+        <p className="mt-2 text-[11px] text-slate-500 dark:text-slate-500">Charts and figures in these previews are illustrative samples, not real backtest results.</p>
       </div>
 
       {/* 2. HORIZONTAL PRODUCT TABS (Quantiphi pill bar) */}
@@ -411,9 +412,9 @@ function StrategyStudioMockup() {
           <div className="flex items-center justify-between text-[10px] text-slate-500 mb-1">
             <span className="flex items-center gap-1">
               <Terminal className="h-3 w-3 text-cyan-400" />
-              PYTHON GENERATED SPEC
+              RULE SPECIFICATION
             </span>
-            <span className="text-emerald-400">0.0ms Compile</span>
+            <span className="text-emerald-400">Valid</span>
           </div>
           <div className="text-cyan-300/90 leading-relaxed overflow-x-auto no-scrollbar whitespace-pre">
 {`signals = (rsi(df.close, 14) < 32) & (df.close > sma(df.close, 200))

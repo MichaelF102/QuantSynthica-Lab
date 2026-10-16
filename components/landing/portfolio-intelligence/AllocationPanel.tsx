@@ -21,7 +21,7 @@ export function ConstructPortfolioPanel({
   const [activeFilter, setActiveFilter] = useState<string>("Equity");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filters = ["Equity", "ETF", "Options", "Futures", "Indices"];
+  const filters = ["Equity", "ETF", "Options", "Indices"];
 
   const filteredAssets = allocations.filter(
     (a) =>

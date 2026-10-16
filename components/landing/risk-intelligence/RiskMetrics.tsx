@@ -283,7 +283,7 @@ export default function RiskMetrics({ activeRisk, onSelectRisk }: RiskMetricsPro
             <span className="font-bold text-[#0B1220] dark:text-white">-8%</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-[#64748B] dark:text-slate-400">Liquidity Freeze</span>
+            <span className="text-[#64748B] dark:text-slate-400">Equity Crash</span>
             <span className="font-bold text-rose-700 dark:text-rose-400">-20%</span>
           </div>
         </div>

@@ -31,7 +31,7 @@ export default function PortfolioVisual() {
               OPTIMIZED PORTFOLIO BOOK
             </div>
             <div className="text-[11px] text-slate-400">
-              Multi-Asset Allocation · US (USD) & India (INR) Cross-Hedging
+              Multi-Asset Allocation · US (USD) & India (INR)
             </div>
           </div>
         </div>

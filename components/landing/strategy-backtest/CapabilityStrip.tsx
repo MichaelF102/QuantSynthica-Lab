@@ -6,17 +6,17 @@ import { Database, BarChart3, Sliders, Users } from "lucide-react";
 export default function CapabilityStrip() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-4">
-      {/* 1. 1,000+ Global Assets */}
+      {/* 1. 18,500+ Stocks */}
       <div className="flex items-center gap-3 rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-white/90 dark:bg-[#0B1528]/90 p-3.5 shadow-2xs backdrop-blur-xs transition-all hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-xs">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#1769FF] dark:text-blue-400">
           <Database className="h-5 w-5" />
         </div>
         <div className="min-w-0">
           <div className="text-[13px] font-bold text-[#0B1220] dark:text-white leading-tight truncate">
-            1,000+ Global Assets
+            18,500+ Stocks
           </div>
           <div className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight truncate mt-0.5">
-            Equities, ETFs, Options, Crypto.
+            Equities, ETFs and Options.
           </div>
         </div>
       </div>

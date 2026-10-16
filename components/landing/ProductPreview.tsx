@@ -141,11 +141,11 @@ export default function ProductPreview() {
                   <div className="mt-1 space-y-0.5">
                     <div className="flex items-center gap-1.5 rounded px-2 py-0.5 text-slate-400">
                       <Database className="h-3 w-3 text-slate-500" />
-                      <span>Screener</span>
+                      <span>Options</span>
                     </div>
                     <div className="flex items-center gap-1.5 rounded px-2 py-0.5 text-slate-400">
                       <FileText className="h-3 w-3 text-slate-500" />
-                      <span>Financials</span>
+                      <span>Fundamentals</span>
                     </div>
                   </div>
                 </div>

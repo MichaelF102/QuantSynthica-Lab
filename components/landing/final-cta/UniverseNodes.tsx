@@ -22,7 +22,7 @@ const NODES: UniverseNodeData[] = [
     id: "markets",
     title: "MARKETS",
     subtitle: "Global Assets",
-    details: "US · India · ETFs · Futures",
+    details: "US · India · ETFs · Options",
     position: [-1.85, 1.25, 0.2],
     badgeOffset: [0, 0.42, 0],
     color: "#00E5FF",

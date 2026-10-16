@@ -5,7 +5,6 @@ import HeroSection from "@/components/landing/HeroSection";
 import WorkflowSection from "@/components/landing/workflow/WorkflowSection";
 import ResearchWorkspace from "@/components/landing/research-workspace/ResearchWorkspace";
 import StrategyBacktestSection from "@/components/landing/strategy-backtest/StrategyBacktestSection";
-import QuantResearchLabs from "@/components/landing/quant-research-labs/QuantResearchLabs";
 import CoveredMarketsSection from "@/components/landing/markets/CoveredMarketsSection";
 import RiskIntelligenceSection from "@/components/landing/risk-intelligence/RiskIntelligenceSection";
 import PortfolioIntelligenceSection from "@/components/landing/portfolio-intelligence/PortfolioIntelligenceSection";
@@ -28,9 +27,6 @@ export default function LandingPage() {
 
       {/* 4. Strategy -> Backtest Research Journey (Build -> Test -> Evaluate) */}
       <StrategyBacktestSection />
-
-      {/* 5. Specialized Quantitative Research Environments (Quant Research Labs) */}
-      <QuantResearchLabs />
 
       {/* 6. Covered Markets & Assets Universe Section */}
       <CoveredMarketsSection />

@@ -611,7 +611,7 @@ export default function OptionsChainPreview({
       <div className="pt-2 border-t border-border/40 flex flex-wrap items-center justify-between text-[11px] text-muted-foreground">
         <div className="flex items-center gap-2">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Real-time Black-Scholes Greeks calculated (Delta, Gamma, Theta, Vega)</span>
+          <span>Black-Scholes Greeks estimated from implied volatility (Delta, Gamma, Theta, Vega)</span>
         </div>
         <span>Series Expiry: {selectedExpiration || data?.selectedExpiration || "Active"}</span>
       </div>

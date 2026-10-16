@@ -137,7 +137,7 @@ export default function IndexPanel({
         <span>Yahoo Finance · Global Indices</span>
         <span className="flex items-center gap-1">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          Live Benchmarks
+          Benchmarks
         </span>
       </div>
     </div>

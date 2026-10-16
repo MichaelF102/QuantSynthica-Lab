@@ -29,7 +29,7 @@ const SCENARIOS: Scenario[] = [
     drawdownImpact: "-18.4%",
     volatilitySpike: "38.6%",
     var99: "-8.4%",
-    description: "Systemic equity sell-off comparable to March 2020 liquidity plunge.",
+    description: "Systemic equity sell-off comparable to March 2020.",
     color: "#EF4444",
   },
   {
@@ -53,17 +53,6 @@ const SCENARIOS: Scenario[] = [
     var99: "-9.1%",
     description: "Gamma squeeze and options market implied volatility blowout.",
     color: "#8B5CF6",
-  },
-  {
-    id: "liquidity",
-    name: "Liquidity Freeze",
-    shock: "-20% Depth Drop",
-    stressLoss: "-20.3%",
-    drawdownImpact: "-22.7%",
-    volatilitySpike: "41.0%",
-    var99: "-11.8%",
-    description: "Bid-ask spread widening and institutional order book exhaustion.",
-    color: "#DC2626",
   },
 ];
 

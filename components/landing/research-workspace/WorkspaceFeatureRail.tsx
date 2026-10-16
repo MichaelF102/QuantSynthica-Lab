@@ -62,7 +62,7 @@ export default function WorkspaceFeatureRail({
             </h4>
           </div>
           <p className="mt-2 text-[12px] leading-relaxed text-slate-500 dark:text-slate-400">
-            100+ technical indicators, drawing tools and multiple timeframes.
+            24 technical indicators, overlays and multiple timeframes.
           </p>
         </div>
 
@@ -274,7 +274,7 @@ export default function WorkspaceFeatureRail({
             </h4>
           </div>
           <p className="mt-2 text-[12px] leading-relaxed text-slate-500 dark:text-slate-400">
-            Build, optimize and analyze portfolios with institutional-grade tools.
+            Build, optimize and analyze portfolios with portfolio tools.
           </p>
         </div>
 
