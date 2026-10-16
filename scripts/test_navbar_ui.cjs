@@ -36,7 +36,9 @@ let closer = () => {};
     await $(`(()=>{const d=${tabBtn(label)};d.dispatchEvent(new MouseEvent('mouseout',{bubbles:true}));d.dispatchEvent(new MouseEvent('mouseleave',{bubbles:false}))})()`); await b.sleep(400);
     ok(!(await $(`!!document.querySelector('[role=menu]')`)), `${label} dropdown closes on mouse leave`);
   }
-  ok(!(await $(`!!${tabBtn("Settings")}.querySelector('button')`)) && (await $(`${tabBtn("Settings")}.querySelector('a').getAttribute('href')`)) === "/settings", "Settings is a plain link");
+  ok(!(await $(`!!${tabBtn("Settings")}`)), "Settings is no longer a tab");
+  const gear = await $(`(()=>{const a=document.querySelector('a[aria-label=Settings]');const row=document.querySelector('header > div');if(!a)return null;const r=a.getBoundingClientRect(),rr=row.getBoundingClientRect();return {href:a.getAttribute('href'),toRight:Math.round(rr.right-r.right),visible:r.width>0}})()`);
+  ok(gear && gear.href === "/settings" && gear.visible && gear.toRight <= 2, "Settings gear icon sits at the far right", JSON.stringify(gear));
 
   // click toggles, Escape + outside click close
   await $(`${tabBtn("Analytics")}.querySelector('button').click()`); await b.sleep(200);

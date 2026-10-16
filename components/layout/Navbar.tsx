@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, ExternalLink, Globe2, Menu, Moon, Sun, X } from "lucide-react";
+import { ChevronDown, ExternalLink, Globe2, Menu, Moon, Settings, Sun, X } from "lucide-react";
 import NavbarSecuritySearch from "@/components/layout/NavbarSecuritySearch";
 import QSLogoMark from "@/components/brand/QSLogoMark";
 import { useTheme } from "@/components/providers/ThemeProvider";
@@ -124,7 +124,7 @@ export default function Navbar({ variant = "app" }: { variant?: "app" | "public"
           </Link>
 
           <nav ref={navRef} className="hidden items-center xl:flex" aria-label="Primary">
-            {NAV.map((item) => (
+            {NAV.filter((item) => item.label !== "Settings").map((item) => (
               <NavTab key={item.label} item={item} active={pathname.startsWith(item.href)} open={openMenu === item.label} setOpen={(v) => setOpenMenu(v ? item.label : null)} sec={sec} />
             ))}
           </nav>
@@ -147,6 +147,10 @@ export default function Navbar({ variant = "app" }: { variant?: "app" | "public"
               {theme === "dark" ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4" />}
             </button>
           )}
+          <Link href="/settings" aria-label="Settings" title="Settings" aria-current={pathname.startsWith("/settings") ? "page" : undefined}
+            className={cn("hidden rounded-lg border p-2 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500/70 xl:inline-flex", pathname.startsWith("/settings") ? "border-blue-500/40 bg-blue-500/10 text-blue-400" : "border-slate-700/60 text-slate-300 hover:bg-slate-800/60 hover:text-white")}>
+            <Settings className="h-4 w-4" />
+          </Link>
           <button type="button" onClick={() => setDrawerOpen((o) => !o)} aria-label={drawerOpen ? "Close menu" : "Open menu"} aria-expanded={drawerOpen}
             className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-800/60 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500/70 xl:hidden">
             {drawerOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
