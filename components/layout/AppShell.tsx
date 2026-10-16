@@ -10,7 +10,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const isPublicPage =
     pathname === "/" ||
     pathname === "/about" ||
-    pathname === "/contact" ||
     pathname === "/docs";
 
   if (isPublicPage) {

@@ -89,7 +89,7 @@ function NavTab({ item, active, open, setOpen, sec }: { item: NavItem; active: b
 }
 
 /**
- * The one platform navbar. `public` (landing, about, docs, contact) adds the light/dark toggle, because those
+ * The one platform navbar. `public` (landing, about, docs) adds the light/dark toggle, because those
  * pages support both themes; app routes are dark-only so they omit it.
  */
 export default function Navbar({ variant = "app" }: { variant?: "app" | "public" }) {

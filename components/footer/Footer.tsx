@@ -21,6 +21,7 @@ export default function Footer() {
     { label: "Research Engine", href: "/research" },
     { label: "Platform Resources", href: "/settings" },
     { label: "Documentation", href: "/docs" },
+    { label: "About", href: "/about" },
   ];
 
   return (
