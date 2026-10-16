@@ -20,6 +20,7 @@ export default function RiskHeader({ tab }: { tab: RiskTabKey }) {
   const cfg = RISK_TABS.find((t) => t.key === tab)!;
   const [basketOpen, setBasketOpen] = useState(false);
   const market = settings.market;
+  React.useEffect(() => { const open = () => setBasketOpen(true); window.addEventListener("risk:open-basket", open); return () => window.removeEventListener("risk:open-basket", open); }, []);
   const has = (f: RiskField) => cfg.fields.includes(f);
 
   const options = useMemo(() => {
@@ -87,6 +88,7 @@ export default function RiskHeader({ tab }: { tab: RiskTabKey }) {
             onChange={(v) => v !== "Custom" && setLookback(v as Exclude<Lookback, "Custom">)} className="min-w-[120px]" />
         )}
         {has("horizon") && <SelectField label="Time horizon" value={settings.horizon} options={HORIZONS.map((h) => ({ value: h, label: h === 1 ? "1 Day" : `${h} Days` }))} onChange={(v) => update({ horizon: v })} className="min-w-[110px]" />}
+        {has("model") && <SelectField label="Model" value={settings.factorModel} options={[{ value: "Multi-factor", label: "Multi-factor (ETF proxies)" }, { value: "CAPM", label: "CAPM (market only)" }]} onChange={(v) => update({ factorModel: v })} className="min-w-[190px]" />}
         {has("corrType") && <SelectField label="Correlation type" value={settings.corrType} options={CORR_TYPES.map((c) => ({ value: c, label: c }))} onChange={(v) => update({ corrType: v })} className="min-w-[120px]" />}
         {has("frequency") && <SelectField label="Time horizon" value={settings.frequency} options={(["Daily", "Weekly", "Monthly"] as const).map((f) => ({ value: f, label: f }))} onChange={(v) => update({ frequency: v })} className="min-w-[110px]" />}
         {has("value") && (

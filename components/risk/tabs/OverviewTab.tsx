@@ -8,6 +8,7 @@ import { formatRatio } from "@/lib/formatters";
 import { fmtMoney } from "@/lib/analyticsCalc";
 import { CONFIDENCE_LABEL, MARKET_DEFAULTS } from "@/lib/risk/presets";
 import SparkKpi from "../ui/SparkKpi";
+import StressTestCard from "../StressTestCard";
 import { CorrelationCard, MetricsComparisonCard, PriceDrawdownCard, VarCard } from "../widgets";
 
 /** Risk Overview: six headline KPIs and the four core charts, all from the same cached return matrix. */
@@ -41,6 +42,7 @@ export default function OverviewTab() {
         <CorrelationCard result={result} benchLabel={benchLabel.split(" (")[0]} />
         <MetricsComparisonCard h={h} benchLabel={benchLabel.split(" (")[0]} name={source.label} />
       </div>
+      <StressTestCard />
     </div>
   );
 }

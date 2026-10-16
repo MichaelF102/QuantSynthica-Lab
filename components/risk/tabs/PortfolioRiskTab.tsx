@@ -8,6 +8,7 @@ import { formatRatio } from "@/lib/formatters";
 import { fmtMoney } from "@/lib/analyticsCalc";
 import { CONFIDENCE_LABEL, MARKET_DEFAULTS } from "@/lib/risk/presets";
 import SparkKpi from "../ui/SparkKpi";
+import StressTestCard from "../StressTestCard";
 import { CorrelationCard, MetricsComparisonCard, MonteCarloCard, PriceDrawdownCard, RiskShareCard, VarCard } from "../widgets";
 
 export default function PortfolioRiskTab() {
@@ -48,6 +49,8 @@ export default function PortfolioRiskTab() {
         <div className="lg:col-span-8"><MonteCarloCard result={result} currency={currency} start={v} /></div>
         <div className="lg:col-span-4"><RiskShareCard result={result} /></div>
       </div>
+
+      <StressTestCard />
     </div>
   );
 }

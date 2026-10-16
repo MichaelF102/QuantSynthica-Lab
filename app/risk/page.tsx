@@ -6,6 +6,7 @@ import { AlertTriangle, RefreshCw, ShieldAlert } from "lucide-react";
 import { RiskProvider, useRisk } from "@/lib/risk/context";
 import RiskHeader from "@/components/risk/RiskHeader";
 import RiskNav from "@/components/risk/RiskNav";
+import QuickPresets from "@/components/risk/QuickPresets";
 import { RISK_TABS, RiskTabKey } from "@/components/risk/tabs";
 import { CardSkeleton, EmptyState } from "@/components/ui/Card";
 import OverviewTab from "@/components/risk/tabs/OverviewTab";
@@ -14,6 +15,8 @@ import VarTab from "@/components/risk/tabs/VarTab";
 import DrawdownTab from "@/components/risk/tabs/DrawdownTab";
 import CorrelationTab from "@/components/risk/tabs/CorrelationTab";
 import DecompositionTab from "@/components/risk/tabs/DecompositionTab";
+import ScenarioTab from "@/components/risk/tabs/ScenarioTab";
+import FactorTab from "@/components/risk/tabs/FactorTab";
 
 function TabBody({ tab }: { tab: RiskTabKey }) {
   const { status, error, reload, result } = useRisk();
@@ -45,7 +48,8 @@ function TabBody({ tab }: { tab: RiskTabKey }) {
       case "drawdown": return <DrawdownTab />;
       case "correlation": return <CorrelationTab />;
       case "decomposition": return <DecompositionTab />;
-      default: return <EmptyState icon={ShieldAlert} title="Coming in a later phase" hint="This section is built in the next phases." />;
+      case "scenario": return <ScenarioTab />;
+      case "factor": return <FactorTab />;
     }
   })();
   return (
@@ -77,6 +81,7 @@ function RiskContent() {
     <main className="app-container min-h-screen animate-fade-up space-y-3 py-6 font-sans">
       <RiskHeader tab={tab} />
       <RiskNav active={tab} onChange={setTab} />
+      <QuickPresets />
       <TabBody tab={tab} />
     </main>
   );
