@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FlaskConical, Menu, X } from "lucide-react";
+import { FlaskConical, Menu, Moon, Sun, X } from "lucide-react";
 import NavbarSecuritySearch from "@/components/layout/NavbarSecuritySearch";
 import QSLogoMark from "@/components/brand/QSLogoMark";
+import { useTheme } from "@/components/providers/ThemeProvider";
 import { cn } from "@/lib/utils";
 
 const PRIMARY_NAV = [
@@ -18,8 +19,13 @@ const PRIMARY_NAV = [
   { href: "/settings", label: "Settings" },
 ];
 
-export default function Navbar() {
+/**
+ * The one platform navbar. `public` (landing, about, docs, contact) adds the light/dark toggle, because those
+ * pages support both themes; app routes are dark-only so they omit it.
+ */
+export default function Navbar({ variant = "app" }: { variant?: "app" | "public" }) {
   const pathname = usePathname();
+  const { theme, toggleTheme } = useTheme();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => setDrawerOpen(false), [pathname]);
@@ -80,6 +86,17 @@ export default function Navbar() {
             <span className="min-[1760px]:hidden">Lab</span>
           </Link>
           <NavbarSecuritySearch />
+          {variant === "public" && (
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              className="rounded-lg border border-slate-700/60 p-2 text-slate-300 transition-colors hover:bg-slate-800/60 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500/70"
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4" />}
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setDrawerOpen((o) => !o)}
