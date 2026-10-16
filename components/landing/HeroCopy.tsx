@@ -67,7 +67,7 @@ export default function HeroCopy() {
         {/* Feature 1 */}
         <div className="flex items-center gap-2.5 rounded-xl border border-slate-100 bg-white/90 p-2.5 shadow-2xs backdrop-blur-xs transition-colors hover:border-blue-100 dark:border-slate-800 dark:bg-[#0B1528]/90 dark:hover:border-slate-700">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50/90 text-[#1769FF] dark:bg-blue-950/40 dark:text-blue-400">
-            <Globe className="h-4.5 w-4.5" />
+            <Globe className="h-[18px] w-[18px]" />
           </div>
           <div className="min-w-0">
             <div className="text-[12px] font-bold text-[#0B1220] dark:text-white leading-tight">
@@ -82,7 +82,7 @@ export default function HeroCopy() {
         {/* Feature 2 */}
         <div className="flex items-center gap-2.5 rounded-xl border border-slate-100 bg-white/90 p-2.5 shadow-2xs backdrop-blur-xs transition-colors hover:border-blue-100 dark:border-slate-800 dark:bg-[#0B1528]/90 dark:hover:border-slate-700">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50/90 text-[#1769FF] dark:bg-blue-950/40 dark:text-blue-400">
-            <Cpu className="h-4.5 w-4.5" />
+            <Cpu className="h-[18px] w-[18px]" />
           </div>
           <div className="min-w-0">
             <div className="text-[12px] font-bold text-[#0B1220] dark:text-white leading-tight">
@@ -97,7 +97,7 @@ export default function HeroCopy() {
         {/* Feature 3 */}
         <div className="flex items-center gap-2.5 rounded-xl border border-slate-100 bg-white/90 p-2.5 shadow-2xs backdrop-blur-xs transition-colors hover:border-blue-100 dark:border-slate-800 dark:bg-[#0B1528]/90 dark:hover:border-slate-700">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50/90 text-[#1769FF] dark:bg-blue-950/40 dark:text-blue-400">
-            <ShieldCheck className="h-4.5 w-4.5" />
+            <ShieldCheck className="h-[18px] w-[18px]" />
           </div>
           <div className="min-w-0">
             <div className="text-[12px] font-bold text-[#0B1220] dark:text-white leading-tight">

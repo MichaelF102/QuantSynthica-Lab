@@ -37,7 +37,7 @@ export default function SecurityHeader({
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/[0.06] border border-white/[0.08] text-white">
           {stock.symbol === "AAPL" ? (
             <svg
-              className="h-4.5 w-4.5 fill-current"
+              className="h-[18px] w-[18px] fill-current"
               viewBox="0 0 24 24"
               xmlns="http://www.w3.org/2000/svg"
             >

@@ -12,10 +12,10 @@ const STATS = [
 
 export default function HeroStats() {
   return (
-    <div className="mt-6 sm:mt-8 flex flex-wrap items-center border-t border-slate-200/80 dark:border-slate-800 pt-4 sm:flex-nowrap">
+    <div className="mt-6 grid grid-cols-2 gap-y-3 border-t border-slate-200/80 pt-4 dark:border-slate-800 sm:mt-8 sm:flex sm:flex-nowrap sm:items-center">
       {STATS.map((stat, idx) => (
         <React.Fragment key={stat.label}>
-          <div className="flex-1 min-w-[110px] py-1 px-2 first:pl-0">
+          <div className="min-w-[110px] py-1 sm:flex-1 sm:px-2 sm:first:pl-0">
             <div className="font-mono text-[26px] sm:text-[30px] font-bold tracking-tight text-[#0B1220] dark:text-white">
               {stat.value}
             </div>

@@ -38,6 +38,7 @@ export default function StrategiesPage() {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [sortOrder, setSortOrder] = useState<string>("name_asc");
   const [activeTab, setActiveTab] = useState<"strategies" | "performance" | "templates" | "compare">("strategies");
+  const [filtersOpen, setFiltersOpen] = useState(false); // phone-only: collapse the filter sidebar
   const [selectedNav, setSelectedNav] = useState<string>("all"); // 'all' | 'templates' | 'my' | 'shared'
   const [selectedStrategyId, setSelectedStrategyId] = useState<string | null>(SEED_STRATEGIES[0]?.id || null);
   const [detailTab, setDetailTab] = useState<"overview" | "rules" | "performance" | "backtests">("overview");
@@ -49,20 +50,17 @@ export default function StrategiesPage() {
   const [strategyToTest, setStrategyToTest] = useState<StrategyConfig | null>(null);
 
   // Active workspace security and country
-  const [activeCountry, setActiveCountry] = useState<"India" | "US">(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("algolab_active_country");
-      if (saved === "India" || saved === "US") return saved;
-    }
-    return "India";
-  });
-  const [selectedStockForRun, setSelectedStockForRun] = useState<string>(() => {
-    if (typeof window !== "undefined") {
+  // Defaults first; the stored security is read after mount so server and browser HTML match.
+  const [activeCountry, setActiveCountry] = useState<"India" | "US">("India");
+  const [selectedStockForRun, setSelectedStockForRun] = useState<string>("GENUSPOWER");
+  useEffect(() => {
+    try {
+      const country = localStorage.getItem("algolab_active_country");
+      if (country === "India" || country === "US") setActiveCountry(country);
       const active = localStorage.getItem("algolab_active_ticker");
-      if (active) return active.toUpperCase();
-    }
-    return "GENUSPOWER";
-  });
+      if (active) setSelectedStockForRun(active.toUpperCase());
+    } catch { /* storage unavailable */ }
+  }, []);
 
   // Listen to security & country changes from navbar
   useEffect(() => {
@@ -304,11 +302,15 @@ export default function StrategiesPage() {
       {/* ============================================================ */}
       {/* 2. THREE-COLUMN DESKTOP WORKSTATION LAYOUT                   */}
       {/* ============================================================ */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex flex-1 flex-col lg:flex-row lg:overflow-hidden">
+        <button type="button" onClick={() => setFiltersOpen((o) => !o)} aria-expanded={filtersOpen} className="flex items-center justify-between border-b border-[#1e293b] bg-[#0b1222] px-4 py-2.5 text-xs font-semibold text-slate-200 lg:hidden">
+          <span>Filters <span className="font-normal text-slate-500">· {selectedCategory === "ALL" ? "All strategies" : selectedCategory}</span></span>
+          <span className="text-slate-400">{filtersOpen ? "Hide" : "Show"}</span>
+        </button>
         {/* ============================================================ */}
         {/* COLUMN 1: LEFT FILTERS & REPOSITORIES SIDEBAR                */}
         {/* ============================================================ */}
-        <div className="w-56 border-r border-[#1e293b] bg-[#080d1a] flex flex-col shrink-0 p-3 space-y-4 overflow-y-auto">
+        <div className={`${filtersOpen ? "flex" : "hidden"} w-full flex-col space-y-4 border-b border-[#1e293b] bg-[#080d1a] p-3 lg:flex lg:w-56 lg:shrink-0 lg:overflow-y-auto lg:border-b-0 lg:border-r`}>
           {/* Categories Navigation */}
           <div className="space-y-0.5">
             {categoriesList.map((cat) => {
@@ -481,11 +483,11 @@ export default function StrategiesPage() {
         {/* ============================================================ */}
         {/* COLUMN 2: CENTER TABLE / GRID CATALOG VIEW                   */}
         {/* ============================================================ */}
-        <div className="flex-1 flex flex-col overflow-hidden bg-[#080d1a]">
+        <div className="flex min-w-0 flex-1 flex-col bg-[#080d1a] lg:overflow-hidden">
           {/* Sub-navigation tabs & Filter controls bar */}
           <div className="border-b border-[#1e293b] bg-[#0b1222] px-4 py-2 flex flex-wrap items-center justify-between gap-3">
             {/* Nav Tabs */}
-            <div className="flex items-center space-x-1 border border-[#1e293b] bg-[#080d1a] p-0.5 rounded-lg">
+            <div className="flex max-w-full flex-wrap items-center gap-1 border border-[#1e293b] bg-[#080d1a] p-0.5 rounded-lg">
               {(["strategies", "performance", "templates", "compare"] as const).map((tab) => (
                 <button
                   key={tab}
@@ -502,7 +504,7 @@ export default function StrategiesPage() {
             </div>
 
             {/* View Mode & Sorter */}
-            <div className="flex items-center space-x-2">
+            <div className="flex max-w-full flex-wrap items-center gap-2">
               <div className="relative">
                 <Search className="h-3.5 w-3.5 absolute left-2 top-1.5 text-[#64748b]" />
                 <input
@@ -545,7 +547,7 @@ export default function StrategiesPage() {
           </div>
 
           {/* Strategy Table */}
-          <div className="flex-1 overflow-auto">
+          <div className="overflow-x-auto lg:flex-1 lg:overflow-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="border-b border-[#1e293b] bg-[#080d1a] text-[10px] text-[#94a3b8] uppercase tracking-wider sticky top-0 z-10">
@@ -707,7 +709,7 @@ export default function StrategiesPage() {
             </div>
           );
           return (
-            <aside className="flex w-80 shrink-0 flex-col gap-3 overflow-y-auto border-l border-slate-800/90 bg-[#080d1a] p-3">
+            <aside className="flex w-full flex-col gap-3 border-t border-slate-800/90 bg-[#080d1a] p-3 lg:w-80 lg:shrink-0 lg:overflow-y-auto lg:border-l lg:border-t-0">
               {/* Header card (DESIGN.md 7.1) */}
               <div className="rounded-xl border border-slate-800/90 bg-[#0b1222]/95 p-4 shadow-lg shadow-black/20">
                 <div className="flex items-start justify-between gap-2">

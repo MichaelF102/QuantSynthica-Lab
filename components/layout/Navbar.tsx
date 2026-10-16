@@ -113,8 +113,8 @@ export default function Navbar({ variant = "app" }: { variant?: "app" | "public"
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-800/80 bg-[#080C14]/95 backdrop-blur-md print:hidden">
-      <div className="mx-auto flex h-16 w-[96%] max-w-[1660px] items-center justify-between gap-4">
-        <div className="flex min-w-0 flex-1 items-center gap-4 min-[1700px]:gap-7">
+      <div className="mx-auto flex h-16 w-[96%] max-w-[1660px] items-center justify-between gap-3 sm:gap-4">
+        <div className="flex shrink-0 items-center gap-4 xl:min-w-0 xl:flex-1 min-[1700px]:gap-7">
           <Link href="/" aria-label="QuantSynthica Lab home" className="group flex shrink-0 items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500/70">
             <QSLogoMark className="h-8 w-[51px] text-slate-200 transition-transform group-hover:scale-105" />
             <span className="hidden flex-col leading-tight sm:flex">
@@ -130,7 +130,7 @@ export default function Navbar({ variant = "app" }: { variant?: "app" | "public"
           </nav>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2.5">
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-2 sm:flex-none sm:shrink-0 sm:gap-2.5">
           <a href={QUANTSYNTHICA_URL} target="_blank" rel="noopener noreferrer" aria-label="Open QuantSynthica in a new tab"
             className="group hidden items-center gap-2.5 rounded-lg border border-purple-500/40 bg-[#161028]/80 px-2.5 py-1.5 min-[1700px]:px-3 shadow-[0_0_14px_rgba(168,85,247,0.15)] transition-colors hover:border-purple-400/70 hover:bg-[#1E1538] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-purple-400/70 lg:flex">
             <Globe2 className="h-4 w-4 text-purple-300" />

@@ -73,7 +73,7 @@ export default function AboutPage() {
             {MODULES.map(({ icon: Icon, title, href, text }) => (
               <Link key={title} href={href} className={`${card} group transition-colors hover:border-[#1769FF]/40`}>
                 <div className="flex items-center gap-2.5">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-[#1769FF] dark:bg-blue-950/40 dark:text-blue-400"><Icon className="h-4.5 w-4.5" /></span>
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-[#1769FF] dark:bg-blue-950/40 dark:text-blue-400"><Icon className="h-[18px] w-[18px]" /></span>
                   <h3 className="text-base font-bold text-[#0B1220] dark:text-white">{title}</h3>
                   <ArrowRight className="ml-auto h-4 w-4 text-slate-400 transition-transform group-hover:translate-x-0.5 group-hover:text-[#1769FF]" />
                 </div>

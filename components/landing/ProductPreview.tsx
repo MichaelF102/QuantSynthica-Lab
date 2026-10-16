@@ -30,11 +30,8 @@ export default function ProductPreview() {
     >
       {/* 3D Tilted Laptop Container */}
       <div
-        className="relative mx-auto transition-transform duration-500 ease-out hover:scale-[1.01]"
-        style={{
-          transform: "rotateY(-10deg) rotateX(6deg) rotateZ(-1.2deg)",
-          transformStyle: "preserve-3d",
-        }}
+        className="relative mx-auto transition-transform duration-500 ease-out hover:scale-[1.01] lg:[transform:rotateY(-10deg)_rotateX(6deg)_rotateZ(-1.2deg)]"
+        style={{ transformStyle: "preserve-3d" }}
       >
         {/* Ambient Display Glow */}
         <div className="absolute -inset-4 rounded-3xl bg-blue-500/15 blur-2xl filter" />
@@ -75,10 +72,10 @@ export default function ProductPreview() {
                     type="text"
                     readOnly
                     value="RELIANCE"
-                    className="h-6 w-28 sm:w-44 rounded border border-slate-800 bg-[#07090E] pl-6 pr-2 text-[10px] text-slate-200 outline-none"
+                    className="h-6 w-24 sm:w-44 rounded border border-slate-800 bg-[#07090E] pl-6 pr-2 text-[10px] text-slate-200 outline-none"
                   />
                 </div>
-                <div className="flex items-center rounded border border-slate-800 bg-[#07090E] p-0.5 text-[9px]">
+                <div className="hidden items-center rounded border border-slate-800 bg-[#07090E] p-0.5 text-[9px] sm:flex">
                   <span className="px-1 text-slate-500">🇺🇸 US</span>
                   <span className="rounded bg-slate-800 px-1 font-semibold text-white">
                     🇮🇳 INDIA

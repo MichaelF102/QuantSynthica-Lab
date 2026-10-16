@@ -71,7 +71,7 @@ export default function HeroSection() {
               }}
             >
               {/* Floating Market Cards Layer (S&P 500, NIFTY 50, NASDAQ 100) */}
-              <div className="relative h-[90px] sm:h-[105px] w-full">
+              <div className="relative w-full sm:h-[105px]">
                 <MarketCards />
               </div>
 

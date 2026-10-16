@@ -64,8 +64,10 @@ const results = []; const check = (n, ok, extra = "") => { results.push(ok); con
     await b.ev(`(() => { const x=[...document.querySelectorAll('button')].find(e=>e.innerText.trim().startsWith('Benchmark (')); x.click(); })()`);
     check("compare benchmark activates", await b.waitFor(`document.body.innerText.includes('Compare: ^NSEI')`, 5000));
     // benchmark selector
-    await b.ev(`(() => { const s=document.querySelector('select'); const set=Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set; set.call(s,'^NSEBANK'); s.dispatchEvent(new Event('change',{bubbles:true})); })()`);
-    check("benchmark change reloads", await b.waitFor(`document.body.innerText.includes('NIFTY Bank') && !document.body.innerText.includes('Could not load')`, 30000));
+    await b.ev(`document.querySelector('button[aria-haspopup=listbox]').click()`); await b.sleep(300);
+    await b.ev(`(() => { const i=document.querySelector('[role=listbox] input'); const set=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set; set.call(i,'bank'); i.dispatchEvent(new Event('input',{bubbles:true})); })()`); await b.sleep(250);
+    await b.ev(`[...document.querySelectorAll('[role=listbox] [role=option]')].find(o=>/Nifty Bank/.test(o.innerText)).click()`);
+    check("benchmark change reloads", await b.waitFor(`/Nifty Bank/i.test(document.body.innerText) && !document.body.innerText.includes('Could not load')`, 30000));
     // keyboard focus: tabs are buttons
     check("tabs have aria-current", await b.ev(`!!document.querySelector("nav[aria-label='Research sections'] button[aria-current=page]")`));
   } catch (e) { console.log("ERROR", e.message); results.push(false); }

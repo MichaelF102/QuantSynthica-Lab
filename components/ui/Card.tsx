@@ -34,7 +34,7 @@ export function Card({ title, subtitle, info, icon: Icon, tone = "blue", action,
         className
       )}
     >
-      <div className="mb-3 flex items-center justify-between gap-2">
+      <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           {Icon && (
             <div className={cn("rounded-lg border p-1.5", TONES[tone])}>
@@ -53,7 +53,7 @@ export function Card({ title, subtitle, info, icon: Icon, tone = "blue", action,
             {subtitle && <p className="text-[11px] text-slate-400">{subtitle}</p>}
           </div>
         </div>
-        {action}
+        {action && <div className="min-w-0 max-w-full">{action}</div>}
       </div>
       {children}
     </section>

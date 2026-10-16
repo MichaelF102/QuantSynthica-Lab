@@ -32,7 +32,7 @@ const CARDS: MarketCardItem[] = [
     change: spy ? `${spy.change_pct >= 0 ? "+" : ""}${spy.change_pct.toFixed(2)}%` : "-0.74%",
     isPositive: spy ? spy.is_positive : false,
     sparkline: spy?.sparkline_d || "M0 10 Q 30 14, 60 18 T 110 24",
-    positionClass: "left-[4%] sm:left-[8%] top-[2%] sm:top-[6%]",
+    positionClass: "sm:left-[8%] sm:top-[6%]",
     floatDelay: 0,
   },
   {
@@ -44,7 +44,7 @@ const CARDS: MarketCardItem[] = [
     change: nsei ? `${nsei.change_pct >= 0 ? "+" : ""}${nsei.change_pct.toFixed(2)}%` : "-0.66%",
     isPositive: nsei ? nsei.is_positive : false,
     sparkline: nsei?.sparkline_d || "M0 8 Q 20 12, 60 16 T 110 22",
-    positionClass: "left-[36%] sm:left-[38%] top-[-2%] sm:top-[2%]",
+    positionClass: "sm:left-[38%] sm:top-[2%]",
     floatDelay: 1.5,
   },
   {
@@ -56,14 +56,14 @@ const CARDS: MarketCardItem[] = [
     change: qqq ? `${qqq.change_pct >= 0 ? "+" : ""}${qqq.change_pct.toFixed(2)}%` : "-1.07%",
     isPositive: qqq ? qqq.is_positive : false,
     sparkline: qqq?.sparkline_d || "M0 6 Q 30 12, 70 18 T 110 25",
-    positionClass: "right-[2%] sm:right-[6%] top-[8%] sm:top-[12%]",
+    positionClass: "sm:right-[6%] sm:top-[12%]",
     floatDelay: 0.8,
   },
 ];
 
 export default function MarketCards() {
   return (
-    <div className="pointer-events-none absolute inset-0 z-20 overflow-visible">
+    <div className="no-scrollbar relative z-20 flex gap-3 overflow-x-auto pb-1 sm:pointer-events-none sm:absolute sm:inset-0 sm:block sm:overflow-visible sm:pb-0">
       {CARDS.map((card) => (
         <motion.div
           key={card.id}
@@ -76,7 +76,7 @@ export default function MarketCards() {
             delay: card.floatDelay,
             ease: "easeInOut",
           }}
-          className={`pointer-events-auto absolute ${card.positionClass} rounded-2xl border border-slate-200/80 bg-white/95 p-3.5 shadow-xl shadow-slate-200/50 backdrop-blur-md transition-transform hover:scale-105 sm:min-w-[190px] dark:border-slate-800 dark:bg-[#0B1528]/95 dark:shadow-black/60`}
+          className={`pointer-events-auto w-[220px] shrink-0 sm:absolute sm:w-auto sm:shrink ${card.positionClass} rounded-2xl border border-slate-200/80 bg-white/95 p-3.5 shadow-xl shadow-slate-200/50 backdrop-blur-md transition-transform hover:scale-105 sm:min-w-[190px] dark:border-slate-800 dark:bg-[#0B1528]/95 dark:shadow-black/60`}
         >
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-1.5">

@@ -257,9 +257,9 @@ export default function NavbarSecuritySearch() {
   };
 
   return (
-    <div ref={containerRef} className="flex items-center gap-2">
+    <div ref={containerRef} className="flex min-w-0 flex-1 items-center gap-2 sm:flex-none">
       {/* Security Searchbar (Moved to the left) */}
-      <div className="relative w-44 sm:w-56 md:w-64 lg:w-72 xl:w-52 min-[1440px]:w-60 min-[1700px]:w-72 min-[1840px]:w-80">
+      <div className="relative min-w-0 flex-1 sm:w-56 sm:flex-none md:w-64 lg:w-72 xl:w-52 min-[1440px]:w-60 min-[1700px]:w-72 min-[1840px]:w-80">
         <div className="relative flex items-center">
           <Search className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 text-slate-500" />
           <input
@@ -418,7 +418,7 @@ export default function NavbarSecuritySearch() {
           title="Filter US Equities (NYSE, NASDAQ)"
         >
           <span className="text-[11px] leading-none">🇺🇸</span>
-          <span>US</span>
+          <span className="hidden sm:inline">US</span>
         </button>
         <button
           type="button"
@@ -431,7 +431,7 @@ export default function NavbarSecuritySearch() {
           title="Filter Indian Equities (NSE, BSE)"
         >
           <span className="text-[11px] leading-none">🇮🇳</span>
-          <span>INDIA</span>
+          <span className="hidden sm:inline">INDIA</span>
         </button>
       </div>
     </div>
