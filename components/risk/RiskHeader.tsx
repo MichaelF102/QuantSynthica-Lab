@@ -5,6 +5,7 @@ import { ShieldCheck } from "lucide-react";
 import { useRisk } from "@/lib/risk/context";
 import { BENCHMARK_OPTIONS, HORIZONS, LOOKBACKS, CONFIDENCE_LABEL, Lookback } from "@/lib/risk/presets";
 import { DateRangeField, Field, SelectField } from "./ui/controls";
+import { CORR_TYPES } from "@/lib/risk/correlation";
 import { RISK_TABS, RiskField, RiskTabKey } from "./tabs";
 import PortfolioStockBasketModal from "@/components/portfolio/PortfolioStockBasketModal";
 import { AssetAllocation } from "@/components/portfolio/PortfolioAllocationWidget";
@@ -86,6 +87,7 @@ export default function RiskHeader({ tab }: { tab: RiskTabKey }) {
             onChange={(v) => v !== "Custom" && setLookback(v as Exclude<Lookback, "Custom">)} className="min-w-[120px]" />
         )}
         {has("horizon") && <SelectField label="Time horizon" value={settings.horizon} options={HORIZONS.map((h) => ({ value: h, label: h === 1 ? "1 Day" : `${h} Days` }))} onChange={(v) => update({ horizon: v })} className="min-w-[110px]" />}
+        {has("corrType") && <SelectField label="Correlation type" value={settings.corrType} options={CORR_TYPES.map((c) => ({ value: c, label: c }))} onChange={(v) => update({ corrType: v })} className="min-w-[120px]" />}
         {has("frequency") && <SelectField label="Time horizon" value={settings.frequency} options={(["Daily", "Weekly", "Monthly"] as const).map((f) => ({ value: f, label: f }))} onChange={(v) => update({ frequency: v })} className="min-w-[110px]" />}
         {has("value") && (
           <Field label={`Portfolio value (${sym})`} className="min-w-[130px]">
