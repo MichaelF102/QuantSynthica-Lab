@@ -77,7 +77,7 @@ export default function TradeDetailsDrawer({
             className="w-full flex items-center justify-center space-x-1.5 px-3 py-2 rounded-[2px] bg-[#0b1222] hover:bg-[#1e293b] border border-[#1e293b] text-[#3b82f6] text-xs font-bold transition-colors"
           >
             <ExternalLink className="h-3.5 w-3.5" />
-            <span>VIEW TRADE ON EQUITY CHART</span>
+            <span>VIEW TRADE ON PRICE CHART</span>
           </button>
         )}
 

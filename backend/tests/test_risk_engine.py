@@ -118,3 +118,82 @@ def test_strategy_versions_are_recorded_once_per_real_change(tmp_path, monkeypat
     assert versions[0]["strategy"]["name"] == "renamed"
     repo.delete_strategy("strat_versions")
     assert repo.list_versions("strat_versions") == []
+
+
+def _overlap(trades):
+    """Largest number of trades open on the same date."""
+    spans = [(pd.Timestamp(t.entry_date), pd.Timestamp(t.exit_date)) for t in trades]
+    days = sorted({d for a, b in spans for d in (a, b)})
+    return max((sum(1 for a, b in spans if a <= d < b) for d in days), default=0)
+
+
+def test_one_position_at_a_time_by_default():
+    rising = list(np.linspace(100, 160, 60))
+    out = run(strat(RiskConfig(stop_loss_pct=None, take_profit_pct=None, max_positions=5, position_size_pct=15)), rising)
+    assert len(out["trades"]) == 1  # entry rule holds on every bar, but there is only ever one position
+
+
+def test_stacking_is_opt_in_and_capped_by_max_positions():
+    rising = list(np.linspace(100, 160, 60))
+    out = run(strat(RiskConfig(stop_loss_pct=None, take_profit_pct=None, max_positions=5, position_size_pct=15, allow_stacking=True)), rising)
+    assert len(out["trades"]) == 5
+    assert _overlap(out["trades"]) == 5
+
+
+def test_default_never_overlaps_trades_even_with_stops():
+    rng = np.random.default_rng(11)
+    path = list(100 * np.cumprod(1 + rng.normal(0.0004, 0.02, 300)))
+    out = run(strat(RiskConfig(stop_loss_pct=2.0, take_profit_pct=4.0, max_positions=5, position_size_pct=20)), path)
+    assert len(out["trades"]) > 3
+    assert _overlap(out["trades"]) <= 1
+
+
+def _template_payload(**extra):
+    from fastapi.testclient import TestClient
+    from backend.main import app
+    client = TestClient(app)
+    template = client.get("/strategies").json()[0]
+    return client, template, {"strategy": template, "start_date": "2023-01-01", "end_date": "2023-06-01", "benchmark": "SPY", **extra}
+
+
+def test_run_records_what_is_needed_to_reproduce_it():
+    client, template, payload = _template_payload()
+    a = client.post("/backtests", json=payload).json()
+    assert a["strategy_config"]["id"] == template["id"] and a["strategy_config"]["risk"] == template["risk"]
+    assert a["engine_version"] and len(a["data_fingerprint"]) == 12
+    b = client.post("/backtests", json=payload).json()
+    # same inputs: identical numbers and identical fingerprint
+    assert a["data_fingerprint"] == b["data_fingerprint"]
+    assert a["metrics"]["total_return"] == b["metrics"]["total_return"] and len(a["trades"]) == len(b["trades"])
+    for r in (a, b):
+        client.delete(f"/backtests/{r['id']}")
+
+
+def test_snapshot_survives_a_later_edit_to_the_strategy():
+    client, template, payload = _template_payload()
+    run = client.post("/backtests", json=payload).json()
+    edited = {**template, "risk": {**template["risk"], "stop_loss_pct": 9.0}}
+    saved = client.post("/strategies", json={**edited, "id": "strat_snapshot_probe", "name": "snapshot probe"}).json()
+    assert saved["risk"]["stop_loss_pct"] == 9.0
+    again = client.get(f"/backtests/{run['id']}").json()
+    assert again["strategy_config"]["risk"]["stop_loss_pct"] == template["risk"]["stop_loss_pct"]
+    client.delete(f"/backtests/{run['id']}"); client.delete("/strategies/strat_snapshot_probe")
+
+
+def test_unsaved_run_is_not_kept_but_returns_a_result():
+    client, template, payload = _template_payload()
+    before = len(client.get("/backtests").json())
+    res = client.post("/backtests?persist=false", json=payload)
+    assert res.status_code == 200 and res.json()["metrics"] and res.json()["engine_version"]
+    assert len(client.get("/backtests").json()) == before
+
+
+def test_notes_are_stored_with_the_run():
+    client, template, payload = _template_payload()
+    run = client.post("/backtests", json=payload).json()
+    notes = [{"id": "n1", "timestamp": "2026-10-18T10:00:00Z", "content": "hypothesis: trend holds"}]
+    assert client.put(f"/backtests/{run['id']}/notes", json=notes).json() == notes
+    assert client.get(f"/backtests/{run['id']}/notes").json() == notes
+    assert client.get(f"/backtests/{run['id']}").json()["notes"][0]["content"] == "hypothesis: trend holds"
+    assert client.put("/backtests/bt_missing/notes", json=notes).status_code == 404
+    client.delete(f"/backtests/{run['id']}")

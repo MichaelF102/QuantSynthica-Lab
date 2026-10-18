@@ -4,7 +4,7 @@ import React, { Suspense, useCallback, useEffect, useState } from "react";
 import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
-  AlertTriangle, ArrowLeft, BarChart2, CalendarDays, ChevronDown, Dices, Download, FileText, Gauge, GitMerge, LayoutDashboard,
+  AlertTriangle, ArrowLeft, BarChart2, FlaskConical, CalendarDays, ChevronDown, Dices, Download, FileText, Gauge, GitMerge, LayoutDashboard,
   RotateCcw, Share2, ShieldAlert, Sliders, TrendingUp, ArrowLeftRight, NotebookPen,
 } from "lucide-react";
 import { api } from "@/lib/api";
@@ -20,6 +20,12 @@ import CommandPalette from "@/components/backtest/CommandPalette";
 import ParameterSensitivityView from "@/components/backtest/ParameterSensitivityView";
 import MonteCarloView from "@/components/backtest/MonteCarloView";
 import ResearchNotesView from "@/components/backtest/ResearchNotesView";
+import ReproduceModal from "@/components/backtest/ReproduceModal";
+import { buildRunJson, buildRunReport } from "@/lib/runExport";
+import RiskExtras from "@/components/backtest/tabs/RiskExtras";
+import AttributionExtras from "@/components/backtest/tabs/AttributionExtras";
+import RegimeExtras from "@/components/backtest/tabs/RegimeExtras";
+import TradeInsights from "@/components/backtest/tabs/TradeInsights";
 import OverviewTab from "@/components/backtest/tabs/OverviewTab";
 import PerformanceTab from "@/components/backtest/tabs/PerformanceTab";
 import MonthlyTab from "@/components/backtest/tabs/MonthlyTab";
@@ -42,6 +48,12 @@ const TABS = [
   { id: "notes", label: "Notes", icon: NotebookPen },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
+
+function downloadFile(name: string, text: string, type: string) {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = Object.assign(document.createElement("a"), { href: url, download: name });
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
 
 const btn = "flex items-center gap-1.5 rounded-lg border border-slate-800 bg-[#0b1222] px-3 py-2 text-xs font-medium text-slate-300 transition-colors hover:border-slate-700 hover:text-white";
 
@@ -71,6 +83,16 @@ function BacktestTerminal() {
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [showDownloadMenu, setShowDownloadMenu] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
+  const [pendingScroll, setPendingScroll] = useState(false);
+  const [showReproduce, setShowReproduce] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const viewOnChart = useCallback((t: TradeRecord) => { setSelectedTrade(t); setDrawerOpen(false); setPendingScroll(true); setActiveTab("overview"); }, [setActiveTab]);
+  const selectTrade = useCallback((t: TradeRecord) => { setSelectedTrade(t); setDrawerOpen(true); }, []);
+  useEffect(() => {
+    if (!pendingScroll || activeTab !== "overview" || loading) return;
+    const t = setTimeout(() => { document.getElementById("price-chart")?.scrollIntoView({ behavior: "smooth", block: "center" }); setPendingScroll(false); }, 450);
+    return () => clearTimeout(t);
+  }, [pendingScroll, activeTab, loading]);
 
   useEffect(() => {
     if (!id) return;
@@ -92,7 +114,7 @@ function BacktestTerminal() {
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setShowCommandPalette((p) => !p); }
-      else if (e.key === "Escape") { setShowCommandPalette(false); setShowReRunModal(false); setShowCompareModal(false); setShowReportModal(false); setShowDownloadMenu(false); setSelectedTrade(null); }
+      else if (e.key === "Escape") { setShowCommandPalette(false); setShowReRunModal(false); setShowCompareModal(false); setShowReportModal(false); setShowDownloadMenu(false); setDrawerOpen(false); setSelectedTrade(null); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -123,21 +145,22 @@ function BacktestTerminal() {
   const strat = strategy || backtest.strategy_config || null;
   const cur = currencyOf(backtest);
   const runFilters: AnalyticsFilters = { start: null, end: null, frequency: "Daily", currency: cur };
+  const fileStem = `${backtest.strategy_name}_${backtest.ticker}_${backtest.id}`.replace(/[^\w-]+/g, "_");
   const started = backtest.created_at ? new Date(backtest.created_at).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) : null;
   const chip = "rounded-md border border-slate-800 bg-[#0b1222] px-2 py-0.5 font-mono text-[11px] text-slate-300";
 
   const body = (() => {
     switch (activeTab) {
-      case "overview": return <OverviewTab bt={backtest} strategy={strat} selectedTradeId={selectedTrade?.id} onSelectTrade={setSelectedTrade} />;
+      case "overview": return <OverviewTab bt={backtest} strategy={strat} selectedTradeId={selectedTrade?.id} onSelectTrade={selectTrade} onViewOnChart={viewOnChart} />;
       case "performance": return <PerformanceTab bt={backtest} />;
-      case "trades": return <TradeTable trades={backtest.trades} backtestId={backtest.id} currency={CURRENCY_SYMBOL[cur]} onSelectTrade={setSelectedTrade} selectedTradeId={selectedTrade?.id} />;
-      case "risk": return <AnalyticsRiskTab selectedBacktests={[backtest]} filters={runFilters} />;
-      case "attribution": return <AnalyticsAttributionTab selectedBacktests={[backtest]} filters={runFilters} />;
+      case "trades": return <div className="space-y-4"><TradeInsights bt={backtest} onSelectTrade={selectTrade} /><TradeTable trades={backtest.trades} backtestId={backtest.id} currency={CURRENCY_SYMBOL[cur]} onSelectTrade={selectTrade} onViewOnChart={viewOnChart} selectedTradeId={selectedTrade?.id} /></div>;
+      case "risk": return <div className="space-y-4"><AnalyticsRiskTab selectedBacktests={[backtest]} filters={runFilters} /><RiskExtras bt={backtest} /></div>;
+      case "attribution": return <div className="space-y-4"><AttributionExtras bt={backtest} /><AnalyticsAttributionTab selectedBacktests={[backtest]} filters={runFilters} /></div>;
       case "monthly": return <MonthlyTab bt={backtest} />;
-      case "regime": return <AnalyticsRegimesTab selectedBacktests={[backtest]} filters={runFilters} />;
+      case "regime": return <div className="space-y-4"><AnalyticsRegimesTab selectedBacktests={[backtest]} filters={runFilters} /><RegimeExtras bt={backtest} /></div>;
       case "parameters": return <ParameterSensitivityView bt={backtest} strategy={strat} />;
       case "monte_carlo": return <MonteCarloView bt={backtest} />;
-      case "notes": return <ResearchNotesView backtestId={backtest.id} strategyName={backtest.strategy_name} />;
+      case "notes": return <ResearchNotesView backtestId={backtest.id} strategyName={backtest.strategy_name} initialNotes={backtest.notes} />;
     }
   })();
 
@@ -167,7 +190,7 @@ function BacktestTerminal() {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <button onClick={() => { navigator.clipboard.writeText(window.location.href); setShareCopied(true); setTimeout(() => setShareCopied(false), 2000); }} className={btn}><Share2 className="h-3.5 w-3.5" />{shareCopied ? "Copied" : "Share"}</button>
+          <button onClick={() => { navigator.clipboard.writeText(window.location.href); setShareCopied(true); setTimeout(() => setShareCopied(false), 2000); }} className={btn}title="Copies this page's address. It only opens on this machine, because runs are stored locally. Use Download for something you can send."><Share2 className="h-3.5 w-3.5" />{shareCopied ? "Copied" : "Copy link"}</button>
           <button onClick={() => setShowCompareModal(true)} className={btn}><BarChart2 className="h-3.5 w-3.5" />Compare</button>
           <div className="relative">
             <button onClick={() => setShowDownloadMenu((v) => !v)} className={btn}><Download className="h-3.5 w-3.5" />Download<ChevronDown className="h-3 w-3" /></button>
@@ -175,10 +198,13 @@ function BacktestTerminal() {
               <div className="absolute right-0 z-50 mt-1 w-52 overflow-hidden rounded-xl border border-slate-800 bg-[#0b1222] py-1 text-xs shadow-2xl shadow-black/40">
                 <a href={api.getExportTradesUrl(backtest.id)} download onClick={() => setShowDownloadMenu(false)} className="block px-3 py-2 text-slate-200 hover:bg-slate-800/50">Trade log CSV</a>
                 <a href={api.getExportEquityUrl(backtest.id)} download onClick={() => setShowDownloadMenu(false)} className="block px-3 py-2 text-slate-200 hover:bg-slate-800/50">Equity curve CSV</a>
+                <button onClick={() => { setShowDownloadMenu(false); downloadFile(`${fileStem}_report.html`, buildRunReport(backtest, strat), "text/html"); }} className="block w-full border-t border-slate-800 px-3 py-2 text-left text-slate-200 hover:bg-slate-800/50">Report (HTML file)</button>
+                <button onClick={() => { setShowDownloadMenu(false); downloadFile(`${fileStem}_run.json`, JSON.stringify(buildRunJson(backtest, strat), null, 2), "application/json"); }} className="block w-full px-3 py-2 text-left text-slate-200 hover:bg-slate-800/50">Run JSON (reproducible)</button>
                 <button onClick={() => { setShowDownloadMenu(false); setShowReportModal(true); }} className="flex w-full items-center gap-1.5 border-t border-slate-800 px-3 py-2 text-left text-blue-400 hover:bg-slate-800/50"><FileText className="h-3.5 w-3.5" />Tear sheet report</button>
               </div>
             )}
           </div>
+          <button onClick={() => setShowReproduce(true)} title="Run the saved strategy again and check that the numbers match" className={btn}><FlaskConical className="h-3.5 w-3.5" />Reproduce</button>
           <button onClick={() => setShowReRunModal(true)} className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-blue-600/30 transition-colors hover:bg-blue-500"><RotateCcw className="h-3.5 w-3.5" />Re-run backtest</button>
         </div>
       </header>
@@ -197,11 +223,19 @@ function BacktestTerminal() {
         </nav>
       </div>
 
+      {backtest.metrics.num_trades < 30 && activeTab !== "notes" && (
+        <div role="note" data-testid="low-sample" className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300">
+          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          <span><span className="font-semibold">Small sample: {backtest.metrics.num_trades} trade{backtest.metrics.num_trades === 1 ? "" : "s"}.</span> Sharpe, Sortino, win rate and the resampling results rest on very few observations, so treat them as indicative at best. A longer window or looser rules gives a fairer read.</span>
+        </div>
+      )}
+
       <div key={activeTab} className="animate-fade-up">{body}</div>
 
-      {selectedTrade && <TradeDetailsDrawer trade={selectedTrade} onClose={() => setSelectedTrade(null)} onViewOnChart={() => { setSelectedTrade(null); setActiveTab("overview"); window.scrollTo({ top: 0, behavior: "smooth" }); }} />}
+      {selectedTrade && drawerOpen && <TradeDetailsDrawer trade={selectedTrade} onClose={() => { setDrawerOpen(false); setSelectedTrade(null); }} onViewOnChart={() => { setDrawerOpen(false); setPendingScroll(true); setActiveTab("overview"); }} />}
       {showReRunModal && <BacktestReRunModal backtest={backtest} strategy={strat} onClose={() => setShowReRunModal(false)} onSuccess={(newId) => { setShowReRunModal(false); router.push(`/backtests/${newId}`); }} />}
       {showCompareModal && <BacktestCompareModal currentBacktest={backtest} onClose={() => setShowCompareModal(false)} />}
+      {showReproduce && <ReproduceModal bt={backtest} strategy={strat} onClose={() => setShowReproduce(false)} onSaved={(newId) => { setShowReproduce(false); router.push(`/backtests/${newId}`); }} />}
       {showReportModal && <ResearchReportModal backtest={backtest} onClose={() => setShowReportModal(false)} />}
       <CommandPalette isOpen={showCommandPalette} onClose={() => setShowCommandPalette(false)} onRunReRun={() => setShowReRunModal(true)} onRunCompare={() => setShowCompareModal(true)} onSelectTab={(tab) => setActiveTab(tab)} />
     </main>

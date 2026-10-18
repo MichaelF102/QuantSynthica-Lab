@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { ArrowLeftRight, Download, Search, ChevronUp, ChevronDown } from "lucide-react";
+import React, { useState, useMemo, useEffect } from "react";
+import { ArrowLeftRight, Download, Search, ChevronUp, ChevronDown, Columns3, CandlestickChart } from "lucide-react";
 import { TradeRecord } from "@/types";
 import { Card, EmptyState, Kpi, signTone } from "@/components/ui/Card";
 import { fmtPct, fmtInt, cn } from "@/lib/utils";
@@ -12,20 +12,34 @@ interface TradeTableProps {
   /** Currency symbol used for prices and P&L. */
   currency?: string;
   onSelectTrade?: (trade: TradeRecord) => void;
+  /** Show a trade on the price chart (adds a chart button to each row). */
+  onViewOnChart?: (trade: TradeRecord) => void;
   selectedTradeId?: string | null;
 }
 
 type SortField = "entry_date" | "exit_date" | "net_pnl" | "return_pct" | "holding_period_bars" | "mae" | "mfe";
 type Filter = "All" | "Long" | "Short" | "Winners" | "Losers";
 const FILTERS: Filter[] = ["All", "Long", "Short", "Winners", "Losers"];
+const COLS = [["ticker", "Ticker"], ["side", "Side"], ["entry", "Entry"], ["exit", "Exit"], ["entry_price", "Entry price"], ["exit_price", "Exit price"], ["qty", "Qty"], ["pnl", "P&L"], ["return", "Return"], ["bars", "Bars"], ["mae", "MAE"], ["mfe", "MFE"], ["reason", "Reason"]] as const;
+type ColKey = (typeof COLS)[number][0];
+const DEFAULT_COLS: ColKey[] = COLS.map(([k]) => k);
+const COLS_KEY = "algolab_trade_columns";
+const csvCell = (v: unknown) => { const t = String(v ?? ""); return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
 
-export default function TradeTable({ trades, backtestId, currency = "$", onSelectTrade, selectedTradeId }: TradeTableProps) {
+export default function TradeTable({ trades, backtestId, currency = "$", onSelectTrade, onViewOnChart, selectedTradeId }: TradeTableProps) {
   const [filter, setFilter] = useState<Filter>("All");
   const [query, setQuery] = useState("");
   const [sortField, setSortField] = useState<SortField>("entry_date");
   const [sortAsc, setSortAsc] = useState(true);
   const [page, setPage] = useState(1);
-  const pageSize = 15;
+  const [pageSize, setPageSize] = useState(15);
+  const [cols, setCols] = useState<ColKey[]>(DEFAULT_COLS);
+  const [colsOpen, setColsOpen] = useState(false);
+  useEffect(() => {
+    try { const raw = JSON.parse(localStorage.getItem(COLS_KEY) || "null"); if (Array.isArray(raw)) { const ok = raw.filter((k: string): k is ColKey => DEFAULT_COLS.includes(k as ColKey)); if (ok.length) setCols(ok); } } catch { /* storage unavailable */ }
+  }, []);
+  const toggleCol = (k: ColKey) => setCols((c) => { const n = c.includes(k) ? c.filter((x) => x !== k) : [...c, k]; const next = DEFAULT_COLS.filter((x) => n.includes(x)); try { localStorage.setItem(COLS_KEY, JSON.stringify(next)); } catch { /* ignore */ } return next.length ? next : c; });
+  const show = (k: ColKey) => cols.includes(k);
   const money = (v: number) => `${v < 0 ? "-" : ""}${currency}${Math.abs(v).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 
   const summary = useMemo(() => {
@@ -58,9 +72,9 @@ export default function TradeTable({ trades, backtestId, currency = "$", onSelec
 
   const exportCsv = () => {
     const head = ["Trade ID", "Ticker", "Direction", "Entry Date", "Exit Date", "Entry Price", "Exit Price", "Quantity", "Gross PnL", "Fees", "Net PnL", "Return %", "Holding Bars", "Exit Reason", "MAE %", "MFE %"];
-    const body = trades.map((t) => [t.id, t.ticker, t.direction, t.entry_date, t.exit_date, t.entry_price, t.exit_price, t.quantity, t.gross_pnl, t.fees, t.net_pnl, t.return_pct, t.holding_period_bars, t.exit_reason, t.mae, t.mfe]);
-    const url = URL.createObjectURL(new Blob([[head, ...body].map((r) => r.join(",")).join("\n")], { type: "text/csv" }));
-    const a = Object.assign(document.createElement("a"), { href: url, download: `trades_${backtestId || "export"}.csv` });
+    const body = rows.map((t) => [t.id, t.ticker, t.direction, t.entry_date, t.exit_date, t.entry_price, t.exit_price, t.quantity, t.gross_pnl, t.fees, t.net_pnl, t.return_pct, t.holding_period_bars, t.exit_reason, t.mae, t.mfe]);
+    const url = URL.createObjectURL(new Blob([[head, ...body].map((r) => r.map(csvCell).join(",")).join("\n")], { type: "text/csv" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: `trades_${backtestId || "export"}${rows.length === trades.length ? "" : "_filtered"}.csv` });
     document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
   };
 
@@ -89,37 +103,48 @@ export default function TradeTable({ trades, backtestId, currency = "$", onSelec
         action={<div className="flex flex-wrap items-center gap-2">
           <div className="flex rounded-lg border border-slate-800 bg-[#080d1a] p-0.5">{FILTERS.map((f) => <button key={f} onClick={() => { setFilter(f); setPage(1); }} className={cn("rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors", filter === f ? "bg-blue-600 text-white" : "text-slate-400 hover:text-white")}>{f}</button>)}</div>
           <div className="relative"><Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" /><input value={query} onChange={(e) => { setQuery(e.target.value); setPage(1); }} placeholder="Search trades" className="w-40 rounded-lg border border-slate-800 bg-[#080d1a] py-1.5 pl-8 pr-2 text-xs text-slate-200 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none" /></div>
-          <button onClick={exportCsv} className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-[#080d1a] px-2.5 py-1.5 text-xs text-slate-300 hover:text-white"><Download className="h-3.5 w-3.5" />CSV</button>
+          <div className="relative">
+            <button type="button" onClick={() => setColsOpen((o) => !o)} aria-expanded={colsOpen} className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-[#080d1a] px-2.5 py-1.5 text-xs text-slate-300 hover:text-white"><Columns3 className="h-3.5 w-3.5" />Columns</button>
+            {colsOpen && (
+              <div className="absolute right-0 z-30 mt-1 w-44 rounded-xl border border-slate-700 bg-[#0b1222] p-2 text-xs shadow-xl" role="menu">
+                {COLS.map(([k, l]) => <label key={k} className="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-slate-300 hover:bg-slate-800"><input type="checkbox" checked={show(k)} onChange={() => toggleCol(k)} className="accent-blue-600" />{l}</label>)}
+                <button type="button" onClick={() => { setCols(DEFAULT_COLS); try { localStorage.removeItem(COLS_KEY); } catch { /* ignore */ } }} className="mt-1 w-full rounded px-2 py-1 text-left text-blue-400 hover:bg-slate-800">Show all</button>
+              </div>
+            )}
+          </div>
+          <button onClick={exportCsv} title={rows.length === trades.length ? "Download all trades" : "Download the filtered trades"} className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-[#080d1a] px-2.5 py-1.5 text-xs text-slate-300 hover:text-white"><Download className="h-3.5 w-3.5" />CSV{rows.length !== trades.length ? ` (${fmtInt(rows.length)})` : ""}</button>
         </div>}>
         <div className="w-full overflow-x-auto">
           <table className="w-full border-collapse font-mono text-xs">
             <thead><tr className="border-b border-slate-800">
-              <Th left>#</Th><Th left>Ticker</Th><Th left>Side</Th><Th f="entry_date" left>Entry</Th><Th f="exit_date" left>Exit</Th>
-              <Th>Entry price</Th><Th>Exit price</Th><Th>Qty</Th><Th f="net_pnl">P&amp;L</Th><Th f="return_pct">Return</Th><Th f="holding_period_bars">Bars</Th><Th f="mae">MAE</Th><Th f="mfe">MFE</Th><Th left>Reason</Th>
+              <Th left>#</Th>{show("ticker") && <Th left>Ticker</Th>}{show("side") && <Th left>Side</Th>}{show("entry") && <Th f="entry_date" left>Entry</Th>}{show("exit") && <Th f="exit_date" left>Exit</Th>}
+              {show("entry_price") && <Th>Entry price</Th>}{show("exit_price") && <Th>Exit price</Th>}{show("qty") && <Th>Qty</Th>}{show("pnl") && <Th f="net_pnl">P&amp;L</Th>}{show("return") && <Th f="return_pct">Return</Th>}{show("bars") && <Th f="holding_period_bars">Bars</Th>}{show("mae") && <Th f="mae">MAE</Th>}{show("mfe") && <Th f="mfe">MFE</Th>}{show("reason") && <Th left>Reason</Th>}{onViewOnChart && <Th><span className="sr-only">Chart</span></Th>}
             </tr></thead>
             <tbody className="divide-y divide-slate-800/50">
               {view.map((t, i) => (
                 <tr key={t.id} onClick={() => onSelectTrade?.(t)} className={cn("cursor-pointer transition-colors", t.id === selectedTradeId ? "bg-blue-500/10" : "hover:bg-slate-800/30")}>
                   <td className="px-2 py-2 text-slate-500">{(page - 1) * pageSize + i + 1}</td>
-                  <td className="px-2 py-2 font-bold text-white">{t.ticker}</td>
-                  <td className="px-2 py-2"><span className={cn("rounded-md border px-1.5 py-0.5 text-[10px] font-bold", t.direction.includes("LONG") ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400" : "border-rose-500/30 bg-rose-500/10 text-rose-400")}>{t.direction}</span></td>
-                  <td className="px-2 py-2 text-slate-300">{t.entry_date}</td><td className="px-2 py-2 text-slate-300">{t.exit_date}</td>
-                  <td className="px-2 py-2 text-right text-white">{money(t.entry_price)}</td><td className="px-2 py-2 text-right text-white">{money(t.exit_price)}</td>
-                  <td className="px-2 py-2 text-right text-slate-400">{t.quantity.toFixed(2)}</td>
-                  <td className={cn("px-2 py-2 text-right font-semibold", signTone(t.net_pnl))}>{money(t.net_pnl)}</td>
-                  <td className={cn("px-2 py-2 text-right font-semibold", signTone(t.return_pct))}>{fmtPct(t.return_pct)}</td>
-                  <td className="px-2 py-2 text-right text-slate-400">{t.holding_period_bars}</td>
-                  <td className="px-2 py-2 text-right text-rose-400">{typeof t.mae === "number" ? `-${Math.abs(t.mae).toFixed(1)}%` : "—"}</td>
-                  <td className="px-2 py-2 text-right text-emerald-400">{typeof t.mfe === "number" ? `+${Math.abs(t.mfe).toFixed(1)}%` : "—"}</td>
-                  <td className="px-2 py-2"><span className="rounded-md border border-slate-800 bg-[#080d1a] px-1.5 py-0.5 text-[10px] text-slate-400">{t.exit_reason}</span></td>
+                  {show("ticker") && <td className="px-2 py-2 font-bold text-white">{t.ticker}</td>}
+                  {show("side") && <td className="px-2 py-2"><span className={cn("rounded-md border px-1.5 py-0.5 text-[10px] font-bold", t.direction.includes("LONG") ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400" : "border-rose-500/30 bg-rose-500/10 text-rose-400")}>{t.direction}</span></td>}
+                  {show("entry") && <td className="px-2 py-2 text-slate-300">{t.entry_date}</td>}{show("exit") && <td className="px-2 py-2 text-slate-300">{t.exit_date}</td>}
+                  {show("entry_price") && <td className="px-2 py-2 text-right text-white">{money(t.entry_price)}</td>}{show("exit_price") && <td className="px-2 py-2 text-right text-white">{money(t.exit_price)}</td>}
+                  {show("qty") && <td className="px-2 py-2 text-right text-slate-400">{t.quantity.toFixed(2)}</td>}
+                  {show("pnl") && <td className={cn("px-2 py-2 text-right font-semibold", signTone(t.net_pnl))}>{money(t.net_pnl)}</td>}
+                  {show("return") && <td className={cn("px-2 py-2 text-right font-semibold", signTone(t.return_pct))}>{fmtPct(t.return_pct)}</td>}
+                  {show("bars") && <td className="px-2 py-2 text-right text-slate-400">{t.holding_period_bars}</td>}
+                  {show("mae") && <td className="px-2 py-2 text-right text-rose-400">{typeof t.mae === "number" ? `-${Math.abs(t.mae).toFixed(1)}%` : "—"}</td>}
+                  {show("mfe") && <td className="px-2 py-2 text-right text-emerald-400">{typeof t.mfe === "number" ? `+${Math.abs(t.mfe).toFixed(1)}%` : "—"}</td>}
+                  {show("reason") && <td className="px-2 py-2"><span className="rounded-md border border-slate-800 bg-[#080d1a] px-1.5 py-0.5 text-[10px] text-slate-400">{t.exit_reason}</span></td>}
+                  {onViewOnChart && <td className="px-2 py-2 text-right"><button type="button" aria-label={`Show trade ${t.id} on the price chart`} title="Show on price chart" onClick={(e) => { e.stopPropagation(); onViewOnChart(t); }} className="rounded-md p-1 text-slate-500 hover:bg-slate-800 hover:text-blue-400"><CandlestickChart className="h-3.5 w-3.5" /></button></td>}
                 </tr>))}
-              {!view.length && <tr><td colSpan={14} className="py-8 text-center font-sans text-xs text-slate-500">No trades match these filters.</td></tr>}
+              {!view.length && <tr><td colSpan={16} className="py-8 text-center font-sans text-xs text-slate-500">No trades match these filters.</td></tr>}
             </tbody>
           </table>
         </div>
         <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
           <span>{rows.length ? `Showing ${(page - 1) * pageSize + 1}–${Math.min(page * pageSize, rows.length)} of ${fmtInt(rows.length)}` : "No results"}</span>
           <div className="flex items-center gap-1">
+            <select aria-label="Rows per page" value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }} className="mr-2 rounded-lg border border-slate-800 bg-[#080d1a] px-2 py-1 text-xs text-slate-300 focus:outline-none">{[15, 25, 50, 100].map((n) => <option key={n} value={n}>{n} / page</option>)}</select>
             <button disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="rounded-lg border border-slate-800 bg-[#080d1a] px-2.5 py-1 hover:text-white disabled:opacity-30">Prev</button>
             <span className="px-2 font-mono text-slate-300">{page} / {pages}</span>
             <button disabled={page === pages} onClick={() => setPage((p) => p + 1)} className="rounded-lg border border-slate-800 bg-[#080d1a] px-2.5 py-1 hover:text-white disabled:opacity-30">Next</button>

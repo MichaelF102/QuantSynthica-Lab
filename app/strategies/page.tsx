@@ -1177,7 +1177,7 @@ export default function StrategiesPage() {
                     ["Trailing stop", currentStrategy.risk.trailing_stop_pct ? `${currentStrategy.risk.trailing_stop_pct}%` : "—", "text-slate-200"],
                     ["Vol target", currentStrategy.risk.target_volatility ? `${currentStrategy.risk.target_volatility}% / yr` : "—", "text-slate-200"],
                     ["Position size", `${currentStrategy.risk.position_size_pct}%`, "text-slate-200"],
-                    ["Max concurrent", fmtInt(currentStrategy.risk.max_positions), "text-slate-200"],
+                    ["Positions", currentStrategy.risk.allow_stacking ? `Stack up to ${fmtInt(currentStrategy.risk.max_positions)}` : "One at a time", "text-slate-200"],
                   ].map(([k, v, tone]) => (
                     <div key={k} className="flex justify-between border-b border-slate-800/50 pb-1.5 last:border-0">
                       <span className="text-slate-400">{k}</span>

@@ -303,3 +303,131 @@ export const btPoints = (bt: BacktestResult, f: AnalyticsFilters) => windowPts(t
 /** Trades whose exit falls inside the active date window. */
 export const btTrades = (bt: BacktestResult, f: AnalyticsFilters) =>
   bt.trades.filter((t) => (!f.start || t.exit_date >= f.start) && (!f.end || t.exit_date <= f.end));
+
+// ---------- exposure ----------
+export interface ExposurePoint { date: string; positions: number; exposure: number }
+export interface ExposureSummary { series: ExposurePoint[]; avgExposure: number; maxExposure: number; maxConcurrent: number; timeInMarket: number; avgConcurrentWhenInvested: number }
+
+/**
+ * Open positions and gross exposure (cost of open positions / portfolio value) at each close.
+ * A trade is held from the close of its entry date up to, but not including, its exit date (exits fill at the open).
+ */
+export function exposureSeries(bt: Pick<BacktestResult, "trades" | "equity_curve">): ExposureSummary | null {
+  const curve = bt.equity_curve;
+  if (!curve?.length) return null;
+  const n = curve.length;
+  const firstOnOrAfter = (d: string) => { let lo = 0, hi = n; while (lo < hi) { const m = (lo + hi) >> 1; if (curve[m].date < d) lo = m + 1; else hi = m; } return lo; };
+  const cnt = new Array(n + 1).fill(0), notional = new Array(n + 1).fill(0);
+  for (const t of bt.trades) {
+    const a = firstOnOrAfter(t.entry_date), b = Math.min(n, firstOnOrAfter(t.exit_date));
+    if (b <= a) continue;
+    const cost = Math.abs(t.entry_price * t.quantity);
+    cnt[a] += 1; cnt[b] -= 1; notional[a] += cost; notional[b] -= cost;
+  }
+  let c = 0, nv = 0;
+  const series: ExposurePoint[] = curve.map((p, i) => {
+    c += cnt[i]; nv += notional[i];
+    return { date: p.date, positions: c, exposure: p.portfolio_value > 0 ? (nv / p.portfolio_value) * 100 : 0 };
+  });
+  const inv = series.filter((p) => p.positions > 0);
+  return {
+    series,
+    avgExposure: series.reduce((s, p) => s + p.exposure, 0) / n,
+    maxExposure: Math.max(0, ...series.map((p) => p.exposure)),
+    maxConcurrent: Math.max(0, ...series.map((p) => p.positions)),
+    timeInMarket: (inv.length / n) * 100,
+    avgConcurrentWhenInvested: inv.length ? inv.reduce((s, p) => s + p.positions, 0) / inv.length : 0,
+  };
+}
+
+// ---------- drawdown episodes ----------
+export interface DrawdownEpisode { peakDate: string; troughDate: string; recoveryDate: string | null; depth: number; daysToTrough: number; daysToRecover: number | null; length: number }
+
+/** Each fall from a peak until the peak is regained (or the run ends), deepest first. `depth` is a positive percent. */
+export function drawdownEpisodes(pts: Pt[], minDepth = 0.5, count = 5): DrawdownEpisode[] {
+  const out: DrawdownEpisode[] = [];
+  let peakIdx = 0, troughIdx = 0, inDd = false;
+  const close = (end: number, recovered: boolean) => {
+    const peak = pts[peakIdx].value, trough = pts[troughIdx].value;
+    const depth = (1 - trough / peak) * 100;
+    if (depth >= minDepth) out.push({ peakDate: pts[peakIdx].date, troughDate: pts[troughIdx].date, recoveryDate: recovered ? pts[end].date : null, depth, daysToTrough: troughIdx - peakIdx, daysToRecover: recovered ? end - troughIdx : null, length: end - peakIdx });
+  };
+  for (let i = 1; i < pts.length; i++) {
+    if (pts[i].value >= pts[peakIdx].value) { if (inDd) { close(i, true); inDd = false; } peakIdx = i; troughIdx = i; }
+    else { inDd = true; if (pts[i].value < pts[troughIdx].value) troughIdx = i; }
+  }
+  if (inDd) close(pts.length - 1, false);
+  return out.sort((a, b) => b.depth - a.depth).slice(0, count);
+}
+
+// ---------- rolling volatility ----------
+export function rollingVol(pts: Pt[], window: number): { date: string; strat: number; bench: number }[] {
+  if (pts.length <= window) return [];
+  const r = (k: "value" | "bench") => pts.slice(1).map((p, i) => pts[i][k] > 0 ? p[k] / pts[i][k] - 1 : 0);
+  const sr = r("value"), br = r("bench");
+  const sd = (a: number[]) => { const m = a.reduce((x, y) => x + y, 0) / a.length; return Math.sqrt(a.reduce((x, y) => x + (y - m) ** 2, 0) / (a.length - 1)); };
+  const out: { date: string; strat: number; bench: number }[] = [];
+  for (let i = window - 1; i < sr.length; i++) out.push({ date: pts[i + 1].date, strat: sd(sr.slice(i - window + 1, i + 1)) * Math.sqrt(252) * 100, bench: sd(br.slice(i - window + 1, i + 1)) * Math.sqrt(252) * 100 });
+  return out;
+}
+
+// ---------- trade attribution ----------
+export function tradeConcentration(trades: TradeRecord[]) {
+  if (trades.length < 3) return null;
+  const total = trades.reduce((s, t) => s + t.net_pnl, 0);
+  const sorted = [...trades].sort((a, b) => b.net_pnl - a.net_pnl);
+  const topN = Math.max(1, Math.round(trades.length * 0.1));
+  const top = sorted.slice(0, topN).reduce((s, t) => s + t.net_pnl, 0);
+  return { total, topN, topShare: total !== 0 ? (top / total) * 100 : null, withoutBest: total - sorted[0].net_pnl, best: sorted[0].net_pnl, worst: sorted[sorted.length - 1].net_pnl };
+}
+
+export interface Bucket { label: string; n: number; winRate: number; avgReturn: number; pnl: number }
+const bucketOf = (label: string, ts: TradeRecord[]): Bucket => ({ label, n: ts.length, winRate: ts.length ? (ts.filter((t) => t.net_pnl > 0).length / ts.length) * 100 : 0, avgReturn: ts.length ? ts.reduce((s, t) => s + t.return_pct, 0) / ts.length : 0, pnl: ts.reduce((s, t) => s + t.net_pnl, 0) });
+
+export function bySide(trades: TradeRecord[]): Bucket[] {
+  return [["Long", (t: TradeRecord) => t.direction.includes("LONG")], ["Short", (t: TradeRecord) => t.direction.includes("SHORT")]]
+    .map(([l, f]) => bucketOf(l as string, trades.filter(f as (t: TradeRecord) => boolean))).filter((b) => b.n > 0);
+}
+
+export function byHolding(trades: TradeRecord[]): Bucket[] {
+  const edges: [string, number, number][] = [["1 bar", 1, 1], ["2–5 bars", 2, 5], ["6–10 bars", 6, 10], ["11–20 bars", 11, 20], ["21+ bars", 21, Infinity]];
+  return edges.map(([l, lo, hi]) => bucketOf(l, trades.filter((t) => t.holding_period_bars >= lo && t.holding_period_bars <= hi))).filter((b) => b.n > 0);
+}
+
+// ---------- regimes: strategy vs benchmark, and the trades entered in each ----------
+export const REGIMES = ["Bull (benchmark > 50d avg)", "Bear (benchmark < 50d avg)", "Low volatility", "High volatility"] as const;
+
+/**
+ * Same buckets as `regimeStats`. A day's regime uses only information up to the previous close
+ * (benchmark vs its 50-day average, and its trailing 20-day volatility vs the run median), so a trade is
+ * labelled with the regime that was visible when it was entered.
+ */
+export function regimeBreakdown(pts: Pt[], trades: TradeRecord[]) {
+  if (pts.length < 80) return null;
+  const b = pts.map((p) => p.bench), v = pts.map((p) => p.value);
+  const rt = (a: number[]) => a.slice(1).map((x, i) => (a[i] > 0 ? x / a[i] - 1 : 0));
+  const br = rt(b), sr = rt(v);
+  const avg = (a: number[]) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0);
+  const sd = (a: number[]) => { if (a.length < 2) return 0; const m = avg(a); return Math.sqrt(a.reduce((x, y) => x + (y - m) ** 2, 0) / (a.length - 1)); };
+  const ma = (i: number) => avg(b.slice(Math.max(0, i - 49), i + 1));
+  const vol = br.map((_, i) => (i < 20 ? NaN : sd(br.slice(i - 20, i))));
+  const sorted = vol.filter(Number.isFinite).sort((x, y) => x - y), med = sorted[Math.floor(sorted.length / 2)];
+  const labels = new Map<string, { trend: number; vol: number }>(); // date -> bucket index (0/1 trend, 2/3 vol or -1)
+  const days: Record<string, { s: number[]; b: number[] }> = Object.fromEntries(REGIMES.map((r) => [r, { s: [], b: [] }]));
+  sr.forEach((x, i) => {
+    if (i < 50) return;
+    const trend: 0 | 1 = b[i] >= ma(i) ? 0 : 1;
+    const volb: 2 | 3 | -1 = Number.isFinite(vol[i]) ? (vol[i] <= med ? 2 : 3) : -1;
+    days[REGIMES[trend]].s.push(x); days[REGIMES[trend]].b.push(br[i]);
+    if (volb !== -1) { days[REGIMES[volb]].s.push(x); days[REGIMES[volb]].b.push(br[i]); }
+    labels.set(pts[i + 1].date, { trend, vol: volb });
+  });
+  return REGIMES.map((name, k) => {
+    const entered = trades.filter((t) => { const l = labels.get(t.entry_date); return !!l && (k < 2 ? l.trend === k : l.vol === k); });
+    const d = days[name];
+    return {
+      regime: name, days: d.s.length, strat: avg(d.s) * 252 * 100, bench: avg(d.b) * 252 * 100,
+      trades: entered.length, winRate: entered.length ? (entered.filter((t) => t.net_pnl > 0).length / entered.length) * 100 : null, pnl: entered.reduce((s, t) => s + t.net_pnl, 0),
+    };
+  });
+}

@@ -31,11 +31,20 @@ export function sweepCandidates(s: StrategyConfig): Candidate[] {
   return out;
 }
 
-const defaultRange = (c: Candidate): Range => {
+export const defaultSweepRange = (c: Candidate): Range => {
   if (c.integer) { const min = Math.max(2, Math.round(c.value * 0.6)); const max = Math.round(c.value * 1.4); return { min, max: Math.max(max, min + 2), step: Math.max(1, Math.round((max - min) / 4)) }; }
   const r = (x: number) => Math.round(x * 100) / 100;
   return { min: r(c.value * 0.5), max: r(c.value * 1.5), step: r(Math.max(0.05, c.value * 0.25)) };
 };
+/** Writes swept values (keyed "<indicator id>.<param>" or "risk.<field>") back into a copy of the strategy. */
+export function applySweepValues(s: StrategyConfig, vals: Record<string, number>): StrategyConfig {
+  const next: StrategyConfig = { ...s, indicators: s.indicators.map((i) => ({ ...i, params: { ...i.params } })), risk: { ...s.risk } };
+  Object.entries(vals).forEach(([key, v]) => {
+    if (key.startsWith("risk.")) (next.risk as any)[key.slice(5)] = v;
+    else { const dot = key.indexOf("."); const ind = next.indicators.find((i) => i.id === key.slice(0, dot)); if (ind) ind.params[key.slice(dot + 1)] = v; }
+  });
+  return next;
+}
 const countOf = (r: Range) => (r.step > 0 && r.max >= r.min ? Math.floor((r.max - r.min) / r.step + 1e-9) + 1 : 0);
 
 const METRICS = [{ value: "sharpe_ratio", label: "Sharpe ratio" }, { value: "total_return", label: "Total return" }, { value: "calmar_ratio", label: "Calmar ratio" }, { value: "win_rate", label: "Win rate" }];
@@ -50,13 +59,14 @@ export default function ParamSweep({ strategy, start, end, benchmark, valid, onR
   const active = cands.filter((c) => ranges[c.key]);
   const combos = active.reduce((n, c) => n * Math.max(0, countOf(ranges[c.key])), 1);
   const [metric, setMetric] = useState("sharpe_ratio");
+  const [heatMetric, setHeatMetric] = useState<"sharpe_ratio" | "total_return" | "max_drawdown">("sharpe_ratio");
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<OptimizationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const toggle = (c: Candidate) => {
     const next = { ...ranges };
-    if (next[c.key]) delete next[c.key]; else next[c.key] = defaultRange(c);
+    if (next[c.key]) delete next[c.key]; else next[c.key] = defaultSweepRange(c);
     onRanges(next);
   };
   const setField = (c: Candidate, f: keyof Range, v: string) => onRanges({ ...ranges, [c.key]: { ...ranges[c.key], [f]: Number(v) } });
@@ -82,9 +92,16 @@ export default function ParamSweep({ strategy, start, end, benchmark, valid, onR
   const labelForParam = (k: string) => (active.find((c) => keyOf(c) === k) ?? cands.find((c) => keyOf(c) === k))?.label ?? k;
 
   const hm = result?.heatmap_data;
-  const flat = hm ? hm.z_values.flat().filter((v): v is number => v !== null) : [];
+  const zAt = (xi: number, yi: number): number | null => {
+    if (!hm || !result) return null;
+    const it = result.iterations.find((i) => i.params[hm.x_param] === hm.x_values[xi] && i.params[hm.y_param] === hm.y_values[yi]);
+    return it ? (it as any)[heatMetric] : null;
+  };
+  const flat = hm ? hm.y_values.flatMap((_, yi) => hm.x_values.map((__, xi) => zAt(xi, yi))).filter((v): v is number => v !== null) : [];
   const lo = Math.min(...flat), hi = Math.max(...flat);
-  const shade = (v: number | null) => (v === null || hi === lo ? "transparent" : `rgba(${v >= 0 ? "16,185,129" : "244,63,94"},${(0.12 + 0.55 * Math.abs((v - lo) / (hi - lo || 1))).toFixed(2)})`);
+  // max drawdown is reported as a negative number, so higher (closer to zero) is better for every metric
+  const shade = (v: number | null) => (v === null || hi === lo ? "transparent" : `rgba(${(heatMetric === "max_drawdown" ? v > -5 : v >= 0) ? "16,185,129" : "244,63,94"},${(0.12 + 0.55 * Math.abs((v - lo) / (hi - lo || 1))).toFixed(2)})`);
+  const cellText = (v: number | null) => (v === null ? "—" : heatMetric === "sharpe_ratio" ? v.toFixed(2) : `${v.toFixed(1)}%`);
   const top = result ? [...result.iterations].sort((a, b) => ((b as any)[metric] ?? b.sharpe_ratio) - ((a as any)[metric] ?? a.sharpe_ratio)).slice(0, 8) : [];
 
   const num = (v: number) => (Math.abs(v) >= 100 ? v.toFixed(0) : String(Math.round(v * 100) / 100));
@@ -139,12 +156,17 @@ export default function ParamSweep({ strategy, start, end, benchmark, valid, onR
 
           {hm && (
             <div className="overflow-x-auto">
-              <div className="mb-1 text-[10px] uppercase tracking-wider text-slate-400">Sharpe · {labelForParam(hm.x_param).split(" · ").pop()} (across) vs {labelForParam(hm.y_param).split(" · ").pop()} (down)</div>
-              <table className="border-collapse text-[11px]" aria-label="Sharpe heatmap">
+              <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+                <div className="text-[10px] uppercase tracking-wider text-slate-400">{labelForParam(hm.x_param).split(" · ").pop()} (across) vs {labelForParam(hm.y_param).split(" · ").pop()} (down)</div>
+                <div className="flex rounded-lg border border-slate-800 bg-[#0b1222] p-0.5 text-[11px]" role="group" aria-label="Heatmap metric">
+                  {([["sharpe_ratio", "Sharpe"], ["total_return", "Return"], ["max_drawdown", "Max DD"]] as const).map(([k, l]) => <button key={k} type="button" aria-pressed={heatMetric === k} onClick={() => setHeatMetric(k)} className={cn("rounded-md px-2 py-0.5 font-semibold", heatMetric === k ? "bg-blue-600 text-white" : "text-slate-400 hover:text-white")}>{l}</button>)}
+                </div>
+              </div>
+              <table className="border-collapse text-[11px]" aria-label="Sweep heatmap">
                 <thead><tr><th />{hm.x_values.map((x) => <th key={x} className="px-2 py-1 font-mono text-slate-400">{num(x)}</th>)}</tr></thead>
                 <tbody>{hm.y_values.map((y, yi) => (
                   <tr key={y}><th className="px-2 py-1 text-right font-mono text-slate-400">{num(y)}</th>
-                    {hm.x_values.map((x, xi) => { const v = hm.z_values[yi][xi]; return <td key={x} style={{ background: shade(v) }} className="border border-slate-800 px-2 py-1 text-center font-mono text-slate-100">{v === null ? "—" : v.toFixed(2)}</td>; })}
+                    {hm.x_values.map((x, xi) => { const v = zAt(xi, yi); return <td key={x} style={{ background: shade(v) }} className="border border-slate-800 px-2 py-1 text-center font-mono text-slate-100">{cellText(v)}</td>; })}
                   </tr>))}</tbody>
               </table>
             </div>

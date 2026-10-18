@@ -91,6 +91,7 @@ export const DEFAULT_STRATEGY: StrategyConfig = {
     trailing_stop_pct: null,
     position_size_pct: 15.0,
     max_positions: 5,
+    allow_stacking: false,
     allow_short: false,
     direction: "long",
     atr_period: 14,

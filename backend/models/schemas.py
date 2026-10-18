@@ -32,6 +32,9 @@ class RiskConfig(BaseModel):
     trailing_stop_pct: Optional[float] = None
     position_size_pct: float = 10.0 # % of equity per position
     max_positions: int = 5
+    # False (default): one position at a time. True: a new position may be added on every bar the entry rule
+    # holds, up to max_positions (the previous behaviour, which stacks overlapping trades).
+    allow_stacking: bool = False
     allow_short: bool = False
     # "long": entry rules open longs. "short": entry rules open shorts, exit rules cover them.
     # "both": entry rules go long, exit rules flip to short (each signal also closes the opposite side).
@@ -160,6 +163,11 @@ class BacktestStatus(str, Enum):
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
 
+class RunNote(BaseModel):
+    id: str
+    timestamp: str
+    content: str
+
 class BacktestResult(BaseModel):
     id: str
     strategy_id: str
@@ -179,6 +187,11 @@ class BacktestResult(BaseModel):
     created_at: Optional[str] = None
     # True when any input series was generated rather than fetched (dev/test only).
     is_synthetic: bool = False
+    # What produced these numbers, so the run can be reproduced and a re-run compared against it.
+    strategy_config: Optional[StrategyConfig] = None   # snapshot of the strategy as it was when the run was made
+    engine_version: Optional[str] = None               # bumped whenever simulation semantics change
+    data_fingerprint: Optional[str] = None             # hash of the price and benchmark series used
+    notes: List[RunNote] = Field(default_factory=list)
 
 class OptimizationParamRange(BaseModel):
     name: str # e.g. "fast_period" or "stop_loss_pct"

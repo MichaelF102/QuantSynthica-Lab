@@ -87,7 +87,7 @@ const ok = (c, name, extra = "") => { (c ? pass++ : fail++); console.log(`${c ? 
 
   // performance + templates tabs
   await click(`[...document.querySelectorAll('button.uppercase')].find(x=>x.innerText.trim().toUpperCase()==='PERFORMANCE').click()`);
-  ok(!(await b.ev(`document.body.innerText.includes('NOT RUN')`)), "Performance tab lists only backtested strategies");
+  ok(!(await b.ev(`[...document.querySelectorAll('tbody')].some(t=>t.innerText.includes('NOT RUN'))`)), "Performance tab lists only backtested strategies");
   await click(`[...document.querySelectorAll('button.uppercase')].find(x=>x.innerText.trim().toUpperCase()==='TEMPLATES').click()`);
   ok(!(await b.ev(`[...document.querySelectorAll('tbody td')].some(td=>td.innerText.trim()==='Mine')`)), "Templates tab hides my strategies");
 

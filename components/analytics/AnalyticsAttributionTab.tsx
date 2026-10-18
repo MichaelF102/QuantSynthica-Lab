@@ -87,13 +87,15 @@ export default function AnalyticsAttributionTab({ selectedBacktests, filters }: 
             <table className="w-full border-collapse text-left text-xs">
               <thead>
                 <tr className="border-b border-slate-800 text-[10px] uppercase tracking-wider text-slate-400">
-                  <th className="py-1.5">Exit</th><th className="py-1.5 text-right">Return</th><th className="py-1.5 text-right">Net P&amp;L</th>
+                  <th className="py-1.5">Entry → exit</th><th className="py-1.5">Side</th><th className="py-1.5">Reason</th><th className="py-1.5 text-right">Return</th><th className="py-1.5 text-right">Net P&amp;L</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/50">
                 {top.map((t) => (
                   <tr key={t.id} className="transition-colors hover:bg-slate-800/30">
-                    <td className="py-2 font-mono text-slate-300">{t.exit_date}</td>
+                    <td className="py-2 font-mono text-slate-300">{t.entry_date} → {t.exit_date}</td>
+                    <td className="py-2 font-mono text-[10px] text-slate-400">{t.direction}</td>
+                    <td className="py-2 font-mono text-[10px] text-slate-400">{t.exit_reason}</td>
                     <td className={cn("py-2 text-right font-mono", signTone(t.return_pct))}>{fmtPct(t.return_pct)}</td>
                     <td className={cn("py-2 text-right font-mono font-semibold", signTone(t.net_pnl))}>{fmtMoney(t.net_pnl, cur)}</td>
                   </tr>

@@ -12,6 +12,12 @@ from ..models.schemas import (
 from .signals import compute_indicators, generate_signals
 from .costs import TransactionCostModel
 
+# Bump whenever a change alters simulation results for the same inputs (fills, sizing, stops, costs, signals).
+#  1: original engine   2: direction, ATR stops, trailing-stop fix, vol targeting, fee on real quantity
+#  3: one position at a time by default (stacking is opt-in)
+ENGINE_VERSION = "3"
+
+
 class BacktestEngine:
     def __init__(self, strategy: StrategyConfig):
         self.strategy = strategy
@@ -226,7 +232,8 @@ class BacktestEngine:
             if open_side and needs_atr and sig_atr(i) is None:
                 open_side = None  # ATR stop requested but ATR is not defined yet: skip rather than trade unprotected
 
-            if open_side and len(open_positions) < risk.max_positions and i < n - 1:
+            slots = risk.max_positions if risk.allow_stacking else 1
+            if open_side and len(open_positions) < slots and i < n - 1:
                 is_long = open_side == "LONG"
                 equity_est = cash + sum(mark(p, bar_open) for p in open_positions)
                 alloc = min(size_fraction(i) * equity_est, cash * 0.98)  # leave 2% for costs; shorts need the same cash as collateral

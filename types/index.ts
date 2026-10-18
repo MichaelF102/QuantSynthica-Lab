@@ -31,6 +31,8 @@ export interface RiskConfig {
   trailing_stop_pct?: number | null;
   position_size_pct: number;
   max_positions: number;
+  /** false (default): one position at a time. true: add a position on every bar the entry rule holds, up to max_positions. */
+  allow_stacking?: boolean;
   allow_short: boolean;
   /** "long" | "short" | "both". Entry rules go long (or short in "short"); in "both" the exit rules flip to short. */
   direction?: "long" | "short" | "both";
@@ -161,6 +163,8 @@ export interface MonthlyReturnRecord {
   [month: string]: number;
 }
 
+export interface RunNote { id: string; timestamp: string; content: string }
+
 export interface BacktestResult {
   id: string;
   strategy_id: string;
@@ -177,7 +181,13 @@ export interface BacktestResult {
   equity_curve: EquityPoint[];
   trades: TradeRecord[];
   monthly_returns: MonthlyReturnRecord[];
+  /** The strategy exactly as it was when the run was made (backend runs from now on). */
   strategy_config?: StrategyConfig;
+  /** Simulation revision that produced these numbers. */
+  engine_version?: string | null;
+  /** Hash of the price and benchmark series used; changes if the provider revises history. */
+  data_fingerprint?: string | null;
+  notes?: RunNote[];
   logs: string[];
   created_at?: string;
   /** Price inputs were generated, not fetched (offline simulation or sample run). */

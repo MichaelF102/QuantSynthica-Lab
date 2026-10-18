@@ -1,3 +1,4 @@
+import hashlib
 import io
 import logging
 import csv
@@ -8,10 +9,11 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks, Response
 from ..models.schemas import (
     BacktestRequest,
     BacktestResult,
-    BacktestStatus
+    BacktestStatus,
+    RunNote,
 )
 from ..engine.data import MarketDataEngine, MarketDataUnavailable
-from ..engine.backtester import BacktestEngine
+from ..engine.backtester import BacktestEngine, ENGINE_VERSION
 from ..engine.stocks_universe import universe_manager
 from ..engine.indices_universe import indices_universe
 from ..analytics.performance import calculate_performance_metrics
@@ -27,6 +29,16 @@ data_engine = MarketDataEngine()
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _fingerprint(df, bench_ret) -> str:
+    """Short hash of the exact prices and benchmark returns a run used; it changes when the provider revises history."""
+    h = hashlib.sha1()
+    h.update(",".join(df.index.strftime("%Y-%m-%d")).encode())
+    h.update(df["close"].round(4).to_numpy().tobytes())
+    if bench_ret is not None and len(bench_ret):
+        h.update(bench_ret.round(8).to_numpy().tobytes())
+    return h.hexdigest()[:12]
 
 
 def execute_backtest_task(bt_id: str, request: BacktestRequest):
@@ -73,6 +85,9 @@ def execute_backtest_task(bt_id: str, request: BacktestRequest):
             logs=sim_out["logs"],
             created_at=_now(),
             is_synthetic=is_synthetic,
+            strategy_config=request.strategy,
+            engine_version=ENGINE_VERSION,
+            data_fingerprint=_fingerprint(df, bench_ret),
         )
         storage.save_backtest(res)
     except Exception as ex:
@@ -92,7 +107,7 @@ def execute_backtest_task(bt_id: str, request: BacktestRequest):
         storage.save_backtest(failed_res)
 
 @router.post("", response_model=BacktestResult)
-def run_backtest(request: BacktestRequest, background_tasks: BackgroundTasks, async_mode: bool = False):
+def run_backtest(request: BacktestRequest, background_tasks: BackgroundTasks, async_mode: bool = False, persist: bool = True):
     bt_id = f"bt_{uuid.uuid4().hex[:8]}"
 
     if indices_universe.available(request.benchmark) is False:
@@ -130,6 +145,9 @@ def run_backtest(request: BacktestRequest, background_tasks: BackgroundTasks, as
             if err_msg.startswith(UNAVAILABLE_PREFIX):
                 raise HTTPException(status_code=503, detail=err_msg)
             raise HTTPException(status_code=400, detail=f"Backtest failed: {err_msg}")
+        if not persist:
+            # Used to check a run can be reproduced without adding another run to the registry.
+            storage.delete_backtest(bt_id)
         return result
 
 @router.get("", response_model=List[BacktestResult])
@@ -149,6 +167,22 @@ def delete_backtest(backtest_id: str):
     if not deleted:
         raise HTTPException(status_code=404, detail="Backtest not found")
     return {"status": "success", "id": backtest_id}
+
+@router.get("/{backtest_id}/notes", response_model=List[RunNote])
+def get_notes(backtest_id: str):
+    res = storage.get_backtest(backtest_id)
+    if not res:
+        raise HTTPException(status_code=404, detail="Backtest not found")
+    return res.notes
+
+@router.put("/{backtest_id}/notes", response_model=List[RunNote])
+def put_notes(backtest_id: str, notes: List[RunNote]):
+    res = storage.get_backtest(backtest_id)
+    if not res:
+        raise HTTPException(status_code=404, detail="Backtest not found")
+    res.notes = notes[:500]
+    storage.save_backtest(res)
+    return res.notes
 
 @router.get("/{backtest_id}/status")
 def get_backtest_status(backtest_id: str):

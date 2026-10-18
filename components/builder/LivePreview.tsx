@@ -92,9 +92,13 @@ export default function LivePreview({ strategy, start, end, benchmark, valid, is
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [strategyKey, asset, bench, valid, start, end, benchmark]);
 
-  const priceData = useMemo(() => (asset ? asset.bars.map((b) => ({ date: b.date, close: b.close })) : []), [asset]);
-  const entries = useMemo(() => (result?.trades ?? []).map((t) => ({ date: t.entry_date, price: t.entry_price })), [result]);
-  const exits = useMemo(() => (result?.trades ?? []).map((t) => ({ date: t.exit_date, price: t.exit_price })), [result]);
+  // numeric index axis so the markers never add extra slots to the date axis
+  const bars = useMemo(() => (asset ? (strategy.timeframe === "1W" ? weekly(asset.bars) : asset.bars) : []), [asset, strategy.timeframe]);
+  const priceData = useMemo(() => bars.map((b, i) => ({ i, date: b.date, close: b.close })), [bars]);
+  const at = useMemo(() => new Map(bars.map((b, i) => [b.date, i])), [bars]);
+  const entries = useMemo(() => (result?.trades ?? []).flatMap((t) => (at.has(t.entry_date) ? [{ i: at.get(t.entry_date)!, price: t.entry_price }] : [])), [result, at]);
+  const exits = useMemo(() => (result?.trades ?? []).flatMap((t) => (at.has(t.exit_date) ? [{ i: at.get(t.exit_date)!, price: t.exit_price }] : [])), [result, at]);
+  const priceTicks = useMemo(() => { const n = bars.length; if (n < 2) return [0]; const c = Math.min(5, n); return Array.from({ length: c }, (_, k) => Math.round((k * (n - 1)) / (c - 1))); }, [bars]);
   const showBench = !!bench && !bench.synthetic;
   const m = result?.metrics;
 
@@ -138,9 +142,9 @@ export default function LivePreview({ strategy, start, end, benchmark, valid, is
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={priceData} margin={{ top: 6, right: 6, bottom: 0, left: 0 }}>
                 <CartesianGrid {...GRID_PROPS} />
-                <XAxis dataKey="date" {...AXIS_PROPS} interval="preserveStartEnd" minTickGap={40} tickFormatter={(d) => String(d).slice(0, 7)} />
+                <XAxis type="number" dataKey="i" domain={[0, Math.max(1, bars.length - 1)]} ticks={priceTicks} tickFormatter={(v) => String(bars[Math.round(v)]?.date ?? "").slice(0, 7)} {...AXIS_PROPS} />
                 <YAxis {...AXIS_PROPS} domain={["auto", "auto"]} width={42} />
-                <Tooltip contentStyle={TOOLTIP_STYLE} />
+                <Tooltip contentStyle={TOOLTIP_STYLE} labelFormatter={(v: any) => String(bars[Math.round(Number(v))]?.date ?? "")} />
                 <Line type="monotone" dataKey="close" stroke="#64748b" strokeWidth={1.2} dot={false} isAnimationActive={false} name="Close" />
                 <Scatter data={entries} dataKey="price" name="Entry" shape={<EntryMarker />} isAnimationActive={false} />
                 <Scatter data={exits} dataKey="price" name="Exit" shape={<ExitMarker />} isAnimationActive={false} />

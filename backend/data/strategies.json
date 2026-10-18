@@ -59,6 +59,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -176,6 +177,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 15.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -269,6 +271,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 4,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -350,6 +353,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -442,6 +446,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -520,6 +525,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 4,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -605,6 +611,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 25.0,
       "max_positions": 4,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -676,6 +683,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 25.0,
       "max_positions": 4,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -747,6 +755,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -826,6 +835,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -897,6 +907,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -991,6 +1002,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -1076,6 +1088,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 4,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -1147,6 +1160,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -1218,6 +1232,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 4,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -1290,6 +1305,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -1376,6 +1392,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -1477,6 +1494,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -1555,6 +1573,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 25.0,
       "max_positions": 4,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -1634,6 +1653,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 4,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -1713,6 +1733,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 15.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -1797,6 +1818,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -1883,6 +1905,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -1975,6 +1998,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 15.0,
       "max_positions": 4,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -2069,6 +2093,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -2173,6 +2198,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -2266,6 +2292,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 25.0,
       "max_positions": 4,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -2368,6 +2395,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -2443,6 +2471,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -2535,6 +2564,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 15.0,
       "max_positions": 4,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -2610,6 +2640,7 @@
       "trailing_stop_pct": null,
       "position_size_pct": 20.0,
       "max_positions": 5,
+      "allow_stacking": false,
       "allow_short": false,
       "direction": "long",
       "stop_atr_mult": null,
@@ -2628,929 +2659,5 @@
     "param_ranges": {},
     "created_at": "2026-09-17T07:57:49.215055",
     "updated_at": "2026-09-17T07:57:49.215055"
-  },
-  {
-    "id": "strat_1792339450263",
-    "name": "ZZ Lab Test mve0mj1z",
-    "description": "Classic trend-following strategy that goes long when the fast 20 SMA crosses above the slow 50 SMA and exits on a bearish crossover.",
-    "asset": "AAPL",
-    "universe": [
-      "AAPL"
-    ],
-    "timeframe": "1D",
-    "strategy_type": "trend",
-    "tags": [
-      "TREND",
-      "SMA",
-      "CROSSOVER"
-    ],
-    "indicators": [
-      {
-        "id": "sma_fast",
-        "name": "SMA",
-        "params": {
-          "period": 20
-        }
-      },
-      {
-        "id": "sma_slow",
-        "name": "SMA",
-        "params": {
-          "period": 50
-        }
-      }
-    ],
-    "entry_rules": [
-      {
-        "id": "r_mve0msxx",
-        "indicator_a": "close",
-        "operator": ">",
-        "indicator_b": "sma_fast",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "exit_rules": [
-      {
-        "id": "r2",
-        "indicator_a": "sma_fast",
-        "operator": "CROSS_BELOW",
-        "indicator_b": "sma_slow",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "risk": {
-      "stop_loss_pct": 2.0,
-      "take_profit_pct": 8.0,
-      "trailing_stop_pct": null,
-      "position_size_pct": 20.0,
-      "max_positions": 5,
-      "allow_short": false,
-      "direction": "long",
-      "stop_atr_mult": null,
-      "take_profit_atr_mult": null,
-      "atr_period": 14,
-      "target_volatility": null
-    },
-    "execution": {
-      "commission_pct": 0.05,
-      "slippage_pct": 0.05,
-      "spread_pct": 0.02,
-      "allow_fractional": true,
-      "initial_capital": 100000.0
-    },
-    "archived": false,
-    "param_ranges": {},
-    "created_at": "2026-10-18T16:04:13.140694+00:00",
-    "updated_at": "2026-10-18T16:04:15.682043+00:00"
-  },
-  {
-    "id": "strat_1792339769012",
-    "name": "ZZ Lab Test mve0td0q",
-    "description": "Classic trend-following strategy that goes long when the fast 20 SMA crosses above the slow 50 SMA and exits on a bearish crossover.",
-    "asset": "AAPL",
-    "universe": [
-      "AAPL"
-    ],
-    "timeframe": "1D",
-    "strategy_type": "trend",
-    "tags": [
-      "TREND",
-      "SMA",
-      "CROSSOVER"
-    ],
-    "indicators": [
-      {
-        "id": "sma_fast",
-        "name": "SMA",
-        "params": {
-          "period": 20
-        }
-      },
-      {
-        "id": "sma_slow",
-        "name": "SMA",
-        "params": {
-          "period": 50
-        }
-      }
-    ],
-    "entry_rules": [
-      {
-        "id": "r_mve0tmwg",
-        "indicator_a": "close",
-        "operator": ">",
-        "indicator_b": "sma_fast",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "exit_rules": [
-      {
-        "id": "r2",
-        "indicator_a": "sma_fast",
-        "operator": "CROSS_BELOW",
-        "indicator_b": "sma_slow",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "risk": {
-      "stop_loss_pct": 2.0,
-      "take_profit_pct": 8.0,
-      "trailing_stop_pct": null,
-      "position_size_pct": 20.0,
-      "max_positions": 5,
-      "allow_short": false,
-      "direction": "long",
-      "stop_atr_mult": null,
-      "take_profit_atr_mult": null,
-      "atr_period": 14,
-      "target_volatility": null
-    },
-    "execution": {
-      "commission_pct": 0.05,
-      "slippage_pct": 0.05,
-      "spread_pct": 0.02,
-      "allow_fractional": true,
-      "initial_capital": 100000.0
-    },
-    "archived": false,
-    "param_ranges": {},
-    "created_at": "2026-10-18T16:09:31.903162+00:00",
-    "updated_at": "2026-10-18T16:09:31.903162+00:00"
-  },
-  {
-    "id": "strat_1792339881856",
-    "name": "ZZ Lab Test mve0vs35",
-    "description": "Classic trend-following strategy that goes long when the fast 20 SMA crosses above the slow 50 SMA and exits on a bearish crossover.",
-    "asset": "AAPL",
-    "universe": [
-      "AAPL"
-    ],
-    "timeframe": "1D",
-    "strategy_type": "trend",
-    "tags": [
-      "TREND",
-      "SMA",
-      "CROSSOVER"
-    ],
-    "indicators": [
-      {
-        "id": "sma_fast",
-        "name": "SMA",
-        "params": {
-          "period": 20
-        }
-      },
-      {
-        "id": "sma_slow",
-        "name": "SMA",
-        "params": {
-          "period": 50
-        }
-      }
-    ],
-    "entry_rules": [
-      {
-        "id": "r_mve0w1yx",
-        "indicator_a": "close",
-        "operator": ">",
-        "indicator_b": "sma_fast",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "exit_rules": [
-      {
-        "id": "r2",
-        "indicator_a": "sma_fast",
-        "operator": "CROSS_BELOW",
-        "indicator_b": "sma_slow",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "risk": {
-      "stop_loss_pct": 2.0,
-      "take_profit_pct": 8.0,
-      "trailing_stop_pct": null,
-      "position_size_pct": 20.0,
-      "max_positions": 5,
-      "allow_short": false,
-      "direction": "long",
-      "stop_atr_mult": null,
-      "take_profit_atr_mult": null,
-      "atr_period": 14,
-      "target_volatility": null
-    },
-    "execution": {
-      "commission_pct": 0.05,
-      "slippage_pct": 0.05,
-      "spread_pct": 0.02,
-      "allow_fractional": true,
-      "initial_capital": 100000.0
-    },
-    "archived": false,
-    "param_ranges": {},
-    "created_at": "2026-10-18T16:11:24.745768+00:00",
-    "updated_at": "2026-10-18T16:11:24.745768+00:00"
-  },
-  {
-    "id": "strat_1792340081983",
-    "name": "ZZ Lab Test mve102i5",
-    "description": "Classic trend-following strategy that goes long when the fast 20 SMA crosses above the slow 50 SMA and exits on a bearish crossover.",
-    "asset": "AAPL",
-    "universe": [
-      "AAPL"
-    ],
-    "timeframe": "1D",
-    "strategy_type": "trend",
-    "tags": [
-      "TREND",
-      "SMA",
-      "CROSSOVER"
-    ],
-    "indicators": [
-      {
-        "id": "sma_fast",
-        "name": "SMA",
-        "params": {
-          "period": 20
-        }
-      },
-      {
-        "id": "sma_slow",
-        "name": "SMA",
-        "params": {
-          "period": 50
-        }
-      }
-    ],
-    "entry_rules": [
-      {
-        "id": "r_mve10cdf",
-        "indicator_a": "close",
-        "operator": ">",
-        "indicator_b": "sma_fast",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "exit_rules": [
-      {
-        "id": "r2",
-        "indicator_a": "sma_fast",
-        "operator": "CROSS_BELOW",
-        "indicator_b": "sma_slow",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "risk": {
-      "stop_loss_pct": 2.0,
-      "take_profit_pct": 8.0,
-      "trailing_stop_pct": null,
-      "position_size_pct": 20.0,
-      "max_positions": 5,
-      "allow_short": false,
-      "direction": "long",
-      "stop_atr_mult": null,
-      "take_profit_atr_mult": null,
-      "atr_period": 14,
-      "target_volatility": null
-    },
-    "execution": {
-      "commission_pct": 0.05,
-      "slippage_pct": 0.05,
-      "spread_pct": 0.02,
-      "allow_fractional": true,
-      "initial_capital": 100000.0
-    },
-    "archived": false,
-    "param_ranges": {},
-    "created_at": "2026-10-18T16:14:44.853776+00:00",
-    "updated_at": "2026-10-18T16:14:44.853776+00:00"
-  },
-  {
-    "id": "strat_1792340286400",
-    "name": "ZZ Lab Test mve14g4e",
-    "description": "Classic trend-following strategy that goes long when the fast 20 SMA crosses above the slow 50 SMA and exits on a bearish crossover.",
-    "asset": "AAPL",
-    "universe": [
-      "AAPL"
-    ],
-    "timeframe": "1D",
-    "strategy_type": "trend",
-    "tags": [
-      "TREND",
-      "SMA",
-      "CROSSOVER"
-    ],
-    "indicators": [
-      {
-        "id": "sma_fast",
-        "name": "SMA",
-        "params": {
-          "period": 20
-        }
-      },
-      {
-        "id": "sma_slow",
-        "name": "SMA",
-        "params": {
-          "period": 50
-        }
-      }
-    ],
-    "entry_rules": [
-      {
-        "id": "r_mve14q53",
-        "indicator_a": "close",
-        "operator": ">",
-        "indicator_b": "sma_fast",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "exit_rules": [
-      {
-        "id": "r2",
-        "indicator_a": "sma_fast",
-        "operator": "CROSS_BELOW",
-        "indicator_b": "sma_slow",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "risk": {
-      "stop_loss_pct": 2.0,
-      "take_profit_pct": 8.0,
-      "trailing_stop_pct": null,
-      "position_size_pct": 20.0,
-      "max_positions": 5,
-      "allow_short": false,
-      "direction": "long",
-      "stop_atr_mult": null,
-      "take_profit_atr_mult": null,
-      "atr_period": 14,
-      "target_volatility": null
-    },
-    "execution": {
-      "commission_pct": 0.05,
-      "slippage_pct": 0.05,
-      "spread_pct": 0.02,
-      "allow_fractional": true,
-      "initial_capital": 100000.0
-    },
-    "archived": false,
-    "param_ranges": {},
-    "created_at": "2026-10-18T16:18:09.322011+00:00",
-    "updated_at": "2026-10-18T16:18:11.859492+00:00"
-  },
-  {
-    "id": "strat_1792340320077",
-    "name": "ZZ Lab Test mve15648",
-    "description": "Classic trend-following strategy that goes long when the fast 20 SMA crosses above the slow 50 SMA and exits on a bearish crossover.",
-    "asset": "AAPL",
-    "universe": [
-      "AAPL"
-    ],
-    "timeframe": "1D",
-    "strategy_type": "trend",
-    "tags": [
-      "TREND",
-      "SMA",
-      "CROSSOVER"
-    ],
-    "indicators": [
-      {
-        "id": "sma_fast",
-        "name": "SMA",
-        "params": {
-          "period": 20
-        }
-      },
-      {
-        "id": "sma_slow",
-        "name": "SMA",
-        "params": {
-          "period": 50
-        }
-      }
-    ],
-    "entry_rules": [
-      {
-        "id": "r_mve15g4q",
-        "indicator_a": "close",
-        "operator": ">",
-        "indicator_b": "sma_fast",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "exit_rules": [
-      {
-        "id": "r2",
-        "indicator_a": "sma_fast",
-        "operator": "CROSS_BELOW",
-        "indicator_b": "sma_slow",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "risk": {
-      "stop_loss_pct": 2.0,
-      "take_profit_pct": 8.0,
-      "trailing_stop_pct": null,
-      "position_size_pct": 20.0,
-      "max_positions": 5,
-      "allow_short": false,
-      "direction": "long",
-      "stop_atr_mult": null,
-      "take_profit_atr_mult": null,
-      "atr_period": 14,
-      "target_volatility": null
-    },
-    "execution": {
-      "commission_pct": 0.05,
-      "slippage_pct": 0.05,
-      "spread_pct": 0.02,
-      "allow_fractional": true,
-      "initial_capital": 100000.0
-    },
-    "archived": false,
-    "param_ranges": {},
-    "created_at": "2026-10-18T16:18:43.001567+00:00",
-    "updated_at": "2026-10-18T16:18:45.562086+00:00"
-  },
-  {
-    "id": "strat_1792340390969",
-    "name": "ZZ Lab Test mve16ou2",
-    "description": "Classic trend-following strategy that goes long when the fast 20 SMA crosses above the slow 50 SMA and exits on a bearish crossover.",
-    "asset": "AAPL",
-    "universe": [
-      "AAPL"
-    ],
-    "timeframe": "1D",
-    "strategy_type": "trend",
-    "tags": [
-      "TREND",
-      "SMA",
-      "CROSSOVER"
-    ],
-    "indicators": [
-      {
-        "id": "sma_fast",
-        "name": "SMA",
-        "params": {
-          "period": 20
-        }
-      },
-      {
-        "id": "sma_slow",
-        "name": "SMA",
-        "params": {
-          "period": 50
-        }
-      }
-    ],
-    "entry_rules": [
-      {
-        "id": "r_mve16yu5",
-        "indicator_a": "close",
-        "operator": ">",
-        "indicator_b": "sma_fast",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "exit_rules": [
-      {
-        "id": "r2",
-        "indicator_a": "sma_fast",
-        "operator": "CROSS_BELOW",
-        "indicator_b": "sma_slow",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "risk": {
-      "stop_loss_pct": 2.0,
-      "take_profit_pct": 8.0,
-      "trailing_stop_pct": null,
-      "position_size_pct": 20.0,
-      "max_positions": 5,
-      "allow_short": false,
-      "direction": "long",
-      "stop_atr_mult": null,
-      "take_profit_atr_mult": null,
-      "atr_period": 14,
-      "target_volatility": null
-    },
-    "execution": {
-      "commission_pct": 0.05,
-      "slippage_pct": 0.05,
-      "spread_pct": 0.02,
-      "allow_fractional": true,
-      "initial_capital": 100000.0
-    },
-    "archived": false,
-    "param_ranges": {},
-    "created_at": "2026-10-18T16:19:53.899480+00:00",
-    "updated_at": "2026-10-18T16:19:56.459499+00:00"
-  },
-  {
-    "id": "strat_1792340965281",
-    "name": "ZZ Lab Test mve1izyl",
-    "description": "Classic trend-following strategy that goes long when the fast 20 SMA crosses above the slow 50 SMA and exits on a bearish crossover.",
-    "asset": "AAPL",
-    "universe": [
-      "AAPL"
-    ],
-    "timeframe": "1D",
-    "strategy_type": "trend",
-    "tags": [
-      "TREND",
-      "SMA",
-      "CROSSOVER"
-    ],
-    "indicators": [
-      {
-        "id": "sma_fast",
-        "name": "SMA",
-        "params": {
-          "period": 20
-        }
-      },
-      {
-        "id": "sma_slow",
-        "name": "SMA",
-        "params": {
-          "period": 50
-        }
-      }
-    ],
-    "entry_rules": [
-      {
-        "id": "r_mve1j9yd",
-        "indicator_a": "close",
-        "operator": ">",
-        "indicator_b": "sma_fast",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "exit_rules": [
-      {
-        "id": "r2",
-        "indicator_a": "sma_fast",
-        "operator": "CROSS_BELOW",
-        "indicator_b": "sma_slow",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "risk": {
-      "stop_loss_pct": 2.0,
-      "take_profit_pct": 8.0,
-      "trailing_stop_pct": null,
-      "position_size_pct": 20.0,
-      "max_positions": 5,
-      "allow_short": false,
-      "direction": "long",
-      "stop_atr_mult": null,
-      "take_profit_atr_mult": null,
-      "atr_period": 14,
-      "target_volatility": null
-    },
-    "execution": {
-      "commission_pct": 0.05,
-      "slippage_pct": 0.05,
-      "spread_pct": 0.02,
-      "allow_fractional": true,
-      "initial_capital": 100000.0
-    },
-    "archived": false,
-    "param_ranges": {},
-    "created_at": "2026-10-18T16:29:28.188130+00:00",
-    "updated_at": "2026-10-18T16:29:30.729946+00:00"
-  },
-  {
-    "id": "strat_1792341483005",
-    "name": "ZZ Lab Test mve1u3ex",
-    "description": "Classic trend-following strategy that goes long when the fast 20 SMA crosses above the slow 50 SMA and exits on a bearish crossover.",
-    "asset": "AAPL",
-    "universe": [
-      "AAPL"
-    ],
-    "timeframe": "1D",
-    "strategy_type": "trend",
-    "tags": [
-      "TREND",
-      "SMA",
-      "CROSSOVER"
-    ],
-    "indicators": [
-      {
-        "id": "sma_fast",
-        "name": "SMA",
-        "params": {
-          "period": 20
-        }
-      },
-      {
-        "id": "sma_slow",
-        "name": "SMA",
-        "params": {
-          "period": 50
-        }
-      }
-    ],
-    "entry_rules": [
-      {
-        "id": "r_mve1udh2",
-        "indicator_a": "close",
-        "operator": ">",
-        "indicator_b": "sma_fast",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "exit_rules": [
-      {
-        "id": "r2",
-        "indicator_a": "sma_fast",
-        "operator": "CROSS_BELOW",
-        "indicator_b": "sma_slow",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "risk": {
-      "stop_loss_pct": 2.0,
-      "take_profit_pct": 8.0,
-      "trailing_stop_pct": null,
-      "position_size_pct": 20.0,
-      "max_positions": 5,
-      "allow_short": false,
-      "direction": "long",
-      "stop_atr_mult": null,
-      "take_profit_atr_mult": null,
-      "atr_period": 14,
-      "target_volatility": null
-    },
-    "execution": {
-      "commission_pct": 0.05,
-      "slippage_pct": 0.05,
-      "spread_pct": 0.02,
-      "allow_fractional": true,
-      "initial_capital": 100000.0
-    },
-    "archived": false,
-    "param_ranges": {},
-    "created_at": "2026-10-18T16:38:05.957499+00:00",
-    "updated_at": "2026-10-18T16:38:08.516616+00:00"
-  },
-  {
-    "id": "strat_1792341501786",
-    "name": "History Probe edited",
-    "description": "Classic trend-following strategy that goes long when the fast 20 SMA crosses above the slow 50 SMA and exits on a bearish crossover.",
-    "asset": "AAPL",
-    "universe": [
-      "AAPL"
-    ],
-    "timeframe": "1D",
-    "strategy_type": "trend",
-    "tags": [
-      "TREND",
-      "SMA",
-      "CROSSOVER"
-    ],
-    "indicators": [
-      {
-        "id": "sma_fast",
-        "name": "SMA",
-        "params": {
-          "period": 28
-        }
-      },
-      {
-        "id": "sma_slow",
-        "name": "SMA",
-        "params": {
-          "period": 50
-        }
-      }
-    ],
-    "entry_rules": [
-      {
-        "id": "r1",
-        "indicator_a": "sma_fast",
-        "operator": "CROSS_ABOVE",
-        "indicator_b": "sma_slow",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "exit_rules": [
-      {
-        "id": "r2",
-        "indicator_a": "sma_fast",
-        "operator": "CROSS_BELOW",
-        "indicator_b": "sma_slow",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "risk": {
-      "stop_loss_pct": 2.0,
-      "take_profit_pct": 6.0,
-      "trailing_stop_pct": null,
-      "position_size_pct": 20.0,
-      "max_positions": 5,
-      "allow_short": true,
-      "direction": "both",
-      "stop_atr_mult": null,
-      "take_profit_atr_mult": null,
-      "atr_period": 14,
-      "target_volatility": null
-    },
-    "execution": {
-      "commission_pct": 0.05,
-      "slippage_pct": 0.05,
-      "spread_pct": 0.02,
-      "allow_fractional": true,
-      "initial_capital": 100000.0
-    },
-    "archived": false,
-    "param_ranges": {
-      "sma_fast.period": {
-        "min": 12.0,
-        "max": 28.0,
-        "step": 4.0
-      }
-    },
-    "created_at": "2026-10-18T16:38:25.798283+00:00",
-    "updated_at": "2026-10-18T16:38:28.458220+00:00"
-  },
-  {
-    "id": "strat_1792341538955",
-    "name": "ZZ Lab Test mve1vala",
-    "description": "Classic trend-following strategy that goes long when the fast 20 SMA crosses above the slow 50 SMA and exits on a bearish crossover.",
-    "asset": "AAPL",
-    "universe": [
-      "AAPL"
-    ],
-    "timeframe": "1D",
-    "strategy_type": "trend",
-    "tags": [
-      "TREND",
-      "SMA",
-      "CROSSOVER"
-    ],
-    "indicators": [
-      {
-        "id": "sma_fast",
-        "name": "SMA",
-        "params": {
-          "period": 20
-        }
-      },
-      {
-        "id": "sma_slow",
-        "name": "SMA",
-        "params": {
-          "period": 50
-        }
-      }
-    ],
-    "entry_rules": [
-      {
-        "id": "r_mve1vkmq",
-        "indicator_a": "close",
-        "operator": ">",
-        "indicator_b": "sma_fast",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "exit_rules": [
-      {
-        "id": "r2",
-        "indicator_a": "sma_fast",
-        "operator": "CROSS_BELOW",
-        "indicator_b": "sma_slow",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "risk": {
-      "stop_loss_pct": 2.0,
-      "take_profit_pct": 8.0,
-      "trailing_stop_pct": null,
-      "position_size_pct": 20.0,
-      "max_positions": 5,
-      "allow_short": false,
-      "direction": "long",
-      "stop_atr_mult": null,
-      "take_profit_atr_mult": null,
-      "atr_period": 14,
-      "target_volatility": null
-    },
-    "execution": {
-      "commission_pct": 0.05,
-      "slippage_pct": 0.05,
-      "spread_pct": 0.02,
-      "allow_fractional": true,
-      "initial_capital": 100000.0
-    },
-    "archived": false,
-    "param_ranges": {},
-    "created_at": "2026-10-18T16:39:01.899538+00:00",
-    "updated_at": "2026-10-18T16:39:04.440471+00:00"
-  },
-  {
-    "id": "strat_1792341557501",
-    "name": "History Probe edited",
-    "description": "Classic trend-following strategy that goes long when the fast 20 SMA crosses above the slow 50 SMA and exits on a bearish crossover.",
-    "asset": "AAPL",
-    "universe": [
-      "AAPL"
-    ],
-    "timeframe": "1D",
-    "strategy_type": "trend",
-    "tags": [
-      "TREND",
-      "SMA",
-      "CROSSOVER"
-    ],
-    "indicators": [
-      {
-        "id": "sma_fast",
-        "name": "SMA",
-        "params": {
-          "period": 28
-        }
-      },
-      {
-        "id": "sma_slow",
-        "name": "SMA",
-        "params": {
-          "period": 50
-        }
-      }
-    ],
-    "entry_rules": [
-      {
-        "id": "r1",
-        "indicator_a": "sma_fast",
-        "operator": "CROSS_ABOVE",
-        "indicator_b": "sma_slow",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "exit_rules": [
-      {
-        "id": "r2",
-        "indicator_a": "sma_fast",
-        "operator": "CROSS_BELOW",
-        "indicator_b": "sma_slow",
-        "threshold": null,
-        "logical_operator": "AND"
-      }
-    ],
-    "risk": {
-      "stop_loss_pct": 2.0,
-      "take_profit_pct": 6.0,
-      "trailing_stop_pct": null,
-      "position_size_pct": 20.0,
-      "max_positions": 5,
-      "allow_short": true,
-      "direction": "both",
-      "stop_atr_mult": null,
-      "take_profit_atr_mult": null,
-      "atr_period": 14,
-      "target_volatility": null
-    },
-    "execution": {
-      "commission_pct": 0.05,
-      "slippage_pct": 0.05,
-      "spread_pct": 0.02,
-      "allow_fractional": true,
-      "initial_capital": 100000.0
-    },
-    "archived": false,
-    "param_ranges": {
-      "sma_fast.period": {
-        "min": 12.0,
-        "max": 28.0,
-        "step": 4.0
-      }
-    },
-    "created_at": "2026-10-18T16:39:21.202589+00:00",
-    "updated_at": "2026-10-18T16:39:23.867696+00:00"
   }
 ]

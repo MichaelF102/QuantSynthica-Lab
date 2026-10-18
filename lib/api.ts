@@ -11,6 +11,7 @@ import {
   StockProfile,
   StockFundamentals,
   IndicesResponse,
+  RunNote,
 } from "@/types";
 import {
   SEED_STRATEGIES,
@@ -523,6 +524,24 @@ export const api = {
 
     throw new Error(`Backtest ${id} not found.`);
   },
+
+  /** Notes live with the run on the backend; falls back to this browser when it is unreachable. */
+  saveRunNotes: async (id: string, notes: RunNote[]): Promise<{ saved: "backend" | "browser" }> => {
+    try {
+      await request<RunNote[]>(`/backtests/${encodeURIComponent(id)}/notes`, { method: "PUT", body: JSON.stringify(notes) }, 4000);
+      return { saved: "backend" };
+    } catch {
+      try { localStorage.setItem(`algolab_notes_${id}`, JSON.stringify(notes)); } catch { /* storage unavailable */ }
+      return { saved: "browser" };
+    }
+  },
+
+  /** Run without adding it to the registry, to check that a saved run can be reproduced. */
+  runBacktestUnsaved: (strategy: StrategyConfig, startDate: string, endDate: string, benchmark: string) =>
+    request<BacktestResult>("/backtests?persist=false", {
+      method: "POST",
+      body: JSON.stringify({ strategy, start_date: startDate, end_date: endDate, benchmark }),
+    }, 60000),
 
   runOptimization: (req: OptimizationRequest) =>
     request<OptimizationResult>("/optimization", {

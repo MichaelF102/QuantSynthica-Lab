@@ -14,6 +14,7 @@ import { SEED_STRATEGIES } from "@/lib/seedData";
 import { loadSystemSettings } from "@/lib/settings";
 import { alignBenchmark, marketOfTicker } from "@/lib/market";
 import { formatRuleSet } from "@/lib/formatRule";
+import { describeChanges } from "@/lib/strategyDiff";
 import { useEscape } from "@/lib/useEscape";
 import { cn } from "@/lib/utils";
 import { Card, CardSkeleton } from "@/components/ui/Card";
@@ -41,19 +42,6 @@ type SectionId = (typeof SECTIONS)[number]["id"];
 
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 const yearsBack = (n: number) => { const d = new Date(); d.setFullYear(d.getFullYear() - n); return iso(d); };
-/** Short human list of what differs between two versions of a strategy. */
-function describeChanges(a: StrategyConfig, b: StrategyConfig): string[] {
-  const out: string[] = [];
-  const cmp = (label: string, x: unknown, y: unknown) => { if (JSON.stringify(x) !== JSON.stringify(y)) out.push(`${label}: ${x ?? "—"} → ${y ?? "—"}`); };
-  cmp("Name", a.name, b.name); cmp("Asset", a.asset, b.asset); cmp("Timeframe", a.timeframe, b.timeframe); cmp("Style", a.strategy_type, b.strategy_type);
-  const sig = (s: StrategyConfig) => s.indicators.map((i) => `${i.name}(${Object.values(i.params).join(",")})`).join(" ") || "none";
-  cmp("Indicators", sig(a), sig(b));
-  cmp("Entry rules", formatRuleSet(a.entry_rules, a.indicators) || "none", formatRuleSet(b.entry_rules, b.indicators) || "none");
-  cmp("Exit rules", formatRuleSet(a.exit_rules, a.indicators) || "none", formatRuleSet(b.exit_rules, b.indicators) || "none");
-  (Object.keys({ ...a.risk, ...b.risk }) as (keyof StrategyConfig["risk"])[]).forEach((k) => cmp(`Risk · ${String(k).replace(/_/g, " ")}`, a.risk[k], b.risk[k]));
-  (Object.keys({ ...a.execution, ...b.execution }) as (keyof StrategyConfig["execution"])[]).forEach((k) => cmp(`Execution · ${String(k).replace(/_/g, " ")}`, a.execution[k], b.execution[k]));
-  return out;
-}
 const PRICE_IDS = ["close", "open", "high", "low", "volume"];
 const num = (v: string) => (v === "" ? null : Number(v));
 const btn = "flex items-center gap-1.5 rounded-lg border border-slate-800 bg-[#0b1222] px-3 py-2 text-xs font-medium text-slate-300 transition-colors hover:border-slate-700 hover:text-white disabled:cursor-not-allowed disabled:opacity-50";
@@ -222,7 +210,7 @@ function BuilderContent() {
     if ((r.stop_atr_mult || r.take_profit_atr_mult) && !(Number.isInteger(r.atr_period ?? 14) && (r.atr_period ?? 14) >= 2)) err("risk", "ATR period must be a whole number of at least 2.");
     if (r.target_volatility != null && !(r.target_volatility > 0)) err("risk", "Volatility target must be above 0%, or left empty.");
     if (!(r.position_size_pct > 0 && r.position_size_pct <= 100)) err("risk", "Position size must be between 0% and 100%.");
-    if (!(r.max_positions >= 1) || !Number.isInteger(r.max_positions)) err("risk", "Max positions must be a whole number of at least 1.");
+    if (r.allow_stacking && (!(r.max_positions >= 1) || !Number.isInteger(r.max_positions))) err("risk", "Max positions must be a whole number of at least 1.");
     if (!(e.initial_capital > 0)) err("execution", "Initial capital must be above 0.");
     if (e.commission_pct < 0 || e.slippage_pct < 0 || e.spread_pct < 0) err("execution", "Commission, slippage and spread cannot be negative.");
     if (!start || !end) err("execution", "Choose a backtest start and end date.");
@@ -237,7 +225,7 @@ function BuilderContent() {
     if (!r.stop_atr_mult && !r.take_profit_atr_mult && r.take_profit_pct && r.stop_loss_pct && r.take_profit_pct <= r.stop_loss_pct) warn("risk", "Take profit is not larger than the stop loss (reward/risk below 1).");
     if (!strategy.indicators.length) warn("indicators", "No indicators: rules compare raw prices only.");
     if (!strategy.exit_rules.length) warn("exit", "No exit rules: trades close only on stop loss, take profit or the end of the window.");
-    if (r.position_size_pct * r.max_positions > 100) warn("risk", `Position size × max positions is ${r.position_size_pct * r.max_positions}% of capital, which may exceed 100%.`);
+    if (r.allow_stacking && r.position_size_pct * r.max_positions > 100) warn("risk", `Position size × max positions is ${r.position_size_pct * r.max_positions}% of capital, which may exceed 100%.`);
     if (start && end && start < end) {
       const days = (new Date(end).getTime() - new Date(start).getTime()) / 864e5;
       const barDays = strategy.timeframe === "1W" ? 7 : 1.45; // calendar days per bar (≈252 trading days a year)
@@ -602,9 +590,17 @@ function BuilderContent() {
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <Field label="Position size (% of capital)"><input type="number" step="1" min="1" max="100" value={strategy.risk.position_size_pct} onChange={(e) => patchRisk({ position_size_pct: Number(e.target.value) })} className={cn(INPUT, "font-mono")} /></Field>
-                <Field label="Max concurrent positions"><input type="number" step="1" min="1" value={strategy.risk.max_positions} onChange={(e) => patchRisk({ max_positions: Number(e.target.value) })} className={cn(INPUT, "font-mono")} /></Field>
+                <Field label="Positions">
+                  <Select label="Positions" value={strategy.risk.allow_stacking ? "stack" : "one"} onChange={(v) => patchRisk({ allow_stacking: v === "stack" })} options={[{ value: "one", label: "One at a time" }, { value: "stack", label: "Stack up to N" }]} />
+                </Field>
                 <Field label="Volatility target (% / yr)" hint="optional"><input type="number" step="1" min="0" value={strategy.risk.target_volatility ?? ""} onChange={(e) => patchRisk({ target_volatility: num(e.target.value) })} placeholder="Off" className={cn(INPUT, "font-mono")} /></Field>
               </div>
+              {strategy.risk.allow_stacking && (
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  <Field label="Max stacked positions"><input type="number" step="1" min="1" value={strategy.risk.max_positions} onChange={(e) => patchRisk({ max_positions: Number(e.target.value) })} className={cn(INPUT, "font-mono")} /></Field>
+                  <p className="text-[11px] leading-relaxed text-amber-300 sm:col-span-2 sm:pt-5">A new position is added on every bar the entry rule is true, so trades overlap and the trade count rises. Win rate and resampling results then describe correlated bets. The live preview always trades one at a time.</p>
+                </div>
+              )}
               {strategy.risk.target_volatility ? <p className="text-[10px] text-slate-500">Size is scaled down by target ÷ the stock&apos;s 20-day realised volatility, never above the position size. No trade is opened during the first 20 bars.</p> : null}
             </div>
           ))}
@@ -658,7 +654,7 @@ function BuilderContent() {
                   ["Take profit", strategy.risk.take_profit_atr_mult ? `${strategy.risk.take_profit_atr_mult} × ATR` : strategy.risk.take_profit_pct != null ? `+${strategy.risk.take_profit_pct}%` : "None", "text-emerald-400"],
                   ["Trailing stop", strategy.risk.trailing_stop_pct ? `${strategy.risk.trailing_stop_pct}%` : "None", "text-slate-200"],
                   ["Vol target", strategy.risk.target_volatility ? `${strategy.risk.target_volatility}% / yr` : "Off", "text-slate-200"],
-                  ["Position size", `${strategy.risk.position_size_pct}% × max ${strategy.risk.max_positions}`, "text-white"],
+                  ["Position size", strategy.risk.allow_stacking ? `${strategy.risk.position_size_pct}% × up to ${strategy.risk.max_positions} stacked` : `${strategy.risk.position_size_pct}% · one at a time`, "text-white"],
                   ["Capital", `${sym}${Number(strategy.execution.initial_capital).toLocaleString(market === "India" ? "en-IN" : "en-US")}`, "text-white"],
                   ["Costs", `${strategy.execution.commission_pct}% + ${strategy.execution.slippage_pct}% slip`, "text-slate-200"],
                   ["Window", `${start} → ${end}`, "text-slate-200"],

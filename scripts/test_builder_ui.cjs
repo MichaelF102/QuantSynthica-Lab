@@ -247,6 +247,19 @@ let closer = () => {};
   const hist = await $(`document.querySelector('[data-testid=history-list]').innerText`);
   ok(/Version 2/.test(hist) && /Restore/.test(hist), "a second save adds a version with a restore option", hist.slice(0, 200));
 
+  // ---- phase A (backtests): positions ----
+  ok(await $(`[...document.querySelectorAll('#section-risk [role=combobox]')].some(c=>/One at a time/.test(c.innerText))`), "Positions defaults to one at a time");
+  ok(!(await $(`/Max stacked positions/i.test(document.getElementById('section-risk').innerText)`)), "max positions is hidden while stacking is off");
+  await $(`document.querySelector('#section-risk [role=combobox][aria-label=Positions]').click()`); await b.sleep(200);
+  await $(`[...document.querySelectorAll('#section-risk [role=option]')].find(o=>/Stack up/.test(o.innerText)).dispatchEvent(new MouseEvent('mousedown',{bubbles:true}))`); await b.sleep(400);
+  ok(/Max stacked positions/i.test(await $(`document.getElementById('section-risk').innerText`)) && /overlap/i.test(await $(`document.getElementById('section-risk').innerText`)), "choosing Stack up to N reveals the cap and warns about overlap");
+
+  // leave no test data behind: remove the strategies and runs this session created
+  try {
+    const API = process.env.API || "http://localhost:8000";
+    for (const r of await fetch(API + "/backtests").then((x) => x.json())) if (r.strategy_name.startsWith("ZZ Lab Test")) await fetch(`${API}/backtests/${r.id}`, { method: "DELETE" });
+    for (const st of await fetch(API + "/strategies").then((x) => x.json())) if (st.id.startsWith("strat_") && /^(ZZ Lab Test|History Probe|Preview Probe|Undo Probe|Imported Probe)/.test(st.name)) await fetch(`${API}/strategies/${st.id}`, { method: "DELETE" });
+  } catch { /* backend not reachable: nothing to clean */ }
   console.log(`\n${pass} passed, ${fail} failed`);
   b.close(); process.exit(fail ? 1 : 0);
 })().catch((e) => { console.error(e); closer(); process.exit(2); });

@@ -9,14 +9,17 @@ import { ReturnHistogram } from "@/components/risk/ui/charts";
 import TradeTable from "@/components/tables/TradeTable";
 import { MonthlyMatrixCard } from "./MonthlyTab";
 import StrategyConfigCard from "./StrategyConfigCard";
+import ExposureCard from "./ExposureCard";
+import TradePriceChart from "./TradePriceChart";
+import RunDetailsCard from "./RunDetailsCard";
 import { benchmarkLabel, currencyOf, CURRENCY_SYMBOL, fmtMoney, monthlyMatrix, seriesStats, toPts } from "@/lib/analyticsCalc";
 import { AXIS_PROPS, GRID_PROPS, TOOLTIP_STYLE, UP_COLOR, DOWN_COLOR } from "@/lib/chartTheme";
 import { formatRatio } from "@/lib/formatters";
 import { fmtPct, fmtInt, cn } from "@/lib/utils";
 
-interface Props { bt: BacktestResult; strategy: StrategyConfig | null; selectedTradeId?: string | null; onSelectTrade: (t: TradeRecord) => void }
+interface Props { bt: BacktestResult; strategy: StrategyConfig | null; selectedTradeId?: string | null; onSelectTrade: (t: TradeRecord) => void; onViewOnChart?: (t: TradeRecord) => void }
 
-export default function OverviewTab({ bt, strategy, selectedTradeId, onSelectTrade }: Props) {
+export default function OverviewTab({ bt, strategy, selectedTradeId, onSelectTrade, onViewOnChart }: Props) {
   const m = bt.metrics!;
   const cur = currencyOf(bt);
   const pts = useMemo(() => toPts(bt.equity_curve), [bt]);
@@ -73,6 +76,10 @@ export default function OverviewTab({ bt, strategy, selectedTradeId, onSelectTra
         </div>
       </div>
 
+      <TradePriceChart bt={bt} selectedTrade={bt.trades.find((t) => t.id === selectedTradeId) ?? null} onSelectTrade={onSelectTrade} />
+
+      <ExposureCard bt={bt} />
+
       {matrix.length > 0 && <MonthlyMatrixCard matrix={matrix} />}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
@@ -103,7 +110,8 @@ export default function OverviewTab({ bt, strategy, selectedTradeId, onSelectTra
         </div>
       </div>
 
-      <TradeTable trades={bt.trades} backtestId={bt.id} currency={CURRENCY_SYMBOL[cur]} onSelectTrade={onSelectTrade} selectedTradeId={selectedTradeId} />
+      <TradeTable trades={bt.trades} backtestId={bt.id} currency={CURRENCY_SYMBOL[cur]} onSelectTrade={onSelectTrade} onViewOnChart={onViewOnChart} selectedTradeId={selectedTradeId} />
+      <RunDetailsCard bt={bt} strategy={strategy} />
       <StrategyConfigCard bt={bt} strategy={strategy} />
     </div>
   );
