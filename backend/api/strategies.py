@@ -23,7 +23,9 @@ def create_strategy(strategy: StrategyConfig):
     if not strategy.id:
         strategy.id = f"strat_{uuid.uuid4().hex[:8]}"
     now = datetime.now(timezone.utc).isoformat()
-    strategy.created_at = now
+    existing = storage.get_strategy(strategy.id)
+    # Saving an existing id (the builder's Edit flow) must not reset when it was created.
+    strategy.created_at = (existing.created_at if existing and existing.created_at else now)
     strategy.updated_at = now
     return storage.save_strategy(strategy)
 
@@ -39,6 +41,8 @@ def update_strategy(strategy_id: str, strategy: StrategyConfig):
 
 @router.delete("/{strategy_id}")
 def delete_strategy(strategy_id: str):
+    if strategy_id.startswith("tpl_"):
+        raise HTTPException(status_code=400, detail="Built-in templates cannot be deleted; archive or duplicate them instead")
     success = storage.delete_strategy(strategy_id)
     if not success:
         raise HTTPException(status_code=404, detail="Strategy not found")

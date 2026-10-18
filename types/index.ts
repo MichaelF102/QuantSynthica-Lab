@@ -56,6 +56,8 @@ export interface StrategyConfig {
   exit_rules: ConditionRule[];
   risk: RiskConfig;
   execution: ExecutionConfig;
+  tags?: string[];
+  archived?: boolean;
   created_at?: string;
   updated_at?: string;
 }

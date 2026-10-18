@@ -10,12 +10,12 @@ import {
   MoreVertical,
   LayoutGrid,
   List,
-  Users,
   Layers,
   Info,
   Target,
   Rocket,
   FlaskConical,
+  Archive,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { StrategyConfig, BacktestResult } from "@/types";
@@ -39,7 +39,8 @@ export default function StrategiesPage() {
   const [sortOrder, setSortOrder] = useState<string>("name_asc");
   const [activeTab, setActiveTab] = useState<"strategies" | "performance" | "templates" | "compare">("strategies");
   const [filtersOpen, setFiltersOpen] = useState(false); // phone-only: collapse the filter sidebar
-  const [selectedNav, setSelectedNav] = useState<string>("all"); // 'all' | 'templates' | 'my' | 'shared'
+  const [selectedNav, setSelectedNav] = useState<string>("all"); // 'all' | 'templates' | 'my' | 'archived'
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [selectedStrategyId, setSelectedStrategyId] = useState<string | null>(SEED_STRATEGIES[0]?.id || null);
   const [detailTab, setDetailTab] = useState<"overview" | "rules" | "performance" | "backtests">("overview");
   const [loading, setLoading] = useState(true);
@@ -113,6 +114,13 @@ export default function StrategiesPage() {
     loadStrategies();
   }, []);
 
+  useEffect(() => {
+    if (!menuOpenId) return;
+    const close = () => setMenuOpenId(null);
+    window.addEventListener("click", close);
+    return () => window.removeEventListener("click", close);
+  }, [menuOpenId]);
+
   // Strategy Categories & Dynamic Count
   const categoriesList = [
     { id: "ALL", label: "All Strategies", filter: "ALL" },
@@ -123,12 +131,21 @@ export default function StrategiesPage() {
     { id: "VOLATILITY", label: "Volatility", filter: "volatility" },
     { id: "SYSTEMATIC", label: "Systematic", filter: "systematic" },
     { id: "CUSTOM", label: "Custom", filter: "custom" },
+    { id: "OTHER", label: "Other", filter: "other" },
   ];
+
+  // A strategy belongs to exactly one category (its strategy_type); anything unlisted is "Other".
+  const KNOWN_TYPES = ["trend", "mean_reversion", "momentum", "breakout", "volatility", "systematic", "custom"];
+  const categoryOf = (s: StrategyConfig) => {
+    const t = (s.strategy_type || "trend").toLowerCase();
+    return KNOWN_TYPES.includes(t) ? t.toUpperCase() : "OTHER";
+  };
+  const isUserStrategy = (s: StrategyConfig) => !s.id.startsWith("tpl_");
 
   // Distinct Assets for Filter List
   const distinctAssets = useMemo(() => {
     const counts: Record<string, number> = {};
-    strategies.forEach((s) => {
+    strategies.filter((s) => !s.archived).forEach((s) => {
       counts[s.asset] = (counts[s.asset] || 0) + 1;
     });
     return Object.entries(counts)
@@ -141,34 +158,39 @@ export default function StrategiesPage() {
     return strategies.find((s) => s.id === selectedStrategyId) || strategies[0] || null;
   }, [strategies, selectedStrategyId]);
 
+  // Newest completed run per strategy (runs arrive oldest -> newest).
+  const runsByStrategy = useMemo(() => {
+    const m = new Map<string, BacktestResult>();
+    runs.forEach((r) => m.set(r.strategy_id, r));
+    return m;
+  }, [runs]);
+
   // Filtered Strategies
   const filteredStrategies = useMemo(() => {
     return strategies
       .filter((s) => {
         const sType = s.strategy_type || "trend";
-        const isCustom = s.id.startsWith("strat_");
+        const isUser = isUserStrategy(s);
+
+        // Archived strategies only appear under the Archived view
+        if (selectedNav === "archived") { if (!s.archived) return false; }
+        else if (s.archived) return false;
 
         // Left nav filter
-        if (selectedNav === "templates" && isCustom) return false;
-        if (selectedNav === "my" && !isCustom) return false;
+        if (selectedNav === "templates" && isUser) return false;
+        if (selectedNav === "my" && !isUser) return false;
 
         // Category filter
-        if (selectedCategory !== "ALL") {
-          if (selectedCategory.toLowerCase() === "custom") {
-            if (!isCustom) return false;
-          } else if (sType.toLowerCase() !== selectedCategory.toLowerCase()) {
-            return false;
-          }
-        }
+        if (selectedCategory !== "ALL" && categoryOf(s) !== selectedCategory) return false;
 
         // Asset filter
         if (selectedAsset !== "ALL" && s.asset !== selectedAsset) {
           return false;
         }
 
-        // Status filter
-        if (selectedStatus === "READY" && isCustom) return false;
-        if (selectedStatus === "DRAFT" && !isCustom) return false;
+        // Status filter (derived from real runs)
+        if (selectedStatus === "TESTED" && !runsByStrategy.has(s.id)) return false;
+        if (selectedStatus === "UNTESTED" && runsByStrategy.has(s.id)) return false;
 
         // Search query
         if (searchQuery.trim()) {
@@ -191,7 +213,7 @@ export default function StrategiesPage() {
         if (sortOrder === "asset") return a.asset.localeCompare(b.asset);
         return 0;
       });
-  }, [strategies, selectedNav, selectedCategory, selectedAsset, selectedStatus, searchQuery, sortOrder]);
+  }, [strategies, runsByStrategy, selectedNav, selectedCategory, selectedAsset, selectedStatus, searchQuery, sortOrder]);
 
   // Paginated strategies
   const paginatedStrategies = useMemo(() => {
@@ -201,30 +223,21 @@ export default function StrategiesPage() {
 
   const totalPages = Math.ceil(filteredStrategies.length / pageSize) || 1;
 
-  // Category counts
+  // Counts are over live (non-archived) strategies, one category each, so the tiles add up to Total.
+  const live = useMemo(() => strategies.filter((x) => !x.archived), [strategies]);
   const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = {
-      ALL: strategies.length,
-      TREND: 0,
-      MEAN_REVERSION: 0,
-      MOMENTUM: 0,
-      BREAKOUT: 0,
-      VOLATILITY: 0,
-      SYSTEMATIC: 0,
-      CUSTOM: 0,
-    };
-    strategies.forEach((s) => {
-      const isCustom = s.id.startsWith("strat_");
-      if (isCustom) counts.CUSTOM++;
-      const t = (s.strategy_type || "trend").toUpperCase();
-      if (counts[t] !== undefined) counts[t]++;
-    });
+    const counts: Record<string, number> = { ALL: live.length, TREND: 0, MEAN_REVERSION: 0, MOMENTUM: 0, BREAKOUT: 0, VOLATILITY: 0, SYSTEMATIC: 0, CUSTOM: 0, OTHER: 0 };
+    live.forEach((x) => { counts[categoryOf(x)]++; });
     return counts;
-  }, [strategies]);
+  }, [live]);
+  const templateCount = live.filter((x) => !isUserStrategy(x)).length;
+  const myCount = live.filter(isUserStrategy).length;
+  const archivedCount = strategies.filter((x) => x.archived).length;
+  const testedCount = live.filter((x) => runsByStrategy.has(x.id)).length;
 
   // Performance comes only from real completed runs (newest run per strategy); no run -> null -> "—".
   const getMetrics = (id: string) => {
-    const run = [...runs].reverse().find((r) => r.strategy_id === id);
+    const run = runsByStrategy.get(id);
     const m = run?.metrics;
     if (!run || !m) return null;
     return {
@@ -236,19 +249,51 @@ export default function StrategiesPage() {
       pf: m.profit_factor,
       curve: run.equity_curve.filter((_, i, a) => i % Math.ceil(a.length / 30 || 1) === 0).map((p) => p.portfolio_value),
       ticker: run.ticker,
+      start: run.start_date,
+      end: run.end_date,
     };
   };
 
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
-    if (confirm("Delete this strategy configuration?")) {
+  const handleDelete = async (id: string) => {
+    setMenuOpenId(null);
+    const target = strategies.find((x) => x.id === id);
+    if (!target || !isUserStrategy(target)) return;
+    if (confirm(`Delete "${target.name}"? This cannot be undone.`)) {
       try {
         await api.deleteStrategy(id);
-        setStrategies((prev) => prev.filter((s) => s.id !== id));
+        setStrategies((prev) => prev.filter((x) => x.id !== id));
       } catch {
         alert("Failed to delete strategy");
       }
     }
+  };
+
+  const patchStrategy = async (target: StrategyConfig, patch: Partial<StrategyConfig>) => {
+    const next = { ...target, ...patch, updated_at: new Date().toISOString() };
+    setStrategies((prev) => prev.map((x) => (x.id === target.id ? next : x)));
+    try {
+      await api.updateStrategy(target.id, next);
+    } catch {
+      setStrategies((prev) => prev.map((x) => (x.id === target.id ? target : x)));
+      alert("Could not save the change");
+    }
+  };
+
+  const handleRename = async (id: string) => {
+    setMenuOpenId(null);
+    const target = strategies.find((x) => x.id === id);
+    if (!target) return;
+    const name = (prompt("Rename strategy", target.name) || "").trim();
+    if (!name || name === target.name) return;
+    const clash = strategies.some((x) => x.id !== id && x.name.trim().toLowerCase() === name.toLowerCase());
+    if (clash && !confirm(`Another strategy is already named "${name}". Use the same name anyway?`)) return;
+    await patchStrategy(target, { name });
+  };
+
+  const handleArchive = async (id: string, archived: boolean) => {
+    setMenuOpenId(null);
+    const target = strategies.find((x) => x.id === id);
+    if (target) await patchStrategy(target, { archived });
   };
 
   return (
@@ -280,8 +325,8 @@ export default function StrategiesPage() {
           {/* Top KPI Metrics Strip */}
             <div className="flex items-center gap-2 overflow-x-auto font-mono text-xs">
               {[
-                { label: "Total", value: strategies.length, tone: "text-white" },
-                { label: "Active", value: strategies.length, tone: "text-market-up" },
+                { label: "Total", value: live.length, tone: "text-white" },
+                { label: "Tested", value: testedCount, tone: "text-market-up" },
                 { label: "Trend", value: categoryCounts.TREND, tone: "text-white" },
                 { label: "Mean Rev", value: categoryCounts.MEAN_REVERSION, tone: "text-white" },
                 { label: "Momentum", value: categoryCounts.MOMENTUM, tone: "text-white" },
@@ -289,6 +334,7 @@ export default function StrategiesPage() {
                 { label: "Vol", value: categoryCounts.VOLATILITY, tone: "text-white" },
                 { label: "Systematic", value: categoryCounts.SYSTEMATIC, tone: "text-white" },
                 { label: "Custom", value: categoryCounts.CUSTOM, tone: "text-brand-amber" },
+                ...(categoryCounts.OTHER > 0 ? [{ label: "Other", value: categoryCounts.OTHER, tone: "text-white" }] : []),
               ].map((kpi) => (
                 <div key={kpi.label} className="rounded-lg border border-border bg-surface-muted/50 px-3 py-1.5 text-center">
                   <div className={`text-sm font-semibold tabular-nums ${kpi.tone}`}>{kpi.value}</div>
@@ -315,7 +361,8 @@ export default function StrategiesPage() {
           <div className="space-y-0.5">
             {categoriesList.map((cat) => {
               const isSelected = selectedCategory === cat.id;
-              const count = cat.id === "ALL" ? strategies.length : (categoryCounts[cat.id] || 0);
+              const count = categoryCounts[cat.id] || 0;
+              if (cat.id === "OTHER" && count === 0) return null;
               return (
                 <button
                   key={cat.id}
@@ -347,7 +394,7 @@ export default function StrategiesPage() {
                 <Layers className="h-3 w-3 text-[#64748b]" />
                 <span className="text-[11px]">Templates</span>
               </div>
-              <span className="text-[10px] text-[#64748b]">29</span>
+              <span className="text-[10px] text-[#64748b]">{templateCount}</span>
             </button>
 
             <button
@@ -360,20 +407,20 @@ export default function StrategiesPage() {
                 <Star className="h-3 w-3 text-[#64748b]" />
                 <span className="text-[11px]">My Strategies</span>
               </div>
-              <span className="text-[10px] text-[#64748b]">{categoryCounts.CUSTOM}</span>
+              <span className="text-[10px] text-[#64748b]">{myCount}</span>
             </button>
 
             <button
-              onClick={() => setSelectedNav("shared")}
+              onClick={() => setSelectedNav("archived")}
               className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-colors ${
-                selectedNav === "shared" ? "bg-[#0b1222] text-[#3b82f6] font-bold" : "text-[#94a3b8] hover:text-[#cbd5e1]"
+                selectedNav === "archived" ? "bg-[#0b1222] text-[#3b82f6] font-bold" : "text-[#94a3b8] hover:text-[#cbd5e1]"
               }`}
             >
               <div className="flex items-center space-x-2">
-                <Users className="h-3 w-3 text-[#64748b]" />
-                <span className="text-[11px]">Shared with Me</span>
+                <Archive className="h-3 w-3 text-[#64748b]" />
+                <span className="text-[11px]">Archived</span>
               </div>
-              <span className="text-[10px] text-[#64748b]">3</span>
+              <span className="text-[10px] text-[#64748b]">{archivedCount}</span>
             </button>
           </div>
 
@@ -383,9 +430,7 @@ export default function StrategiesPage() {
               <span className="text-[10px] text-[#64748b] uppercase font-bold tracking-wider">
                 ASSET FILTER
               </span>
-              <span className={`text-[9px] px-1 py-0.2 rounded font-bold ${activeCountry === "India" ? "text-[#10B981] bg-[#10B981]/15" : "text-[#3b82f6] bg-[#3b82f6]/15"}`}>
-                {activeCountry === "India" ? "🇮🇳 INDIA" : "🇺🇸 US"}
-              </span>
+              <span className="text-[9px] font-bold text-[#64748b]">DEFAULT ASSET</span>
             </div>
 
             <div className="space-y-1 text-[11px]">
@@ -399,23 +444,17 @@ export default function StrategiesPage() {
                   </div>
                   <span>All Assets</span>
                 </div>
-                <span className="text-[10px] text-[#64748b]">{strategies.length}</span>
+                <span className="text-[10px] text-[#64748b]">{live.length}</span>
               </label>
 
-              {(activeCountry === "India"
-                ? ["GENUSPOWER", "RELIANCE", "TCS", "HDFCBANK", "INFY", "TATAMOTORS", "ICICIBANK"]
-                : ["AAPL", "NVDA", "TSLA", "MSFT", "SPY", "QQQ", "AMZN"]
-              ).map((asset) => {
+              {distinctAssets.map(({ asset, count }) => {
                 const isChecked = selectedAsset === asset;
                 return (
                   <label
                     key={asset}
                     onClick={() => {
-                      const next = isChecked ? "ALL" : asset;
-                      setSelectedAsset(next);
-                      if (next !== "ALL") {
-                        setSelectedStockForRun(asset);
-                      }
+                      setSelectedAsset(isChecked ? "ALL" : asset);
+                      setCurrentPage(1);
                     }}
                     className="flex items-center justify-between cursor-pointer py-0.5 text-[#94a3b8] hover:text-[#cbd5e1]"
                   >
@@ -425,7 +464,7 @@ export default function StrategiesPage() {
                       </div>
                       <span className="font-mono">{asset}</span>
                     </div>
-                    <span className="text-[9px] text-[#3b82f6] hover:underline">Test &rarr;</span>
+                    <span className="text-[10px] text-[#64748b]">{count}</span>
                   </label>
                 );
               })}
@@ -448,33 +487,33 @@ export default function StrategiesPage() {
                   </div>
                   <span>All</span>
                 </div>
-                <span className="text-[10px] text-[#64748b]">{strategies.length}</span>
+                <span className="text-[10px] text-[#64748b]">{live.length}</span>
               </label>
 
               <label
-                onClick={() => setSelectedStatus("READY")}
+                onClick={() => setSelectedStatus("TESTED")}
                 className="flex items-center justify-between cursor-pointer py-0.5 text-[#94a3b8] hover:text-[#cbd5e1]"
               >
                 <div className="flex items-center space-x-2">
-                  <div className={`w-3 h-3 rounded-[1px] border flex items-center justify-center ${selectedStatus === "READY" ? "border-[#3b82f6] bg-[#3b82f6] text-black" : "border-[#64748b]"}`}>
-                    {selectedStatus === "READY" && <Check className="h-2.5 w-2.5 stroke-[3]" />}
+                  <div className={`w-3 h-3 rounded-[1px] border flex items-center justify-center ${selectedStatus === "TESTED" ? "border-[#3b82f6] bg-[#3b82f6] text-black" : "border-[#64748b]"}`}>
+                    {selectedStatus === "TESTED" && <Check className="h-2.5 w-2.5 stroke-[3]" />}
                   </div>
-                  <span>Ready</span>
+                  <span>Backtested</span>
                 </div>
-                <span className="text-[10px] text-[#64748b]">{strategies.length - categoryCounts.CUSTOM}</span>
+                <span className="text-[10px] text-[#64748b]">{testedCount}</span>
               </label>
 
               <label
-                onClick={() => setSelectedStatus("DRAFT")}
+                onClick={() => setSelectedStatus("UNTESTED")}
                 className="flex items-center justify-between cursor-pointer py-0.5 text-[#94a3b8] hover:text-[#cbd5e1]"
               >
                 <div className="flex items-center space-x-2">
-                  <div className={`w-3 h-3 rounded-[1px] border flex items-center justify-center ${selectedStatus === "DRAFT" ? "border-[#3b82f6] bg-[#3b82f6] text-black" : "border-[#64748b]"}`}>
-                    {selectedStatus === "DRAFT" && <Check className="h-2.5 w-2.5 stroke-[3]" />}
+                  <div className={`w-3 h-3 rounded-[1px] border flex items-center justify-center ${selectedStatus === "UNTESTED" ? "border-[#3b82f6] bg-[#3b82f6] text-black" : "border-[#64748b]"}`}>
+                    {selectedStatus === "UNTESTED" && <Check className="h-2.5 w-2.5 stroke-[3]" />}
                   </div>
-                  <span>Draft</span>
+                  <span>Not run</span>
                 </div>
-                <span className="text-[10px] text-[#64748b]">{categoryCounts.CUSTOM}</span>
+                <span className="text-[10px] text-[#64748b]">{live.length - testedCount}</span>
               </label>
             </div>
           </div>
@@ -553,12 +592,13 @@ export default function StrategiesPage() {
                 <tr className="border-b border-[#1e293b] bg-[#080d1a] text-[10px] text-[#94a3b8] uppercase tracking-wider sticky top-0 z-10">
                   <th className="py-2.5 px-3 w-8 text-center">#</th>
                   <th className="py-2.5 px-3">Strategy Name</th>
-                  <th className="py-2.5 px-3">Asset</th>
+                  <th className="py-2.5 px-3">Default asset</th>
                   <th className="py-2.5 px-3">Category</th>
                   <th className="py-2.5 px-3 min-w-[220px]">Key Logic / Signal Rules</th>
-                  <th className="py-2.5 px-3 text-center" colSpan={3}>Performance (1Y)</th>
+                  <th className="py-2.5 px-3 text-center" colSpan={3}>Latest run</th>
                   <th className="py-2.5 px-3 text-center">Trades</th>
                   <th className="py-2.5 px-3 text-center">Status</th>
+                  <th className="py-2.5 px-3">Source</th>
                   <th className="py-2.5 px-3 text-right">Actions</th>
                 </tr>
                 <tr className="border-b border-[#1e293b] bg-[#080d1a] text-[9px] text-[#64748b] uppercase">
@@ -566,7 +606,7 @@ export default function StrategiesPage() {
                   <th className="py-1 px-2 text-center">Trend</th>
                   <th className="py-1 px-2 text-right">Return</th>
                   <th className="py-1 px-2 text-right">Sharpe</th>
-                  <th colSpan={3}></th>
+                  <th colSpan={4}></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1e293b]/50 font-mono">
@@ -607,7 +647,12 @@ export default function StrategiesPage() {
                         {ruleSnippet}
                       </td>
                       <td className="py-2 px-2 text-center">
-                        {perf ? <MiniSparkline data={perf.curve} positive={isPositive} width={48} height={14} /> : <span className="font-mono text-slate-500">—</span>}
+                        {perf ? (
+                          <div title={`Run on ${perf.ticker}, ${perf.start} → ${perf.end}`}>
+                            <MiniSparkline data={perf.curve} positive={isPositive} width={48} height={14} />
+                            <div className="mt-0.5 font-mono text-[9px] text-slate-500">{perf.ticker}</div>
+                          </div>
+                        ) : <span className="font-mono text-slate-500">—</span>}
                       </td>
                       <td className={`py-2 px-2 text-right font-mono font-bold ${!perf ? "text-slate-500" : isPositive ? "text-emerald-400" : "text-rose-400"}`}>
                         {fmtPct(perf?.ret)}
@@ -619,10 +664,13 @@ export default function StrategiesPage() {
                         {fmtInt(perf?.trades)}
                       </td>
                       <td className="py-2 px-3 text-center">
-                        <span className="px-1.5 py-0.5 rounded-lg bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/30 text-[9px] font-bold">
-                          READY
-                        </span>
+                        {perf ? (
+                          <span className="px-1.5 py-0.5 rounded-lg bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/30 text-[9px] font-bold">BACKTESTED</span>
+                        ) : (
+                          <span className="px-1.5 py-0.5 rounded-lg bg-slate-500/10 text-slate-400 border border-slate-500/30 text-[9px] font-bold">NOT RUN</span>
+                        )}
                       </td>
+                      <td className="py-2 px-3 text-[10px] text-slate-400">{isUserStrategy(s) ? "Mine" : "Built-in"}</td>
                       <td className="py-2 px-3 text-right">
                         <div className="flex items-center justify-end space-x-1.5">
                           <button
@@ -638,13 +686,26 @@ export default function StrategiesPage() {
                             <Play className="h-2.5 w-2.5 fill-current" />
                             <span>Test Stock</span>
                           </button>
-                          <button
-                            onClick={(e) => handleDelete(e, s.id)}
-                            className="p-1 rounded-lg text-[#64748b] hover:text-[#EF4444]"
-                            title="Options"
-                          >
-                            <MoreVertical className="h-3 w-3" />
-                          </button>
+                          <div className="relative">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setMenuOpenId(menuOpenId === s.id ? null : s.id); }}
+                              className="p-1 rounded-lg text-[#64748b] hover:text-slate-200"
+                              title="Options"
+                              aria-haspopup="menu"
+                              aria-expanded={menuOpenId === s.id}
+                            >
+                              <MoreVertical className="h-3 w-3" />
+                            </button>
+                            {menuOpenId === s.id && (
+                              <div role="menu" onClick={(e) => e.stopPropagation()} className="absolute right-0 top-6 z-30 w-36 rounded-lg border border-slate-700 bg-[#0b1222] py-1 text-left text-[11px] shadow-xl">
+                                <Link href={`/strategies/builder?edit=${s.id}`} className="block px-3 py-1.5 text-slate-200 hover:bg-slate-800">Edit</Link>
+                                <Link href={`/strategies/builder?clone=${s.id}`} className="block px-3 py-1.5 text-slate-200 hover:bg-slate-800">Duplicate</Link>
+                                {isUserStrategy(s) && <button role="menuitem" onClick={() => handleRename(s.id)} className="block w-full px-3 py-1.5 text-left text-slate-200 hover:bg-slate-800">Rename</button>}
+                                <button role="menuitem" onClick={() => handleArchive(s.id, !s.archived)} className="block w-full px-3 py-1.5 text-left text-slate-200 hover:bg-slate-800">{s.archived ? "Restore" : "Archive"}</button>
+                                {isUserStrategy(s) && <button role="menuitem" onClick={() => handleDelete(s.id)} className="block w-full border-t border-slate-800 px-3 py-1.5 text-left text-rose-400 hover:bg-slate-800">Delete</button>}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -700,8 +761,9 @@ export default function StrategiesPage() {
         {currentStrategy && (() => {
           const perf = getMetrics(currentStrategy.id);
           const stockIsIndia = isIndianTicker(selectedStockForRun);
-          const created = currentStrategy.created_at ? new Date(currentStrategy.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—";
-          const tags = [(currentStrategy.strategy_type || "trend").replace(/_/g, "-"), ...Array.from(new Set(currentStrategy.indicators.map((i) => i.name.toLowerCase())))];
+          const fmtDate = (v?: string) => (v ? new Date(v).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—");
+          const mine = isUserStrategy(currentStrategy);
+          const tags = Array.from(new Set([(currentStrategy.strategy_type || "trend").replace(/_/g, "-"), ...(currentStrategy.tags ?? []).map((t) => t.toLowerCase()), ...currentStrategy.indicators.map((i) => i.name.toLowerCase())]));
           const stat = (label: string, value: string, tone = "text-white") => (
             <div>
               <span className="block text-[10px] text-slate-400">{label}</span>
@@ -724,7 +786,7 @@ export default function StrategiesPage() {
                       </span>
                     </div>
                   </div>
-                  <span className="rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2 py-0.5 font-mono text-[9px] font-bold text-emerald-400">READY</span>
+                  <span className={cn("rounded-full border px-2 py-0.5 font-mono text-[9px] font-bold", perf ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-400" : "border-slate-500/40 bg-slate-500/10 text-slate-400")}>{perf ? "BACKTESTED" : "NOT RUN"}</span>
                 </div>
                 <p className="mt-2 text-[11px] leading-relaxed text-slate-400">{currentStrategy.description || "No description."}</p>
               </div>
@@ -750,10 +812,12 @@ export default function StrategiesPage() {
                 <>
                   <div className="rounded-xl border border-slate-800/90 bg-[#0b1222]/95 p-4">
                     <div className="grid grid-cols-2 gap-3 text-[11px]">
-                      <div><span className="block text-[10px] text-slate-400">Asset class</span><span className="font-semibold text-slate-200">{isIndianTicker(currentStrategy.asset) ? "Equity (India)" : "Equity (US)"}</span></div>
+                      <div><span className="block text-[10px] text-slate-400">Asset class</span><span className="font-semibold text-slate-200">{isIndianTicker(currentStrategy.asset) ? "Equity (India)" : "Equity (US)"} <span className="font-normal text-slate-500">· default</span></span></div>
                       <div><span className="block text-[10px] text-slate-400">Default asset</span><span className="font-mono font-semibold text-slate-200">{currentStrategy.asset}</span></div>
                       <div><span className="block text-[10px] text-slate-400">Timeframe</span><span className="font-mono font-semibold text-slate-200">{currentStrategy.timeframe}</span></div>
-                      <div><span className="block text-[10px] text-slate-400">Created</span><span className="font-mono text-slate-200">{created}</span></div>
+                      <div><span className="block text-[10px] text-slate-400">Source</span><span className="font-semibold text-slate-200">{mine ? "Mine" : "Built-in template"}</span></div>
+                      {mine && <div><span className="block text-[10px] text-slate-400">Created</span><span className="font-mono text-slate-200">{fmtDate(currentStrategy.created_at)}</span></div>}
+                      {mine && <div><span className="block text-[10px] text-slate-400">Updated</span><span className="font-mono text-slate-200">{fmtDate(currentStrategy.updated_at)}</span></div>}
                       <div className="col-span-2"><span className="block text-[10px] text-slate-400">Tags</span><span className="font-mono text-blue-400">{tags.map((t) => `#${t}`).join(" ")}</span></div>
                     </div>
                   </div>
@@ -763,7 +827,7 @@ export default function StrategiesPage() {
                       <h3 className="text-sm font-bold tracking-wide text-white">Quick stats</h3>
                       <span title="From your most recent completed backtest of this strategy. Shows — until you run one." className="text-slate-500 hover:text-slate-300"><Info className="h-3.5 w-3.5" /></span>
                     </div>
-                    <p className="mb-3 text-[11px] text-slate-400">{perf ? `Latest run on ${perf.ticker}` : "No completed run yet"}</p>
+                    <p className="mb-3 text-[11px] text-slate-400">{perf ? `Latest run on ${perf.ticker} · ${perf.start} → ${perf.end}` : "No completed run yet"}</p>
                     <div className="grid grid-cols-3 gap-3">
                       {stat("Return", fmtPct(perf?.ret), (perf?.ret ?? 0) >= 0 ? "text-emerald-400" : "text-rose-400")}
                       {stat("Sharpe", perf ? formatRatio(perf.sharpe) : "—")}

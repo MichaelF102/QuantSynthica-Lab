@@ -56,6 +56,7 @@ class StrategyConfig(BaseModel):
     exit_rules: List[ConditionRule] = Field(default_factory=list)
     risk: RiskConfig = Field(default_factory=RiskConfig)
     execution: ExecutionConfig = Field(default_factory=ExecutionConfig)
+    archived: bool = False
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 
