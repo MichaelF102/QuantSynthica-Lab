@@ -142,37 +142,7 @@ export default function NavbarSecuritySearch() {
       );
     }
 
-    // If currently viewing a stock from the other country, switch to representative flagship stock
-    if (
-      newCountry === "India" &&
-      (activeSymbol === "AAPL" || activeSymbol === "SPY" || activeSymbol === "NVDA" || activeSymbol === "MSFT")
-    ) {
-      handleSelectSecurity({
-        symbol: "RELIANCE",
-        yf_symbol: "RELIANCE.NS",
-        name: "Reliance Industries Limited",
-        market: "India",
-        exchange: "NSE",
-        currency: "INR",
-        price: 1290.9,
-      });
-      return;
-    } else if (
-      newCountry === "US" &&
-      (activeSymbol === "RELIANCE" || activeSymbol === "GENUSPOWER" || activeSymbol === "TCS" || activeSymbol === "INFY")
-    ) {
-      handleSelectSecurity({
-        symbol: "AAPL",
-        yf_symbol: "AAPL",
-        name: "Apple Inc.",
-        market: "US",
-        exchange: "NASDAQ",
-        currency: "USD",
-        price: 306.13,
-      });
-      return;
-    }
-
+    // Switching market only changes which market the search covers. It never picks a stock or navigates.
     // Re-focus input and refresh search results
     inputRef.current?.focus();
     setIsOpen(true);

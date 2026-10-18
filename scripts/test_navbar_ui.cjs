@@ -87,6 +87,16 @@ let closer = () => {};
   ok((await $(`document.querySelector('nav[aria-label=Mobile]').innerText`)).includes("Robustness"), "mobile accordion expands");
   ok(await $(`!!document.querySelector('nav[aria-label=Mobile] a[href="https://quant-synthica.vercel.app/"]')`), "mobile menu has the QuantSynthica link");
   ok(b.errors.length === 0, "no console errors", b.errors.join(" | ").slice(0, 300));
+  // switching the market must not pick a stock or navigate
+  await view(1920); await b.sleep(300);
+  await $(`localStorage.setItem('algolab_active_ticker','GENUSPOWER');localStorage.setItem('algolab_active_country','India')`);
+  await b.send("Page.navigate", { url: BASE + "/analytics" }); await b.waitFor(`!!document.querySelector('nav[aria-label=Primary]')`, 60000); await b.sleep(1500);
+  const before = await $(`location.pathname + location.search`);
+  await $(`[...document.querySelectorAll('header button')].find(x=>/^🇺🇸\\s*US$|^US$/.test(x.innerText.trim().replace(/\\s+/g,' ')))?.click()`); await b.sleep(1200);
+  ok((await $(`location.pathname + location.search`)) === before, "US/India switch does not navigate", await $(`location.pathname + location.search`));
+  ok((await $(`localStorage.getItem('algolab_active_ticker')`)) === "GENUSPOWER", "US/India switch does not replace the active stock", await $(`localStorage.getItem('algolab_active_ticker')`));
+  ok((await $(`localStorage.getItem('algolab_active_country')`)) === "US", "US/India switch changes the market");
+
   console.log(`\n${pass} passed, ${fail} failed`);
   b.close(); process.exit(fail ? 1 : 0);
 })().catch((e) => { console.error(e); closer(); process.exit(2); });

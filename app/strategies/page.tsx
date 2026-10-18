@@ -83,9 +83,6 @@ export default function StrategiesPage() {
     const handleCountryChange = (e: any) => {
       if (e.detail?.country) {
         setActiveCountry(e.detail.country);
-        if (e.detail.country === "India" && !selectedStockForRun.endsWith(".NS")) {
-          setSelectedStockForRun("GENUSPOWER");
-        }
       }
     };
     window.addEventListener("algolab:security_changed", handleSecurityChange);
