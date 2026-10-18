@@ -26,7 +26,7 @@ let closer = () => {};
   const st = await b.ev(`(()=>{const a=document.querySelector('aside');const r=a&&a.getBoundingClientRect();return {asideInView:!!r&&r.left>=0&&r.right<=document.documentElement.clientWidth+1,filters:[...document.querySelectorAll('button')].some(x=>/^Filters/.test(x.innerText.trim()))}})()`);
   ok(st.asideInView, "strategies: detail panel fits the screen"); ok(st.filters, "strategies: filters collapse behind a toggle");
   await b.ev(`[...document.querySelectorAll('button')].find(x=>/^Filters/.test(x.innerText.trim())).click()`); await b.sleep(300);
-  ok(await b.ev(`[...document.querySelectorAll('button')].some(x=>x.innerText.trim().startsWith('Mean Reversion'))&&document.body.innerText.includes('ASSET FILTER')`), "strategies: filter toggle reveals the filters");
+  ok(await b.ev(`[...document.querySelectorAll('button')].some(x=>x.innerText.trim().startsWith('Mean Reversion'))&&document.body.innerText.includes('ASSET CLASS')`), "strategies: filter toggle reveals the filters");
   // hero cards become a sideways strip on phones
   await b.send("Page.navigate", { url: BASE + "/" }); await b.sleep(6500);
   const cards = await b.ev(`(()=>{const c=[...document.querySelectorAll('div')].find(d=>/overflow-x-auto/.test(d.className)&&d.querySelectorAll(':scope > div').length===3&&/S&P 500/.test(d.innerText));if(!c)return null;const k=[...c.children].map(x=>x.getBoundingClientRect());return {noOverlap:k.every((r,i)=>i===0||r.left>=k[i-1].right-1),count:k.length}})()`);

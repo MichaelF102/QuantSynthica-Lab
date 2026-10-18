@@ -33,6 +33,14 @@ class RiskConfig(BaseModel):
     position_size_pct: float = 10.0 # % of equity per position
     max_positions: int = 5
     allow_short: bool = False
+    # "long": entry rules open longs. "short": entry rules open shorts, exit rules cover them.
+    # "both": entry rules go long, exit rules flip to short (each signal also closes the opposite side).
+    direction: str = "long"
+    # ATR-based stops replace the percentage stop / target when set (distance = multiple x ATR of the signal bar).
+    stop_atr_mult: Optional[float] = None
+    take_profit_atr_mult: Optional[float] = None
+    atr_period: int = 14
+    # Annualised volatility target in percent. Position size is scaled down (never up) by target / realised vol.
     target_volatility: Optional[float] = None
 
 class ExecutionConfig(BaseModel):
@@ -57,6 +65,8 @@ class StrategyConfig(BaseModel):
     risk: RiskConfig = Field(default_factory=RiskConfig)
     execution: ExecutionConfig = Field(default_factory=ExecutionConfig)
     archived: bool = False
+    # Optional sweep ranges keyed "<indicator id>.<param>" or "risk.<field>": {"min": .., "max": .., "step": ..}
+    param_ranges: Dict[str, Dict[str, float]] = Field(default_factory=dict)
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 

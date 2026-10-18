@@ -32,6 +32,12 @@ export interface RiskConfig {
   position_size_pct: number;
   max_positions: number;
   allow_short: boolean;
+  /** "long" | "short" | "both". Entry rules go long (or short in "short"); in "both" the exit rules flip to short. */
+  direction?: "long" | "short" | "both";
+  stop_atr_mult?: number | null;
+  take_profit_atr_mult?: number | null;
+  atr_period?: number;
+  /** Annualised volatility target in percent; position size is scaled down by target / realised vol. */
   target_volatility?: number | null;
 }
 
@@ -57,6 +63,8 @@ export interface StrategyConfig {
   risk: RiskConfig;
   execution: ExecutionConfig;
   tags?: string[];
+  /** Sweep ranges keyed "<indicator id>.<param>" or "risk.<field>". */
+  param_ranges?: Record<string, { min: number; max: number; step: number }>;
   archived?: boolean;
   created_at?: string;
   updated_at?: string;

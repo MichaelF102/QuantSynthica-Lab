@@ -528,7 +528,16 @@ export const api = {
     request<OptimizationResult>("/optimization", {
       method: "POST",
       body: JSON.stringify(req),
-    }, 12000),
+    }, 60000),
+
+  /** Saved snapshots of a strategy, newest first. Empty when the backend is unreachable or nothing was saved. */
+  getStrategyVersions: async (id: string): Promise<{ version: number; saved_at: string | null; strategy: StrategyConfig }[]> => {
+    try {
+      return (await request<{ version: number; saved_at: string | null; strategy: StrategyConfig }[]>(`/strategies/${encodeURIComponent(id)}/versions`, {}, 4000)) ?? [];
+    } catch {
+      return [];
+    }
+  },
 
   runWalkForward: (req: WalkForwardRequest) =>
     request<WalkForwardResult>("/walk-forward", {

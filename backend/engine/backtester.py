@@ -68,6 +68,44 @@ class BacktestEngine:
 
         prev_portfolio_value = initial_capital
 
+        # ---- risk configuration -------------------------------------------------
+        risk = self.risk
+        mode = (risk.direction or "long").lower()
+        if mode == "long" and risk.allow_short:
+            mode = "both"  # strategies saved before `direction` existed
+        if mode not in ("long", "short", "both"):
+            mode = "long"
+
+        # Wilder ATR and 20-bar realised volatility, both read at the signal bar (i-1): no look-ahead.
+        prev_close = df_sig["close"].shift(1)
+        true_range = pd.concat([
+            df_sig["high"] - df_sig["low"],
+            (df_sig["high"] - prev_close).abs(),
+            (df_sig["low"] - prev_close).abs(),
+        ], axis=1).max(axis=1)
+        atr_arr = true_range.ewm(alpha=1.0 / max(1, int(risk.atr_period)), adjust=False, min_periods=int(risk.atr_period)).mean().values
+        realised_vol = (df_sig["close"].pct_change().rolling(20).std() * np.sqrt(252)).values
+
+        def sig_atr(i: int) -> Optional[float]:
+            v = atr_arr[i - 1] if i > 0 else np.nan
+            return float(v) if np.isfinite(v) and v > 0 else None
+
+        def size_fraction(i: int) -> float:
+            """Share of equity to deploy: position_size_pct, scaled down when realised vol exceeds the target."""
+            frac = risk.position_size_pct / 100.0
+            if risk.target_volatility:
+                rv = realised_vol[i - 1] if i > 0 else np.nan
+                if not (np.isfinite(rv) and rv > 0):
+                    return 0.0  # no volatility estimate yet (first 20 bars): do not size blindly
+                frac *= min(1.0, (risk.target_volatility / 100.0) / rv)
+            return frac
+
+        def mark(pos: Dict[str, Any], px: float) -> float:
+            """Open-position value contribution to equity (shorts: collateral-free, P&L only)."""
+            if pos["direction"] == "LONG":
+                return pos["qty"] * px
+            return pos["qty"] * (pos["entry_price"] - px)
+
         for i in range(n):
             dt = str(dates[i].strftime("%Y-%m-%d"))
             bar_open = float(opens[i])
@@ -76,88 +114,62 @@ class BacktestEngine:
             bar_close = float(closes[i])
             bar_vol = float(volumes[i])
 
-            # Pending signal from bar i-1 executed at bar i open
-            sig_entry_prev = entry_signals[i - 1] if i > 0 else False
-            sig_exit_prev = exit_signals[i - 1] if i > 0 else False
+            # Pending signals from bar i-1 are executed at bar i open
+            sig_entry_prev = bool(entry_signals[i - 1]) if i > 0 else False
+            sig_exit_prev = bool(exit_signals[i - 1]) if i > 0 else False
 
             # -------------------------------------------------------------
-            # STEP A: Check Intra-Bar Risk Limits & Exit Signals on Open Positions
+            # STEP A: close positions (signal, stop, target, trailing stop)
             # -------------------------------------------------------------
             surviving_positions = []
             for pos in open_positions:
                 closed = False
                 exit_price = 0.0
                 exit_reason = ""
+                is_long = pos["direction"] == "LONG"
 
-                # Update MFE / MAE tracking
-                if pos["direction"] == "LONG":
-                    if bar_high > pos["highest_price"]:
-                        pos["highest_price"] = bar_high
-                    if bar_low < pos["lowest_price"]:
-                        pos["lowest_price"] = bar_low
+                if bar_high > pos["highest_price"]:
+                    pos["highest_price"] = bar_high
+                if bar_low < pos["lowest_price"]:
+                    pos["lowest_price"] = bar_low
 
-                    # 1. Check Exit Signal (triggered at previous bar close, executed at open)
-                    if sig_exit_prev:
-                        exit_price = bar_open
-                        exit_reason = "SIGNAL"
-                        closed = True
-                    # 2. Check Stop Loss
-                    elif pos["stop_price"] is not None and bar_low <= pos["stop_price"]:
-                        # Fill at gap-down open or stop price
-                        exit_price = min(bar_open, pos["stop_price"])
-                        exit_reason = "STOP_LOSS"
-                        closed = True
-                    # 3. Check Take Profit
+                # The signal that closes this side: "both" mode closes longs on exit signals and shorts on entry signals.
+                close_signal = sig_exit_prev if (mode != "both" or is_long) else sig_entry_prev
+
+                # Effective stop = tighter of the fixed stop and the trailing stop (trail reference excludes this bar)
+                stop_level = pos["stop_price"]
+                stop_reason = "STOP_LOSS"
+                if pos["trail_stop_pct"]:
+                    trail_level = pos["trail_ref"] * (1.0 - pos["trail_stop_pct"] / 100.0) if is_long else pos["trail_ref"] * (1.0 + pos["trail_stop_pct"] / 100.0)
+                    if stop_level is None or (is_long and trail_level > stop_level) or (not is_long and trail_level < stop_level):
+                        stop_level, stop_reason = trail_level, "TRAILING_STOP"
+
+                if close_signal:
+                    exit_price, exit_reason, closed = bar_open, "SIGNAL", True
+                elif is_long:
+                    if stop_level is not None and bar_low <= stop_level:
+                        exit_price, exit_reason, closed = min(bar_open, stop_level), stop_reason, True  # gap-down fills at the open
                     elif pos["tp_price"] is not None and bar_high >= pos["tp_price"]:
-                        exit_price = max(bar_open, pos["tp_price"])
-                        exit_reason = "TAKE_PROFIT"
-                        closed = True
-                    # 4. Check Trailing Stop
-                    elif pos["trail_stop_pct"] is not None:
-                        new_stop = pos["highest_price"] * (1.0 - pos["trail_stop_pct"] / 100.0)
-                        if new_stop > pos["stop_price"]:
-                            pos["stop_price"] = new_stop
-                        if bar_low <= pos["stop_price"]:
-                            exit_price = min(bar_open, pos["stop_price"])
-                            exit_reason = "TRAILING_STOP"
-                            closed = True
-
-                elif pos["direction"] == "SHORT":
-                    if bar_low < pos["lowest_price"]:
-                        pos["lowest_price"] = bar_low
-                    if bar_high > pos["highest_price"]:
-                        pos["highest_price"] = bar_high
-
-                    if sig_exit_prev:
-                        exit_price = bar_open
-                        exit_reason = "SIGNAL"
-                        closed = True
-                    elif pos["stop_price"] is not None and bar_high >= pos["stop_price"]:
-                        exit_price = max(bar_open, pos["stop_price"])
-                        exit_reason = "STOP_LOSS"
-                        closed = True
+                        exit_price, exit_reason, closed = max(bar_open, pos["tp_price"]), "TAKE_PROFIT", True
+                else:
+                    if stop_level is not None and bar_high >= stop_level:
+                        exit_price, exit_reason, closed = max(bar_open, stop_level), stop_reason, True  # gap-up fills at the open
                     elif pos["tp_price"] is not None and bar_low <= pos["tp_price"]:
-                        exit_price = min(bar_open, pos["tp_price"])
-                        exit_reason = "TAKE_PROFIT"
-                        closed = True
+                        exit_price, exit_reason, closed = min(bar_open, pos["tp_price"]), "TAKE_PROFIT", True
 
-                # End of backtest bar close
                 if not closed and i == n - 1:
-                    exit_price = bar_close
-                    exit_reason = "END_OF_DATA"
-                    closed = True
+                    exit_price, exit_reason, closed = bar_close, "END_OF_DATA", True
 
                 if closed:
-                    is_buy_exit = (pos["direction"] == "SHORT")
                     fill_p, exit_fees = self.cost_model.apply_execution_costs(
-                        exit_price, pos["qty"], is_buy=is_buy_exit, volume=bar_vol
+                        exit_price, pos["qty"], is_buy=(not is_long), volume=bar_vol
                     )
                     total_fees = pos["entry_fees"] + exit_fees
 
-                    if pos["direction"] == "LONG":
+                    if is_long:
                         gross_pnl = (fill_p - pos["entry_price"]) * pos["qty"]
                         cash += (fill_p * pos["qty"]) - exit_fees
-                    else: # SHORT
+                    else:
                         gross_pnl = (pos["entry_price"] - fill_p) * pos["qty"]
                         cash += gross_pnl - exit_fees
 
@@ -167,15 +179,12 @@ class BacktestEngine:
                     notional_invested = pos["entry_price"] * pos["qty"]
                     ret_pct = (rounded_net / notional_invested * 100.0) if notional_invested > 0 else 0.0
 
-                    # Calculate MAE and MFE in %
-                    if pos["direction"] == "LONG":
+                    if is_long:
                         mae = ((pos["lowest_price"] - pos["entry_price"]) / pos["entry_price"]) * 100.0
                         mfe = ((pos["highest_price"] - pos["entry_price"]) / pos["entry_price"]) * 100.0
                     else:
                         mae = ((pos["entry_price"] - pos["highest_price"]) / pos["entry_price"]) * 100.0
                         mfe = ((pos["entry_price"] - pos["lowest_price"]) / pos["entry_price"]) * 100.0
-
-                    holding_bars = i - pos["entry_idx"]
 
                     trades.append(TradeRecord(
                         id=pos["id"],
@@ -190,55 +199,66 @@ class BacktestEngine:
                         fees=rounded_fees,
                         net_pnl=rounded_net,
                         return_pct=round(ret_pct, 2),
-                        holding_period_bars=max(1, holding_bars),
+                        holding_period_bars=max(1, i - pos["entry_idx"]),
                         exit_reason=exit_reason,
                         mae=round(mae, 2),
                         mfe=round(mfe, 2)
                     ))
                 else:
+                    # trail reference moves with the best price seen so far, used from the next bar on
+                    pos["trail_ref"] = max(pos["trail_ref"], bar_high) if is_long else min(pos["trail_ref"], bar_low)
                     surviving_positions.append(pos)
 
             open_positions = surviving_positions
 
             # -------------------------------------------------------------
-            # STEP B: Check New Position Entries from Previous Signal
+            # STEP B: open new positions from the previous bar's signal
             # -------------------------------------------------------------
-            can_open = len(open_positions) < self.risk.max_positions
-            if sig_entry_prev and can_open and i < n - 1:
-                direction = "LONG"
-                # Size calculation: position_size_pct of current total equity
-                equity_est = cash + sum(
-                    (p["qty"] * bar_open if p["direction"] == "LONG" else (p["qty"] * (2 * p["entry_price"] - bar_open)))
-                    for p in open_positions
-                )
-                target_alloc = (self.risk.position_size_pct / 100.0) * equity_est
-                alloc = min(target_alloc, cash * 0.98) # Leave 2% buffer for slippage & commission
+            open_side = None
+            if mode == "long" and sig_entry_prev:
+                open_side = "LONG"
+            elif mode == "short" and sig_entry_prev:
+                open_side = "SHORT"
+            elif mode == "both":
+                open_side = "LONG" if sig_entry_prev else ("SHORT" if sig_exit_prev else None)
+
+            needs_atr = bool(risk.stop_atr_mult or risk.take_profit_atr_mult)
+            if open_side and needs_atr and sig_atr(i) is None:
+                open_side = None  # ATR stop requested but ATR is not defined yet: skip rather than trade unprotected
+
+            if open_side and len(open_positions) < risk.max_positions and i < n - 1:
+                is_long = open_side == "LONG"
+                equity_est = cash + sum(mark(p, bar_open) for p in open_positions)
+                alloc = min(size_fraction(i) * equity_est, cash * 0.98)  # leave 2% for costs; shorts need the same cash as collateral
 
                 if alloc >= 100.0:
-                    fill_p, entry_fees = self.cost_model.apply_execution_costs(
-                        bar_open, 1.0, is_buy=True, volume=bar_vol
-                    )
-                    qty = (alloc - entry_fees) / fill_p
+                    fill_p, est_fees = self.cost_model.apply_execution_costs(bar_open, alloc / bar_open, is_buy=is_long, volume=bar_vol)
+                    qty = (alloc - est_fees) / fill_p
                     if not self.execution.allow_fractional:
                         qty = float(int(qty))
 
                     if qty > 0:
-                        total_cost = (fill_p * qty) + entry_fees
+                        fill_p, entry_fees = self.cost_model.apply_execution_costs(bar_open, qty, is_buy=is_long, volume=bar_vol)
+                        total_cost = (fill_p * qty + entry_fees) if is_long else entry_fees
                         if cash >= total_cost:
                             cash -= total_cost
 
-                            # Compute stop-loss and take-profit prices
+                            atr = sig_atr(i)
+                            sign = 1.0 if is_long else -1.0
                             stop_price = None
-                            if self.risk.stop_loss_pct is not None:
-                                stop_price = fill_p * (1.0 - self.risk.stop_loss_pct / 100.0)
-
+                            if risk.stop_atr_mult and atr:
+                                stop_price = fill_p - sign * risk.stop_atr_mult * atr
+                            elif risk.stop_loss_pct is not None:
+                                stop_price = fill_p * (1.0 - sign * risk.stop_loss_pct / 100.0)
                             tp_price = None
-                            if self.risk.take_profit_pct is not None:
-                                tp_price = fill_p * (1.0 + self.risk.take_profit_pct / 100.0)
+                            if risk.take_profit_atr_mult and atr:
+                                tp_price = fill_p + sign * risk.take_profit_atr_mult * atr
+                            elif risk.take_profit_pct is not None:
+                                tp_price = fill_p * (1.0 + sign * risk.take_profit_pct / 100.0)
 
                             open_positions.append({
                                 "id": str(uuid.uuid4())[:8],
-                                "direction": direction,
+                                "direction": open_side,
                                 "qty": qty,
                                 "entry_price": fill_p,
                                 "entry_date": dt,
@@ -246,22 +266,16 @@ class BacktestEngine:
                                 "entry_fees": entry_fees,
                                 "stop_price": stop_price,
                                 "tp_price": tp_price,
-                                "trail_stop_pct": self.risk.trailing_stop_pct,
+                                "trail_stop_pct": risk.trailing_stop_pct,
+                                "trail_ref": bar_high if is_long else bar_low,
                                 "highest_price": bar_high,
                                 "lowest_price": bar_low
                             })
 
             # -------------------------------------------------------------
-            # STEP C: Calculate End-of-Day Portfolio Value & Drawdown
+            # STEP C: end-of-day portfolio value and drawdown
             # -------------------------------------------------------------
-            open_equity = 0.0
-            for pos in open_positions:
-                if pos["direction"] == "LONG":
-                    open_equity += pos["qty"] * bar_close
-                else:
-                    open_equity += pos["qty"] * (2 * pos["entry_price"] - bar_close)
-
-            portfolio_value = cash + open_equity
+            portfolio_value = cash + sum(mark(p, bar_close) for p in open_positions)
             if portfolio_value > peak_value:
                 peak_value = portfolio_value
 

@@ -1,13 +1,17 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Search, Globe2, Layers, Zap, X, Check } from "lucide-react";
+import { Search, Globe2, Layers, Zap, X, Check, Star, Landmark, Cpu, Car, LineChart, CreditCard } from "lucide-react";
 import { api } from "@/lib/api";
 import { StockProfile } from "@/types";
 import StockSearchInput from "@/components/ui/StockSearchInput";
 import { MarketRegion, marketOfTicker, registerTicker } from "@/lib/market";
 import { useEscape } from "@/lib/useEscape";
 import { cn } from "@/lib/utils";
+
+const CATEGORY_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
+  top: Star, banking: Landmark, tech: Cpu, power: Zap, auto: Car, semis: Cpu, etfs: LineChart, finance: CreditCard,
+};
 
 export interface EasyStockPickerProps {
   selectedAsset: string;
@@ -25,7 +29,7 @@ export interface EasyStockPickerProps {
 const INDIA_CATEGORIES: { id: string; label: string; stocks: { symbol: string; name: string; sector: string }[] }[] = [
   {
     id: "top",
-    label: "⭐ Top Institutional & Liquid",
+    label: "Top Institutional & Liquid",
     stocks: [
       { symbol: "GENUSPOWER", name: "Genus Power Infrastructures", sector: "Power / Smart Metering" },
       { symbol: "BHARTIARTL", name: "Bharti Airtel Ltd", sector: "Telecommunication" },
@@ -41,7 +45,7 @@ const INDIA_CATEGORIES: { id: string; label: string; stocks: { symbol: string; n
   },
   {
     id: "banking",
-    label: "🏦 Banking & NBFC",
+    label: "Banking & NBFC",
     stocks: [
       { symbol: "HDFCBANK", name: "HDFC Bank", sector: "Banking" },
       { symbol: "ICICIBANK", name: "ICICI Bank", sector: "Banking" },
@@ -53,7 +57,7 @@ const INDIA_CATEGORIES: { id: string; label: string; stocks: { symbol: string; n
   },
   {
     id: "tech",
-    label: "💻 IT & Tech Services",
+    label: "IT & Tech Services",
     stocks: [
       { symbol: "TCS", name: "Tata Consultancy", sector: "IT Services" },
       { symbol: "INFY", name: "Infosys", sector: "IT Services" },
@@ -65,7 +69,7 @@ const INDIA_CATEGORIES: { id: string; label: string; stocks: { symbol: string; n
   },
   {
     id: "power",
-    label: "⚡ Power, Clean Energy & Infra",
+    label: "Power, Clean Energy & Infra",
     stocks: [
       { symbol: "GENUSPOWER", name: "Genus Power Infra", sector: "Smart Metering / Grid" },
       { symbol: "TATAPOWER", name: "Tata Power", sector: "Power Generation" },
@@ -77,7 +81,7 @@ const INDIA_CATEGORIES: { id: string; label: string; stocks: { symbol: string; n
   },
   {
     id: "auto",
-    label: "🚗 Automotive & EV",
+    label: "Automotive & EV",
     stocks: [
       { symbol: "TATAMOTORS", name: "Tata Motors", sector: "EV & Commercial" },
       { symbol: "MARUTI", name: "Maruti Suzuki", sector: "Passenger Auto" },
@@ -91,7 +95,7 @@ const INDIA_CATEGORIES: { id: string; label: string; stocks: { symbol: string; n
 const US_CATEGORIES: { id: string; label: string; stocks: { symbol: string; name: string; sector: string }[] }[] = [
   {
     id: "top",
-    label: "⭐ Mega-Cap Tech Titans",
+    label: "Mega-Cap Tech Titans",
     stocks: [
       { symbol: "AAPL", name: "Apple Inc.", sector: "Consumer Tech" },
       { symbol: "NVDA", name: "NVIDIA Corporation", sector: "AI & Semiconductors" },
@@ -106,7 +110,7 @@ const US_CATEGORIES: { id: string; label: string; stocks: { symbol: string; name
   },
   {
     id: "semis",
-    label: "🔬 Semiconductors & AI Hardware",
+    label: "Semiconductors & AI Hardware",
     stocks: [
       { symbol: "NVDA", name: "NVIDIA", sector: "GPUs & AI" },
       { symbol: "AMD", name: "Advanced Micro Devices", sector: "CPUs & GPUs" },
@@ -118,7 +122,7 @@ const US_CATEGORIES: { id: string; label: string; stocks: { symbol: string; name
   },
   {
     id: "etfs",
-    label: "📈 Core Benchmark ETFs",
+    label: "Core Benchmark ETFs",
     stocks: [
       { symbol: "SPY", name: "SPDR S&P 500", sector: "Large Cap Index" },
       { symbol: "QQQ", name: "Invesco QQQ", sector: "Tech 100 Index" },
@@ -129,7 +133,7 @@ const US_CATEGORIES: { id: string; label: string; stocks: { symbol: string; name
   },
   {
     id: "finance",
-    label: "💳 Wall Street & Finance",
+    label: "Wall Street & Finance",
     stocks: [
       { symbol: "JPM", name: "JPMorgan Chase", sector: "Investment Banking" },
       { symbol: "BAC", name: "Bank of America", sector: "Consumer Banking" },
@@ -252,7 +256,6 @@ export default function EasyStockPicker({
 
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-800 bg-[#080d1a] p-3">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-          <span className="text-slate-400">Selected <span className="ml-1 rounded-md border border-blue-500/40 bg-blue-500/10 px-2 py-0.5 font-mono font-bold text-blue-300">{selectedAsset || "None"}</span></span>
           <span className="text-slate-400">Market <b className="font-semibold text-slate-200">{assetMarket === "India" ? "🇮🇳 India (NSE/BSE)" : "🇺🇸 US (NYSE/NASDAQ)"}</b></span>
           <span className="text-slate-400">Currency <b className="font-semibold text-emerald-400">{assetMarket === "India" ? "₹ INR" : "$ USD"}</b></span>
         </div>
@@ -273,7 +276,7 @@ export default function EasyStockPicker({
         <div className="flex items-center justify-between"><span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Quick-select baskets ({activeMarket})</span><span className="text-[10px] text-slate-500">Click a stock to select it</span></div>
         <div className="flex flex-wrap gap-1.5">
           {categories.map((c) => (
-            <button key={c.id} type="button" onClick={() => setCategory(c.id)} className={cn("rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors", c.id === current.id ? "border-blue-500/40 bg-blue-500/15 text-blue-300" : "border-slate-800 bg-[#080d1a] text-slate-400 hover:text-white")}>{c.label}</button>
+            <button key={c.id} type="button" onClick={() => setCategory(c.id)} className={cn("rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors", c.id === current.id ? "border-blue-500/40 bg-blue-500/15 text-blue-300" : "border-slate-800 bg-[#080d1a] text-slate-400 hover:text-white")}>{(() => { const I = CATEGORY_ICON[c.id]; return I ? <I className="mr-1.5 inline h-3.5 w-3.5 align-[-2px]" /> : null; })()}{c.label}</button>
           ))}
         </div>
         <div className="grid grid-cols-2 gap-2 pt-1 sm:grid-cols-3 xl:grid-cols-5">

@@ -14,9 +14,14 @@ from ..models.schemas import (
 from .backtester import BacktestEngine
 from ..analytics.performance import calculate_performance_metrics
 
-def _param_key(p: OptimizationParamRange) -> str:
-    """Grid key for a parameter; the indicator id keeps two `period` params apart."""
-    return p.id if (p.target == "indicator" and p.id) else p.name
+def _param_key(p: OptimizationParamRange, all_params: Optional[List[OptimizationParamRange]] = None) -> str:
+    """Grid key for a parameter. The indicator id keeps two `period` params of different indicators apart;
+    when one indicator has several swept params (MACD fast/slow) the key is `<id>.<param>` so they don't collide."""
+    if p.target == "indicator" and p.id:
+        if all_params and sum(1 for q in all_params if q.target == "indicator" and q.id == p.id) > 1:
+            return f"{p.id}.{p.name}"
+        return p.id
+    return p.name
 
 
 def _apply_param_to_strategy(strategy: StrategyConfig, param: OptimizationParamRange, val: float) -> StrategyConfig:
@@ -55,7 +60,7 @@ def run_parameter_optimization(
     for p in params:
         steps = int(np.floor((p.max_val - p.min_val) / p.step)) + 1
         vals = [p.min_val + i * p.step for i in range(steps)]
-        param_values[_param_key(p)] = vals
+        param_values[_param_key(p, params)] = vals
 
     all_keys = list(param_values.keys())
     all_combos = list(itertools.product(*[param_values[k] for k in all_keys]))
@@ -77,7 +82,7 @@ def run_parameter_optimization(
         # Clone and mutate strategy
         strat_candidate = request.strategy.model_copy(deep=True)
         for p_spec in params:
-            val = combo_dict[_param_key(p_spec)]
+            val = combo_dict[_param_key(p_spec, params)]
             strat_candidate = _apply_param_to_strategy(strat_candidate, p_spec, val)
 
         # Execute backtest

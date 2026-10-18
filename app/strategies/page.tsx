@@ -16,6 +16,9 @@ import {
   Rocket,
   FlaskConical,
   Archive,
+  ArrowUp,
+  ArrowDown,
+  X,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { StrategyConfig, BacktestResult } from "@/types";
@@ -36,7 +39,14 @@ export default function StrategiesPage() {
   const [selectedAsset, setSelectedAsset] = useState<string>("ALL");
   const [selectedStatus, setSelectedStatus] = useState<string>("ALL");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
-  const [sortOrder, setSortOrder] = useState<string>("name_asc");
+  type SortKey = "name" | "asset" | "category" | "ret" | "sharpe" | "trades" | "status";
+  const [sortKey, setSortKey] = useState<SortKey>("name");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [selectedMarket, setSelectedMarket] = useState<"ALL" | "India" | "US">("ALL");
+  const [selectedIndicator, setSelectedIndicator] = useState<string>("ALL");
+  const [assetOpen, setAssetOpen] = useState(false);
+  const [dense, setDense] = useState(false);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<"strategies" | "performance" | "templates" | "compare">("strategies");
   const [filtersOpen, setFiltersOpen] = useState(false); // phone-only: collapse the filter sidebar
   const [selectedNav, setSelectedNav] = useState<string>("all"); // 'all' | 'templates' | 'my' | 'archived'
@@ -115,6 +125,11 @@ export default function StrategiesPage() {
   }, []);
 
   useEffect(() => {
+    try { setDense(localStorage.getItem("qs_strategies_dense") === "1"); } catch { /* storage unavailable */ }
+  }, []);
+  const toggleDense = () => setDense((d) => { try { localStorage.setItem("qs_strategies_dense", d ? "0" : "1"); } catch { /* ignore */ } return !d; });
+
+  useEffect(() => {
     if (!menuOpenId) return;
     const close = () => setMenuOpenId(null);
     window.addEventListener("click", close);
@@ -153,6 +168,11 @@ export default function StrategiesPage() {
       .sort((a, b) => b.count - a.count);
   }, [strategies]);
 
+  const distinctIndicators = useMemo(
+    () => Array.from(new Set(strategies.flatMap((x) => x.indicators.map((i) => i.name.toUpperCase())))).sort(),
+    [strategies]
+  );
+
   // Selected Strategy Object
   const currentStrategy = useMemo(() => {
     return strategies.find((s) => s.id === selectedStrategyId) || strategies[0] || null;
@@ -175,6 +195,11 @@ export default function StrategiesPage() {
         // Archived strategies only appear under the Archived view
         if (selectedNav === "archived") { if (!s.archived) return false; }
         else if (s.archived) return false;
+
+        if (activeTab === "templates" && isUser) return false;
+        if (activeTab === "performance" && !runsByStrategy.has(s.id)) return false;
+        if (selectedMarket !== "ALL" && (isIndianTicker(s.asset) ? "India" : "US") !== selectedMarket) return false;
+        if (selectedIndicator !== "ALL" && !s.indicators.some((i) => i.name.toUpperCase() === selectedIndicator)) return false;
 
         // Left nav filter
         if (selectedNav === "templates" && isUser) return false;
@@ -208,12 +233,25 @@ export default function StrategiesPage() {
         return true;
       })
       .sort((a, b) => {
-        if (sortOrder === "name_asc") return a.name.localeCompare(b.name);
-        if (sortOrder === "name_desc") return b.name.localeCompare(a.name);
-        if (sortOrder === "asset") return a.asset.localeCompare(b.asset);
-        return 0;
+        const pa = runsByStrategy.get(a.id)?.metrics, pb = runsByStrategy.get(b.id)?.metrics;
+        const num = (x?: number | null) => (typeof x === "number" ? x : null);
+        let cmp = 0;
+        if (sortKey === "name") cmp = a.name.localeCompare(b.name);
+        else if (sortKey === "asset") cmp = a.asset.localeCompare(b.asset);
+        else if (sortKey === "category") cmp = categoryOf(a).localeCompare(categoryOf(b));
+        else if (sortKey === "status") cmp = Number(!!pb) - Number(!!pa);
+        else {
+          const va = num(sortKey === "ret" ? pa?.total_return : sortKey === "sharpe" ? pa?.sharpe_ratio : pa?.num_trades);
+          const vb = num(sortKey === "ret" ? pb?.total_return : sortKey === "sharpe" ? pb?.sharpe_ratio : pb?.num_trades);
+          // Strategies with no run always sort last, whichever direction.
+          if (va === null && vb === null) return a.name.localeCompare(b.name);
+          if (va === null) return 1;
+          if (vb === null) return -1;
+          cmp = va - vb;
+        }
+        return sortDir === "asc" ? cmp : -cmp;
       });
-  }, [strategies, runsByStrategy, selectedNav, selectedCategory, selectedAsset, selectedStatus, searchQuery, sortOrder]);
+  }, [strategies, runsByStrategy, activeTab, selectedMarket, selectedIndicator, selectedNav, selectedCategory, selectedAsset, selectedStatus, searchQuery, sortKey, sortDir]);
 
   // Paginated strategies
   const paginatedStrategies = useMemo(() => {
@@ -252,6 +290,57 @@ export default function StrategiesPage() {
       start: run.start_date,
       end: run.end_date,
     };
+  };
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else { setSortKey(key); setSortDir(key === "ret" || key === "sharpe" || key === "trades" ? "desc" : "asc"); }
+    setCurrentPage(1);
+  };
+  const sortHead = (key: SortKey, label: string, align = "text-left") => (
+    <th className={`py-2.5 px-3 ${align}`} aria-sort={sortKey === key ? (sortDir === "asc" ? "ascending" : "descending") : "none"}>
+      <button type="button" onClick={() => toggleSort(key)} className="inline-flex items-center gap-1 uppercase hover:text-slate-200">
+        {label}
+        {sortKey === key && (sortDir === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />)}
+      </button>
+    </th>
+  );
+
+  const toggleCompare = (id: string) =>
+    setCompareIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : ids.length >= 4 ? ids : [...ids, id]));
+
+  const openTest = (st: StrategyConfig) => { setStrategyToTest(st); setTestModalOpen(true); };
+
+  const onTableKeyDown = (e: React.KeyboardEvent) => {
+    const tag = (e.target as HTMLElement).tagName;
+    if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
+    const ids = paginatedStrategies.map((x) => x.id);
+    const at = ids.indexOf(selectedStrategyId ?? "");
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      const next = ids[Math.min(ids.length - 1, Math.max(0, at + (e.key === "ArrowDown" ? 1 : -1)))];
+      if (next) {
+        setSelectedStrategyId(next);
+        document.getElementById(`strategy-row-${next}`)?.scrollIntoView({ block: "nearest" });
+      }
+    } else if (e.key === "Enter" && at >= 0) {
+      e.preventDefault();
+      openTest(paginatedStrategies[at]);
+    }
+  };
+
+  // Active filter chips
+  const chips: { label: string; clear: () => void }[] = [];
+  if (selectedCategory !== "ALL") chips.push({ label: categoriesList.find((c) => c.id === selectedCategory)?.label ?? selectedCategory, clear: () => setSelectedCategory("ALL") });
+  if (selectedAsset !== "ALL") chips.push({ label: `Asset: ${selectedAsset}`, clear: () => setSelectedAsset("ALL") });
+  if (selectedMarket !== "ALL") chips.push({ label: `Market: ${selectedMarket}`, clear: () => setSelectedMarket("ALL") });
+  if (selectedIndicator !== "ALL") chips.push({ label: `Indicator: ${selectedIndicator}`, clear: () => setSelectedIndicator("ALL") });
+  if (selectedStatus !== "ALL") chips.push({ label: selectedStatus === "TESTED" ? "Backtested" : "Not run", clear: () => setSelectedStatus("ALL") });
+  if (selectedNav !== "all") chips.push({ label: selectedNav === "my" ? "My strategies" : selectedNav === "archived" ? "Archived" : "Templates", clear: () => setSelectedNav("all") });
+  if (searchQuery.trim()) chips.push({ label: `“${searchQuery.trim()}”`, clear: () => setSearchQuery("") });
+  const clearAll = () => {
+    setSelectedCategory("ALL"); setSelectedAsset("ALL"); setSelectedMarket("ALL"); setSelectedIndicator("ALL");
+    setSelectedStatus("ALL"); setSelectedNav("all"); setSearchQuery(""); setCurrentPage(1);
   };
 
   const handleDelete = async (id: string) => {
@@ -424,51 +513,69 @@ export default function StrategiesPage() {
             </button>
           </div>
 
-          {/* Asset Filter Checkboxes */}
-          <div className="border-t border-[#1e293b] pt-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] text-[#64748b] uppercase font-bold tracking-wider">
-                ASSET FILTER
-              </span>
-              <span className="text-[9px] font-bold text-[#64748b]">DEFAULT ASSET</span>
-            </div>
-
-            <div className="space-y-1 text-[11px]">
-              <label
-                onClick={() => setSelectedAsset("ALL")}
-                className="flex items-center justify-between cursor-pointer py-0.5 text-[#cbd5e1]"
-              >
-                <div className="flex items-center space-x-2">
-                  <div className={`w-3 h-3 rounded-[1px] border flex items-center justify-center ${selectedAsset === "ALL" ? "border-[#3b82f6] bg-[#3b82f6] text-black" : "border-[#64748b]"}`}>
-                    {selectedAsset === "ALL" && <Check className="h-2.5 w-2.5 stroke-[3]" />}
-                  </div>
-                  <span>All Assets</span>
-                </div>
-                <span className="text-[10px] text-[#64748b]">{live.length}</span>
-              </label>
-
-              {distinctAssets.map(({ asset, count }) => {
-                const isChecked = selectedAsset === asset;
-                return (
-                  <label
-                    key={asset}
-                    onClick={() => {
-                      setSelectedAsset(isChecked ? "ALL" : asset);
-                      setCurrentPage(1);
-                    }}
-                    className="flex items-center justify-between cursor-pointer py-0.5 text-[#94a3b8] hover:text-[#cbd5e1]"
+          {/* Market + indicator filters */}
+          <div className="border-t border-[#1e293b] pt-3 space-y-3">
+            <div className="space-y-1">
+              <span className="block text-[10px] font-bold uppercase tracking-wider text-[#64748b]">ASSET CLASS</span>
+              <div className="flex gap-1 text-[10px]">
+                {(["ALL", "India", "US"] as const).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => { setSelectedMarket(m); setCurrentPage(1); }}
+                    className={`flex-1 rounded-md border px-2 py-1 ${selectedMarket === m ? "border-[#3b82f6] bg-[#3b82f6]/15 font-bold text-[#3b82f6]" : "border-[#1e293b] text-[#94a3b8] hover:text-[#cbd5e1]"}`}
                   >
-                    <div className="flex items-center space-x-2">
-                      <div className={`w-3 h-3 rounded-[1px] border flex items-center justify-center ${isChecked ? "border-[#3b82f6] bg-[#3b82f6] text-black" : "border-[#64748b]"}`}>
-                        {isChecked && <Check className="h-2.5 w-2.5 stroke-[3]" />}
-                      </div>
-                      <span className="font-mono">{asset}</span>
-                    </div>
-                    <span className="text-[10px] text-[#64748b]">{count}</span>
-                  </label>
-                );
-              })}
+                    {m === "ALL" ? "All" : m === "India" ? "🇮🇳 India" : "🇺🇸 US"}
+                  </button>
+                ))}
+              </div>
             </div>
+            <div className="space-y-1">
+              <label htmlFor="indicator-filter" className="block text-[10px] font-bold uppercase tracking-wider text-[#64748b]">INDICATOR USED</label>
+              <select
+                id="indicator-filter"
+                value={selectedIndicator}
+                onChange={(e) => { setSelectedIndicator(e.target.value); setCurrentPage(1); }}
+                className="w-full rounded-md border border-[#1e293b] bg-[#080d1a] px-2 py-1 text-[11px] text-[#94a3b8] focus:outline-none"
+              >
+                <option value="ALL">Any indicator</option>
+                {distinctIndicators.map((n) => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Default-asset filter (collapsed: it is a default, not a strategy attribute) */}
+          <div className="border-t border-[#1e293b] pt-3">
+            <button
+              type="button"
+              onClick={() => setAssetOpen((o) => !o)}
+              aria-expanded={assetOpen}
+              className="flex w-full items-center justify-between text-[10px] font-bold uppercase tracking-wider text-[#64748b] hover:text-[#94a3b8]"
+            >
+              <span>Default asset{selectedAsset !== "ALL" ? ` · ${selectedAsset}` : ` (${distinctAssets.length})`}</span>
+              <span>{assetOpen ? "−" : "+"}</span>
+            </button>
+            {assetOpen && (
+              <div className="mt-2 space-y-1 text-[11px]">
+                {distinctAssets.map(({ asset, count }) => {
+                  const isChecked = selectedAsset === asset;
+                  return (
+                    <label
+                      key={asset}
+                      onClick={() => { setSelectedAsset(isChecked ? "ALL" : asset); setCurrentPage(1); }}
+                      className="flex cursor-pointer items-center justify-between py-0.5 text-[#94a3b8] hover:text-[#cbd5e1]"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <div className={`flex h-3 w-3 items-center justify-center rounded-[1px] border ${isChecked ? "border-[#3b82f6] bg-[#3b82f6] text-black" : "border-[#64748b]"}`}>
+                          {isChecked && <Check className="h-2.5 w-2.5 stroke-[3]" />}
+                        </div>
+                        <span className="font-mono">{asset}</span>
+                      </div>
+                      <span className="text-[10px] text-[#64748b]">{count}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Status Filter */}
@@ -530,14 +637,14 @@ export default function StrategiesPage() {
               {(["strategies", "performance", "templates", "compare"] as const).map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => { setActiveTab(tab); setCurrentPage(1); if (tab === "performance") { setSortKey("ret"); setSortDir("desc"); } }}
                   className={`px-3 py-1 rounded-lg font-bold uppercase text-[10px] transition-colors ${
                     activeTab === tab
                       ? "bg-[#1e293b] text-[#3b82f6]"
                       : "text-[#94a3b8] hover:text-[#cbd5e1]"
                   }`}
                 >
-                  {tab}
+                  {tab}{tab === "compare" && compareIds.length > 0 ? ` (${compareIds.length})` : ""}
                 </button>
               ))}
             </div>
@@ -557,14 +664,34 @@ export default function StrategiesPage() {
               </div>
 
               <select
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value)}
+                aria-label="Sort"
+                value={`${sortKey}_${sortDir}`}
+                onChange={(e) => { const [k, d] = e.target.value.split("_"); setSortKey(k as SortKey); setSortDir(d as "asc" | "desc"); }}
                 className="bg-[#080d1a] border border-[#1e293b] rounded-lg px-2 py-1 text-[11px] text-[#94a3b8] focus:outline-none"
               >
                 <option value="name_asc">Sort: Name (A &rarr; Z)</option>
                 <option value="name_desc">Sort: Name (Z &rarr; A)</option>
-                <option value="asset">Sort: Asset</option>
+                <option value="asset_asc">Sort: Asset</option>
+                <option value="category_asc">Sort: Category</option>
+                <option value="ret_desc">Sort: Return (high &rarr; low)</option>
+                <option value="sharpe_desc">Sort: Sharpe (high &rarr; low)</option>
+                <option value="trades_desc">Sort: Trades (most)</option>
               </select>
+
+              {compareIds.length >= 2 && activeTab !== "compare" && (
+                <button type="button" onClick={() => setActiveTab("compare")} className="rounded-lg bg-blue-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-blue-500">
+                  Compare ({compareIds.length})
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={toggleDense}
+                aria-pressed={dense}
+                title="Toggle compact rows"
+                className={`rounded-lg border px-2 py-1 text-[11px] ${dense ? "border-[#3b82f6] text-[#3b82f6]" : "border-[#1e293b] text-[#94a3b8] hover:text-[#cbd5e1]"}`}
+              >
+                Compact
+              </button>
 
               <div className="flex items-center rounded-lg border border-[#1e293b] bg-[#080d1a] p-0.5">
                 <button
@@ -585,27 +712,130 @@ export default function StrategiesPage() {
             </div>
           </div>
 
-          {/* Strategy Table */}
-          <div className="overflow-x-auto lg:flex-1 lg:overflow-auto">
+          {/* Active filter chips */}
+          {chips.length > 0 && activeTab !== "compare" && (
+            <div className="flex flex-wrap items-center gap-1.5 border-b border-[#1e293b] bg-[#080d1a] px-4 py-2 text-[10px]">
+              {chips.map((c) => (
+                <span key={c.label} className="inline-flex items-center gap-1 rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-blue-300">
+                  {c.label}
+                  <button type="button" onClick={() => { c.clear(); setCurrentPage(1); }} aria-label={`Remove filter ${c.label}`} className="hover:text-white"><X className="h-3 w-3" /></button>
+                </span>
+              ))}
+              <button type="button" onClick={clearAll} className="px-1 text-slate-400 underline hover:text-white">Clear all</button>
+            </div>
+          )}
+
+          {activeTab === "compare" ? (() => {
+            const picked = compareIds.map((id) => strategies.find((x) => x.id === id)).filter((x): x is StrategyConfig => !!x);
+            if (picked.length < 2) {
+              return (
+                <div className="flex flex-1 flex-col items-center justify-center gap-2 p-10 text-center text-slate-400">
+                  <p className="text-sm text-slate-200">Pick 2–4 strategies to compare</p>
+                  <p className="text-[11px]">Tick the boxes in the Strategies tab ({picked.length} selected), then return here.</p>
+                  <button type="button" onClick={() => setActiveTab("strategies")} className="mt-2 rounded-lg border border-slate-700 px-3 py-1.5 text-[11px] text-slate-200 hover:bg-slate-800">Back to strategies</button>
+                </div>
+              );
+            }
+            const rows: [string, (x: StrategyConfig, p: ReturnType<typeof getMetrics>) => React.ReactNode][] = [
+              ["Category", (x) => categoryOf(x).replace(/_/g, " ")],
+              ["Default asset", (x) => `${x.asset} · ${x.timeframe}`],
+              ["Latest run", (_x, p) => (p ? `${p.ticker} · ${p.start} → ${p.end}` : "—")],
+              ["Equity", (_x, p) => (p ? <MiniSparkline data={p.curve} positive={(p.ret ?? 0) >= 0} width={120} height={28} /> : "—")],
+              ["Return", (_x, p) => fmtPct(p?.ret)],
+              ["Sharpe", (_x, p) => (p ? formatRatio(p.sharpe) : "—")],
+              ["Max drawdown", (_x, p) => (p && isNum(p.maxDd) ? fmtPct(-Math.abs(p.maxDd), 1) : "—")],
+              ["Win rate", (_x, p) => (p ? fmtPct(p.winRate, 1, false) : "—")],
+              ["Profit factor", (_x, p) => (p ? formatRatio(p.pf) : "—")],
+              ["Trades", (_x, p) => fmtInt(p?.trades)],
+              ["Stop / take profit", (x) => `${x.risk.stop_loss_pct ? `-${x.risk.stop_loss_pct}%` : "—"} / ${x.risk.take_profit_pct ? `+${x.risk.take_profit_pct}%` : "—"}`],
+              ["Entry", (x) => <span className="text-[10px] text-slate-400">{formatRuleSet(x.entry_rules, x.indicators)}</span>],
+            ];
+            return (
+              <div className="overflow-auto p-4 lg:flex-1">
+                <table className="w-full min-w-[560px] border-collapse text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-[#1e293b] text-[10px] uppercase text-[#94a3b8]">
+                      <th className="px-3 py-2"></th>
+                      {picked.map((x) => (
+                        <th key={x.id} className="px-3 py-2 align-top normal-case">
+                          <div className="font-bold text-slate-200">{x.name}</div>
+                          <button type="button" onClick={() => toggleCompare(x.id)} className="text-[10px] font-normal text-slate-500 underline hover:text-white">Remove</button>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#1e293b]/50 font-mono">
+                    {rows.map(([label, fn]) => (
+                      <tr key={label}>
+                        <td className="px-3 py-2 text-[10px] uppercase text-slate-500">{label}</td>
+                        {picked.map((x) => <td key={x.id} className="px-3 py-2 text-slate-200">{fn(x, getMetrics(x.id))}</td>)}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
+          })() : viewMode === "grid" ? (
+            <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3 lg:flex-1 lg:overflow-auto" onKeyDown={onTableKeyDown} tabIndex={0}>
+              {paginatedStrategies.map((s) => {
+                const perf = getMetrics(s.id);
+                const isPositive = (perf?.ret ?? 0) >= 0;
+                const ruleText = formatRuleSet(s.entry_rules, s.indicators);
+                return (
+                  <div
+                    key={s.id}
+                    id={`strategy-row-${s.id}`}
+                    onClick={() => setSelectedStrategyId(s.id)}
+                    className={`cursor-pointer rounded-xl border p-3 transition-colors ${s.id === selectedStrategyId ? "border-[#3b82f6] bg-[#0b1222]" : "border-[#1e293b] bg-[#0b1222]/60 hover:bg-[#0b1222]"}`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="truncate font-bold text-slate-200">{s.name}</div>
+                        <div className="font-mono text-[10px] text-slate-500">{s.asset} · {s.timeframe} · {categoryOf(s).replace(/_/g, " ")}</div>
+                      </div>
+                      <input type="checkbox" aria-label={`Compare ${s.name}`} checked={compareIds.includes(s.id)} onClick={(e) => e.stopPropagation()} onChange={() => toggleCompare(s.id)} />
+                    </div>
+                    <p className="mt-2 line-clamp-2 text-[11px] text-slate-400" title={s.description}>{s.description || "No description."}</p>
+                    <p className="mt-2 truncate font-mono text-[10px] text-slate-500" title={ruleText}>{ruleText}</p>
+                    <div className="mt-3 flex items-center justify-between border-t border-[#1e293b] pt-2 font-mono text-[11px]">
+                      {perf ? (
+                        <>
+                          <MiniSparkline data={perf.curve} positive={isPositive} width={56} height={16} />
+                          <span className={isPositive ? "text-emerald-400" : "text-rose-400"}>{fmtPct(perf.ret)}</span>
+                          <span className="text-slate-300">SR {formatRatio(perf.sharpe)}</span>
+                          <span className="text-slate-400">{fmtInt(perf.trades)} tr</span>
+                        </>
+                      ) : (
+                        <button type="button" onClick={(e) => { e.stopPropagation(); openTest(s); }} className="text-[11px] text-blue-400 hover:underline">Not backtested yet · Run</button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+              {paginatedStrategies.length === 0 && <p className="col-span-full py-10 text-center text-slate-500">No strategies match these filters.</p>}
+            </div>
+          ) : (
+          <div className="overflow-x-auto outline-none lg:flex-1 lg:overflow-auto" tabIndex={0} onKeyDown={onTableKeyDown} aria-label="Strategies. Use arrow keys to move, Enter to test.">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="border-b border-[#1e293b] bg-[#080d1a] text-[10px] text-[#94a3b8] uppercase tracking-wider sticky top-0 z-10">
-                  <th className="py-2.5 px-3 w-8 text-center">#</th>
-                  <th className="py-2.5 px-3">Strategy Name</th>
-                  <th className="py-2.5 px-3">Default asset</th>
-                  <th className="py-2.5 px-3">Category</th>
+                  <th className="py-2.5 pl-3 pr-1 w-6"><span className="sr-only">Compare</span></th>
+                  <th className="py-2.5 px-2 w-8 text-center">#</th>
+                  {sortHead("name", "Strategy Name")}
+                  {sortHead("asset", "Default asset")}
+                  {sortHead("category", "Category")}
                   <th className="py-2.5 px-3 min-w-[220px]">Key Logic / Signal Rules</th>
                   <th className="py-2.5 px-3 text-center" colSpan={3}>Latest run</th>
-                  <th className="py-2.5 px-3 text-center">Trades</th>
-                  <th className="py-2.5 px-3 text-center">Status</th>
+                  {sortHead("trades", "Trades", "text-right")}
+                  {sortHead("status", "Status", "text-center")}
                   <th className="py-2.5 px-3">Source</th>
                   <th className="py-2.5 px-3 text-right">Actions</th>
                 </tr>
                 <tr className="border-b border-[#1e293b] bg-[#080d1a] text-[9px] text-[#64748b] uppercase">
-                  <th colSpan={5}></th>
+                  <th colSpan={6}></th>
                   <th className="py-1 px-2 text-center">Trend</th>
-                  <th className="py-1 px-2 text-right">Return</th>
-                  <th className="py-1 px-2 text-right">Sharpe</th>
+                  <th className="py-1 px-2 text-right"><button type="button" onClick={() => toggleSort("ret")} className="uppercase hover:text-slate-200">Return{sortKey === "ret" ? (sortDir === "asc" ? " ↑" : " ↓") : ""}</button></th>
+                  <th className="py-1 px-2 text-right"><button type="button" onClick={() => toggleSort("sharpe")} className="uppercase hover:text-slate-200">Sharpe{sortKey === "sharpe" ? (sortDir === "asc" ? " ↑" : " ↓") : ""}</button></th>
                   <th colSpan={4}></th>
                 </tr>
               </thead>
@@ -616,75 +846,85 @@ export default function StrategiesPage() {
                   const perf = getMetrics(s.id);
                   const isPositive = (perf?.ret ?? 0) >= 0;
                   const ruleSnippet = formatRuleSet(s.entry_rules, s.indicators);
+                  const py = dense ? "py-1" : "py-2";
 
                   return (
                     <tr
                       key={s.id}
+                      id={`strategy-row-${s.id}`}
                       onClick={() => setSelectedStrategyId(s.id)}
-                      className={`cursor-pointer transition-colors ${
+                      aria-selected={isSelected}
+                      className={`group cursor-pointer transition-colors ${
                         isSelected
-                          ? "bg-[#0b1222] border-l-2 border-[#3b82f6]"
+                          ? "bg-[#12203a] border-l-2 border-[#3b82f6]"
                           : "hover:bg-[#0b1222] border-l-2 border-transparent"
                       }`}
                     >
-                      <td className="py-2 px-3 text-center text-[10px] text-[#64748b]">{rowNum}</td>
-                      <td className="py-2 px-3">
-                        <div className="font-bold text-[#cbd5e1]">{s.name}</div>
-                        <div className="text-[10px] text-[#64748b] truncate max-w-[200px]">
-                          {s.description || "Systematic rules-based alpha"}
-                        </div>
+                      <td className={`${py} pl-3 pr-1`}>
+                        <input type="checkbox" aria-label={`Compare ${s.name}`} checked={compareIds.includes(s.id)} onClick={(e) => e.stopPropagation()} onChange={() => toggleCompare(s.id)} />
                       </td>
-                      <td className="py-2 px-3">
+                      <td className={`${py} px-2 text-center text-[10px] text-[#64748b]`}>{rowNum}</td>
+                      <td className={`${py} min-w-[220px] px-3`}>
+                        <div className="font-bold text-[#cbd5e1]">{s.name}</div>
+                        {!dense && (
+                          <div className="text-[10px] text-[#64748b] truncate max-w-[200px]" title={s.description}>
+                            {s.description || "Systematic rules-based alpha"}
+                          </div>
+                        )}
+                      </td>
+                      <td className={`${py} px-3`}>
                         <span className="font-bold text-[#cbd5e1]">{s.asset}</span>
                         <span className="text-[10px] text-[#64748b] ml-1">{s.timeframe}</span>
                       </td>
-                      <td className="py-2 px-3">
+                      <td className={`${py} px-3`}>
                         <span className="px-1.5 py-0.5 rounded-lg bg-[#080d1a] border border-[#1e293b] text-[9px] text-[#94a3b8] uppercase">
                           {(s.strategy_type || "trend").replace(/_/g, " ")}
                         </span>
                       </td>
-                      <td className="py-2 px-3 text-[11px] text-[#94a3b8] truncate max-w-[240px]">
+                      <td className={`${py} px-3 text-[11px] text-[#94a3b8] truncate max-w-[240px]`} title={ruleSnippet}>
                         {ruleSnippet}
                       </td>
-                      <td className="py-2 px-2 text-center">
-                        {perf ? (
-                          <div title={`Run on ${perf.ticker}, ${perf.start} → ${perf.end}`}>
-                            <MiniSparkline data={perf.curve} positive={isPositive} width={48} height={14} />
-                            <div className="mt-0.5 font-mono text-[9px] text-slate-500">{perf.ticker}</div>
-                          </div>
-                        ) : <span className="font-mono text-slate-500">—</span>}
-                      </td>
-                      <td className={`py-2 px-2 text-right font-mono font-bold ${!perf ? "text-slate-500" : isPositive ? "text-emerald-400" : "text-rose-400"}`}>
-                        {fmtPct(perf?.ret)}
-                      </td>
-                      <td className="py-2 px-2 text-right font-mono text-slate-200">
-                        {perf ? formatRatio(perf.sharpe) : "—"}
-                      </td>
-                      <td className="py-2 px-3 text-center font-mono text-slate-400">
-                        {fmtInt(perf?.trades)}
-                      </td>
-                      <td className="py-2 px-3 text-center">
+                      {perf ? (
+                        <>
+                          <td className={`${py} px-2 text-center`}>
+                            <div title={`Run on ${perf.ticker}, ${perf.start} → ${perf.end}`}>
+                              <MiniSparkline data={perf.curve} positive={isPositive} width={48} height={14} />
+                              {!dense && <div className="mt-0.5 font-mono text-[9px] text-slate-500">{perf.ticker}</div>}
+                            </div>
+                          </td>
+                          <td className={`${py} px-2 text-right font-mono font-bold ${isPositive ? "text-emerald-400" : "text-rose-400"}`}>{fmtPct(perf.ret)}</td>
+                          <td className={`${py} px-2 text-right font-mono text-slate-200`}>{formatRatio(perf.sharpe)}</td>
+                          <td className={`${py} px-3 text-right font-mono text-slate-400`}>{fmtInt(perf.trades)}</td>
+                        </>
+                      ) : (
+                        <td colSpan={4} className={`${py} px-3 text-right`}>
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); openTest(s); }}
+                            className="text-[11px] text-slate-500 hover:text-blue-400"
+                          >
+                            Not backtested yet · <span className="text-blue-400 underline">Run</span>
+                          </button>
+                        </td>
+                      )}
+                      <td className={`${py} px-3 text-center`}>
                         {perf ? (
                           <span className="px-1.5 py-0.5 rounded-lg bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/30 text-[9px] font-bold">BACKTESTED</span>
                         ) : (
                           <span className="px-1.5 py-0.5 rounded-lg bg-slate-500/10 text-slate-400 border border-slate-500/30 text-[9px] font-bold">NOT RUN</span>
                         )}
                       </td>
-                      <td className="py-2 px-3 text-[10px] text-slate-400">{isUserStrategy(s) ? "Mine" : "Built-in"}</td>
-                      <td className="py-2 px-3 text-right">
+                      <td className={`${py} px-3 text-[10px] text-slate-400`}>{isUserStrategy(s) ? "Mine" : "Built-in"}</td>
+                      <td className={`${py} px-3 text-right`}>
                         <div className="flex items-center justify-end space-x-1.5">
                           <button
                             type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setStrategyToTest(s);
-                              setTestModalOpen(true);
-                            }}
-                            className="flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-[#2563eb]/15 hover:bg-[#2563eb]/30 border border-[#2563eb]/40 hover:border-[#3b82f6] text-[#3b82f6] text-[10px] font-bold transition-all cursor-pointer shadow-xs"
+                            onClick={(e) => { e.stopPropagation(); openTest(s); }}
+                            className={`rounded-lg border border-[#2563eb]/40 bg-[#2563eb]/15 p-1 text-[#3b82f6] transition-opacity hover:bg-[#2563eb]/30 focus:opacity-100 group-hover:opacity-100 ${isSelected ? "opacity-100" : "opacity-0"}`}
                             title={`Test ${s.name} on any stock (India or US)`}
+                            aria-label={`Test ${s.name} on a stock`}
                           >
                             <Play className="h-2.5 w-2.5 fill-current" />
-                            <span>Test Stock</span>
                           </button>
                           <div className="relative">
                             <button
@@ -697,8 +937,9 @@ export default function StrategiesPage() {
                               <MoreVertical className="h-3 w-3" />
                             </button>
                             {menuOpenId === s.id && (
-                              <div role="menu" onClick={(e) => e.stopPropagation()} className="absolute right-0 top-6 z-30 w-36 rounded-lg border border-slate-700 bg-[#0b1222] py-1 text-left text-[11px] shadow-xl">
-                                <Link href={`/strategies/builder?edit=${s.id}`} className="block px-3 py-1.5 text-slate-200 hover:bg-slate-800">Edit</Link>
+                              <div role="menu" onClick={(e) => e.stopPropagation()} className="absolute right-0 top-6 z-30 w-40 rounded-lg border border-slate-700 bg-[#0b1222] py-1 text-left text-[11px] shadow-xl">
+                                <button role="menuitem" onClick={() => { setMenuOpenId(null); openTest(s); }} className="block w-full px-3 py-1.5 text-left text-slate-200 hover:bg-slate-800">Test on stock…</button>
+                                <Link href={`/strategies/builder?edit=${s.id}`} className="block px-3 py-1.5 text-slate-200 hover:bg-slate-800">Edit in Lab</Link>
                                 <Link href={`/strategies/builder?clone=${s.id}`} className="block px-3 py-1.5 text-slate-200 hover:bg-slate-800">Duplicate</Link>
                                 {isUserStrategy(s) && <button role="menuitem" onClick={() => handleRename(s.id)} className="block w-full px-3 py-1.5 text-left text-slate-200 hover:bg-slate-800">Rename</button>}
                                 <button role="menuitem" onClick={() => handleArchive(s.id, !s.archived)} className="block w-full px-3 py-1.5 text-left text-slate-200 hover:bg-slate-800">{s.archived ? "Restore" : "Archive"}</button>
@@ -711,12 +952,16 @@ export default function StrategiesPage() {
                     </tr>
                   );
                 })}
+                {paginatedStrategies.length === 0 && (
+                  <tr><td colSpan={13} className="py-12 text-center text-slate-500">No strategies match these filters.</td></tr>
+                )}
               </tbody>
             </table>
           </div>
+          )}
 
           {/* Table Pagination Footer */}
-          <div className="border-t border-[#1e293b] bg-[#0b1222] px-4 py-2 flex items-center justify-between text-[11px] text-[#94a3b8]">
+          {activeTab !== "compare" && <div className="border-t border-[#1e293b] bg-[#0b1222] px-4 py-2 flex items-center justify-between text-[11px] text-[#94a3b8]">
             <span>
               Showing {(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, filteredStrategies.length)} of {filteredStrategies.length} strategies
             </span>
@@ -752,7 +997,7 @@ export default function StrategiesPage() {
                 <option value={50}>50 / page</option>
               </select>
             </div>
-          </div>
+          </div>}
         </div>
 
         {/* ============================================================ */}
@@ -763,6 +1008,7 @@ export default function StrategiesPage() {
           const stockIsIndia = isIndianTicker(selectedStockForRun);
           const fmtDate = (v?: string) => (v ? new Date(v).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—");
           const mine = isUserStrategy(currentStrategy);
+          const recentRuns = runs.filter((r) => r.strategy_id === currentStrategy.id).slice(-5).reverse();
           const tags = Array.from(new Set([(currentStrategy.strategy_type || "trend").replace(/_/g, "-"), ...(currentStrategy.tags ?? []).map((t) => t.toLowerCase()), ...currentStrategy.indicators.map((i) => i.name.toLowerCase())]));
           const stat = (label: string, value: string, tone = "text-white") => (
             <div>
@@ -789,6 +1035,22 @@ export default function StrategiesPage() {
                   <span className={cn("rounded-full border px-2 py-0.5 font-mono text-[9px] font-bold", perf ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-400" : "border-slate-500/40 bg-slate-500/10 text-slate-400")}>{perf ? "BACKTESTED" : "NOT RUN"}</span>
                 </div>
                 <p className="mt-2 text-[11px] leading-relaxed text-slate-400">{currentStrategy.description || "No description."}</p>
+              </div>
+
+              {/* Primary actions */}
+              <div className="grid grid-cols-2 gap-2">
+                <button type="button" onClick={() => openTest(currentStrategy)} className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-500">
+                  <Play className="h-3.5 w-3.5 fill-current" /> Run backtest
+                </button>
+                <Link href={`/strategies/builder?edit=${currentStrategy.id}`} className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-900/70 px-3 py-2 text-xs font-medium text-slate-200 hover:bg-slate-800">
+                  <FlaskConical className="h-3.5 w-3.5" /> Edit in Lab
+                </Link>
+                <Link href={`/strategies/builder?clone=${currentStrategy.id}`} className="inline-flex items-center justify-center rounded-lg border border-slate-700/80 bg-slate-900/70 px-3 py-1.5 text-[11px] font-medium text-slate-200 hover:bg-slate-800">Duplicate</Link>
+                {mine ? (
+                  <button type="button" onClick={() => handleDelete(currentStrategy.id)} className="inline-flex items-center justify-center rounded-lg border border-rose-500/30 bg-rose-500/5 px-3 py-1.5 text-[11px] font-medium text-rose-400 hover:bg-rose-500/10">Delete</button>
+                ) : (
+                  <button type="button" onClick={() => handleArchive(currentStrategy.id, !currentStrategy.archived)} className="inline-flex items-center justify-center rounded-lg border border-slate-700/80 bg-slate-900/70 px-3 py-1.5 text-[11px] font-medium text-slate-200 hover:bg-slate-800">{currentStrategy.archived ? "Restore" : "Archive"}</button>
+                )}
               </div>
 
               {/* Pill tab bar (DESIGN.md 7.3) */}
@@ -838,6 +1100,27 @@ export default function StrategiesPage() {
                     </div>
                   </div>
 
+                  {perf && (
+                    <div className="rounded-xl border border-slate-800/90 bg-[#0b1222]/95 p-4">
+                      <h3 className="mb-2 text-sm font-bold tracking-wide text-white">Equity curve</h3>
+                      <MiniSparkline data={perf.curve} positive={(perf.ret ?? 0) >= 0} width={256} height={64} />
+                      <p className="mt-1 font-mono text-[10px] text-slate-500">{perf.ticker} · {perf.start} → {perf.end}</p>
+                    </div>
+                  )}
+
+                  <div className="rounded-xl border border-slate-800/90 bg-[#0b1222]/95 p-4">
+                    <h3 className="mb-2 text-sm font-bold tracking-wide text-white">Recent runs</h3>
+                    {recentRuns.length === 0 ? (
+                      <p className="text-[11px] text-slate-500">No runs yet.</p>
+                    ) : recentRuns.slice(0, 3).map((r) => (
+                      <Link key={r.id} href={`/backtests/${r.id}`} className="flex items-center justify-between rounded-lg px-2 py-1.5 font-mono text-[11px] hover:bg-slate-800/30">
+                        <span className="text-slate-200">{r.ticker}</span>
+                        <span className="text-slate-500">{(r.created_at || r.end_date || "").slice(0, 10)}</span>
+                        <span className={(r.metrics?.total_return ?? 0) >= 0 ? "text-emerald-400" : "text-rose-400"}>{fmtPct(r.metrics?.total_return)}</span>
+                      </Link>
+                    ))}
+                  </div>
+
                   <div className="rounded-xl border border-slate-800/90 bg-[#0b1222]/95 p-4">
                     <h3 className="mb-2 text-sm font-bold tracking-wide text-white">Signal logic</h3>
                     <div className="space-y-2 text-[11px]">
@@ -868,6 +1151,21 @@ export default function StrategiesPage() {
                   ) : (
                     <div className="text-slate-500">No explicit reversal rules; managed by stops.</div>
                   )}
+                  <div className="border-t border-slate-800 pt-2 font-mono text-[10px] font-bold uppercase tracking-wider text-blue-400">Parameters</div>
+                  {currentStrategy.indicators.length === 0 ? (
+                    <div className="text-slate-500">No indicators.</div>
+                  ) : (
+                    <table className="w-full text-left font-mono text-[11px]">
+                      <tbody>
+                        {currentStrategy.indicators.map((ind) => (
+                          <tr key={ind.id} className="border-b border-slate-800/50 last:border-0">
+                            <td className="py-1 pr-2 text-slate-300">{ind.id}</td>
+                            <td className="py-1 text-right text-slate-400">{Object.entries(ind.params ?? {}).map(([k, v]) => `${k}=${v}`).join(", ") || "—"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
                 </div>
               )}
 
@@ -877,6 +1175,10 @@ export default function StrategiesPage() {
                   {[
                     ["Stop loss", currentStrategy.risk.stop_loss_pct ? `-${currentStrategy.risk.stop_loss_pct}%` : "—", "text-rose-400"],
                     ["Take profit", currentStrategy.risk.take_profit_pct ? `+${currentStrategy.risk.take_profit_pct}%` : "—", "text-emerald-400"],
+                    ["Direction", ({ long: "Long only", short: "Short only", both: "Long & short" } as const)[currentStrategy.risk.direction ?? (currentStrategy.risk.allow_short ? "both" : "long")], "text-slate-200"],
+                    ["ATR stop / target", currentStrategy.risk.stop_atr_mult || currentStrategy.risk.take_profit_atr_mult ? `${currentStrategy.risk.stop_atr_mult ?? "—"}× / ${currentStrategy.risk.take_profit_atr_mult ?? "—"}×` : "—", "text-slate-200"],
+                    ["Trailing stop", currentStrategy.risk.trailing_stop_pct ? `${currentStrategy.risk.trailing_stop_pct}%` : "—", "text-slate-200"],
+                    ["Vol target", currentStrategy.risk.target_volatility ? `${currentStrategy.risk.target_volatility}% / yr` : "—", "text-slate-200"],
                     ["Position size", `${currentStrategy.risk.position_size_pct}%`, "text-slate-200"],
                     ["Max concurrent", fmtInt(currentStrategy.risk.max_positions), "text-slate-200"],
                   ].map(([k, v, tone]) => (
@@ -897,6 +1199,7 @@ export default function StrategiesPage() {
                     runs.filter((r) => r.strategy_id === currentStrategy.id).slice(-5).reverse().map((r) => (
                       <Link key={r.id} href={`/backtests/${r.id}`} className="flex items-center justify-between rounded-lg px-2 py-1.5 hover:bg-slate-800/30">
                         <span className="font-mono text-slate-200">{r.ticker}</span>
+                        <span className="font-mono text-[10px] text-slate-500">{(r.created_at || r.end_date || "").slice(0, 10)}</span>
                         <span className={cn("font-mono font-bold", (r.metrics?.total_return ?? 0) >= 0 ? "text-emerald-400" : "text-rose-400")}>{fmtPct(r.metrics?.total_return)}</span>
                       </Link>
                     ))
@@ -962,10 +1265,6 @@ export default function StrategiesPage() {
                   <Rocket className="h-3.5 w-3.5" />
                   Quick run in registry
                 </Link>
-                <div className="grid grid-cols-2 gap-2">
-                  <Link href={`/strategies/builder?edit=${currentStrategy.id}`} className="inline-flex items-center justify-center rounded-lg border border-slate-700/80 bg-slate-900/70 px-3 py-1.5 text-[11px] font-medium text-slate-200 hover:bg-slate-800">Edit</Link>
-                  <Link href={`/strategies/builder?clone=${currentStrategy.id}`} className="inline-flex items-center justify-center rounded-lg border border-slate-700/80 bg-slate-900/70 px-3 py-1.5 text-[11px] font-medium text-slate-200 hover:bg-slate-800">Duplicate</Link>
-                </div>
               </div>
             </aside>
           );

@@ -11,6 +11,8 @@ DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 STRATEGIES_FILE = os.path.join(DATA_DIR, "strategies.json")
 BACKTESTS_FILE = os.path.join(DATA_DIR, "backtests.json")
 SETTINGS_FILE = os.path.join(DATA_DIR, "settings.json")
+VERSIONS_FILE = os.path.join(DATA_DIR, "strategy_versions.json")
+MAX_VERSIONS = 30
 
 logger = logging.getLogger("quantsynthica.storage")
 
@@ -34,6 +36,8 @@ class StorageRepository:
         self._strategies: Dict[str, StrategyConfig] = {}
         self._backtests: Dict[str, BacktestResult] = {}
         self._settings: Dict[str, Any] = {}
+        self._versions: Dict[str, List[Dict[str, Any]]] = {}
+        self._load_versions()
         self._load_strategies()
         self._load_backtests()
         self._load_settings()
@@ -69,6 +73,37 @@ class StorageRepository:
             except Exception:
                 logger.exception("Could not load %s", BACKTESTS_FILE)
 
+    def _load_versions(self):
+        if os.path.exists(VERSIONS_FILE):
+            try:
+                with open(VERSIONS_FILE, "r") as f:
+                    self._versions = json.load(f)
+            except Exception:
+                logger.exception("Could not load %s", VERSIONS_FILE)
+                self._versions = {}
+
+    @staticmethod
+    def _content(strategy: StrategyConfig) -> Dict[str, Any]:
+        """The strategy minus bookkeeping fields, so a re-save with no edits is not a new version."""
+        d = strategy.model_dump()
+        for k in ("created_at", "updated_at"):
+            d.pop(k, None)
+        return d
+
+    def _record_version(self, strategy: StrategyConfig):
+        history = self._versions.setdefault(strategy.id, [])
+        content = self._content(strategy)
+        if history and self._content(StrategyConfig.model_validate(history[-1]["strategy"])) == content:
+            return
+        number = (history[-1]["version"] + 1) if history else 1
+        history.append({"version": number, "saved_at": strategy.updated_at, "strategy": strategy.model_dump(mode="json")})
+        del history[:-MAX_VERSIONS]
+        _atomic_write_json(VERSIONS_FILE, self._versions)
+
+    def list_versions(self, strategy_id: str) -> List[Dict[str, Any]]:
+        with self._lock:
+            return list(reversed(self._versions.get(strategy_id, [])))
+
     def _save_backtests(self):
         # Keep (and persist) only the most recent 100 backtests so memory and disk stay bounded.
         while len(self._backtests) > 100:
@@ -99,6 +134,7 @@ class StorageRepository:
         with self._lock:
             self._strategies[strategy.id] = strategy
             self._save_strategies()
+            self._record_version(strategy)
             return strategy
 
     def delete_strategy(self, strategy_id: str) -> bool:
@@ -106,6 +142,8 @@ class StorageRepository:
             if strategy_id in self._strategies:
                 del self._strategies[strategy_id]
                 self._save_strategies()
+                if self._versions.pop(strategy_id, None) is not None:
+                    _atomic_write_json(VERSIONS_FILE, self._versions)
                 return True
             return False
 

@@ -18,6 +18,11 @@ def get_strategy(strategy_id: str):
         raise HTTPException(status_code=404, detail="Strategy not found")
     return strat
 
+@router.get("/{strategy_id}/versions")
+def list_strategy_versions(strategy_id: str):
+    """Saved snapshots of this strategy, newest first (at most 30; identical re-saves are not recorded)."""
+    return storage.list_versions(strategy_id)
+
 @router.post("", response_model=StrategyConfig)
 def create_strategy(strategy: StrategyConfig):
     if not strategy.id:

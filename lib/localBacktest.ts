@@ -213,29 +213,75 @@ export function runLocalBacktest(
   const get = (id: string) => cache.get(id);
 
   const ex = strategy.execution;
-  const cost = (ex.commission_pct + ex.slippage_pct + ex.spread_pct) / 100;
-  const sizePct = Math.min(100, strategy.risk.position_size_pct ?? 100) / 100;
+  const comm = ex.commission_pct / 100;
+  const cost = (ex.slippage_pct + ex.spread_pct / 2) / 100; // slippage and half the spread are paid in the fill price
+  const rk = strategy.risk;
+  const sizePct = Math.min(100, rk.position_size_pct ?? 100) / 100;
   const initial = ex.initial_capital;
+  let mode = rk.direction ?? "long";
+  if (mode === "long" && rk.allow_short) mode = "both"; // saved before `direction` existed
 
+  // ATR (Wilder) and 20-bar realised volatility, read at the signal bar (i-1) so nothing looks ahead
+  const atrN = Math.max(1, rk.atr_period ?? 14);
+  const atrArr = wilder(trueRange(bars), atrN);
+  const closesArr = bars.map((r) => r.close);
+  const rvol: Series = closesArr.map((_, i) => {
+    if (i < 20) return nan;
+    const r = [] as number[];
+    for (let k = i - 19; k <= i; k++) r.push(closesArr[k] / closesArr[k - 1] - 1);
+    const m = r.reduce((a, b) => a + b, 0) / r.length;
+    return Math.sqrt(r.reduce((a, b) => a + (b - m) ** 2, 0) / (r.length - 1)) * Math.sqrt(252);
+  });
+  const atrAt = (i: number) => (i > 0 && Number.isFinite(atrArr[i - 1]) && atrArr[i - 1] > 0 ? atrArr[i - 1] : null);
+  const sizeFraction = (i: number) => {
+    let f = sizePct;
+    if (rk.target_volatility) {
+      const v = i > 0 ? rvol[i - 1] : nan;
+      if (!Number.isFinite(v) || v <= 0) return 0; // no estimate yet: do not size blindly
+      f *= Math.min(1, rk.target_volatility / 100 / v);
+    }
+    return f;
+  };
+
+  type Pos = { side: 1 | -1; qty: number; entryFee: number; entry: number; entryIdx: number; entryDate: string; mae: number; mfe: number; stop: number | null; tp: number | null; trailRef: number };
   let cash = initial;
-  let pos: null | { qty: number; entry: number; entryIdx: number; entryDate: string; mae: number; mfe: number } = null;
+  const st: { pos: Pos | null } = { pos: null };
   const trades: TradeRecord[] = [];
   const curve: EquityPoint[] = [];
   let peak = initial;
   let pendingEntry = false, pendingExit = false;
   const closeTrade = (i: number, px: number, reason: string) => {
-    if (!pos) return;
-    const gross = (px - pos.entry) * pos.qty;
-    const fees = (pos.entry + px) * pos.qty * cost;
-    cash += pos.qty * px - px * pos.qty * cost;
+    if (!st.pos) return;
+    const p = st.pos;
+    const fillPx = p.side === 1 ? px * (1 - cost) : px * (1 + cost);
+    const gross = (fillPx - p.entry) * p.qty * p.side;
+    const exitFee = fillPx * p.qty * comm;
+    const fees = p.entryFee + exitFee;
+    cash += (p.side === 1 ? p.qty * fillPx : gross) - exitFee;
     trades.push({
-      id: `tr_${trades.length + 1}`, ticker, direction: "LONG",
-      entry_date: pos.entryDate, exit_date: bars[i].date, entry_price: round(pos.entry), exit_price: round(px),
-      quantity: round(pos.qty, 4), gross_pnl: round(gross), fees: round(fees), net_pnl: round(gross - fees),
-      return_pct: round(((px - pos.entry) / pos.entry) * 100 - cost * 200),
-      holding_period_bars: i - pos.entryIdx, exit_reason: reason, mae: round(pos.mae), mfe: round(pos.mfe),
+      id: `tr_${trades.length + 1}`, ticker, direction: p.side === 1 ? "LONG" : "SHORT",
+      entry_date: p.entryDate, exit_date: bars[i].date, entry_price: round(p.entry), exit_price: round(fillPx),
+      quantity: round(p.qty, 4), gross_pnl: round(gross), fees: round(fees), net_pnl: round(gross - fees),
+      return_pct: round((gross / (p.entry * p.qty)) * 100),
+      holding_period_bars: i - p.entryIdx, exit_reason: reason, mae: round(p.mae), mfe: round(p.mfe),
     });
-    pos = null;
+    st.pos = null;
+  };
+  const openPos = (i: number, side: 1 | -1, b: Bar) => {
+    const alloc = Math.min(sizeFraction(i) * cash, cash * 0.98);
+    const fillPx = side === 1 ? b.open * (1 + cost) : b.open * (1 - cost);
+    const qty = alloc / fillPx;
+    if (!(qty > 0) || alloc < 1) return;
+    const atr = atrAt(i);
+    if ((rk.stop_atr_mult || rk.take_profit_atr_mult) && !atr) return; // ATR stop requested but ATR undefined: skip
+    let stop: number | null = null, tp: number | null = null;
+    if (rk.stop_atr_mult && atr) stop = fillPx - side * rk.stop_atr_mult * atr;
+    else if (rk.stop_loss_pct != null && rk.stop_loss_pct > 0) stop = fillPx * (1 - (side * rk.stop_loss_pct) / 100);
+    if (rk.take_profit_atr_mult && atr) tp = fillPx + side * rk.take_profit_atr_mult * atr;
+    else if (rk.take_profit_pct != null && rk.take_profit_pct > 0) tp = fillPx * (1 + (side * rk.take_profit_pct) / 100);
+    const entryFee = qty * fillPx * comm;
+    cash -= (side === 1 ? qty * fillPx : 0) + entryFee;
+    st.pos = { side, qty, entryFee, entry: fillPx, entryIdx: i, entryDate: b.date, mae: 0, mfe: 0, stop, tp, trailRef: side === 1 ? b.high : b.low };
   };
 
   const benchStart = benchBars[0]?.close ?? 1;
@@ -245,29 +291,46 @@ export function runLocalBacktest(
   for (let i = 0; i < bars.length; i++) {
     const b = bars[i];
     // 1. fills from the previous bar's signal happen at this bar's open (no lookahead)
-    if (pendingExit && pos) closeTrade(i, b.open, "SIGNAL");
-    if (pendingEntry && !pos) {
-      const px = b.open * (1 + cost);
-      const qty = (cash * sizePct) / px;
-      if (qty > 0) { cash -= qty * px; pos = { qty, entry: px, entryIdx: i, entryDate: b.date, mae: 0, mfe: 0 }; }
+    const closeSignal = st.pos ? (mode !== "both" || st.pos.side === 1 ? pendingExit : pendingEntry) : false;
+    if (closeSignal && st.pos) closeTrade(i, b.open, "SIGNAL");
+    if (!st.pos) {
+      const side: 1 | -1 | 0 = mode === "long" ? (pendingEntry ? 1 : 0) : mode === "short" ? (pendingEntry ? -1 : 0) : pendingEntry ? 1 : pendingExit ? -1 : 0;
+      if (side !== 0) openPos(i, side, b);
     }
     pendingEntry = pendingExit = false;
-    // 2. intra-bar stop / target
-    if (pos && i > pos.entryIdx - 1) {
-      const sl = strategy.risk.stop_loss_pct, tp = strategy.risk.take_profit_pct;
-      pos.mae = Math.min(pos.mae, ((b.low - pos.entry) / pos.entry) * 100);
-      pos.mfe = Math.max(pos.mfe, ((b.high - pos.entry) / pos.entry) * 100);
-      if (sl && b.low <= pos.entry * (1 - sl / 100)) closeTrade(i, pos.entry * (1 - sl / 100), "STOP_LOSS");
-      else if (tp && b.high >= pos.entry * (1 + tp / 100)) closeTrade(i, pos.entry * (1 + tp / 100), "TAKE_PROFIT");
+    // 2. intra-bar stop / target / trailing stop (the trail reference excludes the current bar)
+    if (st.pos && i > st.pos.entryIdx) {
+      const p: Pos = st.pos;
+      p.mae = Math.min(p.mae, p.side === 1 ? ((b.low - p.entry) / p.entry) * 100 : ((p.entry - b.high) / p.entry) * 100);
+      p.mfe = Math.max(p.mfe, p.side === 1 ? ((b.high - p.entry) / p.entry) * 100 : ((p.entry - b.low) / p.entry) * 100);
+      let stop = p.stop, reason = "STOP_LOSS";
+      const tr = rk.trailing_stop_pct;
+      if (tr && tr > 0) {
+        const trail = p.side === 1 ? p.trailRef * (1 - tr / 100) : p.trailRef * (1 + tr / 100);
+        if (stop === null || (p.side === 1 ? trail > stop : trail < stop)) { stop = trail; reason = "TRAILING_STOP"; }
+      }
+      if (p.side === 1) {
+        if (stop !== null && b.low <= stop) closeTrade(i, Math.min(b.open, stop), reason);
+        else if (p.tp !== null && b.high >= p.tp) closeTrade(i, Math.max(b.open, p.tp), "TAKE_PROFIT");
+      } else {
+        if (stop !== null && b.high >= stop) closeTrade(i, Math.max(b.open, stop), reason);
+        else if (p.tp !== null && b.low <= p.tp) closeTrade(i, Math.min(b.open, p.tp), "TAKE_PROFIT");
+      }
+      if (st.pos) (st.pos as Pos).trailRef = p.side === 1 ? Math.max(p.trailRef, b.high) : Math.min(p.trailRef, b.low);
     }
     // 3. signals at close of bar i -> executed at i+1 open
     if (i < bars.length - 1) {
-      if (!pos && evalRules(strategy.entry_rules, i, get)) pendingEntry = true;
-      else if (pos && evalRules(strategy.exit_rules, i, get)) pendingExit = true;
+      const eHit = evalRules(strategy.entry_rules, i, get), xHit = evalRules(strategy.exit_rules, i, get);
+      if (mode === "both") {
+        const cur: Pos | null = st.pos;
+        if (!cur ? eHit || xHit : cur.side === 1 ? xHit : eHit) { pendingEntry = eHit; pendingExit = xHit && !(!cur && eHit); }
+      } else if (!st.pos) { if (eHit) pendingEntry = true; }
+      else if (xHit) pendingExit = true;
     }
-    if (i === bars.length - 1 && pos) closeTrade(i, b.close, "END_OF_DATA");
+    if (i === bars.length - 1 && st.pos) closeTrade(i, b.close, "END_OF_DATA");
 
-    const value = cash + (pos ? pos.qty * b.close : 0);
+    const cur: Pos | null = st.pos;
+    const value = cash + (cur ? (cur.side === 1 ? cur.qty * b.close : cur.qty * (cur.entry - b.close)) : 0);
     peak = Math.max(peak, value);
     lastBench = benchByDate.get(b.date) ?? lastBench;
     curve.push({
