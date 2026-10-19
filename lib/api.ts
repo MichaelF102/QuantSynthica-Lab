@@ -511,6 +511,22 @@ export const api = {
     return local.length > 0 ? local : buildSampleBacktests();
   },
 
+  /**
+   * Runs for pickers and lists: from the backend without their curves and trades (list entries carry `summary`),
+   * or the full runs when the backend is offline, older, or empty.
+   */
+  getBacktestSummaries: async (): Promise<BacktestResult[]> => {
+    try {
+      const rows = await request<any[]>("/backtests/summaries", {}, 4000);
+      if (rows && rows.length > 0) {
+        const stubs: BacktestResult[] = rows.map((r) => ({ ...r, equity_curve: [], trades: [], monthly_returns: [], logs: [], summary: { num_points: r.num_points ?? 0, num_trades: r.num_trades ?? 0 } }));
+        const ids = new Set(stubs.map((b) => b.id));
+        return [...stubs, ...getLocalBacktests().filter((b) => b.is_synthetic && !ids.has(b.id))];
+      }
+    } catch {}
+    return api.getBacktests();
+  },
+
   getBacktest: async (id: string): Promise<BacktestResult> => {
     try {
       return await request<BacktestResult>(`/backtests/${id}`, {}, 4000);
@@ -562,7 +578,7 @@ export const api = {
     request<WalkForwardResult>("/walk-forward", {
       method: "POST",
       body: JSON.stringify(req),
-    }, 15000),
+    }, 240000),
 
   runPairsTrading: (req: PairsTradingRequest) =>
     request<PairsTradingResult>("/pairs", {

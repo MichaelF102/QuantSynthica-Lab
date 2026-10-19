@@ -5,6 +5,7 @@ import { CURRENCY_SYMBOL } from "@/lib/analyticsCalc";
 import {
   Calendar,
   ChevronDown,
+  Download,
   Play,
   RotateCw,
 } from "lucide-react";
@@ -19,6 +20,9 @@ interface AnalyticsHeaderProps {
   onCurrencyChange: (curr: "USD" | "INR" | "EUR" | "GBP") => void;
   onRunAnalysis: () => void;
   isRunning?: boolean;
+  /** Download the selected runs as a comparison CSV or a self-contained HTML report. */
+  onExport?: (kind: "csv" | "html") => void;
+  canExport?: boolean;
 }
 
 export default function AnalyticsHeader({
@@ -31,8 +35,11 @@ export default function AnalyticsHeader({
   onCurrencyChange,
   onRunAnalysis,
   isRunning = false,
+  onExport,
+  canExport = true,
 }: AnalyticsHeaderProps) {
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showExport, setShowExport] = useState(false);
   const [tempStart, setTempStart] = useState(startDate);
   const [tempEnd, setTempEnd] = useState(endDate);
 
@@ -140,6 +147,20 @@ export default function AnalyticsHeader({
         >
           {currency} ({CURRENCY_SYMBOL[currency]})
         </span>
+
+        {onExport && (
+          <div className="relative">
+            <button type="button" onClick={() => setShowExport((v) => !v)} disabled={!canExport} aria-haspopup="menu" aria-expanded={showExport} title="Download the selected runs" className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-900/70 px-3 py-1.5 text-xs font-medium text-slate-200 transition-colors hover:border-slate-600 hover:bg-slate-800 hover:text-white disabled:opacity-40">
+              <Download className="h-3.5 w-3.5" />Export<ChevronDown className="h-3 w-3" />
+            </button>
+            {showExport && (
+              <div role="menu" className="absolute right-0 z-[60] mt-1.5 w-56 overflow-hidden rounded-xl border border-slate-800 bg-[#0B101C] py-1 text-xs shadow-2xl">
+                <button type="button" role="menuitem" onClick={() => { setShowExport(false); onExport("csv"); }} className="block w-full px-3 py-2 text-left text-slate-200 hover:bg-slate-800/60">Comparison (CSV)</button>
+                <button type="button" role="menuitem" onClick={() => { setShowExport(false); onExport("html"); }} className="block w-full px-3 py-2 text-left text-slate-200 hover:bg-slate-800/60">Report (HTML file)</button>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Run Analysis Action Button */}
         <button

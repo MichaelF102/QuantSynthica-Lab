@@ -232,7 +232,7 @@ export function tradeStats(trades: TradeRecord[]) {
   return {
     count: trades.length, wins: wins.length, losses: losses.length, winRate: (wins.length / trades.length) * 100,
     avgHold: trades.reduce((s, t) => s + t.holding_period_bars, 0) / trades.length,
-    avgWin, avgLoss, payoff: avgLoss !== 0 ? Math.abs(avgWin / avgLoss) : null,
+    avgWin, avgLoss, payoff: wins.length && losses.length && avgLoss !== 0 ? Math.abs(avgWin / avgLoss) : null,
     profitFactor: Math.abs(sum(losses, "net_pnl")) > 0 ? sum(wins, "net_pnl") / Math.abs(sum(losses, "net_pnl")) : null,
     maxWinStreak: maxW, maxLossStreak: maxL, bins,
     reasons: [...byReason.entries()].map(([reason, v]) => ({ reason, ...v })).sort((a, b) => b.count - a.count),
@@ -429,5 +429,136 @@ export function regimeBreakdown(pts: Pt[], trades: TradeRecord[]) {
       regime: name, days: d.s.length, strat: avg(d.s) * 252 * 100, bench: avg(d.b) * 252 * 100,
       trades: entered.length, winRate: entered.length ? (entered.filter((t) => t.net_pnl > 0).length / entered.length) * 100 : null, pnl: entered.reduce((s, t) => s + t.net_pnl, 0),
     };
+  });
+}
+
+// ---------- regimes with exposure (all days kept) ----------
+export interface RegimeRow {
+  regime: string; days: number; annReturn: number; annVol: number; sharpe: number | null;
+  /** share of days with a positive return, among days with a non-zero return (flat days do not count as losses) */
+  winRate: number | null; activeDays: number;
+  /** share of the regime's days on which a position was open, or null when exposure was not supplied */
+  exposure: number | null;
+}
+
+/**
+ * Performance by regime over every day in the window, plus how much of each regime the strategy was actually invested.
+ * A regime where the strategy held nothing reads as 0% return with 0% exposure instead of looking like a result.
+ * Regimes use only information up to the previous close (benchmark vs its 50-day average; trailing 20-day volatility vs the run median).
+ */
+export function regimeProfile(pts: Pt[], positionsByDate?: Map<string, number>): RegimeRow[] | null {
+  if (pts.length < 80) return null;
+  const b = pts.map((p) => p.bench), v = pts.map((p) => p.value);
+  const rt = (a: number[]) => a.slice(1).map((x, i) => (a[i] > 0 ? x / a[i] - 1 : 0));
+  const br = rt(b), sr = rt(v);
+  const av = (a: number[]) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0);
+  const sd = (a: number[]) => { if (a.length < 2) return 0; const m = av(a); return Math.sqrt(a.reduce((x, y) => x + (y - m) ** 2, 0) / (a.length - 1)); };
+  const ma = (i: number) => av(b.slice(Math.max(0, i - 49), i + 1));
+  const vol = br.map((_, i) => (i < 20 ? NaN : sd(br.slice(i - 20, i))));
+  const sorted = vol.filter(Number.isFinite).sort((x, y) => x - y), med = sorted[Math.floor(sorted.length / 2)];
+  const bucket: Record<string, { r: number[]; held: number; known: number }> = Object.fromEntries(REGIMES.map((name) => [name, { r: [], held: 0, known: 0 }]));
+  const add = (name: string, x: number, date: string) => {
+    const k = bucket[name]; k.r.push(x);
+    if (positionsByDate) { k.known++; if ((positionsByDate.get(date) ?? 0) > 0) k.held++; }
+  };
+  sr.forEach((x, i) => {
+    if (i < 50) return;
+    const date = pts[i + 1].date;
+    add(b[i] >= ma(i) ? REGIMES[0] : REGIMES[1], x, date);
+    if (Number.isFinite(vol[i])) add(vol[i] <= med ? REGIMES[2] : REGIMES[3], x, date);
+  });
+  return REGIMES.map((regime) => {
+    const k = bucket[regime], active = k.r.filter((x) => x !== 0);
+    const s = sd(k.r);
+    return {
+      regime, days: k.r.length, annReturn: av(k.r) * 252 * 100, annVol: s * Math.sqrt(252) * 100,
+      sharpe: s > 0 ? (av(k.r) / s) * Math.sqrt(252) : null,
+      winRate: active.length ? (active.filter((x) => x > 0).length / active.length) * 100 : null,
+      activeDays: active.length, exposure: positionsByDate && k.known ? (k.held / k.known) * 100 : null,
+    };
+  });
+}
+
+// ---------- windowing a run ----------
+/** The run restricted to the active date window: equity curve by date, trades by exit date. */
+export function windowedBt(bt: BacktestResult, f: Pick<AnalyticsFilters, "start" | "end">): BacktestResult {
+  if (!f.start && !f.end) return bt;
+  const inside = (d: string) => (!f.start || d >= f.start) && (!f.end || d <= f.end);
+  return { ...bt, equity_curve: bt.equity_curve.filter((p) => inside(p.date)), trades: bt.trades.filter((t) => inside(t.exit_date)) };
+}
+
+// ---------- rolling statistics, capture, distribution ----------
+const dailyReturns = (pts: Pt[], k: "value" | "bench") => pts.slice(1).map((p, i) => (pts[i][k] > 0 ? p[k] / pts[i][k] - 1 : 0));
+const sampleSd = (a: number[]) => { if (a.length < 2) return 0; const m = a.reduce((x, y) => x + y, 0) / a.length; return Math.sqrt(a.reduce((x, y) => x + (y - m) ** 2, 0) / (a.length - 1)); };
+const avg = (a: number[]) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0);
+
+/** Annualised Sharpe (risk-free 0) over a trailing window of daily returns; null while the window has no variance. */
+export function rollingSharpe(pts: Pt[], window: number): { date: string; strat: number | null; bench: number | null }[] {
+  if (pts.length <= window) return [];
+  const sr = dailyReturns(pts, "value"), br = dailyReturns(pts, "bench");
+  const sh = (a: number[]) => { const s = sampleSd(a); return s > 1e-12 ? (avg(a) / s) * Math.sqrt(252) : null; }; // float noise on a constant series is not variance
+  const out: { date: string; strat: number | null; bench: number | null }[] = [];
+  for (let i = window - 1; i < sr.length; i++) out.push({ date: pts[i + 1].date, strat: sh(sr.slice(i - window + 1, i + 1)), bench: sh(br.slice(i - window + 1, i + 1)) });
+  return out;
+}
+
+/** Beta to the benchmark over a trailing window of daily returns; null while the benchmark has no variance. */
+export function rollingBeta(pts: Pt[], window: number): { date: string; beta: number | null }[] {
+  if (pts.length <= window) return [];
+  const sr = dailyReturns(pts, "value"), br = dailyReturns(pts, "bench");
+  const out: { date: string; beta: number | null }[] = [];
+  for (let i = window - 1; i < sr.length; i++) {
+    const s = sr.slice(i - window + 1, i + 1), b = br.slice(i - window + 1, i + 1), mb = avg(b), ms = avg(s);
+    const varB = b.reduce((x, y) => x + (y - mb) ** 2, 0), cov = s.reduce((x, y, k) => x + (y - ms) * (b[k] - mb), 0);
+    out.push({ date: pts[i + 1].date, beta: varB > 1e-18 ? cov / varB : null });
+  }
+  return out;
+}
+
+/**
+ * Up/down capture: the strategy's average return in periods the benchmark rose (or fell) divided by the benchmark's average in those periods.
+ * Uses calendar months when the window has at least 12 of them, otherwise days. A strategy that sat in cash captures nothing.
+ */
+export function captureRatios(pts: Pt[]) {
+  const monthly = (() => {
+    const last = new Map<string, { v: number; b: number }>();
+    pts.forEach((p) => last.set(p.date.slice(0, 7), { v: p.value, b: p.bench }));
+    const m = [...last.values()];
+    return m.length >= 13 ? { s: m.slice(1).map((x, i) => x.v / m[i].v - 1), b: m.slice(1).map((x, i) => x.b / m[i].b - 1) } : null;
+  })();
+  const basis = monthly ? "monthly" : "daily";
+  const s = monthly ? monthly.s : dailyReturns(pts, "value"), b = monthly ? monthly.b : dailyReturns(pts, "bench");
+  const up = s.map((x, i) => [x, b[i]] as const).filter(([, y]) => y > 0), dn = s.map((x, i) => [x, b[i]] as const).filter(([, y]) => y < 0);
+  if (!up.length || !dn.length) return null;
+  const upC = (avg(up.map(([x]) => x)) / avg(up.map(([, y]) => y))) * 100, dnC = (avg(dn.map(([x]) => x)) / avg(dn.map(([, y]) => y))) * 100;
+  return { basis: basis as "monthly" | "daily", up: upC, down: dnC, ratio: dnC !== 0 ? upC / dnC : null, upN: up.length, downN: dn.length };
+}
+
+export function distStats(pts: Pt[]) {
+  const r = dailyReturns(pts, "value");
+  if (r.length < 20) return null;
+  const m = avg(r), s = sampleSd(r), sorted = [...r].sort((a, b) => a - b);
+  const q = (p: number) => sorted[Math.min(sorted.length - 1, Math.max(0, Math.floor(p * sorted.length)))];
+  const active = r.filter((x) => x !== 0);
+  return {
+    days: r.length, activeDays: active.length,
+    skew: s > 0 ? avg(r.map((x) => ((x - m) / s) ** 3)) : 0,
+    kurtosis: s > 0 ? avg(r.map((x) => ((x - m) / s) ** 4)) - 3 : 0,
+    positiveActive: active.length ? (active.filter((x) => x > 0).length / active.length) * 100 : null,
+    bestDay: sorted[sorted.length - 1] * 100, worstDay: sorted[0] * 100,
+    tailRatio: q(0.05) < 0 ? q(0.95) / Math.abs(q(0.05)) : null,
+  };
+}
+
+/** Best and worst rolling returns over 1, 5, 21 and 63 trading days, with the dates they started and ended. */
+export function bestWorstPeriods(pts: Pt[]) {
+  return ([["1 day", 1], ["1 week", 5], ["1 month", 21], ["3 months", 63]] as const).filter(([, n]) => pts.length > n).map(([label, n]) => {
+    let best = { ret: -Infinity, start: "", end: "" }, worst = { ret: Infinity, start: "", end: "" };
+    for (let i = n; i < pts.length; i++) {
+      const ret = (pts[i].value / pts[i - n].value - 1) * 100;
+      if (ret > best.ret) best = { ret, start: pts[i - n].date, end: pts[i].date };
+      if (ret < worst.ret) worst = { ret, start: pts[i - n].date, end: pts[i].date };
+    }
+    return { label, best, worst };
   });
 }

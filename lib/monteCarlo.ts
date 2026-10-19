@@ -11,7 +11,7 @@ export function rng(seed: number) {
 
 export interface FanPoint { step: number; p5: number; p25: number; p50: number; p75: number; p95: number }
 export interface McResult {
-  iterations: number; days: number; block: number;
+  iterations: number; days: number; block: number; horizon: number;
   terminal: number[];            // sorted, % return over the whole path
   maxDrawdown: number[];         // sorted ascending, % (positive numbers)
   mean: number; p5: number; p50: number; p95: number;
@@ -24,11 +24,16 @@ export interface McResult {
 
 const pct = (sorted: number[], p: number) => sorted[Math.min(sorted.length - 1, Math.max(0, Math.floor(p * sorted.length)))];
 
-export function blockBootstrap(returns: number[], opts: { iterations: number; block: number; seed: number; fanPoints?: number }): McResult | null {
-  const n = returns.length;
-  if (n < 30) return null;
-  const block = Math.max(1, Math.min(Math.floor(opts.block), Math.floor(n / 2)));
-  const rand = rng(n * 7919 + opts.seed * 104729);
+/**
+ * `horizon` is the length of each resampled path in days; it defaults to the length of the sample.
+ * A horizon longer than the sample projects the same return stream forward and should be read with care.
+ */
+export function blockBootstrap(returns: number[], opts: { iterations: number; block: number; seed: number; fanPoints?: number; horizon?: number }): McResult | null {
+  const sample = returns.length;
+  if (sample < 30) return null;
+  const n = Math.max(2, Math.round(opts.horizon ?? sample));
+  const block = Math.max(1, Math.min(Math.floor(opts.block), Math.floor(sample / 2)));
+  const rand = rng(sample * 7919 + n * 31 + opts.seed * 104729);
   const iters = opts.iterations;
   const fp = Math.min(opts.fanPoints ?? 60, n);
   const stepIdx = Array.from({ length: fp }, (_, k) => Math.max(0, Math.round(((k + 1) / fp) * n) - 1));
@@ -38,9 +43,9 @@ export function blockBootstrap(returns: number[], opts: { iterations: number; bl
   for (let k = 0; k < iters; k++) {
     let eq = 1, peak = 1, worst = 0, minEq = 1, day = 0, m = 0;
     while (day < n) {
-      const start = Math.floor(rand() * n);
+      const start = Math.floor(rand() * sample);
       for (let j = 0; j < block && day < n; j++, day++) {
-        eq *= 1 + returns[(start + j) % n];
+        eq *= 1 + returns[(start + j) % sample];
         if (eq > peak) peak = eq;
         const d = peak > 0 ? (peak - eq) / peak : 0;
         if (d > worst) worst = d;
@@ -58,7 +63,7 @@ export function blockBootstrap(returns: number[], opts: { iterations: number; bl
     return { step: s + 1, p5: pct(col, 0.05), p25: pct(col, 0.25), p50: pct(col, 0.5), p75: pct(col, 0.75), p95: pct(col, 0.95) };
   });
   return {
-    iterations: iters, days: n, block, terminal: t, maxDrawdown: d,
+    iterations: iters, days: n, block, horizon: n, terminal: t, maxDrawdown: d,
     mean: terminal.reduce((a, b) => a + b, 0) / iters, p5: pct(t, 0.05), p50: pct(t, 0.5), p95: pct(t, 0.95),
     probLoss: (t.filter((v) => v < 0).length / iters) * 100,
     ddMedian: pct(d, 0.5), ddP95: pct(d, 0.95),

@@ -8,6 +8,7 @@ import { fmtPct, fmtInt, cn } from "@/lib/utils";
 import { formatRatio } from "@/lib/formatters";
 import { AnalyticsFilters, MONTH_NAMES, annualTable, btPoints, monthlyMatrix, benchmarkLabel } from "@/lib/analyticsCalc";
 import { usePrimaryBacktest } from "./StrategyPicker";
+import PerformanceExtras from "./PerformanceExtras";
 
 interface Props { selectedBacktests: BacktestResult[]; filters: AnalyticsFilters }
 
@@ -99,6 +100,8 @@ export default function AnalyticsPerformanceTab({ selectedBacktests, filters }: 
           </table>
         </div>
       </Card>
+
+      <PerformanceExtras pts={pts} hasBenchmark={pts.some((p) => p.bench !== pts[0].bench)} />
     </div>
   );
 }

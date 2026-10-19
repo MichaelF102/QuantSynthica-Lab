@@ -6,7 +6,8 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGri
 import { BacktestResult } from "@/types";
 import { Card, EmptyState, Kpi, signTone } from "@/components/ui/Card";
 import { fmtPct, fmtInt, cn } from "@/lib/utils";
-import { AnalyticsFilters, btPoints, riskStats, worstWindows } from "@/lib/analyticsCalc";
+import { AnalyticsFilters, btPoints, riskStats, windowedBt, worstWindows } from "@/lib/analyticsCalc";
+import RiskExtras from "@/components/backtest/tabs/RiskExtras";
 import { AXIS_PROPS, GRID_PROPS, TOOLTIP_STYLE } from "@/lib/chartTheme";
 import { usePrimaryBacktest } from "./StrategyPicker";
 
@@ -86,6 +87,7 @@ export default function AnalyticsRiskTab({ selectedBacktests, filters }: Props) 
           <Activity className="h-3 w-3" /> Skew of daily returns: <span className="font-mono text-slate-200">{risk.skew.toFixed(2)}</span> · average drawdown <span className="font-mono text-slate-200">{fmtPct(-risk.pain, 2)}</span>
         </p>
       </Card>
+      <RiskExtras bt={windowedBt(bt, filters)} />
     </div>
   );
 }

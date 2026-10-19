@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { StrategyConfig, OptimizationResult } from "@/types";
 import Select from "@/components/ui/Select";
 import { INPUT } from "./fields";
+import { sweepStability } from "@/lib/overfit";
 import { cn } from "@/lib/utils";
 
 type Range = { min: number; max: number; step: number };
@@ -49,10 +50,20 @@ const countOf = (r: Range) => (r.step > 0 && r.max >= r.min ? Math.floor((r.max 
 
 const METRICS = [{ value: "sharpe_ratio", label: "Sharpe ratio" }, { value: "total_return", label: "Total return" }, { value: "calmar_ratio", label: "Calmar ratio" }, { value: "win_rate", label: "Win rate" }];
 
-export default function ParamSweep({ strategy, start, end, benchmark, valid, onRanges, onApply }: {
+/** The swept parameters as the optimisation and walk-forward endpoints expect them, plus how many combinations they make. */
+export function rangesToParams(s: StrategyConfig) {
+  const ranges = s.param_ranges ?? {};
+  const active = sweepCandidates(s).filter((c) => ranges[c.key]);
+  const combos = active.reduce((n, c) => n * Math.max(0, countOf(ranges[c.key])), 1);
+  return { combos: active.length ? combos : 0, parameters: active.map((c) => ({ ...c.spec, min_val: ranges[c.key].min, max_val: ranges[c.key].max, step: ranges[c.key].step })) };
+}
+
+export default function ParamSweep({ strategy, start, end, benchmark, valid, onRanges, onApply, onResult }: {
   strategy: StrategyConfig; start: string; end: string; benchmark: string; valid: boolean;
   onRanges: (r: Record<string, Range>) => void;
   onApply: (best: Record<string, number>) => void;
+  /** Called with the finished sweep (or null when a new one starts), so other views can use its trials. */
+  onResult?: (r: OptimizationResult | null) => void;
 }) {
   const cands = useMemo(() => sweepCandidates(strategy), [strategy]);
   const ranges = strategy.param_ranges ?? {};
@@ -75,13 +86,13 @@ export default function ParamSweep({ strategy, start, end, benchmark, valid, onR
 
   const run = async () => {
     if (why) return;
-    setRunning(true); setError(null); setResult(null);
+    setRunning(true); setError(null); setResult(null); onResult?.(null);
     try {
       const res = await api.runOptimization({
         strategy, start_date: start, end_date: end, benchmark, method: "grid", max_iterations: MAX_COMBOS, metric_target: metric,
         parameters: active.map((c) => ({ ...c.spec, min_val: ranges[c.key].min, max_val: ranges[c.key].max, step: ranges[c.key].step })) as any,
       });
-      setResult(res);
+      setResult(res); onResult?.(res);
     } catch (e: any) {
       setError(/503|unavailable/i.test(e?.message || "") ? "No market data is available for this window, so the sweep can't run." : e?.message || "The sweep failed.");
     } finally { setRunning(false); }
@@ -89,8 +100,15 @@ export default function ParamSweep({ strategy, start, end, benchmark, valid, onR
 
   // the engine keys an indicator's param by the indicator id, or "<id>.<param>" when one indicator has several swept params
   const keyOf = (c: Candidate) => (c.spec.target === "indicator" && c.spec.id ? (active.filter((x) => x.spec.id === c.spec.id).length > 1 ? `${c.spec.id}.${c.spec.name}` : c.spec.id) : c.spec.name);
+  // "fast_ema", "macd.fast_period", "stop_loss_pct": what the parameter is, not just that it is a "period"
+  const shortName = (k: string) => {
+    const c = active.find((x) => keyOf(x) === k) ?? cands.find((x) => keyOf(x) === k);
+    if (!c) return k.split(".").pop() ?? k;
+    return c.spec.target === "indicator" && c.spec.id ? (k.includes(".") ? `${c.spec.id}.${c.spec.name}` : c.spec.id) : c.spec.name;
+  };
   const labelForParam = (k: string) => (active.find((c) => keyOf(c) === k) ?? cands.find((c) => keyOf(c) === k))?.label ?? k;
 
+  const stab = result ? sweepStability(result.iterations.map((i) => i.sharpe_ratio)) : null;
   const hm = result?.heatmap_data;
   const zAt = (xi: number, yi: number): number | null => {
     if (!hm || !result) return null;
@@ -146,18 +164,23 @@ export default function ParamSweep({ strategy, start, end, benchmark, valid, onR
         <div className="space-y-3 rounded-xl border border-slate-800 bg-[#080d1a] p-3" data-testid="sweep-result">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="text-xs"><span className="text-slate-400">Best </span>
-              {Object.entries(result.best_params).map(([k, v]) => <span key={k} className="mr-2 font-mono text-blue-300">{labelForParam(k).split(" · ").pop()}={num(v)}</span>)}
+              {Object.entries(result.best_params).map(([k, v]) => <span key={k} className="mr-2 font-mono text-blue-300">{shortName(k)}={num(v)}</span>)}
               <span className="text-slate-400">· Sharpe </span><span className="font-mono text-white">{num(result.best_metrics.sharpe_ratio ?? 0)}</span>
               <span className="text-slate-400"> · {result.best_metrics.num_trades ?? 0} trades</span>
             </div>
             <button type="button" onClick={() => onApply(Object.fromEntries(active.map((c) => [c.key, result.best_params[keyOf(c)]]).filter(([, v]) => typeof v === "number")))} className="flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-[11px] font-semibold text-emerald-300 hover:bg-emerald-500/20"><Check className="h-3.5 w-3.5" />Apply best</button>
           </div>
-          <p className={cn("rounded-md border px-2 py-1 text-[11px]", result.overfitting_warning ? "border-amber-500/30 bg-amber-500/10 text-amber-300" : "border-slate-800 text-slate-400")}>{result.overfitting_notes}</p>
+          <p data-testid="sweep-note" className={cn("rounded-md border px-2 py-1 text-[11px]", stab ? (stab.verdict === "stable" ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" : "border-amber-500/30 bg-amber-500/10 text-amber-300") : result.overfitting_warning ? "border-amber-500/30 bg-amber-500/10 text-amber-300" : "border-slate-800 text-slate-400")}>
+            {stab
+              ? (stab.verdict === "stable" ? `Stable plateau: ${stab.plateauShare.toFixed(0)}% of the ${stab.cells} settings tested reach at least 75% of the best Sharpe, so small changes to the parameters should not break it.` : stab.verdict === "fragile" ? `Fragile peak: only ${stab.plateauShare.toFixed(0)}% of the ${stab.cells} settings tested come within 25% of the best Sharpe. The best setting is probably fitted to this window.` : `No tested setting has a positive Sharpe on this window.`)
+              : result.overfitting_notes}
+            {(result.overfitting_notes.match(/CAUTION:.*$/)?.[0] ?? "") && stab ? ` ${result.overfitting_notes.match(/CAUTION:.*$/)![0]}` : ""}
+          </p>
 
           {hm && (
             <div className="overflow-x-auto">
               <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
-                <div className="text-[10px] uppercase tracking-wider text-slate-400">{labelForParam(hm.x_param).split(" · ").pop()} (across) vs {labelForParam(hm.y_param).split(" · ").pop()} (down)</div>
+                <div className="text-[10px] uppercase tracking-wider text-slate-400">{shortName(hm.x_param)} (across) vs {shortName(hm.y_param)} (down)</div>
                 <div className="flex rounded-lg border border-slate-800 bg-[#0b1222] p-0.5 text-[11px]" role="group" aria-label="Heatmap metric">
                   {([["sharpe_ratio", "Sharpe"], ["total_return", "Return"], ["max_drawdown", "Max DD"]] as const).map(([k, l]) => <button key={k} type="button" aria-pressed={heatMetric === k} onClick={() => setHeatMetric(k)} className={cn("rounded-md px-2 py-0.5 font-semibold", heatMetric === k ? "bg-blue-600 text-white" : "text-slate-400 hover:text-white")}>{l}</button>)}
                 </div>
@@ -178,7 +201,7 @@ export default function ParamSweep({ strategy, start, end, benchmark, valid, onR
               <tbody className="divide-y divide-slate-800/60 font-mono">
                 {top.map((it) => (
                   <tr key={it.iteration}>
-                    <td className="py-1 pr-2 text-slate-300">{Object.entries(it.params).map(([k, v]) => `${labelForParam(k).split(" · ").pop()}=${num(v)}`).join(", ")}</td>
+                    <td className="py-1 pr-2 text-slate-300">{Object.entries(it.params).map(([k, v]) => `${shortName(k)}=${num(v)}`).join(", ")}</td>
                     <td className="py-1 text-right text-slate-200">{it.sharpe_ratio.toFixed(2)}</td>
                     <td className={cn("py-1 text-right", it.total_return >= 0 ? "text-emerald-400" : "text-rose-400")}>{it.total_return.toFixed(1)}%</td>
                     <td className="py-1 text-right text-rose-400">{Math.abs(it.max_drawdown).toFixed(1)}%</td>

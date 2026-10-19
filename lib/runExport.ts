@@ -20,7 +20,7 @@ export const esc = (v: unknown) => String(v ?? "").replace(/&/g, "&amp;").replac
 const pct = (v: number | null | undefined, d = 2, sign = true) => (typeof v === "number" && Number.isFinite(v) ? `${sign && v > 0 ? "+" : ""}${v.toFixed(d)}%` : "—");
 const num = (v: number | null | undefined, d = 2) => (typeof v === "number" && Number.isFinite(v) ? v.toFixed(d) : "—");
 
-function lineSvg(series: { name: string; color: string; values: number[]; dash?: string }[], dates: string[], height = 200): string {
+export function lineSvg(series: { name: string; color: string; values: number[]; dash?: string }[], dates: string[], height = 200): string {
   const W = 760, H = height, L = 46, R = 8, T = 8, B = 20;
   const all = series.flatMap((s) => s.values).filter(Number.isFinite);
   if (!all.length || dates.length < 2) return "";

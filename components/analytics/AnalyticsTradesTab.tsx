@@ -6,7 +6,9 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGri
 import { BacktestResult } from "@/types";
 import { Card, EmptyState, Kpi, signTone } from "@/components/ui/Card";
 import { fmtPct, fmtInt, cn } from "@/lib/utils";
-import { AnalyticsFilters, btTrades, currencyOf, fmtMoney, tradeStats } from "@/lib/analyticsCalc";
+import { AnalyticsFilters, btTrades, currencyOf, fmtMoney, tradeStats, windowedBt } from "@/lib/analyticsCalc";
+import TradeInsights from "@/components/backtest/tabs/TradeInsights";
+import ExposureCard from "@/components/backtest/tabs/ExposureCard";
 import { AXIS_PROPS, GRID_PROPS, TOOLTIP_STYLE, UP_COLOR, DOWN_COLOR } from "@/lib/chartTheme";
 import { usePrimaryBacktest } from "./StrategyPicker";
 
@@ -17,6 +19,7 @@ export default function AnalyticsTradesTab({ selectedBacktests, filters }: Props
   const stats = bt ? tradeStats(btTrades(bt, filters)) : null;
   if (!bt || !stats) return <EmptyState icon={ArrowLeftRight} title="No closed trades in this window" hint="Widen the date window, or pick a run that produced trades." />;
   const cur = currencyOf(bt);
+  const wbt = windowedBt(bt, filters);
 
   return (
     <div className="space-y-4">
@@ -44,30 +47,8 @@ export default function AnalyticsTradesTab({ selectedBacktests, filters }: Props
         </div>
       </Card>
 
-      <Card title="Exit reasons" subtitle="How trades were closed and what each cost or earned" info="Net realised P&L by the rule that closed the trade." icon={ListChecks} tone="amber">
-        <div className="w-full overflow-x-auto">
-          <table className="w-full border-collapse text-left text-xs">
-            <thead>
-              <tr className="border-b border-slate-800 text-[10px] uppercase tracking-wider text-slate-400">
-                <th className="py-1.5">Exit trigger</th>
-                <th className="py-1.5 text-right">Trades</th>
-                <th className="py-1.5 text-right">% of total</th>
-                <th className="py-1.5 text-right">Net P&amp;L</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/50">
-              {stats.reasons.map((r) => (
-                <tr key={r.reason} className="transition-colors hover:bg-slate-800/30">
-                  <td className="py-2 font-medium capitalize text-slate-200">{r.reason.replace(/_/g, " ").toLowerCase()}</td>
-                  <td className="py-2 text-right font-mono text-slate-200">{fmtInt(r.count)}</td>
-                  <td className="py-2 text-right font-mono text-slate-400">{fmtPct((r.count / stats.count) * 100, 1, false)}</td>
-                  <td className={cn("py-2 text-right font-mono font-semibold", signTone(r.pnl))}>{(r.pnl > 0 ? "+" : "") + fmtMoney(r.pnl, cur)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
+      <TradeInsights bt={wbt} />
+      <ExposureCard bt={wbt} />
     </div>
   );
 }

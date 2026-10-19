@@ -188,6 +188,8 @@ export interface BacktestResult {
   /** Hash of the price and benchmark series used; changes if the provider revises history. */
   data_fingerprint?: string | null;
   notes?: RunNote[];
+  /** Present on list entries that carry no equity curve or trades yet; the full run is fetched when it is needed. */
+  summary?: { num_points: number; num_trades: number };
   logs: string[];
   created_at?: string;
   /** Price inputs were generated, not fetched (offline simulation or sample run). */

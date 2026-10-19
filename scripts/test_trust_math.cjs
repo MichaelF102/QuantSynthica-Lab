@@ -7,9 +7,14 @@ const orig = Module._resolveFilename;
 Module._resolveFilename = function (r, ...a) { if (r.startsWith("@/")) r = path.join(ROOT, r.slice(2)); return orig.call(this, r, ...a); };
 require.extensions[".ts"] = (m, f) => m._compile(ts.transpileModule(fs.readFileSync(f, "utf8"), { compilerOptions: { module: "commonjs", target: "es2020", esModuleInterop: true } }).outputText, f);
 const { buildRunReport, buildRunJson, esc } = require(path.join(ROOT, "lib/runExport.ts"));
+const { psr, dsr, expectedMaxSharpe, sharpeStats, sweepStability } = require(path.join(ROOT, "lib/overfit.ts"));
+const { ols } = require(path.join(ROOT, "lib/risk/factors.ts"));
+const { alignRunReturns, corrMatrix, pearson, weightsFor, portfolioReturns, equityFrom, riskContributions, diversificationRatio, maxDrawdown } = require(path.join(ROOT, "lib/portfolioOfRuns.ts"));
+const { compareRuns, duplicateGroups } = require(path.join(ROOT, "lib/compareRuns.ts"));
+const { comparisonCsv, selectionReport, portfolioSummary } = require(path.join(ROOT, "lib/analyticsExport.ts"));
 const { describeChanges } = require(path.join(ROOT, "lib/strategyDiff.ts"));
 const { blockBootstrap, histogram } = require(path.join(ROOT, "lib/monteCarlo.ts"));
-const { exposureSeries, drawdownEpisodes, rollingVol, tradeConcentration, bySide, byHolding, regimeBreakdown, annualTable } = require(path.join(ROOT, "lib/analyticsCalc.ts"));
+const { exposureSeries, drawdownEpisodes, rollingVol, tradeConcentration, bySide, byHolding, regimeBreakdown, annualTable, regimeProfile, rollingSharpe, rollingBeta, captureRatios, distStats, bestWorstPeriods, windowedBt } = require(path.join(ROOT, "lib/analyticsCalc.ts"));
 
 let failed = 0;
 const ok = (c, name, extra = "") => { if (!c) failed++; console.log(`${c ? "PASS" : "FAIL"}  ${name}${!c && extra ? "  -> " + extra : ""}`); };
@@ -118,6 +123,118 @@ ok(esc(`<&>"'`) === "&lt;&amp;&gt;&quot;&#39;", "escape covers the five HTML cha
 const changed = describeChanges(strategyCfg, { ...strategyCfg, risk: { ...strategyCfg.risk, stop_loss_pct: 3 }, indicators: [{ id: "sma_1", name: "SMA", params: { period: 30 } }] });
 ok(changed.length === 3 && changed.some((c) => /Indicators/.test(c)) && changed.some((c) => /stop loss pct: 2 → 3/i.test(c)), "config diff lists exactly what changed", JSON.stringify(changed));
 ok(describeChanges(strategyCfg, JSON.parse(JSON.stringify(strategyCfg))).length === 0, "identical configs have no differences");
+
+// horizon: a path longer than the sample projects the same stream forward
+const hz = blockBootstrap(Array(60).fill(0.002), { iterations: 200, block: 5, seed: 1, horizon: 252 });
+ok(hz.days === 252 && hz.horizon === 252 && near(hz.p50, ((1.002 ** 252) - 1) * 100, 1e-6) && hz.fan.at(-1).step === 252, "a longer horizon compounds the sample out to that many days");
+ok(blockBootstrap(Array(60).fill(0.002), { iterations: 50, block: 5, seed: 1 }).horizon === 60, "horizon defaults to the sample length");
+
+// regimes keep every day and report how much of each was invested
+const upDates = Array.from({ length: 200 }, (_, i) => new Date(Date.UTC(2024, 0, 1 + i)).toISOString().slice(0, 10));
+const bench = upDates.map((d, i) => 100 * 1.001 ** i);
+const flatStrat = upDates.map((d, i) => ({ date: d, value: 100000, bench: bench[i], dd: 0 }));
+const none = regimeProfile(flatStrat, new Map());
+const bullFlat = none.find((r) => r.regime.startsWith("Bull"));
+ok(bullFlat.days > 100 && near(bullFlat.annReturn, 0, 1e-9) && bullFlat.sharpe === null && bullFlat.winRate === null && bullFlat.exposure === 0, "idle days stay in the table but with no Sharpe, no win rate and 0% exposure");
+const heldAll = new Map(upDates.map((d) => [d, 1])), heldHalf = new Map(upDates.map((d, i) => [d, i % 2 ? 1 : 0]));
+const ridePts = upDates.map((d, i) => ({ date: d, value: 100000 * 1.001 ** i * (i % 3 === 0 ? 1.0004 : 1), bench: bench[i], dd: 0 }));
+ok(near(regimeProfile(ridePts, heldAll).find((r) => r.regime.startsWith("Bull")).exposure, 100, 1e-9), "fully invested regime reports 100% exposure");
+ok(near(regimeProfile(ridePts, heldHalf).find((r) => r.regime.startsWith("Bull")).exposure, 50, 2), "half-invested regime reports about 50% exposure");
+const w = regimeProfile(ridePts, heldAll).find((r) => r.regime.startsWith("Bull"));
+ok(w.winRate !== null && w.activeDays <= w.days && w.activeDays > 0, "win rate counts only days with a non-zero return");
+ok(regimeProfile(flatStrat.slice(0, 40)) === null, "too short to profile");
+
+// rolling statistics, capture ratios, distribution
+const mkp = (vals, bench) => vals.map((v, i) => ({ date: new Date(Date.UTC(2024, 0, 1 + i)).toISOString().slice(0, 10), value: v, bench: bench[i], dd: 0 }));
+const alt2 = Array.from({ length: 80 }, (_, i) => 100 * Array.from({ length: i }).reduce((a, _, k) => a * (k % 2 ? 0.99 : 1.01), 1));
+const rs = rollingSharpe(mkp(alt2, alt2), 20);
+ok(rs.length === 60 && near(rs[0].strat, rs[0].bench, 1e-9), "rolling Sharpe of identical series matches", String(rs.length));
+const growth = Array.from({ length: 60 }, (_, i) => 100 * 1.001 ** i);
+ok(rollingSharpe(mkp(growth, growth), 20).every((p) => p.strat === null), "a constant-return window has no Sharpe (null, not infinity)");
+const bchg = Array.from({ length: 80 }, (_, i) => 100 * Array.from({ length: i }).reduce((a, _, k) => a * (k % 3 === 0 ? 1.02 : k % 3 === 1 ? 0.985 : 1.004), 1));
+const stratBeta = bchg.map((v, i) => 100 * (v / 100) ** 1.5);
+const betas = rollingBeta(mkp(stratBeta, bchg), 30).filter((b) => b.beta !== null);
+ok(betas.length > 0 && betas.every((b) => b.beta > 1.3 && b.beta < 1.7), "a position that moves 1.5x the benchmark has beta about 1.5", String(betas[0]?.beta));
+ok(rollingBeta(mkp(growth, growth.map(() => 100)), 20).every((b) => b.beta === null), "beta is null when the benchmark never moves");
+// capture: strategy earns half the benchmark on up days and the full amount on down days
+const benchD = Array.from({ length: 60 }, (_, i) => 100 * Array.from({ length: i }).reduce((a, _, k) => a * (k % 2 ? 0.99 : 1.02), 1));
+const stratD = Array.from({ length: 60 }, (_, i) => 100 * Array.from({ length: i }).reduce((a, _, k) => a * (k % 2 ? 0.99 : 1.01), 1));
+const cap = captureRatios(mkp(stratD, benchD));
+ok(cap.basis === "daily" && near(cap.up, 50, 1e-6) && near(cap.down, 100, 1e-6) && near(cap.ratio, 0.5, 1e-6), "capture: half the up days, all of the down days -> 50% / 100%", JSON.stringify(cap));
+ok(captureRatios(mkp(growth, growth)) === null, "no down periods: capture is undefined");
+const ds = distStats(mkp(alt2, alt2));
+ok(near(ds.bestDay, 1, 1e-6) && near(ds.worstDay, -1, 1e-6) && ds.positiveActive > 40 && ds.positiveActive < 60, "distribution: best/worst day and share of positive active days");
+const flatP = mkp(Array(60).fill(100), Array(60).fill(100));
+ok(distStats(flatP).positiveActive === null && distStats(flatP).skew === 0, "a flat series has no active days and zero skew");
+const bw = bestWorstPeriods(mkp([100, 110, 99, 120, 90, 100, 105, 95], Array(8).fill(100)));
+ok(near(bw[0].best.ret, (120 / 99 - 1) * 100, 1e-9) && bw[0].best.start === "2024-01-03" && near(bw[0].worst.ret, (90 / 120 - 1) * 100, 1e-9), "best and worst day with the dates they happened", JSON.stringify(bw[0]));
+ok(bw.every((p) => p.label !== "3 months"), "periods longer than the data are left out");
+// window a run
+const wb = windowedBt({ equity_curve: Array.from({ length: 10 }, (_, i) => ({ date: dayN(i), portfolio_value: 1 })), trades: [{ exit_date: dayN(2) }, { exit_date: dayN(8) }] }, { start: dayN(5), end: dayN(9) });
+ok(wb.equity_curve.length === 5 && wb.trades.length === 1, "windowing a run restricts the curve by date and trades by exit date");
+
+// probabilistic and deflated Sharpe
+const stN = { sr: 0.1, skew: 0, kurt: 3, n: 252 };
+ok(near(psr(stN), 0.943, 0.001), "PSR for a daily Sharpe of 0.1 over 252 days with normal returns is about 94.3%", String(psr(stN)));
+ok(near(psr({ ...stN, sr: 0 }), 0.5, 1e-9), "a zero Sharpe is a coin flip");
+ok(psr({ ...stN, skew: -1, kurt: 6 }) < psr(stN), "negative skew and fat tails lower the probability the Sharpe is real");
+ok(psr({ ...stN, n: 1000 }) > psr(stN), "a longer sample raises it");
+ok(expectedMaxSharpe([0.01, 0.02], 1) === 0 && near(dsr(stN, [0.1], 1).value, psr(stN), 1e-12), "one trial: nothing to deflate, DSR equals PSR");
+const spread = Array.from({ length: 50 }, (_, i) => (i % 2 ? 0.02 : -0.02));   // sd about 0.0202
+const sdv = Math.sqrt(spread.reduce((a, b) => a + b * b, 0) / 49);
+ok(near(expectedMaxSharpe(spread, 50), sdv * (0.4228 * 2.0537 + 0.5772 * 2.4388), 0.0005), "expected best-of-50 Sharpe follows the closed form", String(expectedMaxSharpe(spread, 50)));
+const d50 = dsr(stN, spread, 50);
+ok(d50.value < psr(stN) && near(d50.value, 0.8055, 0.02), "deflating for 50 trials lowers the probability (about 80%)", JSON.stringify(d50));
+ok(sharpeStats(Array(100).fill(0.001)) === null && sharpeStats(Array(10).fill(0.01)) === null, "no Sharpe stats for a constant or too-short series");
+const rr = Array.from({ length: 200 }, (_, i) => Math.sin(i) * 0.01 + 0.001);
+const ss = sharpeStats(rr); ok(ss && ss.n === 200 && ss.kurt > 1 && ss.kurt < 3, "raw kurtosis is excess + 3 (sine wave is platykurtic)", String(ss && ss.kurt));
+// sweep stability
+ok(sweepStability([1.2, 1.1, 1.0, 0.95, 0.9, 0.2, -0.1, 1.15]).verdict === "stable", "a plateau of good settings is stable");
+ok(sweepStability([2.0, 0.1, 0.2, -0.3, 0.0, 0.3, -0.5, 0.1]).verdict === "fragile", "a lone peak is fragile");
+ok(sweepStability([-0.5, -0.2, -1, -0.3, -0.7]).verdict === "unprofitable" && sweepStability([1, 2]) === null, "all-negative sweeps are unprofitable; too few settings give no verdict");
+// regression recovers a known model
+const x1 = Array.from({ length: 300 }, (_, i) => Math.sin(i * 0.37) * 0.01), x2 = Array.from({ length: 300 }, (_, i) => Math.cos(i * 0.91 + 1) * 0.008);
+const yy = x1.map((v, i) => 0.0005 + 1.5 * v - 0.5 * x2[i]);
+const fit = ols(yy, [x1, x2], ["A", "B"]);
+ok(near(fit.beta[0], 0.0005, 1e-9) && near(fit.beta[1], 1.5, 1e-6) && near(fit.beta[2], -0.5, 1e-6) && near(fit.r2, 1, 1e-9), "OLS recovers alpha and both betas from noise-free data");
+const noisy = yy.map((v, i) => v + Math.sin(i * 7.7) * 0.003);
+const fn = ols(noisy, [x1, x2], ["A", "B"]);
+ok(fn.r2 < 1 && fn.r2 > 0.8 && fn.p[1] < 0.001 && fn.t[1] > 10, "with noise R-squared falls below 1 and the real factor stays highly significant");
+let threw = false; try { ols(yy, [x1, x1.map((v) => v * 2)], ["A", "B"]); } catch { threw = true; }
+ok(threw, "collinear factors are rejected rather than giving nonsense betas");
+
+// portfolio of runs
+const ra = Array.from({ length: 40 }, (_, i) => (i % 2 ? -0.01 : 0.01)), rb2 = Array.from({ length: 40 }, (_, i) => (Math.floor(i / 2) % 2 ? -0.01 : 0.01));
+ok(near(pearson(ra, ra), 1, 1e-12) && near(pearson(ra, rb2), 0, 1e-12) && near(pearson(ra, ra.map((x) => -x)), -1, 1e-12) && pearson(ra, Array(40).fill(0)) === null, "correlation: 1, 0, -1, and undefined for a run with no variance");
+const w2 = [0.5, 0.5];
+ok(near(diversificationRatio([ra, ra], w2), 1, 1e-9), "two identical runs give a diversification ratio of 1 (no benefit)");
+ok(near(diversificationRatio([ra, rb2], w2), Math.SQRT2, 1e-9), "two uncorrelated equal-volatility runs give the square root of 2", String(diversificationRatio([ra, rb2], w2)));
+ok(near(diversificationRatio([ra, ra.map((x) => -x)], w2) ?? Infinity, Infinity, 0) || diversificationRatio([ra, ra.map((x) => -x)], w2) === null, "perfectly offsetting runs have no portfolio variance (ratio undefined)");
+const rc = riskContributions([ra, rb2.map((x) => x * 3)], [0.5, 0.5]);
+ok(near(rc.pct[0] + rc.pct[1], 100, 1e-9) && rc.pct[1] > rc.pct[0] && near(rc.pct[1] / rc.pct[0], 9, 1e-9), "risk contributions sum to 100 and a 3x more volatile run carries 9x the share when uncorrelated", JSON.stringify(rc.pct));
+const wv = weightsFor("inverse_vol", [ra, ra.map((x) => x * 2)]);
+ok(near(wv[0], 2 / 3, 1e-9) && near(wv[1], 1 / 3, 1e-9), "inverse-volatility weights are 2/3 and 1/3 for volatilities 1 and 2");
+ok(weightsFor("equal", [ra, ra, ra]).every((x) => near(x, 1 / 3, 1e-12)) && near(weightsFor("custom", [ra, ra], [3, 1])[0], 0.75, 1e-12) && weightsFor("custom", [ra, ra], [0, 0]).every((x) => x === 0.5) && weightsFor("custom", [ra, ra], [-5, 5])[0] === 0, "equal, custom (normalised, negatives clamped) and all-zero weights");
+ok(near(portfolioReturns([[0.1, 0.2], [0.3, -0.2]], [0.5, 0.5])[0], 0.2, 1e-12) && near(portfolioReturns([[0.1, 0.2], [0.3, -0.2]], [0.5, 0.5])[1], 0, 1e-12), "portfolio return is the weighted sum each day");
+ok(near(equityFrom([0.1, -0.1], 100).at(-1), 99, 1e-9) && near(maxDrawdown([100, 120, 90, 110]), 25, 1e-9), "equity compounding and max drawdown");
+const mkS = (dates, vals) => dates.map((d, i) => ({ date: d, value: vals[i], bench: 100, dd: 0 }));
+const al = alignRunReturns([mkS(["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"], [100, 110, 121, 133.1, 146.41]), mkS(["2024-01-02", "2024-01-03", "2024-01-05"], [50, 55, 60.5])]);
+ok(al && al.dates.length === 2 && al.window.start === "2024-01-02" && al.window.end === "2024-01-05" && near(al.returns[0][1], 1.1 * 1.1 - 1, 1e-9) && near(al.returns[1][1], 0.1, 1e-9), "runs are aligned on shared dates and gap days compound", JSON.stringify(al && al.returns));
+ok(alignRunReturns([mkS(["2024-01-01", "2024-01-02", "2024-01-03"], [1, 2, 3]), mkS(["2025-01-01", "2025-01-02", "2025-01-03"], [1, 2, 3])]) === null, "runs with no dates in common cannot be combined");
+
+// comparison, duplicates, export
+const fakeRun = (name, tk, tr, extra = {}) => ({ id: name, strategy_id: "s", strategy_name: name, ticker: tk, benchmark: "SPY", start_date: "2024-01-01", end_date: "2024-04-01", status: "COMPLETED", equity_curve: Array.from({ length: 90 }, (_, i) => ({ date: new Date(Date.UTC(2024, 0, 1 + i)).toISOString().slice(0, 10), portfolio_value: 100000 * (1 + tr) ** (i / 89), cash: 0, drawdown: 0, benchmark_value: 100000 * 1.0003 ** i, returns: 0, benchmark_returns: 0 })), trades: [], monthly_returns: [], logs: [], metrics: { total_return: tr * 100, sharpe_ratio: 1, num_trades: 0 }, ...extra });
+const A = fakeRun("A", "AAPL", 0.10), B = fakeRun("B", "MSFT", 0.05, { engine_version: "3" }), A2 = fakeRun("A", "AAPL", 0.10);
+const flt = { start: null, end: null, frequency: "Daily", currency: "USD" };
+const cmp = compareRuns([A, B, A2], flt, ["A", "B", "A #2"]);
+ok(duplicateGroups([A, B, A2]).length === 1 && cmp.warnings.some((w) => /A and A #2 are the same run/.test(w)), "identical runs are flagged as duplicates");
+ok(cmp.warnings.some((w) => /different securities/.test(w)) && cmp.warnings.some((w) => /different engine revisions/.test(w)) && cmp.warnings.some((w) => /Fewer than 30 trades/.test(w)), "mixed securities, engine revisions and small samples are called out");
+const tot = cmp.rows.find((r) => r.key === "total_return");
+ok(near(tot.values[0], 10, 1e-6) && near(tot.values[1], 5, 1e-6) && tot.better === "high", "total return per run over the shared window", JSON.stringify(tot.values));
+const csv = comparisonCsv({ rows: [{ group: "G", key: "k", label: 'Return, "net"', values: [1.5, null], fmt: String, better: null }], setup: [{ label: "Security", values: ["A,B", "C"] }], warnings: ["careful"] }, ["Run 1", 'Run "2"']);
+ok(csv.split("\n")[0] === 'Group,Metric,Run 1,"Run ""2"""' && csv.includes('Setup,Security,"A,B",C') && csv.includes('G,"Return, ""net""",1.5,') && csv.includes("Note,careful"), "CSV has raw numbers, blank for missing, and quotes commas and quotes properly", csv);
+const rep = selectionReport([A, B], ["<b>A</b>", "B"], compareRuns([A, B], flt, ["<b>A</b>", "B"]), portfolioSummary(alignRunReturns([A, B].map((r) => r.equity_curve.map((p) => ({ date: p.date, value: p.portfolio_value, bench: 1, dd: 0 })))), [0.5, 0.5], "equal", 1.1));
+ok(rep.startsWith("<!doctype html>") && rep.includes("&lt;b&gt;A&lt;/b&gt;") && !/<(script|img)\b/i.test(rep) && !/<[^>]*\s(src|href)=|https?:\/\//i.test(rep) && rep.includes("Combined portfolio") && rep.includes("<svg"), "selection report is self-contained, escapes names, includes the chart and the portfolio");
 
 console.log(failed ? `\n${failed} failed` : "\nall passed");
 process.exit(failed ? 1 : 0);

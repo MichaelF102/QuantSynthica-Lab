@@ -111,7 +111,7 @@ export default function MonteCarloView({ bt }: { bt: BacktestResult }) {
       {daily && (
         <Card title="Equity paths" subtitle={`${fmtInt(iterations)} resamples of ${fmtInt(daily.days)} days, start = 100`} info="Shaded bands show where 50% (dark) and 90% (light) of the resampled equity paths fall on each day. The line is this run's actual path." icon={Dices} tone="blue" action={controls}>
           <div className="h-72" aria-label="Fan chart"><ResponsiveContainer width="100%" height="100%"><ComposedChart data={daily.fan.map((f, i) => ({ ...f, band90: [f.p5, f.p95], band50: [f.p25, f.p75], actual: curve[Math.min(curve.length - 1, f.step)] ? (curve[Math.min(curve.length - 1, f.step)].portfolio_value / capital) * 100 : null, i }))} margin={{ top: 8, right: 8, left: -6, bottom: 0 }}>
-            <CartesianGrid {...GRID_PROPS} /><XAxis dataKey="step" {...AXIS_PROPS} tickFormatter={(v) => `d${v}`} /><YAxis {...AXIS_PROPS} domain={["auto", "auto"]} tickFormatter={(v) => String(Math.round(Number(v)))} />
+            <CartesianGrid {...GRID_PROPS} /><XAxis dataKey="step" {...AXIS_PROPS} minTickGap={48} tickFormatter={(v) => `d${v}`} /><YAxis {...AXIS_PROPS} domain={["auto", "auto"]} tickFormatter={(v) => String(Math.round(Number(v)))} />
             <ReferenceLine y={100} stroke="#475569" strokeDasharray="3 3" />
             <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any) => (Array.isArray(v) ? `${v[0].toFixed(1)} to ${v[1].toFixed(1)}` : Number(v).toFixed(1))} />
             <Area dataKey="band90" name="90% of paths" stroke="none" fill="#2563EB" fillOpacity={0.14} isAnimationActive={false} />
@@ -132,7 +132,7 @@ export default function MonteCarloView({ bt }: { bt: BacktestResult }) {
         </Card>
         {ddHist && (
           <Card title="Max drawdown distribution" subtitle="Deepest peak-to-trough fall on each path" info="How deep the worst fall was on each resampled path. If the realised drawdown sits at the mild end, the run may have been lucky about ordering." icon={TrendingDown} tone="rose">
-            <div className="h-64"><ResponsiveContainer width="100%" height="100%"><BarChart data={ddHist.map((h) => ({ ...h, label: `${h.from.toFixed(0)}%` }))} margin={{ top: 8, right: 8, left: -6, bottom: 0 }}>
+            <div className="h-64"><ResponsiveContainer width="100%" height="100%"><BarChart data={ddHist.map((h) => ({ ...h, label: `${h.from.toFixed(h.to - h.from < 5 ? 1 : 0)}%` }))} margin={{ top: 8, right: 8, left: -6, bottom: 0 }}>
               <CartesianGrid {...GRID_PROPS} /><XAxis dataKey="label" {...AXIS_PROPS} interval={1} /><YAxis {...AXIS_PROPS} />
               <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any, _n: any, p: any) => [`${fmtInt(Number(v))} (${((Number(v) / iterations) * 100).toFixed(1)}%)`, `${p.payload.from.toFixed(1)}% to ${p.payload.to.toFixed(1)}%`]} />
               <Bar dataKey="count" fill={DOWN_COLOR} radius={[3, 3, 0, 0]} isAnimationActive={false} />

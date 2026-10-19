@@ -17,7 +17,12 @@ import AnalyticsTradesTab from "@/components/analytics/AnalyticsTradesTab";
 import AnalyticsFactorsTab from "@/components/analytics/AnalyticsFactorsTab";
 import AnalyticsRobustnessTab from "@/components/analytics/AnalyticsRobustnessTab";
 import AnalyticsAttributionTab from "@/components/analytics/AnalyticsAttributionTab";
-import { AnalyticsFilters, CurrencyCode, Frequency, currencyOf } from "@/lib/analyticsCalc";
+import AnalyticsCompareTab from "@/components/analytics/AnalyticsCompareTab";
+import AnalyticsPortfolioTab from "@/components/analytics/AnalyticsPortfolioTab";
+import { AnalyticsFilters, CurrencyCode, Frequency, btPoints, currencyOf, runName } from "@/lib/analyticsCalc";
+import { compareRuns } from "@/lib/compareRuns";
+import { alignRunReturns, diversificationRatio, weightsFor } from "@/lib/portfolioOfRuns";
+import { comparisonCsv, portfolioSummary, selectionReport } from "@/lib/analyticsExport";
 
 interface Draft { start: string | null; end: string | null; frequency: Frequency; currency: CurrencyCode }
 
@@ -37,35 +42,41 @@ function AnalyticsContent() {
     [router, pathname, searchParams]
   );
 
+  // The picker lists lightweight entries; a run's equity curve and trades are fetched only once it is selected.
   const [backtests, setBacktests] = useState<BacktestResult[]>([]);
+  const [full, setFull] = useState<Record<string, BacktestResult>>({});
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [usingSamples, setUsingSamples] = useState(false);
-  const [initialCapital, setInitialCapital] = useState(100000);
+  const [initialCapital, setInitialCapital] = useState(() => Number(searchParams.get("cap")) || 100000);
 
-  // `draft` is what the controls edit; `applied` is what the analytics are computed with.
-  const [draft, setDraft] = useState<Draft>({ start: null, end: null, frequency: "Daily", currency: "USD" });
+  // `draft` is what the controls edit; `applied` is what the analytics are computed with. Both start from the URL.
+  const fromUrl = (): Draft => ({ start: searchParams.get("from"), end: searchParams.get("to"), frequency: (["Daily", "Weekly", "Monthly"].includes(searchParams.get("freq") ?? "") ? searchParams.get("freq") : "Daily") as Frequency, currency: "USD" });
+  const [draft, setDraft] = useState<Draft>(fromUrl);
   const [applied, setApplied] = useState<Draft>(draft);
   const [isRunning, setIsRunning] = useState(false);
+  const pointsOf = (b: BacktestResult) => b.summary?.num_points ?? b.equity_curve?.length ?? 0;
 
   useEffect(() => {
     api
-      .getBacktests()
+      .getBacktestSummaries()
       .then((all) => {
-        const list = (all ?? []).filter((b) => b.status === "COMPLETED" && b.equity_curve?.length > 1);
+        const list = (all ?? []).filter((b) => b.status === "COMPLETED" && pointsOf(b) > 1);
         const real = list.filter((b) => !b.is_sample);
         // No real runs (or engine offline): fall back to labelled sample runs so the suite stays usable.
         const use = real.length ? real : list.filter((b) => b.is_sample);
         setUsingSamples(real.length === 0 && use.length > 0);
         setBacktests(use);
-        const first = use.slice(0, 3);
+        setFull(Object.fromEntries(use.filter((b) => !b.summary).map((b) => [b.id, b])));
+        const wanted = (searchParams.get("runs") ?? "").split(",").filter((id) => use.some((b) => b.id === id));
+        const first = wanted.length ? use.filter((b) => wanted.includes(b.id)) : use.slice(0, 3);
         setSelectedIds(first.map((b) => b.id));
         if (first[0]) {
           const cur = currencyOf(first[0]);
           setDraft((d) => ({ ...d, currency: cur }));
           setApplied((d) => ({ ...d, currency: cur }));
-          setInitialCapital(cur === "INR" ? 1000000 : 100000);
+          if (!searchParams.get("cap")) setInitialCapital(cur === "INR" ? 1000000 : 100000);
         }
       })
       .catch((err) => {
@@ -73,13 +84,45 @@ function AnalyticsContent() {
         setLoadError(true);
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Fetch the full run for anything selected that has only a summary so far.
+  const [fetching, setFetching] = useState(false);
+  useEffect(() => {
+    const missing = selectedIds.filter((id) => !full[id]);
+    if (!missing.length) { setFetching(false); return; }
+    let live = true;
+    setFetching(true);
+    Promise.all(missing.map((id) => api.getBacktest(id).then((b) => [id, b] as const).catch(() => null))).then((rows) => {
+      if (!live) return;
+      setFull((f) => ({ ...f, ...Object.fromEntries(rows.filter((r): r is readonly [string, BacktestResult] => !!r)) }));
+      setFetching(false);
+    });
+    return () => { live = false; };
+  }, [selectedIds, full]);
+
+  // The selection and the applied window live in the URL, so a view can be bookmarked or shared.
+  useEffect(() => {
+    if (loading || !selectedIds.length) return;
+    const params = new URLSearchParams(searchParams.toString());
+    const set = (k: string, v: string | null) => (v ? params.set(k, v) : params.delete(k));
+    set("runs", selectedIds.join(","));
+    set("from", applied.start); set("to", applied.end);
+    set("freq", applied.frequency === "Daily" ? null : applied.frequency);
+    set("cap", initialCapital === 100000 || initialCapital === 1000000 ? null : String(initialCapital));
+    if (params.toString() !== searchParams.toString()) router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [selectedIds, applied, initialCapital, loading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Pickers get every run (summaries for unselected ones); analytics get the loaded runs.
+  const listed = useMemo(() => backtests.map((b) => full[b.id] ?? b), [backtests, full]);
+  const selectedBacktests = useMemo(() => listed.filter((b) => selectedIds.includes(b.id) && !b.summary), [listed, selectedIds]);
+  const ready = selectedBacktests.length === selectedIds.length;
 
   // Full extent of the data, used as the default window shown in the date control.
   const extent = useMemo(() => {
-    const dates = backtests.filter((b) => selectedIds.includes(b.id)).flatMap((b) => [b.equity_curve[0]?.date, b.equity_curve[b.equity_curve.length - 1]?.date]).filter(Boolean).sort();
+    const dates = selectedBacktests.flatMap((b) => [b.equity_curve[0]?.date, b.equity_curve[b.equity_curve.length - 1]?.date]).filter(Boolean).sort();
     return { min: dates[0] ?? "", max: dates[dates.length - 1] ?? "" };
-  }, [backtests, selectedIds]);
+  }, [selectedBacktests]);
 
   const handleToggleStrategy = (id: string) =>
     setSelectedIds((prev) => (prev.includes(id) ? (prev.length > 1 ? prev.filter((x) => x !== id) : prev) : [...prev, id]));
@@ -90,8 +133,18 @@ function AnalyticsContent() {
     window.setTimeout(() => setIsRunning(false), 250);
   };
 
-  const selectedBacktests = useMemo(() => backtests.filter((b) => selectedIds.includes(b.id)), [backtests, selectedIds]);
   const filters: AnalyticsFilters = { ...applied, currency: selectedBacktests[0] ? currencyOf(selectedBacktests[0]) : applied.currency };
+
+  const exportSelection = (kind: "csv" | "html") => {
+    if (!selectedBacktests.length) return;
+    const names = selectedBacktests.map((b) => runName(b, selectedBacktests));
+    const cmp = compareRuns(selectedBacktests, filters, names);
+    const al = selectedBacktests.length > 1 ? alignRunReturns(selectedBacktests.map((b) => btPoints(b, { ...filters, frequency: "Daily" }))) : null;
+    const text = kind === "csv" ? comparisonCsv(cmp, names) : selectionReport(selectedBacktests, names, cmp, al ? portfolioSummary(al, weightsFor("equal", al.returns), "equal", diversificationRatio(al.returns, weightsFor("equal", al.returns))) : null);
+    const url = URL.createObjectURL(new Blob([text], { type: kind === "csv" ? "text/csv" : "text/html" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: `strategy_comparison.${kind}` });
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  };
 
   if (loading) {
     return (
@@ -130,6 +183,8 @@ function AnalyticsContent() {
         onCurrencyChange={() => {}}
         onRunAnalysis={handleRunAnalysis}
         isRunning={isRunning}
+        onExport={exportSelection}
+        canExport={ready && selectedBacktests.length > 0}
       />
 
       {usingSamples && (
@@ -145,24 +200,27 @@ function AnalyticsContent() {
       <AnalyticsSubNav activeTab={activeTab} onTabChange={setActiveTab} />
 
       <div className="pt-1">
-        {activeTab === "Overview" && (
+        {!ready && <div role="status" aria-busy="true" className="py-10 text-center text-xs text-slate-400" data-testid="loading-runs">Loading the selected runs…</div>}
+        {ready && activeTab === "Compare" && <AnalyticsCompareTab selectedBacktests={selectedBacktests} filters={filters} />}
+        {ready && activeTab === "Portfolio" && <AnalyticsPortfolioTab selectedBacktests={selectedBacktests} filters={filters} />}
+        {ready && activeTab === "Overview" && (
           <AnalyticsOverviewTab
-            allBacktests={backtests}
+            allBacktests={listed}
             selectedIds={selectedIds}
             onToggleStrategy={handleToggleStrategy}
-            onClearAll={() => backtests[0] && setSelectedIds([backtests[0].id])}
+            onClearAll={() => listed[0] && setSelectedIds([listed[0].id])}
             initialCapital={initialCapital}
             onInitialCapitalChange={setInitialCapital}
             filters={filters}
           />
         )}
-        {activeTab === "Performance" && <AnalyticsPerformanceTab selectedBacktests={selectedBacktests} filters={filters} />}
-        {activeTab === "Risk" && <AnalyticsRiskTab selectedBacktests={selectedBacktests} filters={filters} />}
-        {activeTab === "Trades" && <AnalyticsTradesTab selectedBacktests={selectedBacktests} filters={filters} />}
-        {activeTab === "Regimes" && <AnalyticsRegimesTab selectedBacktests={selectedBacktests} filters={filters} />}
-        {activeTab === "Factors" && <AnalyticsFactorsTab selectedBacktests={selectedBacktests} />}
-        {activeTab === "Robustness" && <AnalyticsRobustnessTab selectedBacktests={selectedBacktests} filters={filters} />}
-        {activeTab === "Attribution" && <AnalyticsAttributionTab selectedBacktests={selectedBacktests} filters={filters} />}
+        {ready && activeTab === "Performance" && <AnalyticsPerformanceTab selectedBacktests={selectedBacktests} filters={filters} />}
+        {ready && activeTab === "Risk" && <AnalyticsRiskTab selectedBacktests={selectedBacktests} filters={filters} />}
+        {ready && activeTab === "Trades" && <AnalyticsTradesTab selectedBacktests={selectedBacktests} filters={filters} />}
+        {ready && activeTab === "Regimes" && <AnalyticsRegimesTab selectedBacktests={selectedBacktests} filters={filters} />}
+        {ready && activeTab === "Factors" && <AnalyticsFactorsTab selectedBacktests={selectedBacktests} filters={filters} />}
+        {ready && activeTab === "Robustness" && <AnalyticsRobustnessTab selectedBacktests={selectedBacktests} filters={filters} />}
+        {ready && activeTab === "Attribution" && <AnalyticsAttributionTab selectedBacktests={selectedBacktests} filters={filters} />}
       </div>
     </main>
   );

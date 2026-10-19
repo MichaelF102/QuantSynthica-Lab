@@ -27,7 +27,7 @@ let b_close = () => {};
   ok(n0 >= 1, `strategy chips shown (${n0})`);
 
   // ---- sub-nav tabs ----
-  const tabs = ["Overview", "Performance", "Risk", "Trades", "Regimes", "Factors", "Robustness", "Attribution"];
+  const tabs = ["Overview", "Compare", "Portfolio", "Performance", "Risk", "Trades", "Regimes", "Factors", "Robustness", "Attribution"];
   for (const tb of tabs) {
     const e0 = b.errors.length;
     await tab(tb); await b.waitFor(`document.querySelector('nav[aria-label="Analytics sections"] [aria-current]')?.innerText.trim()===${JSON.stringify(tb)}`, 15000); await b.sleep(700);

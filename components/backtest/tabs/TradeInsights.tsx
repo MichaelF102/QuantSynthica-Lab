@@ -12,7 +12,7 @@ import { fmtPct, cn } from "@/lib/utils";
 const REASON: Record<string, string> = { SIGNAL: "Exit rule", STOP_LOSS: "Stop loss", TAKE_PROFIT: "Take profit", TRAILING_STOP: "Trailing stop", END_OF_DATA: "End of window" };
 
 /** Why trades ended, and how far they ran for or against the position. */
-export default function TradeInsights({ bt, onSelectTrade }: { bt: BacktestResult; onSelectTrade: (t: TradeRecord) => void }) {
+export default function TradeInsights({ bt, onSelectTrade }: { bt: BacktestResult; onSelectTrade?: (t: TradeRecord) => void }) {
   const cur = currencyOf(bt);
   const groups = useMemo(() => {
     const m = new Map<string, TradeRecord[]>();
@@ -25,7 +25,7 @@ export default function TradeInsights({ bt, onSelectTrade }: { bt: BacktestResul
   const maxN = Math.max(...groups.map((g) => g.n));
   const dot = (win: boolean) => function Dot(p: any) {
     const { cx, cy, payload } = p;
-    return cx == null ? <g /> : <circle cx={cx} cy={cy} r={4} fill={win ? UP_COLOR : DOWN_COLOR} fillOpacity={0.7} stroke="#0b1222" style={{ cursor: "pointer" }} onClick={() => onSelectTrade(payload.trade)} />;
+    return cx == null ? <g /> : <circle cx={cx} cy={cy} r={4} fill={win ? UP_COLOR : DOWN_COLOR} fillOpacity={0.7} stroke="#0b1222" style={{ cursor: "pointer" }} onClick={() => onSelectTrade?.(payload.trade)} />;
   };
   const WinDot = dot(true), LossDot = dot(false);
 

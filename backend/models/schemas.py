@@ -168,6 +168,24 @@ class RunNote(BaseModel):
     timestamp: str
     content: str
 
+class BacktestSummary(BaseModel):
+    """A run without its equity curve and trades, for lists and pickers."""
+    id: str
+    strategy_id: str
+    strategy_name: str
+    ticker: str
+    benchmark: str
+    start_date: str
+    end_date: str
+    status: BacktestStatus = BacktestStatus.COMPLETED
+    created_at: Optional[str] = None
+    is_synthetic: bool = False
+    engine_version: Optional[str] = None
+    data_fingerprint: Optional[str] = None
+    metrics: Optional[PerformanceMetrics] = None
+    num_trades: int = 0
+    num_points: int = 0
+
 class BacktestResult(BaseModel):
     id: str
     strategy_id: str

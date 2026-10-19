@@ -11,6 +11,7 @@ from ..models.schemas import (
     BacktestResult,
     BacktestStatus,
     RunNote,
+    BacktestSummary,
 )
 from ..engine.data import MarketDataEngine, MarketDataUnavailable
 from ..engine.backtester import BacktestEngine, ENGINE_VERSION
@@ -149,6 +150,19 @@ def run_backtest(request: BacktestRequest, background_tasks: BackgroundTasks, as
             # Used to check a run can be reproduced without adding another run to the registry.
             storage.delete_backtest(bt_id)
         return result
+
+@router.get("/summaries", response_model=List[BacktestSummary])
+def list_backtest_summaries():
+    """Runs without their curves and trades: a fraction of the size of the full list."""
+    return [
+        BacktestSummary(
+            id=b.id, strategy_id=b.strategy_id, strategy_name=b.strategy_name, ticker=b.ticker, benchmark=b.benchmark,
+            start_date=b.start_date, end_date=b.end_date, status=b.status, created_at=b.created_at, is_synthetic=b.is_synthetic,
+            engine_version=b.engine_version, data_fingerprint=b.data_fingerprint, metrics=b.metrics,
+            num_trades=len(b.trades), num_points=len(b.equity_curve),
+        )
+        for b in storage.list_backtests()
+    ]
 
 @router.get("", response_model=List[BacktestResult])
 def list_backtests():

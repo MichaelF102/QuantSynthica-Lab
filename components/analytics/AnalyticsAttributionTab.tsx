@@ -5,7 +5,8 @@ import { GitMerge, CalendarRange, Trophy } from "lucide-react";
 import { BacktestResult } from "@/types";
 import { Card, EmptyState, signTone } from "@/components/ui/Card";
 import { fmtPct, fmtInt, cn } from "@/lib/utils";
-import { AnalyticsFilters, btPoints, btTrades, currencyOf, fmtMoney, seriesStats, benchmarkLabel } from "@/lib/analyticsCalc";
+import { AnalyticsFilters, btPoints, btTrades, currencyOf, fmtMoney, seriesStats, benchmarkLabel, windowedBt } from "@/lib/analyticsCalc";
+import AttributionExtras from "@/components/backtest/tabs/AttributionExtras";
 import { usePrimaryBacktest } from "./StrategyPicker";
 
 interface Props { selectedBacktests: BacktestResult[]; filters: AnalyticsFilters }
@@ -43,6 +44,7 @@ export default function AnalyticsAttributionTab({ selectedBacktests, filters }: 
   return (
     <div className="space-y-4">
       {picker}
+      <AttributionExtras bt={windowedBt(bt, filters)} />
       <Card title="Return decomposition vs benchmark" subtitle="How much came from the market and how much from the strategy" info="Total return split into beta-scaled benchmark return and the residual. This is a single-factor attribution computed from the run's own equity and benchmark curves." icon={GitMerge} tone="blue">
         <div className="w-full overflow-x-auto">
           <table className="w-full border-collapse text-left text-xs">

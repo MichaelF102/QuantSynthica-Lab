@@ -10,11 +10,15 @@ import {
   Sliders,
   Sparkles,
   GitMerge,
+  Columns3,
+  PieChart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type AnalyticsTabKey =
   | "Overview"
+  | "Compare"
+  | "Portfolio"
   | "Performance"
   | "Risk"
   | "Trades"
@@ -30,6 +34,8 @@ interface AnalyticsSubNavProps {
 
 export const TABS: { key: AnalyticsTabKey; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { key: "Overview", label: "Overview", icon: LayoutDashboard },
+  { key: "Compare", label: "Compare", icon: Columns3 },
+  { key: "Portfolio", label: "Portfolio", icon: PieChart },
   { key: "Performance", label: "Performance", icon: TrendingUp },
   { key: "Risk", label: "Risk", icon: ShieldAlert },
   { key: "Trades", label: "Trades", icon: ArrowLeftRight },

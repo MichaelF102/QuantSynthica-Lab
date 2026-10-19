@@ -197,3 +197,16 @@ def test_notes_are_stored_with_the_run():
     assert client.get(f"/backtests/{run['id']}").json()["notes"][0]["content"] == "hypothesis: trend holds"
     assert client.put("/backtests/bt_missing/notes", json=notes).status_code == 404
     client.delete(f"/backtests/{run['id']}")
+
+
+def test_summaries_are_a_small_view_of_the_runs():
+    client, template, payload = _template_payload()
+    run = client.post("/backtests", json=payload).json()
+    full = client.get("/backtests")
+    small = client.get("/backtests/summaries")
+    assert small.status_code == 200
+    mine = next(s for s in small.json() if s["id"] == run["id"])
+    assert mine["num_points"] == len(run["equity_curve"]) and mine["num_trades"] == len(run["trades"]) and mine["metrics"]["total_return"] == run["metrics"]["total_return"]
+    assert "equity_curve" not in mine and "trades" not in mine
+    assert len(small.content) < len(full.content) / 3
+    client.delete(f"/backtests/{run['id']}")
